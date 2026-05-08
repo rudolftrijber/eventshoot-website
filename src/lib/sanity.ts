@@ -1,6 +1,6 @@
 import { createClient } from '@sanity/client'
 import imageUrlBuilder from '@sanity/image-url'
-import type { SanityImageSource } from '@sanity/image-url/lib/types/types'
+import type { TypedObject } from '@portabletext/types'
 
 export const client = createClient({
   projectId: import.meta.env.VITE_SANITY_PROJECT_ID,
@@ -11,7 +11,7 @@ export const client = createClient({
 
 const builder = imageUrlBuilder(client)
 
-export function urlFor(source: SanityImageSource) {
+export function urlFor(source: object) {
   return builder.image(source)
 }
 
@@ -21,9 +21,9 @@ export interface SanityPost {
   slug: { current: string }
   publishedAt: string
   excerpt: string
-  mainImage: SanityImageSource & { alt?: string }
+  mainImage: { asset: object; alt?: string } | null
   readTime: number
-  body: unknown[]
+  body: TypedObject[]
 }
 
 export const postsQuery = `*[_type == "blogPost"] | order(publishedAt desc) {
