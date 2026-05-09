@@ -14,7 +14,8 @@ onMounted(() => {
   })
 
   // Elfsight widget hertriggeren bij terugkeer op de pagina
-  if (window.Elfsight) window.Elfsight.initialize()
+  const w = window as Window & { Elfsight?: { initialize: () => void } }
+  if (w.Elfsight) w.Elfsight.initialize()
 })
 
 const { send } = useEmailJS()
