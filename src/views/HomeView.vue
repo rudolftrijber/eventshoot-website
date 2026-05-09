@@ -13,13 +13,8 @@ onMounted(() => {
     description: 'Professionele eventfotografie en eventvideo voor congressen, seminars en zakelijke bijeenkomsten. 40+ jaar ervaring. Geleverd binnen 48 uur.',
   })
 
-  // Elfsight dynamisch laden zodat de widget correct initialiseert na Vue render
-  const existing = document.querySelector('script[src*="elfsightcdn"]')
-  if (existing) existing.remove()
-  const script = document.createElement('script')
-  script.src = 'https://elfsightcdn.com/platform.js'
-  script.async = true
-  document.head.appendChild(script)
+  // Elfsight widget hertriggeren bij terugkeer op de pagina
+  if (window.Elfsight) window.Elfsight.initialize()
 })
 
 const { send } = useEmailJS()
@@ -160,7 +155,7 @@ const teaserImages = [
     <!-- Checklist banner -->
     <section class="checklist-banner">
       <div class="container checklist-banner__content">
-        <h2 class="checklist-banner__title">Download gratis onze Evenementen Content Checklist</h2>
+        <h2 class="checklist-banner__title">Download gratis onze Event Content Checklist</h2>
         <p class="checklist-banner__sub">Zorg dat je foto- en videograaf precies weet wat je nodig hebt. Niets missen, altijd bruikbare beelden. Gratis te downloaden.</p>
         <template v-if="!checklistSubmitted">
           <form class="checklist-form" @submit.prevent="submitChecklistEmail" novalidate>
@@ -505,8 +500,13 @@ const teaserImages = [
   gap: 0.75rem;
   flex-wrap: wrap;
   justify-content: center;
+  align-items: stretch;
   width: 100%;
   max-width: 520px;
+}
+
+.checklist-form .checklist-banner__btn {
+  margin-top: 0;
 }
 
 .checklist-form__input {
