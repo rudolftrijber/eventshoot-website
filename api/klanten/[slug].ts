@@ -42,8 +42,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       photos,
     })
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : String(err)
-    console.error('Error:', message)
-    return res.status(500).json({ error: message })
+    const message = err instanceof Error
+      ? err.message
+      : typeof err === 'object' && err !== null && 'message' in err
+        ? String((err as { message: unknown }).message)
+        : JSON.stringify(err)
+    console.error('Cloudinary error:', message)
+    return res.status(500).json({
+      error: message,
+      cloud_name: process.env.CLOUDINARY_CLOUD_NAME ?? 'MISSING',
+      api_key_set: !!process.env.CLOUDINARY_API_KEY,
+      api_secret_set: !!process.env.CLOUDINARY_API_SECRET,
+    })
   }
 }
