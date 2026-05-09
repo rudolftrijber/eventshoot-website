@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import emailjs from '@emailjs/browser'
 import SectionHeading from '@/components/SectionHeading.vue'
 import { useSeo } from '@/composables/useSeo'
+import { useEmailJS } from '@/composables/useEmailJS'
 
 onMounted(() => {
   useSeo({
@@ -19,22 +19,18 @@ const form = ref({
   bericht: '',
 })
 
+const { send } = useEmailJS()
 const state = ref<'idle' | 'sending' | 'success' | 'error'>('idle')
 
 async function submit() {
   state.value = 'sending'
   try {
-    await emailjs.send(
-      import.meta.env.VITE_EMAILJS_SERVICE_ID,
-      import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
-      {
-        from_name: form.value.naam,
-        from_email: form.value.email,
-        phone: form.value.telefoon,
-        message: form.value.bericht,
-      },
-      import.meta.env.VITE_EMAILJS_PUBLIC_KEY,
-    )
+    await send(import.meta.env.VITE_EMAILJS_TEMPLATE_ID, {
+      from_name: form.value.naam,
+      from_email: form.value.email,
+      phone: form.value.telefoon,
+      message: form.value.bericht,
+    })
     state.value = 'success'
     form.value = { naam: '', email: '', telefoon: '', bericht: '' }
   } catch {

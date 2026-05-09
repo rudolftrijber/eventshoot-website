@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import UspGrid from '@/components/UspGrid.vue'
 import PricingCard from '@/components/PricingCard.vue'
 import SectionHeading from '@/components/SectionHeading.vue'
 import { useSeo } from '@/composables/useSeo'
+import { useEmailJS } from '@/composables/useEmailJS'
 
 onMounted(() => {
   useSeo({
@@ -20,6 +21,39 @@ onMounted(() => {
   script.async = true
   document.head.appendChild(script)
 })
+
+const { send } = useEmailJS()
+
+const checklistEmail = ref('')
+const checklistSubmitting = ref(false)
+const checklistSubmitted = ref(false)
+const checklistError = ref(false)
+
+async function submitChecklistEmail() {
+  checklistSubmitting.value = true
+  checklistError.value = false
+  try {
+    await send(import.meta.env.VITE_EMAILJS_CHECKLIST_TEMPLATE_ID, {
+      from_email: checklistEmail.value,
+      message: 'Heeft de Evenementen Content Checklist gedownload via eventshoot.nl',
+    })
+    checklistSubmitted.value = true
+    triggerDownload()
+  } catch {
+    checklistError.value = true
+  } finally {
+    checklistSubmitting.value = false
+  }
+}
+
+function triggerDownload() {
+  const link = document.createElement('a')
+  link.href = '/images/Checklist_Eventfotografie_aftermovie_interviews.pdf'
+  link.download = 'Evenementen_Content_Checklist_Eventshoot.pdf'
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+}
 
 const logos = [
   { file: 'gbl.png', name: 'GBL Alliance' },
@@ -128,13 +162,28 @@ const teaserImages = [
       <div class="container checklist-banner__content">
         <h2 class="checklist-banner__title">Download de gratis Evenementen Content Checklist</h2>
         <p class="checklist-banner__sub">Zorg dat je fotograaf precies weet wat je nodig hebt. Niets missen, altijd bruikbare beelden. Gratis te downloaden.</p>
-        <a
-          href="/images/Checklist_Eventfotografie_aftermovie_interviews.pdf"
-          download
-          class="checklist-banner__btn"
-        >
-          Gratis downloaden
-        </a>
+        <template v-if="!checklistSubmitted">
+          <form class="checklist-form" @submit.prevent="submitChecklistEmail" novalidate>
+            <input
+              v-model="checklistEmail"
+              type="email"
+              placeholder="jouw@emailadres.nl"
+              required
+              autocomplete="email"
+              class="checklist-form__input"
+            />
+            <button type="submit" class="checklist-banner__btn" :disabled="checklistSubmitting">
+              {{ checklistSubmitting ? 'Moment…' : 'Gratis downloaden' }}
+            </button>
+          </form>
+          <p v-if="checklistError" class="checklist-form__error">Er ging iets mis. Probeer het opnieuw.</p>
+          <p class="checklist-form__privacy">Geen spam. Alleen Rolf. Je kunt je op elk moment afmelden.</p>
+        </template>
+        <template v-else>
+          <p class="checklist-banner__success">
+            ✓ Download begint zo. Je ontvangt geen spam — beloofd.
+          </p>
+        </template>
       </div>
     </section>
 
@@ -451,6 +500,57 @@ const teaserImages = [
   max-width: 560px;
 }
 
+.checklist-form {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+  max-width: 520px;
+}
+
+.checklist-form__input {
+  flex: 1;
+  min-width: 220px;
+  padding: 0.75rem 1.25rem;
+  border-radius: 10px;
+  border: none;
+  font-size: 0.95rem;
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  outline: none;
+  transition: background var(--transition);
+}
+
+.checklist-form__input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.checklist-form__input:focus {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.checklist-form__privacy {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.55);
+  margin-top: -0.25rem;
+}
+
+.checklist-form__error {
+  font-size: 0.85rem;
+  color: #ffcdd2;
+  margin-top: -0.5rem;
+}
+
+.checklist-banner__success {
+  font-size: 1.05rem;
+  color: #fff;
+  font-weight: 600;
+  padding: 1rem 1.5rem;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+}
+
 .checklist-banner__btn {
   display: inline-flex;
   align-items: center;
@@ -465,9 +565,14 @@ const teaserImages = [
   margin-top: 0.5rem;
 }
 
-.checklist-banner__btn:hover {
+.checklist-banner__btn:hover:not(:disabled) {
   background: var(--color-accent-hover);
   transform: translateY(-1px);
+}
+
+.checklist-banner__btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
 }
 
 @media (max-width: 640px) {
