@@ -4,7 +4,7 @@
       <div class="footer__brand">
         <img src="/logo.svg" alt="Eventshoot.nl" class="footer__logo" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" />
         <span class="footer__logo-text" style="display:none">Eventshoot.nl</span>
-        <p class="footer__tagline">Professionele eventfotografie<br>door heel Nederland.</p>
+        <p class="footer__tagline">Jouw event is een goudmijn aan content. Eventfotografie, aftermovies &amp; interviews, door heel Nederland</p>
       </div>
 
       <nav class="footer__nav">
@@ -26,7 +26,7 @@
 .footer {
   border-top: 1px solid rgba(255,255,255,0.1);
   background: rgba(0, 0, 0, 0.15);
-  padding-top: 3rem;
+  padding: 4rem 3rem 0;
 }
 
 .footer__inner {
@@ -35,7 +35,13 @@
   align-items: flex-start;
   gap: 3rem;
   flex-wrap: wrap;
-  padding-bottom: 3rem;
+  padding-bottom: 4rem;
+}
+
+.footer__brand {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .footer__logo {
@@ -56,6 +62,7 @@
   font-size: 0.875rem;
   color: var(--color-text-muted);
   line-height: 1.6;
+  margin-left: 0.75rem;
 }
 
 .footer__nav {
@@ -66,12 +73,12 @@
 
 .footer__nav a {
   font-size: 0.875rem;
-  color: var(--color-text-muted);
+  color: #ffffff;
   transition: color var(--transition);
 }
 
 .footer__nav a:hover {
-  color: var(--color-text);
+  color: var(--color-accent);
 }
 
 .footer__bottom {
@@ -84,7 +91,7 @@
 
 .footer__bottom p {
   font-size: 0.875rem;
-  font-weight: 600;
+  font-weight: 300;
   color: #ffffff;
   letter-spacing: 0.02em;
 }

@@ -76,7 +76,7 @@ const navLinks = [
 
 .topbar__phone {
   font-size: 0.875rem;
-  font-weight: 600;
+  font-weight: 300;
   color: #ffffff;
   letter-spacing: 0.02em;
   transition: color var(--transition), text-shadow var(--transition);
@@ -112,7 +112,7 @@ const navLinks = [
 }
 
 .navbar__logo-img {
-  height: 64px;
+  height: 44px;
   width: auto;
 }
 
