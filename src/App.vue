@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import NavBar from '@/components/NavBar.vue'
+import RolfContact from '@/components/RolfContact.vue'
 import FooterSection from '@/components/FooterSection.vue'
 import { RouterView } from 'vue-router'
 </script>
@@ -18,6 +19,7 @@ import { RouterView } from 'vue-router'
 
   <NavBar />
   <RouterView />
+  <RolfContact />
   <FooterSection />
 </template>
 
