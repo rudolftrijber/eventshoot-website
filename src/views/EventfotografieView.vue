@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
-import UspGrid from '@/components/UspGrid.vue'
 import SectionHeading from '@/components/SectionHeading.vue'
 import { useSeo } from '@/composables/useSeo'
 
@@ -33,12 +32,34 @@ function injectServiceSchema() {
 }
 
 const steps = [
-  { n: 1, title: 'Korte briefing vooraf', text: 'We stemmen af wat voor jou belangrijk is: de sleutelmomente, de gewenste sfeer en eventuele aandachtspunten.' },
+  { n: 1, title: 'Korte briefing vooraf', text: 'We stemmen af wat voor jou belangrijk is: de sleutelmomenten, de gewenste sfeer en eventuele aandachtspunten.' },
   { n: 2, title: 'Aanwezigheid op het event', text: 'Rolf weet wanneer hij wel en niet in beeld moet zijn. Discreet, maar altijd op het juiste moment.' },
   { n: 3, title: 'Selectie en nabewerking', text: 'Alleen de beste beelden, professioneel nabewerkt op kleur en belichting.' },
   { n: 4, title: 'Online levering binnen 48 uur', text: 'Klaar voor gebruik terwijl het event nog top of mind is. Je ontvangt een downloadlink.' },
-  { n: 5, title: 'Optioneel: cornerlogo', text: 'Op alle foto\'s voor extra merkzichtbaarheid op social media posts.' },
+  { n: 5, title: 'Blijf zichtbaar na het event', text: 'Gebruik de beelden periodiek op LinkedIn, in nieuwsbrieven en op je website. Eén event, weken aan content.' },
 ]
+
+const carouselPhotos = [
+  '/eventshoot-50.jpg', '/eventshoot-54.jpg', '/eventshoot-57.jpg',
+  '/eventshoot-59.jpg', '/eventshoot-70.jpg', '/eventshoot-75.jpg',
+  '/eventshoot-78.jpg', '/eventshoot-81.jpg', '/eventshoot-84.jpg',
+  '/eventshoot-88.jpg', '/eventshoot-92.jpg', '/eventshoot-96.jpg',
+  '/eventshoot-101.jpg', '/eventshoot-104.jpg',
+]
+
+const carouselIndex = ref(0)
+
+function prevSlide() {
+  carouselIndex.value = (carouselIndex.value - 1 + carouselPhotos.length) % carouselPhotos.length
+}
+
+function nextSlide() {
+  carouselIndex.value = (carouselIndex.value + 1) % carouselPhotos.length
+}
+
+onMounted(() => {
+  setInterval(nextSlide, 3500)
+})
 
 const eventTypes = [
   'Congressen en seminars',
@@ -55,7 +76,7 @@ const eventTypes = [
     <section class="ef-hero">
       <div class="ef-hero__bg">
         <img
-          src="https://eventshoot.nl/wp-content/uploads/2026/03/eventshoot-70-1-scaled.jpg"
+          src="/eventshoot-77.jpg"
           alt="Eventfotograaf bij zakelijk congres"
         />
         <div class="ef-hero__overlay"></div>
@@ -74,26 +95,26 @@ const eventTypes = [
           <h2 class="overview__title">Van congres tot netwerkborrel,<br>alles in beeld.</h2>
           <p class="overview__desc">Of het nu gaat om een congresfotograaf inhuren voor 500 aanwezigen of een besloten seminar voor 30 mensen: Rolf past zich aan aan de situatie. Geen opvallende flitsopstelling, geen ongemakkelijke poses. Gewoon echte momenten, vastgelegd met oog voor detail.</p>
           <ul class="overview__list">
-            <li v-for="type in eventTypes" :key="type">{{ type }}</li>
+            <li v-for="type in eventTypes" :key="type">
+              <span class="overview__check">✓</span>{{ type }}
+            </li>
           </ul>
         </div>
         <div class="overview__image">
-          <img src="/images/Eventshoot_GOLDEN_HOUR.jpg" alt="Eventfotografie in actie" />
+          <img src="/eventshoot-88.jpg" alt="Eventfotografie in actie" />
         </div>
       </div>
     </section>
 
     <!-- Werkproces -->
-    <section class="process section section--dark">
+    <section class="process section section--blue">
       <div class="container">
         <SectionHeading title="Hoe het werkt, van boeking tot levering." subtitle="Vijf stappen, geen gedoe." />
-        <div class="process__steps">
-          <div v-for="step in steps" :key="step.n" class="process__step">
+        <div class="process__grid">
+          <div v-for="step in steps" :key="step.n" class="process__card">
             <div class="process__num">{{ step.n }}</div>
-            <div>
-              <h3 class="process__title">{{ step.title }}</h3>
-              <p class="process__text">{{ step.text }}</p>
-            </div>
+            <h3 class="process__title">{{ step.title }}</h3>
+            <p class="process__text">{{ step.text }}</p>
           </div>
         </div>
       </div>
@@ -103,18 +124,40 @@ const eventTypes = [
     <section class="video-upsell section">
       <div class="container video-upsell__inner">
         <div class="video-upsell__image">
-          <img src="/images/Eventshoot_SPOTLIGHT.jpg" alt="Eventvideo en aftermovie" />
+          <img src="/rolf_interview.png" alt="Rolf Trijber bij een interview shoot" />
         </div>
         <div class="video-upsell__text">
           <h2 class="video-upsell__title">Liever ook video?<br>Geen tweede leverancier nodig.</h2>
           <p class="video-upsell__desc">Bij het Gouden uur en Spotlight pakket verzorgt Eventshoot.nl ook een social aftermovie, perfect voor LinkedIn. Wil je meer? Het Spotlight pakket bevat bovendien een corporate aftermovie én interviews met sprekers of deelnemers voor op je website. Zo heb je met één event foto én video in handen.</p>
           <RouterLink to="/tarieven" class="btn btn--primary">Bekijk onze pakketten</RouterLink>
+          <RouterLink to="/eventvideo" class="btn btn--primary">Bekijk de video mogelijkheden</RouterLink>
         </div>
       </div>
     </section>
 
-    <!-- USP grid -->
-    <UspGrid />
+    <!-- Foto carousel -->
+    <section class="carousel section section--blue">
+      <div class="container">
+        <SectionHeading title="Zo ziet ons werk eruit" subtitle="Een selectie uit onze portfolio." />
+        <div class="carousel__track-wrap">
+          <button class="carousel__btn carousel__btn--prev" @click="prevSlide" aria-label="Vorige">&#8249;</button>
+          <div class="carousel__track">
+            <div
+              v-for="(photo, i) in carouselPhotos"
+              :key="photo"
+              class="carousel__slide"
+              :class="{ 'carousel__slide--active': i === carouselIndex, 'carousel__slide--prev': i === (carouselIndex - 1 + carouselPhotos.length) % carouselPhotos.length, 'carousel__slide--next': i === (carouselIndex + 1) % carouselPhotos.length }"
+            >
+              <img :src="photo" :alt="`Eventfotografie ${i + 1}`" />
+            </div>
+          </div>
+          <button class="carousel__btn carousel__btn--next" @click="nextSlide" aria-label="Volgende">&#8250;</button>
+        </div>
+        <div class="carousel__cta">
+          <RouterLink to="/portfolio" class="btn btn--primary">Bekijk de volledige portfolio</RouterLink>
+        </div>
+      </div>
+    </section>
 
     <!-- Reviews -->
     <section class="reviews">
@@ -208,18 +251,15 @@ const eventTypes = [
 .overview__list li {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.6rem;
   font-size: 0.95rem;
-  color: var(--color-text-muted);
+  color: rgba(255, 255, 255, 0.85);
 }
 
-.overview__list li::before {
-  content: '';
+.overview__check {
+  color: var(--color-accent);
+  font-weight: 700;
   flex-shrink: 0;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--color-accent);
 }
 
 .overview__image img {
@@ -230,24 +270,30 @@ const eventTypes = [
 }
 
 /* Werkproces */
-.process__steps {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-  max-width: 700px;
+.process__grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1.25rem;
   margin-top: 2rem;
 }
 
-.process__step {
+.process__card {
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 12px;
+  padding: 1.75rem 1.5rem;
   display: flex;
-  gap: 1.5rem;
-  align-items: flex-start;
+  flex-direction: column;
+  gap: 0.75rem;
+  transition: background var(--transition);
+}
+
+.process__card:hover {
+  background: rgba(0, 0, 0, 0.50);
 }
 
 .process__num {
-  flex-shrink: 0;
-  width: 44px;
-  height: 44px;
+  width: 36px;
+  height: 36px;
   background: var(--color-accent);
   color: #0f0f0f;
   border-radius: 50%;
@@ -255,19 +301,20 @@ const eventTypes = [
   align-items: center;
   justify-content: center;
   font-weight: 800;
-  font-size: 1rem;
+  font-size: 0.95rem;
+  flex-shrink: 0;
 }
 
 .process__title {
   font-size: 1rem;
   font-weight: 700;
-  margin-bottom: 0.25rem;
+  color: #fff;
 }
 
 .process__text {
-  font-size: 0.9rem;
-  color: var(--color-text-muted);
-  line-height: 1.6;
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.7;
 }
 
 /* Video upsell */
@@ -285,6 +332,12 @@ const eventTypes = [
   aspect-ratio: 4/3;
 }
 
+.video-upsell__text .btn {
+  display: inline-flex;
+  margin-right: 0.75rem;
+  margin-top: 0.5rem;
+}
+
 .video-upsell__title {
   font-size: clamp(1.4rem, 2.5vw, 2rem);
   font-weight: 800;
@@ -297,6 +350,77 @@ const eventTypes = [
   color: var(--color-text-muted);
   line-height: 1.75;
   margin-bottom: 1.75rem;
+}
+
+/* Carousel */
+.carousel__track-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.carousel__track {
+  flex: 1;
+  position: relative;
+  height: 480px;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.carousel__slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transform: scale(0.96);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+  pointer-events: none;
+}
+
+.carousel__slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.carousel__slide--active {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+  z-index: 2;
+}
+
+.carousel__slide--prev,
+.carousel__slide--next {
+  opacity: 0;
+  z-index: 1;
+}
+
+.carousel__btn {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+  font-size: 1.75rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.carousel__btn:hover {
+  background: var(--color-accent);
+}
+
+.carousel__cta {
+  text-align: center;
+  margin-top: 2rem;
 }
 
 /* Reviews */
@@ -366,6 +490,12 @@ const eventTypes = [
 }
 
 /* Responsive */
+@media (max-width: 900px) {
+  .process__grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
 @media (max-width: 768px) {
   .overview__inner,
   .video-upsell__inner {
@@ -375,6 +505,10 @@ const eventTypes = [
 
   .video-upsell__image {
     order: -1;
+  }
+
+  .process__grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 </style>

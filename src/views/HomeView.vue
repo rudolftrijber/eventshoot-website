@@ -13,17 +13,6 @@ onMounted(() => {
     description: 'Professionele eventfotografie en eventvideo voor congressen, seminars en zakelijke bijeenkomsten. 40+ jaar ervaring. Geleverd binnen 48 uur.',
   })
 
-  // Elfsight: herlaad script en forceer initialisatie na laden
-  const existing = document.querySelector('script[src*="elfsightcdn"]')
-  if (existing) existing.remove()
-  const script = document.createElement('script')
-  script.src = 'https://elfsightcdn.com/platform.js'
-  script.async = true
-  script.onload = () => {
-    const w = window as Window & { Elfsight?: { initialize: () => void } }
-    if (w.Elfsight) w.Elfsight.initialize()
-  }
-  document.head.appendChild(script)
 })
 
 const { send } = useEmailJS()
@@ -128,15 +117,6 @@ const teaserImages = [
 
     <!-- USPs -->
     <UspGrid />
-
-    <!-- Video CTA -->
-    <section class="video-cta">
-      <div class="container video-cta__inner">
-        <h2 class="video-cta__title">Ook video nodig op je evenement?</h2>
-        <p class="video-cta__sub">Van een snelle social aftermovie tot een volledige corporate productie,<br>bekijk wat mogelijk is.</p>
-        <RouterLink to="/eventvideo" class="btn btn--primary">Bekijk eventvideo</RouterLink>
-      </div>
-    </section>
 
     <!-- Featured package -->
     <section class="featured section section--dark">

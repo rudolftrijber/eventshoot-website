@@ -15,6 +15,9 @@ dist-ssr/
 .env.*
 !.env.example
 
+# Grote video's buiten images/ map (te groot voor GitHub)
+public/*.mp4
+
 # Editor
 .DS_Store
 .claude/settings.local.json
