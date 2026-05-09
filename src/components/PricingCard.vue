@@ -1,109 +1,140 @@
 <script setup lang="ts">
-import { RouterLink } from 'vue-router'
-
 defineProps<{
   name: string
   price: string
   description: string
   features: string[]
+  image: string
   highlighted?: boolean
 }>()
 </script>
 
 <template>
-  <div class="pricing-card" :class="{ 'pricing-card--highlighted': highlighted }">
-    <div v-if="highlighted" class="pricing-card__badge">Meest gekozen</div>
-    <h3 class="pricing-card__name">{{ name }}</h3>
-    <div class="pricing-card__price">
-      <span class="pricing-card__amount">{{ price }}</span>
-      <span class="pricing-card__period">excl. btw</span>
+  <div class="card" :class="{ 'card--highlighted': highlighted }">
+    <div v-if="highlighted" class="card__badge">Meest gekozen</div>
+    <div v-else class="card__spacer"></div>
+    <div class="card__inner">
+      <h3 class="card__name">{{ name }}</h3>
+      <div class="card__img-wrap">
+        <img :src="image" :alt="name" class="card__img" />
+      </div>
+      <div class="card__price" :class="{ 'card__price--accent': highlighted }">{{ price }}</div>
+      <p class="card__desc">{{ description }}</p>
+      <ul class="card__features">
+        <li v-for="feature in features" :key="feature">
+          <span class="card__check">✓</span>
+          <span>{{ feature }}</span>
+        </li>
+      </ul>
     </div>
-    <p class="pricing-card__desc">{{ description }}</p>
-    <ul class="pricing-card__features">
-      <li v-for="feature in features" :key="feature">
-        <span class="pricing-card__check">✓</span> {{ feature }}
-      </li>
-    </ul>
-    <RouterLink to="/contact" class="btn" :class="highlighted ? 'btn--primary' : 'btn--outline'">
-      Offerte aanvragen
-    </RouterLink>
   </div>
 </template>
 
 <style scoped>
-.pricing-card {
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  padding: 2rem;
+.card {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
   position: relative;
 }
 
-.pricing-card--highlighted {
-  border-color: var(--color-accent);
-  background: #1c1a12;
+.card--highlighted {
+  background: rgba(255, 255, 255, 0.15);
 }
 
-.pricing-card__badge {
-  position: absolute;
-  top: -13px;
-  left: 50%;
-  transform: translateX(-50%);
+.card--highlighted .card__inner {
+  padding-top: 2rem;
+}
+
+.card__spacer {
+  height: 42px;
+  background: transparent;
+}
+
+.card__badge {
   background: var(--color-accent);
-  color: #0f0f0f;
-  font-size: 0.75rem;
+  color: #fff;
+  font-size: 0.95rem;
   font-weight: 700;
-  padding: 0.25rem 1rem;
-  border-radius: 20px;
-  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  text-align: center;
+  padding: 0.8rem 1rem;
 }
 
-.pricing-card__name {
-  font-size: 1.25rem;
-  font-weight: 700;
-}
-
-.pricing-card__price {
-  display: flex;
-  align-items: baseline;
-  gap: 0.5rem;
-}
-
-.pricing-card__amount {
-  font-size: 2.25rem;
-  font-weight: 800;
-  color: var(--color-accent);
-}
-
-.pricing-card__period {
-  font-size: 0.85rem;
-  color: var(--color-text-muted);
-}
-
-.pricing-card__desc {
-  font-size: 0.9rem;
-  color: var(--color-text-muted);
-}
-
-.pricing-card__features {
-  list-style: none;
+.card__inner {
+  padding: 1.5rem 1.5rem 3rem;
+  padding-top: 2rem;
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
+  align-items: center;
+  gap: 0.85rem;
   flex: 1;
 }
 
-.pricing-card__features li {
-  font-size: 0.9rem;
-  color: var(--color-text);
+.card__name {
+  font-size: 1.9rem;
+  font-weight: 700;
+  color: #fff;
+  text-align: center;
+  letter-spacing: -0.01em;
+  min-height: 2.5rem;
   display: flex;
-  gap: 0.5rem;
+  align-items: center;
+  justify-content: center;
 }
 
-.pricing-card__check {
+.card__img-wrap {
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.card__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.card__price {
+  font-size: 4rem;
+  font-weight: 900;
+  color: #fff;
+  line-height: 1;
+}
+
+.card__price--accent {
+  color: var(--color-accent);
+}
+
+.card__desc {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.45);
+  line-height: 1.6;
+  text-align: center;
+}
+
+.card__features {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.card__features li {
+  display: flex;
+  gap: 0.6rem;
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.4;
+}
+
+.card__check {
   color: var(--color-accent);
   font-weight: 700;
   flex-shrink: 0;

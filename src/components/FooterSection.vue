@@ -17,17 +17,15 @@
     </div>
 
     <div class="footer__bottom">
-      <div class="container">
-        <p>© Eventshoot.nl BV – {{ new Date().getFullYear() }}</p>
-      </div>
+      <p>© Eventshoot.nl BV – {{ new Date().getFullYear() }}</p>
     </div>
   </footer>
 </template>
 
 <style scoped>
 .footer {
-  border-top: 1px solid var(--color-border);
-  background-color: var(--color-bg-section);
+  border-top: 1px solid rgba(255,255,255,0.1);
+  background: rgba(0, 0, 0, 0.15);
   padding-top: 3rem;
 }
 
@@ -41,7 +39,7 @@
 }
 
 .footer__logo {
-  height: 32px;
+  height: 80px;
   width: auto;
   margin-bottom: 1rem;
 }
@@ -77,12 +75,17 @@
 }
 
 .footer__bottom {
-  border-top: 1px solid var(--color-border);
-  padding: 1rem 0;
+  background: rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(6px);
+  border-top: none;
+  padding: 0.6rem 1rem;
+  text-align: center;
 }
 
 .footer__bottom p {
-  font-size: 0.8rem;
-  color: var(--color-text-muted);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #ffffff;
+  letter-spacing: 0.02em;
 }
 </style>

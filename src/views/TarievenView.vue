@@ -39,6 +39,7 @@ const packages = [
     price: '€295',
     description: 'Ideaal als je alleen professionele foto\'s nodig hebt. Perfect voor kleinere of interne events.',
     features: ['2 uur aanwezig op jouw event', '50–100 professioneel bewerkte foto\'s', 'Online galerij met downloadlink', 'Geleverd binnen 48 uur'],
+    image: '/images/Eventshoot_DAGLICHT.jpg',
     highlighted: false,
   },
   {
@@ -46,13 +47,15 @@ const packages = [
     price: '€595',
     description: 'Het meest gekozen pakket. Voldoende voor LinkedIn, website en uitnodigingen.',
     features: ['4 uur aanwezig op jouw event', '100–150 professioneel bewerkte foto\'s', '1 social aftermovie (30–60 seconden)', 'Online galerij met downloadlink', 'Geleverd binnen 48 uur'],
+    image: '/images/Eventshoot_GOLDEN_HOUR.jpg',
     highlighted: true,
   },
   {
     name: 'Spotlight',
-    price: '€1.495',
+    price: '€1495',
     description: 'Voor grotere events die meer content vereisen. Inclusief interviews en lange aftermovie.',
     features: ['~8 uur aanwezig, 2 crew', '150–200 professioneel bewerkte foto\'s', '1 social aftermovie (30–60 sec)', '1 corporate aftermovie (90–180 sec)', '15–20 interviews met sprekers/deelnemers'],
+    image: '/images/Eventshoot_SPOTLIGHT.jpg',
     highlighted: false,
   },
 ]
@@ -70,8 +73,8 @@ const faqs = [
     <section class="tarieven-hero section">
       <div class="container">
         <SectionHeading
-          title="Transparante tarieven, geen verrassingen"
-          subtitle="Kies het pakket dat past bij jouw event. Altijd inclusief professionele nabewerking en snelle levering."
+          title="Welk pakket past bij jouw event?"
+          subtitle="Voor een goed verzorgd event. Maar hieronder zie je alle opties."
         />
         <div class="pricing-grid">
           <PricingCard
@@ -106,13 +109,16 @@ const faqs = [
 <style scoped>
 .tarieven-hero {
   padding-top: 8rem;
+  background: transparent !important;
 }
+
 
 .pricing-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1.5rem;
-  align-items: start;
+  align-items: stretch;
+  margin: 3rem 0 6rem;
 }
 
 .faq__list {

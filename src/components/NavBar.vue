@@ -24,6 +24,12 @@ const navLinks = [
 </script>
 
 <template>
+  <div class="topbar">
+    <a href="tel:+31625177728" class="topbar__phone">
+      Vragen? Bel Rolf &mdash; 06 251 777 28
+    </a>
+  </div>
+
   <header class="navbar" :class="{ 'navbar--scrolled': scrolled }">
     <div class="container navbar__inner">
       <RouterLink to="/" class="navbar__logo" @click="menuOpen = false">
@@ -44,8 +50,6 @@ const navLinks = [
         </RouterLink>
       </nav>
 
-      <a href="tel:+31625177728" class="navbar__phone">06 251 77728</a>
-
       <button class="navbar__burger" @click="menuOpen = !menuOpen" :aria-label="menuOpen ? 'Menu sluiten' : 'Menu openen'">
         <span></span><span></span><span></span>
       </button>
@@ -54,27 +58,53 @@ const navLinks = [
 </template>
 
 <style scoped>
-.navbar {
+/* ── Topbalk ────────────────────────────────────────────── */
+.topbar {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  z-index: 100;
-  background: transparent;
-  transition: background var(--transition), box-shadow var(--transition);
+  z-index: 101;
+  background: rgba(49, 159, 232, 0.70);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid rgba(49, 159, 232, 0.40);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 36px;
 }
 
-.navbar--scrolled {
-  background: rgba(15, 15, 15, 0.95);
-  backdrop-filter: blur(8px);
-  box-shadow: 0 1px 0 var(--color-border);
+.topbar__phone {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #ffffff;
+  letter-spacing: 0.02em;
+  transition: color var(--transition), text-shadow var(--transition);
+  text-decoration: none;
+}
+
+.topbar__phone:hover {
+  color: #ffffff;
+  text-shadow: 0 0 14px rgba(255, 255, 255, 0.8);
+}
+
+/* ── Navbar ─────────────────────────────────────────────── */
+.navbar {
+  position: fixed;
+  top: 36px;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: rgba(0, 0, 5, 0.45);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .navbar__inner {
   display: flex;
   align-items: center;
   gap: 2rem;
-  height: 70px;
+  height: 76px;
 }
 
 .navbar__logo {
@@ -82,12 +112,12 @@ const navLinks = [
 }
 
 .navbar__logo-img {
-  height: 36px;
+  height: 64px;
   width: auto;
 }
 
 .navbar__logo-text {
-  font-size: 1.25rem;
+  font-size: 1.4rem;
   font-weight: 700;
   color: var(--color-text);
   letter-spacing: -0.02em;
@@ -104,32 +134,17 @@ const navLinks = [
   padding: 0.4rem 0.75rem;
   font-size: 0.9rem;
   font-weight: 500;
-  color: var(--color-text-muted);
+  color: #ffffff;
   border-radius: 6px;
-  transition: color var(--transition), background var(--transition);
-}
-
-.navbar__link:hover,
-.navbar__link--active {
-  color: var(--color-text);
-  background: rgba(255, 255, 255, 0.06);
-}
-
-.navbar__link--active {
-  color: var(--color-accent);
-}
-
-.navbar__phone {
-  flex-shrink: 0;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--color-accent);
-  white-space: nowrap;
   transition: color var(--transition);
 }
 
-.navbar__phone:hover {
-  color: var(--color-accent-hover);
+.navbar__link:hover {
+  color: var(--color-accent);
+}
+
+.navbar__link--active {
+  color: var(--color-blue);
 }
 
 .navbar__burger {
@@ -157,14 +172,10 @@ const navLinks = [
     display: flex;
   }
 
-  .navbar__phone {
-    display: none;
-  }
-
   .navbar__nav {
     display: none;
     position: fixed;
-    top: 70px;
+    top: 112px;
     left: 0;
     right: 0;
     bottom: 0;

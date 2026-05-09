@@ -1,89 +1,96 @@
+<script setup lang="ts">
+import { TrophyIcon, PhoneIcon, StarIcon, BoltIcon } from '@heroicons/vue/24/outline'
+</script>
+
 <template>
-  <section class="usp section">
+  <section class="usp">
     <div class="container">
+      <h2 class="usp__heading">Waarom kiezen voor eventshoot.nl</h2>
       <div class="usp__grid">
-        <div v-for="item in usps" :key="item.title" class="usp__card">
-          <span class="usp__icon">{{ item.icon }}</span>
-          <h3 class="usp__title">{{ item.title }}</h3>
-          <p class="usp__text">{{ item.text }}</p>
+        <div class="usp__card">
+          <TrophyIcon class="usp__icon" />
+          <h3 class="usp__title">Jaren ervaring</h3>
+          <p class="usp__text">Senior fotograaf met veertig jaar vakervaring. Hij weet precies wanneer het beslissende moment komt, heeft oog voor detail en levert altijd een professioneel resultaat.</p>
+        </div>
+        <div class="usp__card">
+          <PhoneIcon class="usp__icon" />
+          <h3 class="usp__title">Één aanspreekpunt</h3>
+          <p class="usp__text">Rolf is jouw vaste contactpersoon van briefing tot levering. Geen verrassingen, geen tussenpersonen. Directe communicatie en persoonlijke aandacht voor elk event.</p>
+        </div>
+        <div class="usp__card">
+          <StarIcon class="usp__icon" />
+          <h3 class="usp__title">Corporate niveau</h3>
+          <p class="usp__text">Representatief op elk niveau. Van intern seminar tot internationale conferentie — altijd de juiste stijl en uitstraling die past bij jouw organisatie.</p>
+        </div>
+        <div class="usp__card">
+          <BoltIcon class="usp__icon" />
+          <h3 class="usp__title">Snelle levering</h3>
+          <p class="usp__text">De volgende ochtend kun je al posten. Snel geleverd, direct bruikbaar voor LinkedIn en je website. Standaard binnen 48 uur, spoedlevering mogelijk.</p>
         </div>
       </div>
     </div>
   </section>
 </template>
 
-<script setup lang="ts">
-const usps = [
-  {
-    icon: '🏆',
-    title: '40+ jaar oog voor het moment',
-    text: 'Senior fotograaf met veertig jaar vakervaring. Hij weet precies wanneer het beslissende moment komt.',
-  },
-  {
-    icon: '📞',
-    title: 'Één aanspreekpunt, geen gedoe',
-    text: 'Rolf is jouw vaste contactpersoon van briefing tot levering. Geen verrassingen, geen tussenpersonen.',
-  },
-  {
-    icon: '🎯',
-    title: 'Representatief op elk niveau',
-    text: 'Van intern seminar tot internationale conferentie — altijd de juiste stijl en uitstraling.',
-  },
-  {
-    icon: '⚡',
-    title: 'Geleverd binnen 48 uur',
-    text: 'De volgende ochtend kun je al posten. Snel geleverd, direct bruikbaar voor LinkedIn en je website.',
-  },
-]
-</script>
-
 <style scoped>
+.usp {
+  background: rgba(49, 159, 232, 0.40);
+  padding: 4rem 0;
+}
+
+.usp__heading {
+  text-align: center;
+  font-size: clamp(1.4rem, 2.5vw, 2rem);
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 2.5rem;
+}
+
 .usp__grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 1.5rem;
+  gap: 1.25rem;
 }
 
 .usp__card {
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 12px;
   padding: 2rem 1.5rem;
-  transition: border-color var(--transition);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  transition: background var(--transition);
 }
 
 .usp__card:hover {
-  border-color: var(--color-accent);
+  background: rgba(0, 0, 0, 0.50);
 }
 
 .usp__icon {
-  font-size: 2rem;
-  display: block;
-  margin-bottom: 1rem;
+  width: 28px;
+  height: 28px;
+  color: var(--color-accent);
+  stroke-width: 1.5;
+  flex-shrink: 0;
 }
 
 .usp__title {
   font-size: 1rem;
   font-weight: 700;
-  margin-bottom: 0.5rem;
-  color: var(--color-text);
+  color: #fff;
 }
 
 .usp__text {
-  font-size: 0.9rem;
-  color: var(--color-text-muted);
-  line-height: 1.6;
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.7;
 }
 
 @media (max-width: 900px) {
-  .usp__grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
+  .usp__grid { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (max-width: 500px) {
-  .usp__grid {
-    grid-template-columns: 1fr;
-  }
+  .usp__grid { grid-template-columns: 1fr; }
 }
 </style>
