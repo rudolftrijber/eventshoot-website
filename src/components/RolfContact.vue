@@ -19,7 +19,9 @@
 <style scoped>
 .rolf {
   padding: 4rem 0;
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(0, 0, 0, 0.30);
+  border: none;
+  outline: none;
 }
 
 .rolf__inner {
@@ -31,11 +33,10 @@
 }
 
 .rolf__photo-wrap {
-  width: 100px;
-  height: 100px;
+  width: 200px;
+  height: 200px;
   border-radius: 50%;
   overflow: hidden;
-  border: 3px solid var(--color-accent);
 }
 
 .rolf__photo {
@@ -46,7 +47,7 @@
 
 .rolf__title {
   font-size: 1.5rem;
-  font-weight: 700;
+  font-weight: 100;
 }
 
 .rolf__phone {

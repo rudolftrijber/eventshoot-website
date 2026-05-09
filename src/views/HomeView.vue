@@ -13,12 +13,16 @@ onMounted(() => {
     description: 'Professionele eventfotografie en eventvideo voor congressen, seminars en zakelijke bijeenkomsten. 40+ jaar ervaring. Geleverd binnen 48 uur.',
   })
 
-  // Elfsight: verwijder oude instantie en laad opnieuw zodat widget initialiseert in Safari
+  // Elfsight: herlaad script en forceer initialisatie na laden
   const existing = document.querySelector('script[src*="elfsightcdn"]')
   if (existing) existing.remove()
   const script = document.createElement('script')
   script.src = 'https://elfsightcdn.com/platform.js'
-  script.defer = true
+  script.async = true
+  script.onload = () => {
+    const w = window as Window & { Elfsight?: { initialize: () => void } }
+    if (w.Elfsight) w.Elfsight.initialize()
+  }
   document.head.appendChild(script)
 })
 
