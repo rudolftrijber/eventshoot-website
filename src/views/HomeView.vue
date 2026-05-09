@@ -487,7 +487,7 @@ const teaserImages = [
 }
 
 .checklist-banner__title {
-  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  font-size: clamp(1.2rem, 2.2vw, 1.6rem);
   font-weight: 800;
   color: #fff;
   line-height: 1.2;
@@ -560,9 +560,11 @@ const teaserImages = [
   font-weight: 600;
   padding: 0.75rem 2rem;
   border-radius: 10px;
+  border: none;
   text-decoration: none;
   transition: background var(--transition), transform var(--transition);
   margin-top: 0.5rem;
+  cursor: pointer;
 }
 
 .checklist-banner__btn:hover:not(:disabled) {
