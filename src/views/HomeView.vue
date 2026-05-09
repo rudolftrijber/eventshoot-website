@@ -160,8 +160,8 @@ const teaserImages = [
     <!-- Checklist banner -->
     <section class="checklist-banner">
       <div class="container checklist-banner__content">
-        <h2 class="checklist-banner__title">Download de gratis Evenementen Content Checklist</h2>
-        <p class="checklist-banner__sub">Zorg dat je fotograaf precies weet wat je nodig hebt. Niets missen, altijd bruikbare beelden. Gratis te downloaden.</p>
+        <h2 class="checklist-banner__title">Download gratis onze Evenementen Content Checklist</h2>
+        <p class="checklist-banner__sub">Zorg dat je foto- en videograaf precies weet wat je nodig hebt. Niets missen, altijd bruikbare beelden. Gratis te downloaden.</p>
         <template v-if="!checklistSubmitted">
           <form class="checklist-form" @submit.prevent="submitChecklistEmail" novalidate>
             <input
@@ -173,11 +173,11 @@ const teaserImages = [
               class="checklist-form__input"
             />
             <button type="submit" class="checklist-banner__btn" :disabled="checklistSubmitting">
-              {{ checklistSubmitting ? 'Moment…' : 'Gratis downloaden' }}
+              {{ checklistSubmitting ? 'Moment…' : 'Downloaden' }}
             </button>
           </form>
           <p v-if="checklistError" class="checklist-form__error">Er ging iets mis. Probeer het opnieuw.</p>
-          <p class="checklist-form__privacy">Geen spam. Alleen Rolf. Je kunt je op elk moment afmelden.</p>
+          <p class="checklist-form__privacy">Geen spam. Je kunt je op elk moment afmelden.</p>
         </template>
         <template v-else>
           <p class="checklist-banner__success">
