@@ -41,7 +41,7 @@ function onKeydown(e: KeyboardEvent) {
       <div class="hero__overlay"></div>
       <div class="container hero__content">
         <p class="hero__eyebrow">Exclusief voor jou</p>
-        <h1>Leontine — Jouw event in beeld</h1>
+        <h1>Leontine, jouw event in beeld</h1>
         <p class="hero__sub">Hier zijn jouw foto's, klaar om te downloaden en te gebruiken. Veel plezier ermee!</p>
         <p class="hero__count" v-if="photos.length">{{ photos.length }} foto's beschikbaar</p>
       </div>

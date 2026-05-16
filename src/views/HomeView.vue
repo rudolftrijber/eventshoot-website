@@ -9,8 +9,8 @@ import { useEmailJS } from '@/composables/useEmailJS'
 
 onMounted(() => {
   useSeo({
-    title: 'Eventfotograaf Nederland | Eventshoot.nl',
-    description: 'Professionele eventfotografie en eventvideo voor congressen, seminars en zakelijke bijeenkomsten. 40+ jaar ervaring. Geleverd binnen 48 uur.',
+    title: 'Eventshoot.nl | Jouw event is een goudmijn aan content',
+    description: 'Professionele eventfotografie en video voor congressen, jaarcongressen en bedrijfsevents. 25+ kant-en-klare items binnen 48 uur. Gemaakt door mensen, niet door AI.',
   })
 
 })
@@ -86,20 +86,20 @@ const teaserImages = [
         <div class="hero__overlay"></div>
       </div>
       <div class="container hero__content">
-        <h1 class="hero__title">Jouw zakelijke event verdient meer dan een paar telefoonfotos.</h1>
-        <p class="hero__subtitle">Professionele eventfotografie en -video voor congressen, conferenties en zakelijke bijeenkomsten door heel Nederland. Snel geleverd, direct bruikbaar.</p>
+        <h1 class="hero__title">Eventcontent die maandenlang doorwerkt.</h1>
+        <p class="hero__subtitle">Eén event, een complete contentbox. Eventshoot.nl levert 25+ kant-en-klare foto's, aftermovies en interviews uit jouw zakelijke event. Gemaakt door mensen, geleverd binnen 48 uur. Voor congressen, jaarcongressen, ledendagen en bedrijfsbijeenkomsten in heel Nederland.</p>
         <div class="hero__ctas">
-          <RouterLink to="/contact" class="btn btn--primary btn--lg">Neem contact op</RouterLink>
-          <RouterLink to="/tarieven" class="btn btn--outline btn--lg">Bekijk de paketten</RouterLink>
+          <RouterLink to="/kennismaken" class="btn btn--primary btn--lg">Kennismaken</RouterLink>
+          <RouterLink to="/tarieven" class="btn btn--outline btn--lg">Bekijk de pakketten</RouterLink>
         </div>
       </div>
     </section>
 
-    <!-- Intro strook -->
+    <!-- Motto strook -->
     <section class="intro">
       <div class="container intro__inner">
-        <h2 class="intro__title">Meer dan beelden. Bruikbare content</h2>
-        <p class="intro__text">Een goed verzorgd event verdient beelden die dat ook uitstralen. Eventshoot.nl is de vaste eventfotograaf voor congresorganisaties, eventbureau's en bedrijven door heel Nederland. Rolf legt de energie, de interactie en de gezichten vast die jouw event tot leven brengen, op LinkedIn, je website en in je volgende uitnodiging.</p>
+        <h2 class="intro__title">Jouw event is een goudmijn aan content.</h2>
+        <p class="intro__text">Sprekers, deelnemers, reacties, sfeer, hoogtepunten. Elk event levert tientallen bruikbare momenten op. Eventshoot.nl zet die om in een complete contentbox: 25+ kant-en-klare foto's, aftermovies en interviews. Klaar voor je marketeer, terwijl het event nog top of mind is.</p>
       </div>
     </section>
 
@@ -123,14 +123,14 @@ const teaserImages = [
       <div class="container">
         <SectionHeading
           title="Het meest gekozen pakket"
-          subtitle="Voor de meeste events is het Gouden uur pakket de perfecte match."
+          subtitle="Voor jaarcongres, ledendag of groter bedrijfsevent is het Headline-pakket de perfecte match."
         />
         <div class="featured__card-wrap">
           <PricingCard
-            name="Gouden uur"
-            price="€595"
-            description="Voldoende voor LinkedIn, website en uitnodigingen."
-            :features="['4 uur aanwezig op jouw event', '100–150 professioneel bewerkte foto\'s', '1 social aftermovie (30–60 seconden)', 'Geleverd binnen 48 uur', 'Online galerij met downloadlink']"
+            name="Headline"
+            price="€2.250"
+            description="Voldoende voor LinkedIn, website, uitnodigingen en jaarverslag."
+            :features="['8 uur aanwezig op jouw event', '150–250 professioneel bewerkte foto\'s', '1 social aftermovie (45–90 seconden)', '10–15 sprekersinterviews (één camera)', 'Geleverd binnen 48 uur', 'Online galerij met downloadlink']"
             image="/images/Eventshoot_GOLDEN_HOUR.jpg"
             :highlighted="true"
           />
@@ -161,11 +161,11 @@ const teaserImages = [
             </button>
           </form>
           <p v-if="checklistError" class="checklist-form__error">Er ging iets mis. Probeer het opnieuw.</p>
-          <p class="checklist-form__privacy">Geen spam. Je kunt je op elk moment afmelden.</p>
+          <p class="checklist-form__privacy">Geen spam, je kunt je op elk moment afmelden.</p>
         </template>
         <template v-else>
           <p class="checklist-banner__success">
-            ✓ Download begint zo. Je ontvangt geen spam — beloofd.
+            ✓ Download begint zo. Je ontvangt geen spam.
           </p>
         </template>
       </div>

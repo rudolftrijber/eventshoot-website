@@ -41,9 +41,9 @@ const videoTypes = [
 ]
 
 const packages = [
-  { name: 'Daglicht', video: false, text: 'Alleen foto\'s, geen video.' },
-  { name: 'Gouden uur', video: true, text: '1 social aftermovie (30–60 sec). Direct bruikbaar voor LinkedIn.' },
-  { name: 'Spotlight', video: true, text: 'Social aftermovie + corporate aftermovie + 15–20 sprekersinterviews.' },
+  { name: 'Highlight', video: true, text: '1 social aftermovie (45–90 sec). Direct bruikbaar voor LinkedIn.' },
+  { name: 'Headline', video: true, text: 'Social aftermovie (45–90 sec) + 10–15 sprekersinterviews (één camera).' },
+  { name: 'Heroes', video: true, text: 'Social aftermovie + corporate aftermovie (90–180 sec) + 15–20 sprekersinterviews.' },
 ]
 </script>
 
@@ -56,12 +56,19 @@ const packages = [
         <div class="ev-hero__overlay"></div>
       </div>
       <div class="container ev-hero__content">
-        <h1>Eventvideo die doorwerkt,<br>lang na je event.</h1>
-        <p>Een aftermovie van 60 seconden doet meer voor je merkbeleving dan een pagina vol tekst. Jouw deelnemers delen hem, nieuwe inschrijvers worden overtuigd — en jouw event leeft voort op LinkedIn, op je website en in je nieuwsbrief.</p>
+        <h1>Eventvideo en aftermovies.</h1>
+        <p>Korte social aftermovies voor LinkedIn, lange corporate aftermovies voor je website, en interviews met sprekers en deelnemers. Eén event, weken aan bruikbare content.</p>
         <div class="ev-hero__btns">
-          <RouterLink to="/contact" class="btn btn--primary btn--lg">Neem contact op</RouterLink>
+          <RouterLink to="/kennismaken" class="btn btn--primary btn--lg">Kennismaken</RouterLink>
           <RouterLink to="/tarieven" class="btn btn--outline btn--lg">Bekijk de pakketten</RouterLink>
         </div>
+      </div>
+    </section>
+
+    <!-- Motto strook -->
+    <section class="motto-bar">
+      <div class="container motto-bar__inner">
+        <p class="motto-bar__text">Jouw event is een goudmijn aan content.</p>
       </div>
     </section>
 
@@ -77,8 +84,8 @@ const packages = [
         </div>
         <div class="ev-showcase__text">
           <h2 class="ev-showcase__title">Zo klinkt een aftermovie van Eventshoot.nl</h2>
-          <p class="ev-showcase__desc">Dit is een voorbeeld van een social aftermovie — gemonteerd op muziek, klaar om te posten. Energiek, scherp, en precies de sfeer die jouw event verdient.</p>
-          <RouterLink to="/contact" class="btn btn--primary">Plan een gesprek</RouterLink>
+          <p class="ev-showcase__desc">Dit is een voorbeeld van een social aftermovie, gemonteerd op muziek, klaar om te posten. Energiek, scherp, en precies de sfeer die jouw event verdient.</p>
+          <RouterLink to="/kennismaken" class="btn btn--primary">Plan een gesprek</RouterLink>
         </div>
       </div>
     </section>
@@ -184,6 +191,23 @@ const packages = [
   display: flex;
   gap: 1rem;
   flex-wrap: wrap;
+}
+
+/* Motto bar */
+.motto-bar {
+  background: rgba(255, 140, 0, 0.42);
+  padding: 3rem 0;
+}
+
+.motto-bar__inner {
+  text-align: center;
+}
+
+.motto-bar__text {
+  font-size: clamp(1.4rem, 3vw, 2.25rem);
+  font-weight: 800;
+  color: #fff;
+  font-style: italic;
 }
 
 /* Showcase */

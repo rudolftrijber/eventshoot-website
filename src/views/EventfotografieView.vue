@@ -82,9 +82,16 @@ const eventTypes = [
         <div class="ef-hero__overlay"></div>
       </div>
       <div class="container ef-hero__content">
-        <h1>Eventfotografie die werkt,<br>ook na het event.</h1>
-        <p>Goede eventfotografie is meer dan mooie plaatjes. Het zijn de beelden die je deelnemers terugzien op LinkedIn, die nieuwe inschrijvers overtuigen en die jouw event een gezicht geven. Eventshoot.nl levert dat. Altijd scherp, altijd op tijd.</p>
-        <RouterLink to="/contact" class="btn btn--primary btn--lg">Vrijblijvend contact</RouterLink>
+        <h1>Eventfotografie, binnen 48 uur.</h1>
+        <p>Professionele eventfotografie voor congressen, jaarcongressen, ledendagen, seminars en bedrijfsbijeenkomsten in heel Nederland. Foto's die je marketeer direct kan plaatsen op LinkedIn, je website en in je nieuwsbrief.</p>
+        <RouterLink to="/kennismaken" class="btn btn--primary btn--lg">Vrijblijvend kennismaken</RouterLink>
+      </div>
+    </section>
+
+    <!-- Motto strook -->
+    <section class="motto-bar">
+      <div class="container motto-bar__inner">
+        <p class="motto-bar__text">Jouw event is een goudmijn aan content.</p>
       </div>
     </section>
 
@@ -128,7 +135,7 @@ const eventTypes = [
         </div>
         <div class="video-upsell__text">
           <h2 class="video-upsell__title">Liever ook video?<br>Geen tweede leverancier nodig.</h2>
-          <p class="video-upsell__desc">Bij het Gouden uur en Spotlight pakket verzorgt Eventshoot.nl ook een social aftermovie, perfect voor LinkedIn. Wil je meer? Het Spotlight pakket bevat bovendien een corporate aftermovie én interviews met sprekers of deelnemers voor op je website. Zo heb je met één event foto én video in handen.</p>
+          <p class="video-upsell__desc">Bij het Headline en Heroes pakket verzorgt Eventshoot.nl ook een social aftermovie, perfect voor LinkedIn. Wil je meer? Het Heroes pakket bevat bovendien een corporate aftermovie én interviews met sprekers of deelnemers voor op je website. Zo heb je met één event foto én video in handen.</p>
           <RouterLink to="/tarieven" class="btn btn--primary">Bekijk onze pakketten</RouterLink>
           <RouterLink to="/eventvideo" class="btn btn--primary">Bekijk de video mogelijkheden</RouterLink>
         </div>
@@ -154,7 +161,7 @@ const eventTypes = [
           <button class="carousel__btn carousel__btn--next" @click="nextSlide" aria-label="Volgende">&#8250;</button>
         </div>
         <div class="carousel__cta">
-          <RouterLink to="/portfolio" class="btn btn--primary">Bekijk de volledige portfolio</RouterLink>
+          <RouterLink to="/werk" class="btn btn--primary">Bekijk het werk</RouterLink>
         </div>
       </div>
     </section>
@@ -216,6 +223,23 @@ const eventTypes = [
   color: rgba(255,255,255,0.82);
   margin-bottom: 2rem;
   line-height: 1.75;
+}
+
+/* Motto bar */
+.motto-bar {
+  background: rgba(255, 140, 0, 0.42);
+  padding: 3rem 0;
+}
+
+.motto-bar__inner {
+  text-align: center;
+}
+
+.motto-bar__text {
+  font-size: clamp(1.4rem, 3vw, 2.25rem);
+  font-weight: 800;
+  color: #fff;
+  font-style: italic;
 }
 
 /* Service overview */

@@ -2,7 +2,7 @@
   <section class="rolf">
     <div class="rolf__inner">
       <div class="rolf__photo-wrap">
-        <img src="/rolf_trijber_4.jpg" alt="Rolf Trijber — Eventfotograaf" class="rolf__photo" />
+        <img src="/rolf_trijber_4.jpg" alt="Rolf Trijber, Eventfotograaf" class="rolf__photo" />
       </div>
       <h2 class="rolf__title">Vragen? Bel Rolf</h2>
       <a href="tel:+31625177728" class="rolf__phone">
