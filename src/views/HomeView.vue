@@ -87,7 +87,7 @@ const teaserImages = [
       </div>
       <div class="container hero__content">
         <h1 class="hero__title">Eventcontent die maandenlang doorwerkt.</h1>
-        <p class="hero__subtitle">Eén event, een complete contentbox. Eventshoot.nl levert 25+ kant-en-klare foto's, aftermovies en interviews uit jouw zakelijke event. Gemaakt door mensen, geleverd binnen 48 uur. Voor congressen, jaarcongressen, ledendagen en bedrijfsbijeenkomsten in heel Nederland.</p>
+        <p class="hero__subtitle">Eén event, een complete contentbox. Eventshoot.nl levert 25+ kant-en-klare foto's, aftermovies en interviews uit jouw zakelijke event. Gemaakt door mensen, geleverd binnen 48 uur. Voor congressen, conferenties, ledendagen en bedrijfsbijeenkomsten in heel Nederland.</p>
         <div class="hero__ctas">
           <RouterLink to="/kennismaken" class="btn btn--primary btn--lg">Kennismaken</RouterLink>
           <RouterLink to="/tarieven" class="btn btn--outline btn--lg">Bekijk de pakketten</RouterLink>

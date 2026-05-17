@@ -429,3 +429,70 @@ Workflow_Eventshoot_werkblad — wekelijks ritme voor sales & content (1 post/we
 Bij twijfel over een specifieke pagina of een specifieke regel: raadpleeg eerst dit CLAUDE.md, daarna het juiste referentiedocument.
 
 Laatste update: mei 2026 — na strategische sessies en onepager v5.
+
+---
+
+## 3. Event-termen — welke event-types Eventshoot.nl bedient
+
+Niet alle event-types passen bij de propositie. Deze lijst is leidend voor alle hero-zinnen, meta-tags en "Voor welke events"-secties.
+
+### Kerntermen (5 — gebruik in hero-zinnen en SEO-titels)
+
+- Congressen
+- Conferenties
+- Ledendagen / vakdagen
+- Seminars
+- Bedrijfsbijeenkomsten
+
+### Aanvullende termen (per pagina, waar relevant)
+
+- Jaarcongressen — alleen om jaarlijks-terugkerend te benadrukken
+- Symposia — academisch / wetenschappelijk
+- User conferences — B2B SaaS / scale-ups
+- Award-uitreikingen
+- Aandeelhoudersvergaderingen (AVA's)
+- Productlanceringen / launch events
+- Beurzen en vakbeurzen
+- Jubilea en lustra
+- Klantdagen
+
+### Niet bedienen (passen niet bij de propositie)
+
+- Bedrijfsfeesten en personeelsfeesten (informeel, andere fotograaf-stijl)
+- Bruiloften, partijen, communies
+- Teamuitjes, heisessies (te besloten, te klein voor de pakketten)
+- Open dagen voor consumenten
+
+### Gebruiksregels
+
+1. Hero-zinnen: maximaal 5 termen uit de kerngroep
+2. "Voor welke events"-secties: 8–12 termen mag
+3. Voor-wie pagina's prioriteren termen die bij die doelgroep horen:
+   - Brancheverenigingen: jaarcongressen, ledendagen, vakdagen, ALV's
+   - Eventbureaus & DMC's: alle types (white-label)
+   - Hotels met congresfaciliteiten: congressen, conferenties, AVA's, productlanceringen
+   - Bedrijven met eigen events: user conferences, productlanceringen, klantdagen, aandeelhoudersvergaderingen
+
+### Standaard hero-subkop per dienstpagina
+
+- **Home:** "Voor congressen, conferenties, ledendagen en bedrijfsbijeenkomsten in heel Nederland."
+- **Eventfotografie:** "Professionele eventfotografie voor congressen, conferenties, ledendagen, seminars en bedrijfsbijeenkomsten in heel Nederland."
+- **Eventvideo:** "Eventvideo's voor congressen, conferenties, productlanceringen en bedrijfsbijeenkomsten in heel Nederland."
+
+### Belangrijk: vermijd dubbel benoemen
+
+"Congressen, jaarcongressen" is dubbelop — een jaarcongres ís een congres. Schrijf óf "congressen" (omvat jaarcongressen) óf, als je het jaarlijkse karakter wilt benadrukken, alleen "jaarcongressen". Niet beide.
+
+
+## X. Data-architectuur
+
+Drie soorten content, drie opslaglocaties:
+
+1. **Website-assets** → Cloudinary (cdn voor foto/video) of `/public/` (kleine assets)
+2. **Klant-galleries** → Pixieset (externe service met eigen URL)
+3. **Bronbestanden** → Lokaal `~/Documents/DATA_EVENTSHOOT/` + externe SSD backup
+
+NOOIT bronbestanden (RAW, Lightroom-catalog) committeren naar de repo. NOOIT klant-galleries
+in de Vue-codebase bouwen — gebruik externe Pixieset met link vanuit /klanten/.
+
+---

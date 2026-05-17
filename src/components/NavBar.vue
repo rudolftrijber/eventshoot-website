@@ -189,7 +189,7 @@ const over = [
 .dd { position: relative; }
 
 .dd__trigger { display: flex; align-items: center; gap: 0.25rem; }
-.dd__arrow { font-size: 0.6rem; opacity: 0.7; }
+.dd__arrow { font-size: 0.85rem; opacity: 0.7; }
 
 .dd__panel {
   display: none;

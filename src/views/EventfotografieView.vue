@@ -83,7 +83,7 @@ const eventTypes = [
       </div>
       <div class="container ef-hero__content">
         <h1>Eventfotografie, binnen 48 uur.</h1>
-        <p>Professionele eventfotografie voor congressen, jaarcongressen, ledendagen, seminars en bedrijfsbijeenkomsten in heel Nederland. Foto's die je marketeer direct kan plaatsen op LinkedIn, je website en in je nieuwsbrief.</p>
+        <p>Professionele eventfotografie voor congressen, conferenties, ledendagen, seminars en bedrijfsbijeenkomsten in heel Nederland. Foto's die je marketeer direct kan plaatsen op LinkedIn, je website en in je nieuwsbrief.</p>
         <RouterLink to="/kennismaken" class="btn btn--primary btn--lg">Vrijblijvend kennismaken</RouterLink>
       </div>
     </section>

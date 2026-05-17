@@ -9,7 +9,7 @@ const router = createRouter({
     { path: '/eventfotografie', name: 'eventfotografie', component: () => import('../views/EventfotografieView.vue') },
     { path: '/eventvideo', name: 'eventvideo', component: () => import('../views/EventvideoView.vue') },
     { path: '/werk', name: 'werk', component: () => import('../views/WerkView.vue') },
-    { path: '/werk/:slug', name: 'werk-case', component: () => import('../views/KlantView.vue') },
+    { path: '/werk/:slug', redirect: '/werk' },
     { path: '/tarieven', name: 'tarieven', component: () => import('../views/TarievenView.vue') },
     { path: '/eventkennis', name: 'eventkennis', component: () => import('../views/EventkennisView.vue') },
     { path: '/eventkennis/:slug', name: 'eventkennis-artikel', component: () => import('../views/EventkennisArtikelView.vue') },

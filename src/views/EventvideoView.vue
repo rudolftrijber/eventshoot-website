@@ -57,7 +57,7 @@ const packages = [
       </div>
       <div class="container ev-hero__content">
         <h1>Eventvideo en aftermovies.</h1>
-        <p>Korte social aftermovies voor LinkedIn, lange corporate aftermovies voor je website, en interviews met sprekers en deelnemers. Eén event, weken aan bruikbare content.</p>
+        <p>Eventvideo's voor congressen, conferenties, productlanceringen en bedrijfsbijeenkomsten in heel Nederland. Van social aftermovie voor LinkedIn tot corporate aftermovie met sprekersinterviews.</p>
         <div class="ev-hero__btns">
           <RouterLink to="/kennismaken" class="btn btn--primary btn--lg">Kennismaken</RouterLink>
           <RouterLink to="/tarieven" class="btn btn--outline btn--lg">Bekijk de pakketten</RouterLink>
