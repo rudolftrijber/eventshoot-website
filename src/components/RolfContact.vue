@@ -1,8 +1,21 @@
+<script setup lang="ts">
+/** Wit overhemd, buiten — evenshoot_Rolf_Trijber.png (niet rolf_trijber_4.jpg) */
+const rolfPortrait =
+  '/DATA_EVENTSHOOT/SITE_IMAGES/ROLF/evenshoot_Rolf_Trijber.png?v=20260525'
+</script>
+
 <template>
   <section class="rolf">
     <div class="rolf__inner">
       <div class="rolf__photo-wrap">
-        <img src="/rolf_trijber_4.jpg" alt="Rolf Trijber, Eventfotograaf" class="rolf__photo" />
+        <img
+          :src="rolfPortrait"
+          alt="Rolf Trijber, Eventfotograaf"
+          class="rolf__photo"
+          width="200"
+          height="200"
+          decoding="async"
+        />
       </div>
       <h2 class="rolf__title">Vragen? Bel Rolf</h2>
       <a href="tel:+31625177728" class="rolf__phone">
@@ -44,6 +57,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center 15%;
 }
 
 .rolf__title {
