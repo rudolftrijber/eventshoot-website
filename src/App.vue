@@ -65,4 +65,19 @@ onMounted(() => {
 .section--blue {
   background: rgba(49, 159, 232, 0.40) !important;
 }
+
+/* Geen zichtbare scheidslijn boven/voor de footer */
+.reviews,
+.rolf,
+.footer {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Elfsight-reviews widget: geen randlijn onder reviews */
+.elfsight-app,
+[class*='elfsight-app'] {
+  border: none !important;
+  box-shadow: none !important;
+}
 </style>

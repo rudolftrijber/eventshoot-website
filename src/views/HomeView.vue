@@ -369,6 +369,15 @@ const teaserImages = [
 
 .reviews {
   padding: 4rem 0;
+  border: none;
+  box-shadow: none;
+  background: transparent;
+}
+
+.reviews :deep(.elfsight-app),
+.reviews :deep([class*='elfsight-app']) {
+  border: none !important;
+  box-shadow: none !important;
 }
 
 .rolf {

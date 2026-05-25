@@ -19,9 +19,10 @@
 <style scoped>
 .rolf {
   padding: 4rem 0;
-  background: rgba(0, 0, 0, 0.30);
+  background: transparent;
   border: none;
   outline: none;
+  box-shadow: none;
 }
 
 .rolf__inner {
