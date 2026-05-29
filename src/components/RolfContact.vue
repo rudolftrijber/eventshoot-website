@@ -32,8 +32,7 @@ const rolfPortrait =
 <style scoped>
 .rolf {
   padding: 4rem 0;
-  background: #cce8fb;
-  color: #111;
+  background: rgba(49, 159, 232, 0.40);
   border: none;
   outline: none;
   box-shadow: none;
@@ -81,7 +80,7 @@ const rolfPortrait =
 }
 
 .rolf__linkedin {
-  color: #555;
+  color: var(--color-text-muted);
   transition: color var(--transition);
 }
 
