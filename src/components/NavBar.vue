@@ -24,9 +24,7 @@ function onMouseLeave() {
 }
 
 function toggleSection(name: string) {
-  if (!isDesktop()) {
-    expanded.value = expanded.value === name ? null : name
-  }
+  expanded.value = expanded.value === name ? null : name
 }
 
 function closeMenu() {
@@ -34,8 +32,18 @@ function closeMenu() {
   expanded.value = null
 }
 
-onMounted(() => window.addEventListener('scroll', onScroll))
-onUnmounted(() => window.removeEventListener('scroll', onScroll))
+function onDocClick(e: MouseEvent) {
+  if (!(e.target as HTMLElement).closest('.dd')) expanded.value = null
+}
+
+onMounted(() => {
+  window.addEventListener('scroll', onScroll)
+  document.addEventListener('mousedown', onDocClick)
+})
+onUnmounted(() => {
+  window.removeEventListener('scroll', onScroll)
+  document.removeEventListener('mousedown', onDocClick)
+})
 
 const diensten = [
   { label: 'Eventfotografie', to: '/eventfotografie' },
@@ -208,6 +216,15 @@ const over = [
 
 .dd__panel--open { display: flex; flex-direction: column; }
 
+.dd__panel::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 0;
+  right: 0;
+  height: 10px;
+}
+
 .dd__link {
   padding: 0.6rem 0.9rem;
   font-size: 0.875rem;
@@ -288,6 +305,7 @@ const over = [
     padding: 0;
     min-width: unset;
   }
+  .dd__panel::before { display: none; }
 
   .dd__link {
     padding: 0.75rem 3rem;
