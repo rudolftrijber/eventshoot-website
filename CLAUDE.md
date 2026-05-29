@@ -495,4 +495,16 @@ Drie soorten content, drie opslaglocaties:
 NOOIT bronbestanden (RAW, Lightroom-catalog) committeren naar de repo. NOOIT klant-galleries
 in de Vue-codebase bouwen — gebruik externe Pixieset met link vanuit /klanten/.
 
+
+## Website content — doelgroeppagina's
+Websiteteksten per doelgroep staan in aparte .md-bestanden in deze map:
+- `brancheverenigingen.md`
+- `eventbureaus-dmcs.md`
+- `hotels-congresfaciliteiten.md`
+- `bedrijven-eigen-events.md`
+
+Gebruik deze als basis bij het bouwen of aanpassen van de betreffende pagina's.
+Schrijfstijl: direct, geen jargon, doelgroepgericht, in het Nederlands.
+Motto van het bedrijf: "Jouw zakelijke evenement is een goudmijn aan content."
+
 ---
