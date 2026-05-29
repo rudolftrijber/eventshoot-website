@@ -24,6 +24,17 @@ export function useSeo(options: SeoOptions) {
   setMeta('name', 'twitter:title', title)
   setMeta('name', 'twitter:description', description)
   setMeta('name', 'twitter:image', image)
+  setCanonical(url)
+}
+
+function setCanonical(url: string) {
+  let el = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null
+  if (!el) {
+    el = document.createElement('link')
+    el.setAttribute('rel', 'canonical')
+    document.head.appendChild(el)
+  }
+  el.setAttribute('href', url)
 }
 
 function setMeta(attr: 'name' | 'property', key: string, value: string) {

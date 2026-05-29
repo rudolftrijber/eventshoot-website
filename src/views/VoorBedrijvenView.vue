@@ -30,6 +30,21 @@ const waarom = [
   'Sprekersportretten.',
   'Optioneel: interviews met klanten of collega\'s.',
 ]
+
+const logos = [
+  { file: 'gbl.png', name: 'GBL Alliance' },
+  { file: 'gladwell.png', name: 'Gladwell Academy' },
+  { file: 'datto.png', name: 'Datto' },
+  { file: 's2grupo.png', name: 'S2Grupo' },
+  { file: 'koers.png', name: 'Koers' },
+  { file: 'dux.png', name: 'Dux' },
+  { file: 'scpa.png', name: 'SCPA' },
+  { file: 'evascript.png', name: 'EvaScript' },
+  { file: 'dell.png', name: 'Dell' },
+  { file: 'beelegal.png', name: 'BeeLegal' },
+  { file: 'powermatching.png', name: 'Powermatching' },
+  { file: 'vectocon.png', name: 'Vectocon' },
+]
 </script>
 
 <template>
@@ -70,12 +85,18 @@ const waarom = [
 
     <UspGrid />
 
-    <section class="reviews section">
-      <div class="container">
-        <h2 class="reviews__title">Wat zeggen onze opdrachtgevers?</h2>
-        <div class="elfsight-app-4ed38ed1-21e2-4238-bb5c-d1127391e146"></div>
+    <section class="trust">
+      <p class="trust__label">Vertrouwd door organisaties als…</p>
+      <div class="trust__track-wrap">
+        <div class="trust__track">
+          <div class="trust__slide" v-for="n in 2" :key="n">
+            <img v-for="logo in logos" :key="logo.file + n" :src="`/DATA_EVENTSHOOT/SITE_IMAGES/OPDRACHTGEVERS/${logo.file}`" :alt="logo.name" class="trust__logo" />
+          </div>
+        </div>
       </div>
     </section>
+
+
   </main>
 </template>
 
@@ -122,10 +143,47 @@ const waarom = [
   .aanbod__inner { grid-template-columns: 1fr; gap: 3rem; }
 }
 
-.reviews__title {
-  font-size: clamp(1.3rem, 2.5vw, 1.85rem);
-  font-weight: 800;
-  margin-bottom: 2rem;
+.trust {
+  padding: 5rem 0;
+  overflow: hidden;
+}
+.trust__label {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
   text-align: center;
+  margin-bottom: 1.5rem;
+}
+.trust__track-wrap {
+  overflow: hidden;
+  mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+}
+.trust__track {
+  display: flex;
+  width: max-content;
+  animation: marquee 28s linear infinite;
+}
+.trust__track:hover { animation-play-state: paused; }
+.trust__slide {
+  display: flex;
+  align-items: center;
+  gap: 4rem;
+  padding: 0 2rem;
+}
+.trust__logo {
+  height: 120px;
+  width: auto;
+  object-fit: contain;
+  filter: grayscale(1) brightness(1.8);
+  opacity: 0.6;
+  transition: filter 0.3s, opacity 0.3s;
+}
+.trust__logo:hover {
+  filter: grayscale(0);
+  opacity: 1;
+}
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
 }
 </style>
