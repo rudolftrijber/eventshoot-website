@@ -301,11 +301,9 @@ const teaserImages = [
 }
 
 .trust__logo {
-  height: 80px;
+  height: 120px;
   width: auto;
   object-fit: contain;
-  filter: brightness(0) invert(1);
-  opacity: 1;
   flex-shrink: 0;
 }
 

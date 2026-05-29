@@ -386,15 +386,10 @@ const logos = [
 }
 
 .trust__logo {
-  height: 80px;
+  height: 120px;
   width: auto;
   object-fit: contain;
-  filter: brightness(0) invert(1);
-  opacity: 0.6;
-  transition: opacity 0.2s;
 }
-
-.trust__logo:hover { opacity: 1; }
 
 @keyframes scroll-logos {
   from { transform: translateX(0); }
