@@ -15,8 +15,9 @@ dist-ssr/
 .env.*
 !.env.example
 
-# Grote video's buiten images/ map (te groot voor GitHub)
+# Grote video's (te groot voor GitHub, hosten via Vimeo/Bunny)
 public/*.mp4
+public/DATA_EVENTSHOOT/VIDEOS/
 
 # Editor
 .DS_Store

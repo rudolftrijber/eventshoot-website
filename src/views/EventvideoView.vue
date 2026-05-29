@@ -61,7 +61,7 @@ const logos = [
     <!-- Hero -->
     <section class="ev-hero">
       <div class="ev-hero__bg">
-        <img src="/DATA_EVENTSHOOT/SITE_IMAGES/VIDEO/eventshoot-71.jpg" alt="Eventvideo opname tijdens zakelijk congres" />
+        <img :src="'/DATA_EVENTSHOOT/SITE_IMAGES/VIDEO/eventshoot-71.jpg'" alt="Eventvideo opname tijdens zakelijk congres" />
         <div class="ev-hero__overlay"></div>
       </div>
       <div class="container ev-hero__content">
@@ -86,7 +86,7 @@ const logos = [
       <div class="container ev-block__inner ev-block__inner--normal">
         <div class="ev-block__video">
           <video autoplay muted loop playsinline>
-            <source src="/DATA_EVENTSHOOT/VIDEOS/short_aftermovie_ljubljana_2_v1-1080p (1).mp4" type="video/mp4" />
+            <source :src="'/DATA_EVENTSHOOT/VIDEOS/short_aftermovie_ljubljana_2_v1-1080p (1).mp4'" type="video/mp4" />
           </video>
         </div>
         <div class="ev-block__text">
@@ -101,7 +101,7 @@ const logos = [
       <div class="container ev-block__inner ev-block__inner--reversed">
         <div class="ev-block__video">
           <video autoplay muted loop playsinline>
-            <source src="/DATA_EVENTSHOOT/VIDEOS/dell_forum_aftermovie_v1-1080p (1).mp4" type="video/mp4" />
+            <source :src="'/DATA_EVENTSHOOT/VIDEOS/dell_forum_aftermovie_v1-1080p (1).mp4'" type="video/mp4" />
           </video>
         </div>
         <div class="ev-block__text">
@@ -116,7 +116,7 @@ const logos = [
       <div class="container ev-block__inner ev-block__inner--normal">
         <div class="ev-block__video">
           <video autoplay muted loop playsinline>
-            <source src="/DATA_EVENTSHOOT/VIDEOS/gbl_new_president_v1 (1080p).mp4" type="video/mp4" />
+            <source :src="'/DATA_EVENTSHOOT/VIDEOS/gbl_new_president_v1 (1080p).mp4'" type="video/mp4" />
           </video>
         </div>
         <div class="ev-block__text">
@@ -131,7 +131,7 @@ const logos = [
       <div class="container ev-block__inner ev-block__inner--reversed">
         <div class="ev-block__video">
           <video autoplay muted loop playsinline>
-            <source src="/DATA_EVENTSHOOT/VIDEOS/collective_video_v4-1080p (1).mp4" type="video/mp4" />
+            <source :src="'/DATA_EVENTSHOOT/VIDEOS/collective_video_v4-1080p (1).mp4'" type="video/mp4" />
           </video>
         </div>
         <div class="ev-block__text">
