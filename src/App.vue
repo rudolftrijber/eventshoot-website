@@ -1,21 +1,27 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { watch } from 'vue'
+import { useRoute } from 'vue-router'
 import NavBar from '@/components/NavBar.vue'
 import RolfContact from '@/components/RolfContact.vue'
 import FooterSection from '@/components/FooterSection.vue'
 import { RouterView } from 'vue-router'
 
-onMounted(() => {
-  const existing = document.querySelector('script[src*="elfsightcdn"]')
-  if (existing) existing.remove()
-  const script = document.createElement('script')
-  script.src = 'https://elfsightcdn.com/platform.js'
-  script.async = true
-  script.onload = () => {
-    const w = window as Window & { Elfsight?: { initialize: () => void } }
-    if (w.Elfsight) w.Elfsight.initialize()
-  }
-  document.head.appendChild(script)
+type ElfsightWindow = Window & {
+  ElfsightEmbeds?: { widgets: { initialize: () => void } }
+  Elfsight?: { reload: () => void }
+}
+
+const route = useRoute()
+
+watch(() => route.path, () => {
+  setTimeout(() => {
+    const w = window as ElfsightWindow
+    if (w.ElfsightEmbeds?.widgets?.initialize) {
+      w.ElfsightEmbeds.widgets.initialize()
+    } else if (w.Elfsight?.reload) {
+      w.Elfsight.reload()
+    }
+  }, 300)
 })
 </script>
 
