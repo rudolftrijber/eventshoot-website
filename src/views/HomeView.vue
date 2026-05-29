@@ -58,6 +58,9 @@ const logos = [
   { file: 'scpa.png', name: 'SCPA' },
   { file: 'evascript.png', name: 'EvaScript' },
   { file: 'dell.png', name: 'Dell' },
+  { file: 'beelegal.png', name: 'BeeLegal' },
+  { file: 'powermatching.png', name: 'Powermatching' },
+  { file: 'vectocon.png', name: 'Vectocon' },
 ]
 
 const teaserImages = [
@@ -109,7 +112,7 @@ const teaserImages = [
       <div class="trust__track-wrap">
         <div class="trust__track">
           <div class="trust__slide" v-for="n in 2" :key="n">
-            <img v-for="logo in logos" :key="logo.file + n" :src="`/images/klanten/${logo.file}`" :alt="logo.name" class="trust__logo" />
+            <img v-for="logo in logos" :key="logo.file + n" :src="`/DATA_EVENTSHOOT/SITE_IMAGES/OPDRACHTGEVERS/${logo.file}`" :alt="logo.name" class="trust__logo" />
           </div>
         </div>
       </div>

@@ -40,10 +40,19 @@ const videoTypes = [
   },
 ]
 
-const packages = [
-  { name: 'Highlight', video: true, text: '1 social aftermovie (45–90 sec). Direct bruikbaar voor LinkedIn.' },
-  { name: 'Headline', video: true, text: 'Social aftermovie (45–90 sec) + 10–15 sprekersinterviews (één camera).' },
-  { name: 'Heroes', video: true, text: 'Social aftermovie + corporate aftermovie (90–180 sec) + 15–20 sprekersinterviews.' },
+const logos = [
+  { file: 'gbl.png', name: 'GBL Alliance' },
+  { file: 'gladwell.png', name: 'Gladwell Academy' },
+  { file: 'datto.png', name: 'Datto' },
+  { file: 's2grupo.png', name: 'S2Grupo' },
+  { file: 'koers.png', name: 'Koers' },
+  { file: 'dux.png', name: 'Dux' },
+  { file: 'scpa.png', name: 'SCPA' },
+  { file: 'evascript.png', name: 'EvaScript' },
+  { file: 'dell.png', name: 'Dell' },
+  { file: 'beelegal.png', name: 'BeeLegal' },
+  { file: 'powermatching.png', name: 'Powermatching' },
+  { file: 'vectocon.png', name: 'Vectocon' },
 ]
 </script>
 
@@ -52,7 +61,7 @@ const packages = [
     <!-- Hero -->
     <section class="ev-hero">
       <div class="ev-hero__bg">
-        <img src="/eventshoot-77.jpg" alt="Eventvideo opname tijdens zakelijk congres" />
+        <img src="/DATA_EVENTSHOOT/SITE_IMAGES/VIDEO/eventshoot-71.jpg" alt="Eventvideo opname tijdens zakelijk congres" />
         <div class="ev-hero__overlay"></div>
       </div>
       <div class="container ev-hero__content">
@@ -72,20 +81,63 @@ const packages = [
       </div>
     </section>
 
-    <!-- Video voorbeeld -->
-    <section class="ev-showcase section">
-      <div class="container ev-showcase__inner">
-        <div class="ev-showcase__video">
-          <iframe
-            src="https://player.vimeo.com/video/1139974588?h=d77d047995&title=0&byline=0&portrait=0"
-            allow="autoplay; fullscreen; picture-in-picture"
-            allowfullscreen
-          ></iframe>
+    <!-- Video voorbeelden: 4 stroken -->
+    <section class="ev-block ev-block--1 section">
+      <div class="container ev-block__inner ev-block__inner--normal">
+        <div class="ev-block__video">
+          <video autoplay muted loop playsinline>
+            <source src="/DATA_EVENTSHOOT/VIDEOS/short_aftermovie_ljubljana_2_v1-1080p (1).mp4" type="video/mp4" />
+          </video>
         </div>
-        <div class="ev-showcase__text">
-          <h2 class="ev-showcase__title">Zo klinkt een aftermovie van Eventshoot.nl</h2>
-          <p class="ev-showcase__desc">Dit is een voorbeeld van een social aftermovie, gemonteerd op muziek, klaar om te posten. Energiek, scherp, en precies de sfeer die jouw event verdient.</p>
+        <div class="ev-block__text">
+          <h2 class="ev-block__title">Social aftermovie (45–90 seconden)</h2>
+          <p class="ev-block__desc">Energieke, strak gemonteerde samenvatting van de sfeer en hoogtepunten. Perfect om te delen op LinkedIn terwijl het event nog vers is. Zit in het Highlight, Headline en Heroes pakket.</p>
+          <RouterLink to="/tarieven" class="btn btn--primary">Bekijk pakketten</RouterLink>
+        </div>
+      </div>
+    </section>
+
+    <section class="ev-block ev-block--2 section">
+      <div class="container ev-block__inner ev-block__inner--reversed">
+        <div class="ev-block__video">
+          <video autoplay muted loop playsinline>
+            <source src="/DATA_EVENTSHOOT/VIDEOS/dell_forum_aftermovie_v1-1080p (1).mp4" type="video/mp4" />
+          </video>
+        </div>
+        <div class="ev-block__text">
+          <h2 class="ev-block__title">Corporate aftermovie (90–180 seconden)</h2>
+          <p class="ev-block__desc">Een uitgebreider verhaal: context, inhoud en reacties van deelnemers. Ideaal voor je website, jaarverslag of intern gebruik. Inclusief sprekersinterviews. Zit in het Heroes pakket.</p>
+          <RouterLink to="/tarieven" class="btn btn--primary">Bekijk het Heroes pakket</RouterLink>
+        </div>
+      </div>
+    </section>
+
+    <section class="ev-block ev-block--3 section">
+      <div class="container ev-block__inner ev-block__inner--normal">
+        <div class="ev-block__video">
+          <video autoplay muted loop playsinline>
+            <source src="/DATA_EVENTSHOOT/VIDEOS/gbl_new_president_v1 (1080p).mp4" type="video/mp4" />
+          </video>
+        </div>
+        <div class="ev-block__text">
+          <h2 class="ev-block__title">Sprekersinterviews (1–3 min per interview)</h2>
+          <p class="ev-block__desc">15–20 interviews met sprekers of deelnemers. Eén camera, helder geluid, professioneel gemonteerd. Levert weken aan content op voor LinkedIn en je website. Zit in het Headline en Heroes pakket.</p>
           <RouterLink to="/kennismaken" class="btn btn--primary">Plan een gesprek</RouterLink>
+        </div>
+      </div>
+    </section>
+
+    <section class="ev-block ev-block--4 section">
+      <div class="container ev-block__inner ev-block__inner--reversed">
+        <div class="ev-block__video">
+          <video autoplay muted loop playsinline>
+            <source src="/DATA_EVENTSHOOT/VIDEOS/collective_video_v4-1080p (1).mp4" type="video/mp4" />
+          </video>
+        </div>
+        <div class="ev-block__text">
+          <h2 class="ev-block__title">Event promotievideo (op maat)</h2>
+          <p class="ev-block__desc">Gebruik beelden van dit jaar om inschrijvingen voor de volgende editie te stimuleren. Collega's delen het, het netwerk groeit. Op offerte beschikbaar naast elk pakket.</p>
+          <RouterLink to="/kennismaken" class="btn btn--primary">Vraag een offerte aan</RouterLink>
         </div>
       </div>
     </section>
@@ -107,21 +159,14 @@ const packages = [
       </div>
     </section>
 
-    <!-- Pakket overzicht -->
-    <section class="ev-packages section section--dark">
-      <div class="container">
-        <SectionHeading title="Video per pakket" subtitle="Kies het pakket dat past bij jouw event en budget." />
-        <div class="ev-packages__table">
-          <div v-for="pkg in packages" :key="pkg.name" class="ev-packages__row">
-            <span class="ev-packages__name">{{ pkg.name }}</span>
-            <span class="ev-packages__status" :class="pkg.video ? 'ev-packages__status--yes' : 'ev-packages__status--no'">
-              {{ pkg.video ? '✓' : '✕' }}
-            </span>
-            <span class="ev-packages__desc">{{ pkg.text }}</span>
+    <!-- Logo carousel -->
+    <section class="trust">
+      <p class="trust__label">Vertrouwd door organisaties als…</p>
+      <div class="trust__track-wrap">
+        <div class="trust__track">
+          <div class="trust__slide" v-for="n in 2" :key="n">
+            <img v-for="logo in logos" :key="logo.file + n" :src="`/DATA_EVENTSHOOT/SITE_IMAGES/OPDRACHTGEVERS/${logo.file}`" :alt="logo.name" class="trust__logo" />
           </div>
-        </div>
-        <div class="ev-packages__cta">
-          <RouterLink to="/tarieven" class="btn btn--primary">Bekijk alle pakketten & tarieven</RouterLink>
         </div>
       </div>
     </section>
@@ -210,15 +255,33 @@ const packages = [
   font-style: italic;
 }
 
-/* Showcase */
-.ev-showcase__inner {
+/* Video blokken */
+.ev-block--1,
+.ev-block--3 {
+  background: transparent;
+}
+
+.ev-block--2,
+.ev-block--4 {
+  background: rgba(49, 159, 232, 0.40);
+}
+
+.ev-block__inner {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 4rem;
   align-items: center;
 }
 
-.ev-showcase__video {
+.ev-block__inner--reversed {
+  direction: rtl;
+}
+
+.ev-block__inner--reversed > * {
+  direction: ltr;
+}
+
+.ev-block__video {
   position: relative;
   width: 100%;
   aspect-ratio: 16/9;
@@ -226,7 +289,8 @@ const packages = [
   overflow: hidden;
 }
 
-.ev-showcase__video iframe {
+.ev-block__video iframe,
+.ev-block__video video {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -234,14 +298,14 @@ const packages = [
   border: none;
 }
 
-.ev-showcase__title {
+.ev-block__title {
   font-size: clamp(1.3rem, 2.2vw, 1.85rem);
   font-weight: 800;
   line-height: 1.2;
   margin-bottom: 1.25rem;
 }
 
-.ev-showcase__desc {
+.ev-block__desc {
   font-size: 0.975rem;
   color: var(--color-text-muted);
   line-height: 1.75;
@@ -291,50 +355,52 @@ const packages = [
   line-height: 1.7;
 }
 
-/* Pakketten */
-.ev-packages__table {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  max-width: 760px;
-  margin: 2rem auto 2.5rem;
+/* Logo carousel */
+.trust {
+  padding: 2.5rem 0;
+  overflow: hidden;
 }
 
-.ev-packages__row {
-  display: grid;
-  grid-template-columns: 160px 40px 1fr;
-  align-items: center;
-  gap: 1rem;
-  padding: 1.25rem 1.5rem;
-  background: rgba(0, 0, 0, 0.35);
-  border-radius: 12px;
-  transition: background var(--transition);
-}
-
-.ev-packages__row:hover {
-  background: rgba(0, 0, 0, 0.50);
-}
-
-.ev-packages__name {
-  font-weight: 700;
-  color: #fff;
-}
-
-.ev-packages__status {
-  font-weight: 800;
-  font-size: 1.1rem;
-}
-
-.ev-packages__status--yes { color: var(--color-accent); }
-.ev-packages__status--no { color: #555; }
-
-.ev-packages__desc {
-  font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.75);
-}
-
-.ev-packages__cta {
+.trust__label {
   text-align: center;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-muted);
+  margin-bottom: 1.5rem;
+}
+
+.trust__track-wrap {
+  overflow: hidden;
+}
+
+.trust__track {
+  display: flex;
+  width: max-content;
+  animation: scroll-logos 30s linear infinite;
+}
+
+.trust__slide {
+  display: flex;
+  align-items: center;
+  gap: 3rem;
+  padding-right: 3rem;
+}
+
+.trust__logo {
+  height: 36px;
+  width: auto;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+  opacity: 0.55;
+  transition: opacity 0.2s;
+}
+
+.trust__logo:hover { opacity: 1; }
+
+@keyframes scroll-logos {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
 }
 
 /* Reviews */
@@ -348,9 +414,10 @@ const packages = [
 }
 
 @media (max-width: 768px) {
-  .ev-showcase__inner {
+  .ev-block__inner {
     grid-template-columns: 1fr;
     gap: 2.5rem;
+    direction: ltr;
   }
   .video-types__grid { grid-template-columns: 1fr; }
   .ev-packages__row {

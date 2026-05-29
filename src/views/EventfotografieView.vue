@@ -388,7 +388,7 @@ const eventTypes = [
 .carousel__track {
   flex: 1;
   position: relative;
-  height: 480px;
+  aspect-ratio: 16/9;
   overflow: hidden;
   border-radius: 12px;
 }
