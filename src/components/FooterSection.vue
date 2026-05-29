@@ -176,7 +176,7 @@
 }
 
 .footer__bottom {
-  background: transparent;
+  background: rgba(0, 0, 0, 0.30);
   border: none;
   box-shadow: none;
   padding: 0.75rem 1rem;
