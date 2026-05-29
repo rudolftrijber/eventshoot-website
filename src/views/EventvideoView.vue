@@ -363,9 +363,7 @@ const logos = [
 
 .trust__label {
   text-align: center;
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
+  font-size: 0.9rem;
   color: var(--color-text-muted);
   margin-bottom: 1.5rem;
 }
@@ -388,11 +386,11 @@ const logos = [
 }
 
 .trust__logo {
-  height: 36px;
+  height: 80px;
   width: auto;
   object-fit: contain;
   filter: brightness(0) invert(1);
-  opacity: 0.55;
+  opacity: 0.6;
   transition: opacity 0.2s;
 }
 

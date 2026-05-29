@@ -271,11 +271,10 @@ const teaserImages = [
 }
 
 .trust__label {
-  font-size: 0.78rem;
-  color: var(--color-blue);
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
   text-align: center;
   margin-bottom: 1.5rem;
-  letter-spacing: 0.05em;
 }
 
 .trust__track-wrap {
@@ -302,7 +301,7 @@ const teaserImages = [
 }
 
 .trust__logo {
-  height: 150px;
+  height: 80px;
   width: auto;
   object-fit: contain;
   filter: brightness(0) invert(1);
