@@ -85,7 +85,7 @@ const logos = [
     <section class="ev-block ev-block--1 section">
       <div class="container ev-block__inner ev-block__inner--normal">
         <div class="ev-block__video">
-          <iframe src="https://player.vimeo.com/video/1139974588?h=d77d047995&autoplay=1&muted=1&loop=1&title=0&byline=0&portrait=0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+          <iframe src="https://player.vimeo.com/video/1139974588?h=d77d047995&background=1" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
         </div>
         <div class="ev-block__text">
           <h2 class="ev-block__title">Social aftermovie (45–90 seconden)</h2>
@@ -98,7 +98,7 @@ const logos = [
     <section class="ev-block ev-block--2 section">
       <div class="container ev-block__inner ev-block__inner--reversed">
         <div class="ev-block__video">
-          <iframe src="https://player.vimeo.com/video/1177248996?autoplay=1&muted=1&loop=1&title=0&byline=0&portrait=0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+          <iframe src="https://player.vimeo.com/video/1177248996?background=1" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
         </div>
         <div class="ev-block__text">
           <h2 class="ev-block__title">Corporate aftermovie (90–180 seconden)</h2>
@@ -111,7 +111,7 @@ const logos = [
     <section class="ev-block ev-block--3 section">
       <div class="container ev-block__inner ev-block__inner--normal">
         <div class="ev-block__video">
-          <iframe src="https://player.vimeo.com/video/1085449090?autoplay=1&muted=1&loop=1&title=0&byline=0&portrait=0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+          <iframe src="https://player.vimeo.com/video/1085449090?background=1" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
         </div>
         <div class="ev-block__text">
           <h2 class="ev-block__title">Sprekersinterviews (1–3 min per interview)</h2>
@@ -124,7 +124,7 @@ const logos = [
     <section class="ev-block ev-block--4 section">
       <div class="container ev-block__inner ev-block__inner--reversed">
         <div class="ev-block__video">
-          <iframe src="https://player.vimeo.com/video/1196606331?autoplay=1&muted=1&loop=1&title=0&byline=0&portrait=0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+          <iframe src="https://player.vimeo.com/video/1196606331?background=1" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
         </div>
         <div class="ev-block__text">
           <h2 class="ev-block__title">Event promotievideo (op maat)</h2>
