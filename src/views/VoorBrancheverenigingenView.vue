@@ -48,6 +48,8 @@ const waarom = [
 
     <PainPointBlock title="Dit herken je vast" :items="pijnpunten" />
 
+    <CaseTeaser />
+
     <WaaromVoorJullieBlock
       title="Wat je krijgt"
       :items="waarom"
@@ -56,7 +58,6 @@ const waarom = [
     />
 
     <ContentYearTeaser />
-    <CaseTeaser />
 
     <UspGrid />
   </main>

@@ -1,42 +1,120 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
+
+const photos = [
+  '/eventshoot-94.jpg',
+  '/eventshoot-84.jpg',
+  '/eventshoot-79.jpg',
+  '/eventshoot-83.jpg',
+  '/eventshoot-75.jpg',
+  '/eventshoot-96.jpg',
+  '/eventshoot-89.jpg',
+  '/eventshoot-104.jpg',
+]
+
+const current = ref(0)
+
+function prev() {
+  current.value = (current.value - 1 + photos.length) % photos.length
+}
+function next() {
+  current.value = (current.value + 1) % photos.length
+}
 </script>
 
 <template>
-  <section class="caseteaser section section--dark">
-    <div class="container caseteaser__inner">
-      <div class="caseteaser__copy">
-        <h2 class="caseteaser__title">Werk dat voor zichzelf spreekt</h2>
-        <p class="caseteaser__text">
-          Bekijk een selectie uit congressen, conferenties, ledendagen en bedrijfsbijeenkomsten die we hebben mogen vastleggen.
-        </p>
+  <section class="caseteaser section section--blue">
+    <div class="container">
+      <h2 class="caseteaser__title">Werk dat voor zichzelf spreekt</h2>
+      <p class="caseteaser__sub">Een selectie uit onze portfolio.</p>
+
+      <div class="caseteaser__carousel">
+        <button class="caseteaser__arrow caseteaser__arrow--prev" @click="prev" aria-label="Vorige foto">&#8249;</button>
+        <div class="caseteaser__img-wrap">
+          <img
+            v-for="(photo, i) in photos"
+            :key="photo"
+            :src="photo"
+            :class="['caseteaser__img', { 'caseteaser__img--active': i === current }]"
+            alt="Eventfoto Eventshoot.nl"
+          />
+        </div>
+        <button class="caseteaser__arrow caseteaser__arrow--next" @click="next" aria-label="Volgende foto">&#8250;</button>
       </div>
+
       <div class="caseteaser__cta">
-        <RouterLink to="/werk" class="btn btn--primary">Bekijk werk</RouterLink>
+        <RouterLink to="/werk" class="btn btn--primary">Bekijk het werk</RouterLink>
       </div>
     </div>
   </section>
 </template>
 
 <style scoped>
-.caseteaser__inner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1.5rem;
-}
 .caseteaser__title {
-  font-size: clamp(1.2rem, 2.2vw, 1.7rem);
+  text-align: center;
+  font-size: clamp(1.4rem, 2.5vw, 2rem);
   font-weight: 800;
   margin-bottom: 0.5rem;
 }
-.caseteaser__text {
-  color: rgba(255,255,255,0.75);
-  line-height: 1.7;
-  max-width: 60ch;
-  margin: 0;
+
+.caseteaser__sub {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.75);
+  margin-bottom: 2rem;
 }
-@media (max-width: 800px) {
-  .caseteaser__inner { flex-direction: column; align-items: flex-start; }
+
+.caseteaser__carousel {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.caseteaser__img-wrap {
+  position: relative;
+  flex: 1;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.caseteaser__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.caseteaser__img--active {
+  opacity: 1;
+}
+
+.caseteaser__arrow {
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  color: #fff;
+  font-size: 2.5rem;
+  line-height: 1;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.caseteaser__arrow:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.caseteaser__cta {
+  text-align: center;
+  margin-top: 2rem;
 }
 </style>
