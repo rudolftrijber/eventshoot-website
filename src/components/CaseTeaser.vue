@@ -3,14 +3,11 @@ import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
 
 const photos = [
-  '/eventshoot-94.jpg',
-  '/eventshoot-84.jpg',
-  '/eventshoot-79.jpg',
-  '/eventshoot-83.jpg',
   '/eventshoot-75.jpg',
-  '/eventshoot-96.jpg',
+  '/eventshoot-79.jpg',
   '/eventshoot-89.jpg',
-  '/eventshoot-104.jpg',
+  '/eventshoot-96.jpg',
+  '/eventshoot-101.jpg',
 ]
 
 const current = ref(0)
@@ -65,14 +62,13 @@ function next() {
 }
 
 .caseteaser__carousel {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+  position: relative;
+  padding: 0 3.5rem;
 }
 
 .caseteaser__img-wrap {
   position: relative;
-  flex: 1;
+  width: 100%;
   aspect-ratio: 16 / 9;
   overflow: hidden;
   border-radius: 8px;
@@ -93,25 +89,30 @@ function next() {
 }
 
 .caseteaser__arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
   background: rgba(255, 255, 255, 0.15);
   border: none;
   color: #fff;
-  font-size: 2.5rem;
-  line-height: 1;
+  font-size: 2rem;
   width: 2.75rem;
   height: 2.75rem;
   border-radius: 50%;
   cursor: pointer;
-  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: background 0.2s;
+  z-index: 1;
 }
 
 .caseteaser__arrow:hover {
   background: rgba(255, 255, 255, 0.3);
 }
+
+.caseteaser__arrow--prev { left: 0; }
+.caseteaser__arrow--next { right: 0; }
 
 .caseteaser__cta {
   text-align: center;
