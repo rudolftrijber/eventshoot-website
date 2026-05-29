@@ -4,8 +4,7 @@ import UspGrid from '@/components/UspGrid.vue'
 import MottoStrip from '@/components/MottoStrip.vue'
 import VoorWieHero from '@/components/VoorWieHero.vue'
 import PainPointBlock from '@/components/PainPointBlock.vue'
-import WaaromVoorJullieBlock from '@/components/WaaromVoorJullieBlock.vue'
-import ContentYearTeaser from '@/components/ContentYearTeaser.vue'
+import { RouterLink } from 'vue-router'
 import CaseTeaser from '@/components/CaseTeaser.vue'
 import { useSeo } from '@/composables/useSeo'
 
@@ -50,15 +49,69 @@ const waarom = [
 
     <CaseTeaser />
 
-    <WaaromVoorJullieBlock
-      title="Wat je krijgt"
-      :items="waarom"
-      cta-label="Bekijk pakketten"
-      cta-to="/tarieven"
-    />
-
-    <ContentYearTeaser />
+    <section class="aanbod section">
+      <div class="container aanbod__inner">
+        <div class="aanbod__wat">
+          <h2 class="aanbod__title">Wat je krijgt</h2>
+          <ul class="aanbod__list">
+            <li v-for="item in waarom" :key="item">
+              <span class="aanbod__check">✓</span>{{ item }}
+            </li>
+          </ul>
+          <RouterLink to="/tarieven" class="btn btn--primary aanbod__cta">Bekijk pakketten</RouterLink>
+        </div>
+        <div class="aanbod__jaar">
+          <h2 class="aanbod__title">Meerdere events per jaar?</h2>
+          <p class="aanbod__text">Met het Content Year jaarcontract heb je drie events per jaar op Heroes-niveau, voorrang in de agenda en een doorlopende stijl.</p>
+          <RouterLink to="/tarieven" class="btn btn--primary aanbod__cta">Bekijk jaarcontract</RouterLink>
+        </div>
+      </div>
+    </section>
 
     <UspGrid />
   </main>
 </template>
+
+<style scoped>
+.aanbod__inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: start;
+}
+.aanbod__title {
+  font-size: clamp(1.2rem, 2.2vw, 1.7rem);
+  font-weight: 800;
+  margin-bottom: 1.25rem;
+}
+.aanbod__list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  margin-bottom: 2rem;
+}
+.aanbod__list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  font-size: 0.95rem;
+  color: rgba(255,255,255,0.85);
+  line-height: 1.55;
+}
+.aanbod__check {
+  color: var(--color-accent);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.aanbod__text {
+  color: rgba(255,255,255,0.75);
+  line-height: 1.7;
+  margin-bottom: 2rem;
+}
+.aanbod__cta { display: inline-flex; }
+@media (max-width: 800px) {
+  .aanbod__inner { grid-template-columns: 1fr; gap: 3rem; }
+}
+</style>
