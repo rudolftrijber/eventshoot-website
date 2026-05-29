@@ -40,6 +40,7 @@ const waarom = [
       sub="Eén content-partner voor je jaarcongres, ledendagen en vakdagen. Geleverd binnen 48 uur, klaar voor je ledencommunicatie."
       cta-label="Vraag een kennismaking aan"
       cta-to="/kennismaken"
+      image="/eventshoot-94.jpg"
     />
 
     <PainPointBlock title="Dit herken je vast" :items="pijnpunten" />
