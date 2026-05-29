@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import UspGrid from '@/components/UspGrid.vue'
+import MottoStrip from '@/components/MottoStrip.vue'
 import VoorWieHero from '@/components/VoorWieHero.vue'
 import PainPointBlock from '@/components/PainPointBlock.vue'
 import WaaromVoorJullieBlock from '@/components/WaaromVoorJullieBlock.vue'
@@ -42,6 +43,8 @@ const waarom = [
       cta-to="/kennismaken"
       image="/eventshoot-94.jpg"
     />
+
+    <MottoStrip body="Sprekers, deelnemers, reacties, sfeer, hoogtepunten. Elk jaarcongres of ledendag levert tientallen bruikbare momenten op. Eventshoot.nl zet die om in een complete contentbox: 25+ kant-en-klare foto's, aftermovies en interviews. Klaar voor je ledencommunicatie, terwijl het event nog top of mind is." />
 
     <PainPointBlock title="Dit herken je vast" :items="pijnpunten" />
 
