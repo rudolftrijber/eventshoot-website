@@ -69,6 +69,13 @@ const waarom = [
     </section>
 
     <UspGrid />
+
+    <section class="reviews section">
+      <div class="container">
+        <h2 class="reviews__title">Wat zeggen onze opdrachtgevers?</h2>
+        <div class="elfsight-app-4ed38ed1-21e2-4238-bb5c-d1127391e146"></div>
+      </div>
+    </section>
   </main>
 </template>
 
@@ -113,5 +120,12 @@ const waarom = [
 .aanbod__cta { display: inline-flex; }
 @media (max-width: 800px) {
   .aanbod__inner { grid-template-columns: 1fr; gap: 3rem; }
+}
+
+.reviews__title {
+  font-size: clamp(1.3rem, 2.5vw, 1.85rem);
+  font-weight: 800;
+  margin-bottom: 2rem;
+  text-align: center;
 }
 </style>
