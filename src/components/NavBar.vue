@@ -65,7 +65,6 @@ const voorWie = [
 ]
 const over = [
   { label: 'Over Rolf', to: '/over-rolf' },
-  { label: 'Eventkennis', to: '/eventkennis' },
 ]
 </script>
 
@@ -111,9 +110,12 @@ const over = [
         <!-- Tarieven -->
         <RouterLink to="/tarieven" class="navbar__link" :class="{ 'navbar__link--active': route.path === '/tarieven' }" @click="closeMenu">{{ t('nav.pricing') }}</RouterLink>
 
+        <!-- Eventkennis -->
+        <RouterLink to="/eventkennis" class="navbar__link" :class="{ 'navbar__link--active': route.path.startsWith('/eventkennis') }" @click="closeMenu">{{ t('nav.knowledge') }}</RouterLink>
+
         <!-- Over -->
         <div class="dd" @mouseenter="onMouseEnter('over')" @mouseleave="onMouseLeave">
-          <button class="navbar__link dd__trigger" :class="{ 'navbar__link--active': route.path.startsWith('/over') || route.path.startsWith('/eventkennis') }" @click="toggleSection('over')">
+          <button class="navbar__link dd__trigger" :class="{ 'navbar__link--active': route.path.startsWith('/over') }" @click="toggleSection('over')">
             {{ t('nav.about') }} <span class="dd__arrow">▾</span>
           </button>
           <div class="dd__panel" :class="{ 'dd__panel--open': expanded === 'over' }">
