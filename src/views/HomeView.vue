@@ -128,21 +128,21 @@ const teaserImages = [
     <section class="featured section section--dark">
       <div class="container">
         <SectionHeading
-          title="Het meest gekozen pakket"
-          subtitle="Voor jaarcongres, ledendag of groter bedrijfsevent is het Headline-pakket de perfecte match."
+          :title="t('home_featured.title')"
+          :subtitle="t('home_featured.sub')"
         />
         <div class="featured__card-wrap">
           <PricingCard
-            name="Headline"
+            :name="t('home_featured.pkgName')"
             price="€2.250"
-            description="Voldoende voor LinkedIn, website, uitnodigingen en jaarverslag."
-            :features="['8 uur aanwezig op jouw event', '150–250 professioneel bewerkte foto\'s', '1 social aftermovie (45–90 seconden)', '10–15 sprekersinterviews (één camera)', 'Geleverd binnen 48 uur', 'Online galerij met downloadlink']"
+            :description="t('home_featured.pkgDesc')"
+            :features="[t('home_featured.pkgFeature1'), t('home_featured.pkgFeature2'), t('home_featured.pkgFeature3'), t('home_featured.pkgFeature4'), t('home_featured.pkgFeature5'), t('home_featured.pkgFeature6')]"
             image="/images/Eventshoot_GOLDEN_HOUR.jpg"
             :highlighted="true"
           />
         </div>
         <div class="featured__more">
-          <RouterLink to="/tarieven" class="btn btn--outline">Alle pakketten bekijken</RouterLink>
+          <RouterLink to="/tarieven" class="btn btn--outline">{{ t('home_featured.allPackages') }}</RouterLink>
         </div>
       </div>
     </section>
@@ -150,29 +150,27 @@ const teaserImages = [
     <!-- Checklist banner -->
     <section class="checklist-banner">
       <div class="container checklist-banner__content">
-        <h2 class="checklist-banner__title">Download gratis onze Event Content Checklist</h2>
-        <p class="checklist-banner__sub">Zorg dat je foto- en videograaf precies weet wat je nodig hebt. Niets missen, altijd bruikbare beelden. Gratis te downloaden.</p>
+        <h2 class="checklist-banner__title">{{ t('home_featured.checklistTitle') }}</h2>
+        <p class="checklist-banner__sub">{{ t('home_featured.checklistSub') }}</p>
         <template v-if="!checklistSubmitted">
           <form class="checklist-form" @submit.prevent="submitChecklistEmail" novalidate>
             <input
               v-model="checklistEmail"
               type="email"
-              placeholder="jouw@emailadres.nl"
+              :placeholder="t('home_featured.checklistPlaceholder')"
               required
               autocomplete="email"
               class="checklist-form__input"
             />
             <button type="submit" class="checklist-banner__btn" :disabled="checklistSubmitting">
-              {{ checklistSubmitting ? 'Moment…' : 'Downloaden' }}
+              {{ checklistSubmitting ? t('home_featured.checklistBusy') : t('home_featured.checklistBtn') }}
             </button>
           </form>
-          <p v-if="checklistError" class="checklist-form__error">Er ging iets mis. Probeer het opnieuw.</p>
-          <p class="checklist-form__privacy">Geen spam, je kunt je op elk moment afmelden.</p>
+          <p v-if="checklistError" class="checklist-form__error">{{ t('home_featured.checklistError') }}</p>
+          <p class="checklist-form__privacy">{{ t('home_featured.checklistPrivacy') }}</p>
         </template>
         <template v-else>
-          <p class="checklist-banner__success">
-            ✓ Download begint zo. Je ontvangt geen spam.
-          </p>
+          <p class="checklist-banner__success">{{ t('home_featured.checklistSuccess') }}</p>
         </template>
       </div>
     </section>
@@ -180,7 +178,7 @@ const teaserImages = [
     <!-- Google Reviews -->
     <section class="reviews">
       <div class="container">
-        <SectionHeading title="Wat klanten zeggen" />
+        <SectionHeading :title="t('home_featured.reviewsTitle')" />
         <div class="elfsight-app-4ed38ed1-21e2-4238-bb5c-d1127391e146"></div>
       </div>
     </section>
