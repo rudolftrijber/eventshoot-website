@@ -136,6 +136,13 @@ const faqFallback = computed(() => [
       </div>
     </section>
 
+    <!-- Motto strook -->
+    <section class="motto-bar">
+      <div class="container motto-bar__inner">
+        <p class="motto-bar__text">{{ t('tarieven.motto') }}</p>
+      </div>
+    </section>
+
     <FaqBlock page="kennismaken" :fallback="faqFallback" :subtitle="t('km.faqSub')" />
   </main>
 </template>
@@ -208,6 +215,22 @@ const faqFallback = computed(() => [
 .opties__card h3 {
   font-size: 1.1rem;
   font-weight: 700;
+}
+
+.motto-bar {
+  background: rgba(255, 140, 0, 0.42);
+  padding: 3rem 0;
+}
+
+.motto-bar__inner {
+  text-align: center;
+}
+
+.motto-bar__text {
+  font-size: clamp(1.4rem, 3vw, 2.25rem);
+  font-weight: 800;
+  color: #fff;
+  font-style: italic;
 }
 
 .opties__card p {
