@@ -22,7 +22,7 @@ const packages = computed(() => [
     price: '€895',
     description: t('pkg.highlightDesc'),
     features: [t('pkg.f4uur'), t('pkg.f100foto'), t('pkg.fSocial'), t('pkg.f24uur'), t('pkg.fGalerij')],
-    image: '/images/Eventshoot_DAGLICHT.jpg',
+    image: '/DATA_EVENTSHOOT/SITE_IMAGES/PRIJZEN/PHOTO.png',
     highlighted: false,
   },
   {
@@ -30,7 +30,7 @@ const packages = computed(() => [
     price: '€2.250',
     description: t('pkg.headlineDesc'),
     features: [t('pkg.f8uur'), t('pkg.f150foto'), t('pkg.fSocial'), t('pkg.fInterviews'), t('pkg.f48uur'), t('pkg.fGalerij')],
-    image: '/images/Eventshoot_GOLDEN_HOUR.jpg',
+    image: '/DATA_EVENTSHOOT/SITE_IMAGES/PRIJZEN/VIDEO.png',
     highlighted: true,
   },
   {
@@ -38,7 +38,7 @@ const packages = computed(() => [
     price: '€3.450',
     description: t('pkg.heroesDesc'),
     features: [t('pkg.f8uur2crew'), t('pkg.f200foto'), t('pkg.fSocial'), t('pkg.fCorporate'), t('pkg.fInterviews'), t('pkg.fDrone'), t('pkg.f48uur')],
-    image: '/images/Eventshoot_SPOTLIGHT.jpg',
+    image: '/DATA_EVENTSHOOT/SITE_IMAGES/PRIJZEN/INTERVIEWS.png',
     highlighted: false,
   },
 ])
