@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n'
 import FaqBlock from '@/components/FaqBlock.vue'
 import { useSeo } from '@/composables/useSeo'
 import { useEmailJS } from '@/composables/useEmailJS'
+import { PhoneIcon, EnvelopeIcon, ChatBubbleLeftRightIcon } from '@heroicons/vue/24/outline'
 
 const { t } = useI18n()
 
@@ -67,19 +68,19 @@ const faqFallback = computed(() => [
       <div class="container">
         <div class="opties__grid">
           <div class="opties__card">
-            <div class="opties__icon">📞</div>
+            <PhoneIcon class="opties__icon" />
             <h3>{{ t('km.callTitle') }}</h3>
             <p>{{ t('km.callDesc') }}</p>
             <a href="tel:+31625177728" class="btn btn--primary">{{ t('km.callBtn') }}</a>
           </div>
           <div class="opties__card">
-            <div class="opties__icon">✉️</div>
+            <EnvelopeIcon class="opties__icon" />
             <h3>{{ t('km.emailTitle') }}</h3>
             <p>{{ t('km.emailDesc') }}</p>
             <a href="mailto:rolf@eventshoot.nl" class="btn btn--primary">{{ t('km.emailBtn') }}</a>
           </div>
           <div class="opties__card">
-            <div class="opties__icon">💬</div>
+            <ChatBubbleLeftRightIcon class="opties__icon" />
             <h3>{{ t('km.formTitle') }}</h3>
             <p>{{ t('km.formDesc') }}</p>
             <a href="#contact-form" class="btn btn--primary">{{ t('km.formBtn') }}</a>
@@ -211,7 +212,13 @@ const faqFallback = computed(() => [
   gap: 0.75rem;
 }
 
-.opties__icon { font-size: 2rem; }
+.opties__icon {
+  width: 28px;
+  height: 28px;
+  color: var(--color-accent);
+  stroke-width: 1.5;
+  flex-shrink: 0;
+}
 
 .opties__card h3 {
   font-size: 1.1rem;
