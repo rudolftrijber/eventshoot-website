@@ -1,4 +1,7 @@
 export default {
+  faq: {
+    title: 'Veelgestelde vragen',
+  },
   nav: {
     services: 'Diensten',
     photography: 'Eventfotografie',
@@ -176,6 +179,7 @@ export default {
     loading: 'Artikelen laden…',
     error: 'Kon artikelen niet laden. Controleer de Sanity configuratie.',
     empty: 'Nog geen artikelen gepubliceerd. Voeg ze toe via de Sanity Studio.',
+    nlOnly: 'Eventkennis is alleen beschikbaar in het Nederlands. Schakel de taal bovenaan naar NL om artikelen te lezen.',
   },
   artikel: {
     kbH1: 'Kennisbank.',
