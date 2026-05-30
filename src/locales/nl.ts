@@ -31,6 +31,7 @@ export default {
     title: 'Vragen? Bel Rolf.',
     sub: 'Of stuur een bericht via LinkedIn.',
     phone: '06 251 777 28',
+    phoneDisplay: '06 251 777 28',
     linkedin: 'LinkedIn',
   },
   usp: {

@@ -20,7 +20,7 @@ const { t } = useI18n()
         </a>
         <p class="footer__motto">{{ t('footer.motto') }}</p>
         <div class="footer__contact">
-          <a href="tel:+31625177728" class="footer__contact-link">06 251 777 28</a>
+          <a href="tel:+31625177728" class="footer__contact-link">{{ t('belRolf.phoneDisplay') }}</a>
           <a href="mailto:rolf@eventshoot.nl" class="footer__contact-link">rolf@eventshoot.nl</a>
           <a href="https://www.linkedin.com/in/rolftrijber/" target="_blank" rel="noopener" class="footer__contact-link">LinkedIn</a>
         </div>

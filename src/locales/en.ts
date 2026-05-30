@@ -31,6 +31,7 @@ export default {
     title: 'Questions? Call Rolf.',
     sub: 'Or send a message via LinkedIn.',
     phone: '+31 6 251 777 28',
+    phoneDisplay: '+31 6 251 777 28',
     linkedin: 'LinkedIn',
   },
   usp: {

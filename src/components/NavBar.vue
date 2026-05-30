@@ -71,7 +71,7 @@ const over = computed(() => [
 <template>
   <div class="topbar">
     <a href="tel:+31625177728" class="topbar__phone">
-      {{ t('nav.phone') }} &mdash; 06 251 777 28
+      {{ t('nav.phone') }} &mdash; {{ t('belRolf.phoneDisplay') }}
     </a>
   </div>
 
