@@ -2,12 +2,23 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { useEventkennisLangSwitch } from '@/composables/useEventkennisLangSwitch'
+import { eventkennisListPath, isEventkennisRoute } from '@/lib/eventkennisPaths'
+import type { ContentLocale } from '@/lib/eventkennisPaths'
 
 const { t, locale } = useI18n()
+const { switchContentLang } = useEventkennisLangSwitch()
 
-function setLang(lang: string) {
+function setLang(lang: ContentLocale) {
+  if (isEventkennisRoute(route.path)) {
+    switchContentLang(lang)
+    closeMenu()
+    return
+  }
   locale.value = lang
   localStorage.setItem('lang', lang)
+  document.documentElement.lang = lang
+  closeMenu()
 }
 
 const route = useRoute()
@@ -66,6 +77,12 @@ const voorWie = computed(() => [
 const over = computed(() => [
   { label: t('nav.aboutRolf'), to: '/over-rolf' },
 ])
+
+const eventkennisPath = computed(() => eventkennisListPath(locale.value as ContentLocale))
+
+const onEventkennis = computed(() =>
+  route.path.startsWith('/eventkennis') || route.path.startsWith('/en/event-knowledge'),
+)
 </script>
 
 <template>
@@ -111,7 +128,7 @@ const over = computed(() => [
         <RouterLink to="/tarieven" class="navbar__link" :class="{ 'navbar__link--active': route.path === '/tarieven' }" @click="closeMenu">{{ t('nav.pricing') }}</RouterLink>
 
         <!-- Eventkennis -->
-        <RouterLink to="/eventkennis" class="navbar__link" :class="{ 'navbar__link--active': route.path.startsWith('/eventkennis') }" @click="closeMenu">{{ t('nav.knowledge') }}</RouterLink>
+        <RouterLink :to="eventkennisPath" class="navbar__link" :class="{ 'navbar__link--active': onEventkennis }" @click="closeMenu">{{ t('nav.knowledge') }}</RouterLink>
 
         <!-- Over -->
         <div class="dd" @mouseenter="onMouseEnter('over')" @mouseleave="onMouseLeave">

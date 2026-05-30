@@ -1,13 +1,35 @@
 import { defineField, defineType } from 'sanity'
 
+const languageOptions = [
+  { title: 'Nederlands', value: 'nl' },
+  { title: 'English', value: 'en' },
+]
+
 export const blogPost = defineType({
   name: 'blogPost',
-  title: 'Nieuwsartikel',
+  title: 'Eventkennis-artikel',
   type: 'document',
   fields: [
     defineField({
+      name: 'language',
+      title: 'Taal',
+      type: 'string',
+      options: { list: languageOptions, layout: 'radio' },
+      initialValue: 'nl',
+      validation: Rule => Rule.required(),
+    }),
+    defineField({
+      name: 'translationOf',
+      title: 'Vertaling van (NL-bronartikel)',
+      type: 'reference',
+      to: [{ type: 'blogPost' }],
+      description:
+        'Alleen invullen bij Engelse artikelen: koppel aan het Nederlandse bronartikel. NL-artikelen laten leeg.',
+      hidden: ({ document }) => document?.language !== 'en',
+    }),
+    defineField({
       name: 'title',
-      title: 'Titel',
+      title: 'Titel (H1)',
       type: 'string',
       validation: Rule => Rule.required(),
     }),
@@ -74,12 +96,43 @@ export const blogPost = defineType({
         { type: 'image', options: { hotspot: true } },
       ],
     }),
+    defineField({
+      name: 'faq',
+      title: 'Veelgestelde vragen (FAQ)',
+      type: 'array',
+      of: [
+        {
+          type: 'object',
+          name: 'faqItem',
+          title: 'Vraag & antwoord',
+          fields: [
+            defineField({
+              name: 'question',
+              title: 'Vraag',
+              type: 'string',
+              validation: Rule => Rule.required(),
+            }),
+            defineField({
+              name: 'answer',
+              title: 'Antwoord',
+              type: 'text',
+              rows: 4,
+              validation: Rule => Rule.required(),
+            }),
+          ],
+          preview: {
+            select: { title: 'question' },
+          },
+        },
+      ],
+    }),
   ],
   preview: {
-    select: { title: 'title', media: 'mainImage', date: 'publishedAt' },
-    prepare({ title, media, date }) {
+    select: { title: 'title', media: 'mainImage', date: 'publishedAt', language: 'language' },
+    prepare({ title, media, date, language }) {
+      const langLabel = language === 'en' ? 'EN' : 'NL'
       return {
-        title,
+        title: `[${langLabel}] ${title}`,
         media,
         subtitle: date ? new Date(date).toLocaleDateString('nl-NL') : 'Geen datum',
       }

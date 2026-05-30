@@ -1,28 +1,30 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { RouterLink } from 'vue-router'
+import { ref, onMounted, watch, computed } from 'vue'
+import { RouterLink, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { client, urlFor, postsQuery, type SanityPost } from '@/lib/sanity'
 import { useSeo } from '@/composables/useSeo'
+import {
+  contentLocaleFromPath,
+  eventkennisArticlePath,
+  eventkennisListPath,
+} from '@/lib/eventkennisPaths'
 
 const { t } = useI18n()
+const route = useRoute()
 
-onMounted(() => {
-  useSeo({
-    title: 'Eventkennis | Eventshoot.nl',
-    description: 'Praktische artikelen over eventcontent, eventfotografie en zichtbaarheid na je event. Onderhouden door Rolf Trijber.',
-    url: 'https://eventshoot.nl/eventkennis',
-  })
-  loadPosts()
-})
+const contentLocale = computed(() => contentLocaleFromPath(route.path))
+const listPath = computed(() => eventkennisListPath(contentLocale.value))
 
 const posts = ref<SanityPost[]>([])
 const loading = ref(true)
 const error = ref(false)
 
 async function loadPosts() {
+  loading.value = true
+  error.value = false
   try {
-    posts.value = await client.fetch(postsQuery)
+    posts.value = await client.fetch(postsQuery, { lang: contentLocale.value })
   } catch {
     error.value = true
   } finally {
@@ -30,12 +32,39 @@ async function loadPosts() {
   }
 }
 
+function applySeo() {
+  const base = 'https://eventshoot.nl'
+  const isEn = contentLocale.value === 'en'
+  useSeo({
+    title: isEn
+      ? 'Event Knowledge | Eventshoot.nl'
+      : 'Eventkennis | Eventshoot.nl',
+    description: isEn
+      ? 'Practical articles about event content, event photography and visibility after your event. By Rolf Trijber.'
+      : 'Praktische artikelen over eventcontent, eventfotografie en zichtbaarheid na je event. Onderhouden door Rolf Trijber.',
+    url: `${base}${listPath.value}`,
+    locale: contentLocale.value,
+    alternates: [
+      { hreflang: 'nl', url: `${base}/eventkennis` },
+      { hreflang: 'en', url: `${base}/en/event-knowledge` },
+      { hreflang: 'x-default', url: `${base}/eventkennis` },
+    ],
+  })
+}
 
+onMounted(() => {
+  applySeo()
+  loadPosts()
+})
+
+watch(contentLocale, () => {
+  applySeo()
+  loadPosts()
+})
 </script>
 
 <template>
   <main>
-    <!-- Hero -->
     <section class="ek-hero">
       <div class="ek-hero__bg">
         <img src="/eventshoot-78.jpg" alt="Eventkennis door Rolf Trijber" />
@@ -67,7 +96,7 @@ async function loadPosts() {
           <RouterLink
             v-for="post in posts"
             :key="post._id"
-            :to="`/eventkennis/${post.slug.current}`"
+            :to="eventkennisArticlePath(contentLocale, post.slug.current)"
             class="ek__card"
           >
             <div class="ek__img-wrap">
@@ -82,7 +111,7 @@ async function loadPosts() {
             <div class="ek__body">
               <h2 class="ek__title">{{ post.title }}</h2>
               <p class="ek__excerpt">{{ post.excerpt }}</p>
-              <span class="ek__read">Lees verder &rarr;</span>
+              <span class="ek__read">{{ t('artikel.readMore') }}</span>
             </div>
           </RouterLink>
         </div>
@@ -188,7 +217,6 @@ async function loadPosts() {
   gap: 0.75rem;
 }
 
-.ek__meta { display: flex; gap: 1rem; font-size: 0.8rem; color: var(--color-text-muted); }
 .ek__title { font-size: 1.05rem; font-weight: 700; line-height: 1.3; color: var(--color-text); }
 .ek__excerpt { font-size: 0.875rem; color: var(--color-text-muted); line-height: 1.6; }
 .ek__read { font-size: 0.875rem; font-weight: 600; color: var(--color-accent); }

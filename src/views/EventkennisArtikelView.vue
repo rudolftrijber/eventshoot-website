@@ -1,35 +1,84 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { PortableText } from '@portabletext/vue'
+import ArticleFaqBlock from '@/components/ArticleFaqBlock.vue'
 import { client, urlFor, postBySlugQuery, postsQuery, type SanityPost } from '@/lib/sanity'
 import { useSeo } from '@/composables/useSeo'
+import {
+  contentLocaleFromPath,
+  eventkennisArticlePath,
+  eventkennisListPath,
+  type ContentLocale,
+} from '@/lib/eventkennisPaths'
 
 const { t } = useI18n()
-
 const route = useRoute()
+
+const contentLocale = computed(() => contentLocaleFromPath(route.path))
+const listPath = computed(() => eventkennisListPath(contentLocale.value))
+
 const post = ref<SanityPost | null>(null)
 const recentPosts = ref<SanityPost[]>([])
 const loading = ref(true)
 const notFound = ref(false)
 
+function dateLocale(): string {
+  return contentLocale.value === 'en' ? 'en-GB' : 'nl-NL'
+}
+
+function formatDate(d: string) {
+  return new Date(d).toLocaleDateString(dateLocale(), { day: 'numeric', month: 'long', year: 'numeric' })
+}
+
+function buildAlternates(result: SanityPost) {
+  const base = 'https://eventshoot.nl'
+  const selfLocale = (result.language || 'nl') as ContentLocale
+  const selfUrl = `${base}${eventkennisArticlePath(selfLocale, result.slug.current)}`
+
+  let nlUrl = selfLocale === 'nl' ? selfUrl : undefined
+  let enUrl = selfLocale === 'en' ? selfUrl : undefined
+
+  if (result.alternate?.slug?.current) {
+    const altLocale = result.alternate.language as ContentLocale
+    const altUrl = `${base}${eventkennisArticlePath(altLocale, result.alternate.slug.current)}`
+    if (altLocale === 'nl') nlUrl = altUrl
+    else enUrl = altUrl
+  }
+
+  const alternates: { hreflang: string; url: string }[] = []
+  if (nlUrl) alternates.push({ hreflang: 'nl', url: nlUrl })
+  if (enUrl) alternates.push({ hreflang: 'en', url: enUrl })
+  alternates.push({ hreflang: 'x-default', url: nlUrl || selfUrl })
+  return alternates
+}
+
 async function loadPost(slug: string) {
   loading.value = true
   notFound.value = false
+  const lang = contentLocale.value
   try {
     const [result, all] = await Promise.all([
-      client.fetch(postBySlugQuery, { slug }),
-      client.fetch(postsQuery),
+      client.fetch<SanityPost | null>(postBySlugQuery, { slug, lang }),
+      client.fetch<SanityPost[]>(postsQuery, { lang }),
     ])
-    if (!result) { notFound.value = true; return }
+    if (!result) {
+      notFound.value = true
+      post.value = null
+      return
+    }
     post.value = result
-    recentPosts.value = (all as SanityPost[]).filter(p => p.slug.current !== slug).slice(0, 3)
+    recentPosts.value = all.filter(p => p.slug.current !== slug).slice(0, 3)
+
+    const canonicalUrl = `https://eventshoot.nl${eventkennisArticlePath(lang, result.slug.current)}`
     useSeo({
       title: `${result.title} | Eventshoot.nl`,
       description: result.excerpt,
       image: result.mainImage ? urlFor(result.mainImage).width(1200).url() : undefined,
-      url: `https://eventshoot.nl/eventkennis/${result.slug.current}`,
+      url: canonicalUrl,
+      locale: lang,
+      alternates: buildAlternates(result),
     })
   } finally {
     loading.value = false
@@ -37,16 +86,13 @@ async function loadPost(slug: string) {
 }
 
 onMounted(() => loadPost(route.params.slug as string))
-watch(() => route.params.slug, slug => loadPost(slug as string))
-
-function formatDate(d: string) {
-  return new Date(d).toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' })
-}
+watch(() => [route.params.slug, contentLocale.value], () => {
+  loadPost(route.params.slug as string)
+})
 </script>
 
 <template>
   <main>
-    <!-- Vaste Kennisbank hero -->
     <section class="kb-hero">
       <div class="kb-hero__bg">
         <img src="/eventshoot-78.jpg" alt="Eventkennis door Rolf Trijber" />
@@ -55,36 +101,33 @@ function formatDate(d: string) {
       <div class="container kb-hero__content">
         <h1>{{ t('artikel.kbH1') }}</h1>
         <p>{{ t('artikel.kbSub') }}</p>
-        <RouterLink to="/eventkennis" class="kb-hero__back">&larr; {{ t('artikel.backAll') }}</RouterLink>
+        <RouterLink :to="listPath" class="kb-hero__back">&larr; {{ t('artikel.backAll') }}</RouterLink>
       </div>
     </section>
 
-    <!-- Laden -->
     <div v-if="loading" class="post-state section">
       <div class="container">
         <div class="post-spinner"></div>
+        <p>{{ t('artikel.loading') }}</p>
       </div>
     </div>
 
-    <!-- Niet gevonden -->
     <div v-else-if="notFound" class="post-state section">
       <div class="container">
         <p>{{ t('artikel.notFound') }}</p>
-        <RouterLink to="/eventkennis" class="btn btn--primary" style="margin-top:1.5rem">&larr; {{ t('artikel.backBtn') }}</RouterLink>
+        <RouterLink :to="listPath" class="btn btn--primary" style="margin-top:1.5rem">&larr; {{ t('artikel.backBtn') }}</RouterLink>
       </div>
     </div>
 
-    <!-- Artikel -->
     <div v-else-if="post" class="container post__wrap">
 
-      <!-- Artikel header -->
       <div class="post__header">
         <p class="post__author">{{ t('artikel.author') }}</p>
+        <p v-if="post.publishedAt" class="post__meta">{{ formatDate(post.publishedAt) }} · {{ post.readTime }} {{ t('artikel.readTimeUnit') }}</p>
         <h2 class="post__title">{{ post.title }}</h2>
         <p class="post__excerpt">{{ post.excerpt }}</p>
       </div>
 
-      <!-- Artikelfoto -->
       <div v-if="post.mainImage" class="post__img-wrap">
         <img
           :src="urlFor(post.mainImage).width(1200).url()"
@@ -92,15 +135,15 @@ function formatDate(d: string) {
         />
       </div>
 
-      <!-- Bodytekst -->
       <div class="post__content">
         <PortableText v-if="post.body" :value="post.body" />
       </div>
 
-      <RouterLink to="/eventkennis" class="post__back">&larr; {{ t('artikel.backBtn') }}</RouterLink>
+      <ArticleFaqBlock v-if="post.faq?.length" :items="post.faq" />
+
+      <RouterLink :to="listPath" class="post__back">&larr; {{ t('artikel.backBtn') }}</RouterLink>
     </div>
 
-    <!-- Recente artikelen -->
     <section v-if="recentPosts.length" class="recent section">
       <div class="container">
         <h2 class="recent__title">{{ t('artikel.moreTitle') }}</h2>
@@ -108,7 +151,7 @@ function formatDate(d: string) {
           <RouterLink
             v-for="p in recentPosts"
             :key="p._id"
-            :to="`/eventkennis/${p.slug.current}`"
+            :to="eventkennisArticlePath(contentLocale, p.slug.current)"
             class="recent__card"
           >
             <div v-if="p.mainImage" class="recent__img-wrap">
@@ -127,7 +170,6 @@ function formatDate(d: string) {
 </template>
 
 <style scoped>
-/* Hero */
 .kb-hero {
   position: relative;
   min-height: 45vh;
@@ -182,7 +224,6 @@ function formatDate(d: string) {
 }
 .kb-hero__back:hover { color: #fff; }
 
-/* Spinner */
 .post-state { padding-top: 5rem; text-align: center; color: var(--color-text-muted); }
 
 .post-spinner {
@@ -191,12 +232,11 @@ function formatDate(d: string) {
   border-top-color: var(--color-accent);
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
-  margin: 0 auto;
+  margin: 0 auto 1rem;
 }
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* Artikel */
 .post__wrap {
   padding-top: 3rem;
   padding-bottom: 5rem;
@@ -215,6 +255,12 @@ function formatDate(d: string) {
   margin-bottom: 0.5rem;
 }
 
+.post__meta {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  margin-bottom: 0.75rem;
+}
+
 .post__title {
   font-size: clamp(1.5rem, 3vw, 2.5rem);
   font-weight: 800;
@@ -230,7 +276,6 @@ function formatDate(d: string) {
   padding-left: 1.25rem;
 }
 
-/* Artikelfoto */
 .post__img-wrap {
   margin-bottom: 2.5rem;
   border-radius: var(--radius);
@@ -243,7 +288,6 @@ function formatDate(d: string) {
   display: block;
 }
 
-/* Bodytekst */
 .post__content { line-height: 1.8; font-size: 1rem; color: var(--color-text); }
 :deep(.post__content p) { margin-bottom: 1.25rem; }
 :deep(.post__content h2) { font-size: 1.5rem; font-weight: 700; margin: 2.5rem 0 0.75rem; }
@@ -262,7 +306,6 @@ function formatDate(d: string) {
 }
 .post__back:hover { color: var(--color-accent-hover); }
 
-/* Recente artikelen */
 .recent__title {
   font-size: clamp(1.25rem, 2.5vw, 1.75rem);
   font-weight: 800;
@@ -298,7 +341,6 @@ function formatDate(d: string) {
   gap: 0.5rem;
 }
 
-.recent__meta { font-size: 0.8rem; color: var(--color-text-muted); }
 .recent__card-title { font-size: 0.95rem; font-weight: 700; line-height: 1.3; color: var(--color-text); }
 .recent__read { font-size: 0.85rem; font-weight: 600; color: var(--color-accent); }
 

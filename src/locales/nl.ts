@@ -187,6 +187,8 @@ export default {
     author: 'door Rolf Trijber',
     readMore: 'Lees verder →',
     moreTitle: 'Meer uit de kennisbank',
+    faqTitle: 'Veelgestelde vragen',
+    readTimeUnit: 'min leestijd',
   },
   gallery: {
     h1: 'Persoonlijk portfolio.',
@@ -280,7 +282,7 @@ export default {
     callBtn: '06 251 777 28',
     emailTitle: 'Stuur een mail',
     emailDesc: 'Rolf reageert persoonlijk, doorgaans binnen een paar uur op werkdagen.',
-    emailBtn: 'rolf@eventshoot.nl',
+    emailBtn: "rolf{'@'}eventshoot.nl",
     formTitle: 'Stuur een bericht',
     formDesc: 'Vertel kort over je event. Rolf kijkt wat hij voor je kan doen.',
     formBtn: 'Formulier hieronder',

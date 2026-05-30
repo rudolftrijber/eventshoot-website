@@ -313,6 +313,7 @@ async function run() {
 
     await client.create({
       _type: 'blogPost',
+      language: 'nl',
       title: post.title,
       slug: { _type: 'slug', current: post.slug },
       publishedAt: post.publishedAt,

@@ -187,6 +187,8 @@ export default {
     author: 'by Rolf Trijber',
     readMore: 'Read more →',
     moreTitle: 'More from the knowledge base',
+    faqTitle: 'Frequently asked questions',
+    readTimeUnit: 'min read',
   },
   gallery: {
     h1: 'Personal portfolio.',
