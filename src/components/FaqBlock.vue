@@ -111,14 +111,16 @@ watch(displayItems, upsertSchema, { deep: true })
             <span class="faq-item__arrow" :class="{ 'faq-item__arrow--open': openIndex === i }">›</span>
           </button>
           <div class="faq-item__body" :class="{ 'faq-item__body--open': openIndex === i }">
-            <p class="faq-item__a">{{ item.answer }}</p>
-            <figure v-if="item.image?.asset" class="faq-item__figure">
-              <img
-                :src="urlFor(item.image).width(800).url()"
-                :alt="item.image.alt || item.question"
-                loading="lazy"
-              />
-            </figure>
+            <div class="faq-item__inner">
+              <p class="faq-item__a">{{ item.answer }}</p>
+              <figure v-if="item.image?.asset" class="faq-item__figure">
+                <img
+                  :src="urlFor(item.image).width(800).url()"
+                  :alt="item.image.alt || item.question"
+                  loading="lazy"
+                />
+              </figure>
+            </div>
           </div>
         </div>
       </div>
@@ -212,7 +214,7 @@ watch(displayItems, upsertSchema, { deep: true })
   grid-template-rows: 1fr;
 }
 
-.faq-item__body > * {
+.faq-item__inner {
   overflow: hidden;
 }
 
