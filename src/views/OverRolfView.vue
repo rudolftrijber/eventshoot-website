@@ -26,17 +26,15 @@ const verwachtingen = [
 <template>
   <main>
     <!-- Hero -->
-    <section class="over-hero section">
-      <div class="container over-hero__inner">
-        <div class="over-hero__text">
-          <h1 class="over-hero__h1">Jouw event is een goudmijn aan content.</h1>
-          <p class="over-hero__name">Rolf Trijber, achter Eventshoot.nl.</p>
-          <p class="over-hero__sub">Eventfotograaf en videograaf met 40+ jaar ervaring in beeldproductie. Gespecialiseerd in zakelijke events: congressen, jaarcongressen, ledendagen en bedrijfsbijeenkomsten in heel Nederland.</p>
-          <RouterLink to="/kennismaken" class="btn btn--primary">Kennismaken</RouterLink>
-        </div>
-        <div class="over-hero__photo">
-          <img src="/rolf_trijber_4.jpg" alt="Rolf Trijber, eventfotograaf" />
-        </div>
+    <section class="over-hero">
+      <div class="over-hero__bg">
+        <img src="/DATA_EVENTSHOOT/SITE_IMAGES/WERK/rolf_trijber_werk.jpg" alt="Rolf Trijber aan het werk als eventfotograaf" />
+        <div class="over-hero__overlay"></div>
+      </div>
+      <div class="container over-hero__content">
+        <h1>Rolf Trijber, achter Eventshoot.nl.</h1>
+        <p>Eventfotograaf en videograaf met 40+ jaar ervaring in beeldproductie. Gespecialiseerd in zakelijke events: congressen, jaarcongressen, ledendagen en bedrijfsbijeenkomsten in heel Nederland.</p>
+        <RouterLink to="/kennismaken" class="btn btn--primary btn--lg">Vrijblijvend kennismaken</RouterLink>
       </div>
     </section>
 
@@ -85,44 +83,49 @@ const verwachtingen = [
 
 <style scoped>
 .over-hero {
-  padding-top: 9rem;
-}
-
-.over-hero__inner {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 5rem;
+  position: relative;
+  min-height: 70vh;
+  display: flex;
   align-items: center;
 }
 
-.over-hero__h1 {
-  font-size: clamp(1.5rem, 3vw, 2.25rem);
-  font-weight: 800;
-  line-height: 1.2;
-  margin-bottom: 0.5rem;
-  font-style: italic;
-  color: var(--color-accent);
+.over-hero__bg {
+  position: absolute;
+  inset: 0;
 }
 
-.over-hero__name {
-  font-size: clamp(1.25rem, 2.5vw, 1.75rem);
-  font-weight: 700;
-  color: #fff;
-  margin-bottom: 1.25rem;
-}
-
-.over-hero__sub {
-  font-size: 1rem;
-  color: rgba(255,255,255,0.75);
-  line-height: 1.75;
-  margin-bottom: 2rem;
-}
-
-.over-hero__photo img {
+.over-hero__bg img {
   width: 100%;
-  border-radius: 16px;
+  height: 100%;
   object-fit: cover;
-  aspect-ratio: 4/5;
+}
+
+.over-hero__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.25) 100%);
+}
+
+.over-hero__content {
+  position: relative;
+  z-index: 1;
+  padding-top: 8rem;
+  padding-bottom: 4rem;
+  max-width: 680px;
+}
+
+.over-hero__content h1 {
+  font-size: clamp(1.75rem, 3.5vw, 3rem);
+  font-weight: 800;
+  margin-bottom: 1.25rem;
+  line-height: 1.15;
+}
+
+.over-hero__content p {
+  font-size: 1.05rem;
+  color: rgba(255,255,255,0.82);
+  margin-bottom: 2rem;
+  line-height: 1.75;
 }
 
 .verwacht__title {
@@ -192,7 +195,6 @@ const verwachtingen = [
 }
 
 @media (max-width: 768px) {
-  .over-hero__inner { grid-template-columns: 1fr; gap: 2.5rem; }
   .verwacht__list { grid-template-columns: 1fr; }
   .actie__grid { grid-template-columns: 1fr; }
 }

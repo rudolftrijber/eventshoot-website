@@ -2,7 +2,6 @@
 import { onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import PricingCard from '@/components/PricingCard.vue'
-import SectionHeading from '@/components/SectionHeading.vue'
 import UspGrid from '@/components/UspGrid.vue'
 import { useSeo } from '@/composables/useSeo'
 
@@ -12,26 +11,7 @@ onMounted(() => {
     description: 'Drie pakketten voor eventfotografie en eventvideo. Highlight vanaf €895, Headline €2.250, Heroes €3.450. Inclusief aftermovie en levering binnen 48 uur.',
     url: 'https://eventshoot.nl/tarieven',
   })
-  injectFaqSchema()
 })
-
-function injectFaqSchema() {
-  const existing = document.getElementById('faq-schema')
-  if (existing) return
-  const script = document.createElement('script')
-  script.id = 'faq-schema'
-  script.type = 'application/ld+json'
-  script.text = JSON.stringify({
-    '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    mainEntity: faqs.map(f => ({
-      '@type': 'Question',
-      name: f.q,
-      acceptedAnswer: { '@type': 'Answer', text: f.a },
-    })),
-  })
-  document.head.appendChild(script)
-}
 
 const packages = [
   {
@@ -60,23 +40,40 @@ const packages = [
   },
 ]
 
-const faqs = [
-  { q: 'Zijn de prijzen inclusief of exclusief btw?', a: 'Alle genoemde prijzen zijn exclusief 21% btw. Reisuren en transportkosten worden separaat berekend.' },
-  { q: 'Kan ik ook een pakket op maat aanvragen?', a: 'Ja, neem contact op om je wensen te bespreken. Rolf maakt een passend voorstel op basis van jouw event en budget.' },
-  { q: 'Hoe snel worden de bestanden geleverd?', a: 'Standaard binnen 48 uur na het event. Het Highlight-pakket wordt binnen 24 uur geleverd. Same-day levering direct na het event is mogelijk: €425 (Highlight), €650 (Headline) of €925 (Heroes).' },
-  { q: 'Wat als mijn event langer duurt dan het pakket?', a: 'Extra uren zijn bij te boeken. Dit wordt vooraf afgestemd zodat er geen verrassingen zijn.' },
-  { q: 'Zijn er meerdere events per jaar?', a: 'Ja, het Content Year jaarcontract is bedoeld voor organisaties met 3 of meer events per jaar. Voor €775 per maand (€9.300 per jaar) krijg je 3 events op Heroes-niveau, voorrang in de agenda en een doorlopende stijl.' },
+const logos = [
+  { file: 'gbl.png', name: 'GBL Alliance' },
+  { file: 'gladwell.png', name: 'Gladwell Academy' },
+  { file: 'datto.png', name: 'Datto' },
+  { file: 's2grupo.png', name: 'S2Grupo' },
+  { file: 'koers.png', name: 'Koers' },
+  { file: 'dux.png', name: 'Dux' },
+  { file: 'scpa.png', name: 'SCPA' },
+  { file: 'evascript.png', name: 'EvaScript' },
+  { file: 'dell.png', name: 'Dell' },
+  { file: 'beelegal.png', name: 'BeeLegal' },
+  { file: 'powermatching.png', name: 'Powermatching' },
+  { file: 'vectocon.png', name: 'Vectocon' },
 ]
 </script>
 
 <template>
   <main>
-    <section class="tarieven-hero section">
+    <!-- Hero -->
+    <section class="tarieven-hero">
+      <div class="tarieven-hero__bg">
+        <img src="/eventshoot-84.jpg" alt="Eventfotografie tarieven Eventshoot.nl" />
+        <div class="tarieven-hero__overlay"></div>
+      </div>
+      <div class="container tarieven-hero__content">
+        <h1>Tarieven voor eventcontent.</h1>
+        <p>Drie pakketten plus een jaarcontract voor organisaties met meerdere events per jaar. Vooraf duidelijk, geen verrassingen achteraf.</p>
+        <RouterLink to="/kennismaken" class="btn btn--primary btn--lg">Vrijblijvend kennismaken</RouterLink>
+      </div>
+    </section>
+
+    <!-- Pakketten -->
+    <section class="pricing section">
       <div class="container">
-        <SectionHeading
-          title="Tarieven voor eventcontent."
-          subtitle="Drie pakketten plus een jaarcontract voor organisaties met meerdere events per jaar. Vooraf duidelijk, geen verrassingen achteraf."
-        />
         <div class="pricing-grid">
           <PricingCard
             v-for="pkg in packages"
@@ -84,65 +81,82 @@ const faqs = [
             v-bind="pkg"
           />
         </div>
+        <div class="download-cta">
+          <p class="download-cta__sub">Liever alles op één pagina? Download het tarievenoverzicht als PDF.</p>
+          <a
+            href="/DATA_EVENTSHOOT/FILES/Eventshoot_onepager.pdf"
+            download
+            class="btn btn--primary"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="16" height="16" style="flex-shrink:0">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+            </svg>
+            Download tarievenoverzicht (PDF)
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Motto strook -->
+    <section class="motto-bar">
+      <div class="container motto-bar__inner">
+        <p class="motto-bar__text">Jouw event is een goudmijn aan content.</p>
       </div>
     </section>
 
     <!-- Content Year jaarcontract -->
     <section class="content-year section section--dark">
-      <div class="container">
-        <div class="content-year__inner">
-          <div class="content-year__label">Jaarcontract</div>
-          <h2 class="content-year__title">Content Year</h2>
-          <p class="content-year__price">€ 775 <span>per maand</span></p>
-          <p class="content-year__sub">€ 9.300 per jaar, excl. btw</p>
-          <ul class="content-year__list">
-            <li>3 events per jaar op Heroes-niveau</li>
-            <li>8 uur aanwezigheid per event</li>
-            <li>Voorrang in de agenda</li>
-            <li>Doorlopende stijl, één aanspreekpunt</li>
+      <div class="container content-year__grid">
+
+        <!-- Links: inleiding -->
+        <div class="content-year__left">
+          <h2 class="content-year__title">Content jaarcontract</h2>
+          <p class="content-year__intro">Veel organisaties hebben niet één event per jaar, maar drie of vier. Een jaarcongres, een ledendag, een vakdag. Elke keer opnieuw een fotograaf zoeken kost tijd, en de beeldstijl verschilt per keer.</p>
+          <p class="content-year__intro">Met het Content Year-contract leg je één afspraak vast voor het hele jaar. Rolf kent je organisatie, je huisstijl en je verwachtingen. Dat merk je meteen in het resultaat.</p>
+          <h3 class="content-year__why-title">Waarom een jaarcontract?</h3>
+          <ul class="content-year__why-list">
+            <li>Geen gedoe met offertes en briefings per event</li>
+            <li>Doorlopende beeldstijl die bij je organisatie past</li>
+            <li>Voorrang in de agenda, ook bij last-minute wijzigingen</li>
+            <li>Één aanspreekpunt die je events kent</li>
           </ul>
-          <RouterLink to="/kennismaken" class="btn btn--primary">Interesse? Plan een gesprek</RouterLink>
         </div>
+
+        <!-- Rechts: wat je krijgt + prijs + CTA -->
+        <div class="content-year__right">
+          <div class="content-year__card">
+            <p class="content-year__card-eyebrow">Wat je krijgt</p>
+            <ul class="content-year__list">
+              <li>3 events per jaar op Heroes-niveau</li>
+              <li>8 uur aanwezigheid per event</li>
+              <li>200–300 bewerkte foto's per event</li>
+              <li>Social aftermovie + corporate aftermovie per event</li>
+              <li>15–20 sprekersinterviews per event</li>
+              <li>Levering binnen 48 uur</li>
+              <li>Voorrang in de agenda</li>
+              <li>Doorlopende stijl, één aanspreekpunt</li>
+            </ul>
+            <div class="content-year__price-block">
+              <p class="content-year__price">€ 775 <span>per maand</span></p>
+              <p class="content-year__sub">€ 9.300 per jaar, excl. btw</p>
+            </div>
+            <RouterLink to="/kennismaken" class="btn btn--primary btn--full">Interesse? Plan een gesprek</RouterLink>
+          </div>
+        </div>
+
       </div>
     </section>
 
     <UspGrid />
 
-    <!-- Aanvullende diensten -->
-    <section class="extra section">
-      <div class="container">
-        <SectionHeading title="Aanvullende diensten" align="left" />
-        <table class="extra__table">
-          <tbody>
-            <tr>
-              <td>Same-day levering direct na het event</td>
-              <td>€ 425 / € 650 / € 925 <span class="extra__note">(Highlight / Headline / Heroes)</span></td>
-            </tr>
-            <tr>
-              <td>Human ondertiteling (98% correct, i.p.v. AI)</td>
-              <td>€ 13 per minuut <span class="extra__note">(alleen Headline en Heroes)</span></td>
-            </tr>
-            <tr>
-              <td>Event promotievideo voor volgende editie</td>
-              <td>Op offerte</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- FAQ -->
-    <section class="faq section section--dark">
-      <div class="container">
-        <SectionHeading title="Veelgestelde vragen" align="left" />
-        <div class="faq__list">
-          <div v-for="item in faqs" :key="item.q" class="faq__item">
-            <h3 class="faq__q">{{ item.q }}</h3>
-            <p class="faq__a">{{ item.a }}</p>
+    <!-- Vertrouwd door organisaties -->
+    <section class="trust">
+      <p class="trust__label">Vertrouwd door organisaties als…</p>
+      <div class="trust__track-wrap">
+        <div class="trust__track">
+          <div class="trust__slide" v-for="n in 2" :key="n">
+            <img v-for="logo in logos" :key="logo.file + n" :src="`/DATA_EVENTSHOOT/SITE_IMAGES/OPDRACHTGEVERS/${logo.file}`" :alt="logo.name" class="trust__logo" />
           </div>
-        </div>
-        <div class="faq__cta">
-          <RouterLink to="/kennismaken" class="btn btn--primary">Kennismaken</RouterLink>
         </div>
       </div>
     </section>
@@ -151,8 +165,49 @@ const faqs = [
 
 <style scoped>
 .tarieven-hero {
+  position: relative;
+  min-height: 70vh;
+  display: flex;
+  align-items: center;
+}
+
+.tarieven-hero__bg {
+  position: absolute;
+  inset: 0;
+}
+
+.tarieven-hero__bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.tarieven-hero__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.25) 100%);
+}
+
+.tarieven-hero__content {
+  position: relative;
+  z-index: 1;
   padding-top: 8rem;
-  background: transparent !important;
+  padding-bottom: 4rem;
+  max-width: 680px;
+}
+
+.tarieven-hero__content h1 {
+  font-size: clamp(1.75rem, 3.5vw, 3rem);
+  font-weight: 800;
+  margin-bottom: 1.25rem;
+  line-height: 1.15;
+}
+
+.tarieven-hero__content p {
+  font-size: 1.05rem;
+  color: rgba(255,255,255,0.82);
+  margin-bottom: 2rem;
+  line-height: 1.75;
 }
 
 
@@ -161,61 +216,130 @@ const faqs = [
   grid-template-columns: repeat(3, 1fr);
   gap: 1.5rem;
   align-items: stretch;
-  margin: 3rem 0 6rem;
+  margin: 3rem 0 2rem;
 }
 
-.content-year {
-  background: rgba(27, 156, 252, 0.15);
-  border-top: 1px solid rgba(27, 156, 252, 0.3);
-  border-bottom: 1px solid rgba(27, 156, 252, 0.3);
-}
-
-.content-year__inner {
-  max-width: 560px;
-  margin: 0 auto;
-  text-align: center;
+.download-cta {
   display: flex;
   flex-direction: column;
   align-items: center;
+  text-align: center;
   gap: 1rem;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+.download-cta__sub {
+  font-size: 0.9rem;
+  color: rgba(255,255,255,0.65);
+  margin: 0;
+}
+
+.download-cta .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  white-space: nowrap;
+}
+
+.motto-bar {
+  background: rgba(255, 140, 0, 0.42);
+  padding: 3rem 0;
+}
+
+.motto-bar__inner {
+  text-align: center;
+}
+
+.motto-bar__text {
+  font-size: clamp(1.4rem, 3vw, 2.25rem);
+  font-weight: 800;
+  color: #fff;
+  font-style: italic;
+}
+
+.content-year {
+}
+
+.content-year__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5rem;
+  align-items: start;
 }
 
 .content-year__label {
-  display: inline-block;
-  background: var(--color-blue);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.4);
+  margin-bottom: 0.5rem;
+}
+
+.content-year__title {
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  font-weight: 800;
   color: #fff;
+  margin: 0 0 1.5rem;
+  line-height: 1.15;
+}
+
+.content-year__intro {
+  font-size: 0.95rem;
+  color: rgba(255,255,255,0.75);
+  line-height: 1.8;
+  margin-bottom: 1rem;
+}
+
+.content-year__why-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 1.75rem 0 0.75rem;
+}
+
+.content-year__why-list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.content-year__why-list li {
+  font-size: 0.9rem;
+  color: rgba(255,255,255,0.75);
+  padding-left: 1.5rem;
+  position: relative;
+  line-height: 1.5;
+}
+
+.content-year__why-list li::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: var(--color-blue);
+  font-weight: 700;
+}
+
+.content-year__card {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px;
+  padding: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.content-year__card-eyebrow {
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  padding: 0.25rem 0.75rem;
-  border-radius: 50px;
-}
-
-.content-year__title {
-  font-size: clamp(1.5rem, 3vw, 2.25rem);
-  font-weight: 800;
-  color: #fff;
+  color: rgba(255,255,255,0.4);
   margin: 0;
-}
-
-.content-year__price {
-  font-size: 2.5rem;
-  font-weight: 800;
-  color: var(--color-accent);
-  line-height: 1;
-}
-
-.content-year__price span {
-  font-size: 1rem;
-  font-weight: 400;
-  color: rgba(255,255,255,0.6);
-}
-
-.content-year__sub {
-  font-size: 0.875rem;
-  color: rgba(255,255,255,0.5);
-  margin-top: -0.5rem;
 }
 
 .content-year__list {
@@ -223,15 +347,16 @@ const faqs = [
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  text-align: left;
+  gap: 0.6rem;
+  margin: 0;
 }
 
 .content-year__list li {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   color: rgba(255,255,255,0.85);
   padding-left: 1.5rem;
   position: relative;
+  line-height: 1.5;
 }
 
 .content-year__list li::before {
@@ -242,58 +367,82 @@ const faqs = [
   font-weight: 700;
 }
 
-.extra__table {
-  width: 100%;
-  max-width: 700px;
-  border-collapse: collapse;
+.content-year__price-block {
+  border-top: 1px solid rgba(255,255,255,0.1);
+  padding-top: 1.25rem;
 }
 
-.extra__table tr {
-  border-bottom: 1px solid var(--color-border);
+.content-year__price {
+  font-size: 2.75rem;
+  font-weight: 900;
+  color: var(--color-accent);
+  line-height: 1;
+  margin: 0 0 0.25rem;
 }
 
-.extra__table td {
-  padding: 1rem 0.5rem;
-  font-size: 0.9rem;
-  color: rgba(255,255,255,0.8);
-  vertical-align: middle;
-}
-
-.extra__table td:last-child {
-  text-align: right;
-  font-weight: 600;
-  color: #fff;
-}
-
-.extra__note {
-  font-size: 0.78rem;
-  font-weight: 400;
-  color: rgba(255,255,255,0.5);
-  display: block;
-}
-
-.faq__list {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  margin-bottom: 2.5rem;
-}
-
-.faq__item {
-  border-bottom: 1px solid var(--color-border);
-  padding-bottom: 1.5rem;
-}
-
-.faq__q {
+.content-year__price span {
   font-size: 1rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
+  font-weight: 400;
+  color: rgba(255,255,255,0.55);
 }
 
-.faq__a {
+.content-year__sub {
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.45);
+  margin: 0;
+}
+
+.btn--full {
+  width: 100%;
+  text-align: center;
+  justify-content: center;
+}
+
+.trust {
+  padding: 5rem 0;
+  overflow: hidden;
+}
+
+.trust__label {
   font-size: 0.9rem;
   color: var(--color-text-muted);
-  line-height: 1.7;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.trust__track-wrap {
+  overflow: hidden;
+  mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+}
+
+.trust__track {
+  display: flex;
+  width: max-content;
+  animation: marquee 28s linear infinite;
+}
+
+.trust__track:hover {
+  animation-play-state: paused;
+}
+
+.trust__slide {
+  display: flex;
+  align-items: center;
+  gap: 4rem;
+  padding: 0 2rem;
+}
+
+.trust__logo {
+  height: 120px;
+  width: auto;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+@keyframes marquee {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
 }
 
 @media (max-width: 900px) {
@@ -301,6 +450,11 @@ const faqs = [
     grid-template-columns: 1fr;
     max-width: 460px;
     margin: 0 auto;
+  }
+
+  .content-year__grid {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
   }
 }
 </style>

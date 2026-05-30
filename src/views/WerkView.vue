@@ -18,6 +18,21 @@ onUnmounted(() => {
   document.body.style.overflow = ''
 })
 
+const logos = [
+  { file: 'gbl.png', name: 'GBL Alliance' },
+  { file: 'gladwell.png', name: 'Gladwell Academy' },
+  { file: 'datto.png', name: 'Datto' },
+  { file: 's2grupo.png', name: 'S2Grupo' },
+  { file: 'koers.png', name: 'Koers' },
+  { file: 'dux.png', name: 'Dux' },
+  { file: 'scpa.png', name: 'SCPA' },
+  { file: 'evascript.png', name: 'EvaScript' },
+  { file: 'dell.png', name: 'Dell' },
+  { file: 'beelegal.png', name: 'BeeLegal' },
+  { file: 'powermatching.png', name: 'Powermatching' },
+  { file: 'vectocon.png', name: 'Vectocon' },
+]
+
 const photos = [
   { src: '/eventshoot-50.jpg',  alt: 'Eventfotografie congres Nederland' },
   { src: '/eventshoot-52.jpg',  alt: 'Zakelijk evenement fotografie' },
@@ -137,6 +152,18 @@ watch(shareMenuOpen, (open) => {
     </section>
 
     <UspGrid />
+
+    <!-- Vertrouwd door organisaties -->
+    <section class="trust">
+      <p class="trust__label">Vertrouwd door organisaties als…</p>
+      <div class="trust__track-wrap">
+        <div class="trust__track">
+          <div class="trust__slide" v-for="n in 2" :key="n">
+            <img v-for="logo in logos" :key="logo.file + n" :src="`/DATA_EVENTSHOOT/SITE_IMAGES/OPDRACHTGEVERS/${logo.file}`" :alt="logo.name" class="trust__logo" />
+          </div>
+        </div>
+      </div>
+    </section>
 
     <!-- Lightbox -->
     <Teleport to="body">
@@ -388,5 +415,52 @@ watch(shareMenuOpen, (open) => {
 
 @media (max-width: 480px) {
   .werk__grid { columns: 1; }
+}
+
+.trust {
+  padding: 5rem 0;
+  overflow: hidden;
+}
+
+.trust__label {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.trust__track-wrap {
+  overflow: hidden;
+  mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+}
+
+.trust__track {
+  display: flex;
+  width: max-content;
+  animation: marquee 28s linear infinite;
+}
+
+.trust__track:hover {
+  animation-play-state: paused;
+}
+
+.trust__slide {
+  display: flex;
+  align-items: center;
+  gap: 4rem;
+  padding: 0 2rem;
+}
+
+.trust__logo {
+  height: 120px;
+  width: auto;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+@keyframes marquee {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
 }
 </style>
