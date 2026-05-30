@@ -65,7 +65,13 @@ const logos = [
 
     <PainPointBlock :title="t('hotels.painTitle')" :items="pijnpunten" />
 
-    <CaseTeaser />
+    <CaseTeaser :photos="[
+      '/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/eventshoot-62.jpg',
+      '/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/eventshoot-72.jpg',
+      '/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/eventshoot-84.jpg',
+      '/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/eventshoot-97.jpg',
+      '/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/eventshoot-103.jpg',
+    ]" />
 
     <section class="aanbod section">
       <div class="container aanbod__inner">

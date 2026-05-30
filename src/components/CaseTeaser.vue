@@ -2,21 +2,27 @@
 import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
 
-const photos = [
-  '/eventshoot-75.jpg',
-  '/eventshoot-79.jpg',
-  '/eventshoot-89.jpg',
-  '/eventshoot-96.jpg',
-  '/eventshoot-101.jpg',
-]
+const B = '/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/'
+
+const props = withDefaults(defineProps<{
+  photos?: string[]
+}>(), {
+  photos: () => [
+    B + 'eventshoot-75.jpg',
+    B + 'eventshoot-82.jpg',
+    B + 'eventshoot-88.jpg',
+    B + 'eventshoot-96.jpg',
+    B + 'eventshoot-101.jpg',
+  ],
+})
 
 const current = ref(0)
 
 function prev() {
-  current.value = (current.value - 1 + photos.length) % photos.length
+  current.value = (current.value - 1 + props.photos.length) % props.photos.length
 }
 function next() {
-  current.value = (current.value + 1) % photos.length
+  current.value = (current.value + 1) % props.photos.length
 }
 </script>
 
@@ -30,7 +36,7 @@ function next() {
         <button class="caseteaser__arrow caseteaser__arrow--prev" @click="prev" aria-label="Vorige foto">&#8249;</button>
         <div class="caseteaser__img-wrap">
           <img
-            v-for="(photo, i) in photos"
+            v-for="(photo, i) in props.photos"
             :key="photo"
             :src="photo"
             :class="['caseteaser__img', { 'caseteaser__img--active': i === current }]"
