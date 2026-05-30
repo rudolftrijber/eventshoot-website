@@ -160,12 +160,18 @@ watch(displayItems, upsertSchema, { deep: true })
 }
 
 /* Accordion items */
+.faq-block__right {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  padding: 0 1.5rem;
+}
+
 .faq-item {
   border-bottom: 1px solid rgba(255,255,255,0.1);
 }
 
-.faq-item:first-child {
-  border-top: 1px solid rgba(255,255,255,0.1);
+.faq-item:last-child {
+  border-bottom: none;
 }
 
 .faq-item__trigger {
