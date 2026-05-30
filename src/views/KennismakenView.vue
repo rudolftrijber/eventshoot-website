@@ -63,7 +63,7 @@ const faqFallback = computed(() => [
     </section>
 
     <!-- Contact opties -->
-    <section class="opties section section--dark">
+    <section class="opties section section--blue">
       <div class="container">
         <div class="opties__grid">
           <div class="opties__card">
