@@ -30,9 +30,7 @@ async function loadPosts() {
   }
 }
 
-function formatDate(d: string) {
-  return new Date(d).toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' })
-}
+
 </script>
 
 <template>
@@ -82,10 +80,6 @@ function formatDate(d: string) {
               <div v-else class="ek__img-placeholder"></div>
             </div>
             <div class="ek__body">
-              <div class="ek__meta">
-                <span>{{ formatDate(post.publishedAt) }}</span>
-                <span>{{ post.readTime }} min leestijd</span>
-              </div>
               <h2 class="ek__title">{{ post.title }}</h2>
               <p class="ek__excerpt">{{ post.excerpt }}</p>
               <span class="ek__read">Lees verder &rarr;</span>
