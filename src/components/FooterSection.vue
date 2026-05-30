@@ -11,7 +11,7 @@ const { t } = useI18n()
       <div class="footer__col footer__col--brand">
         <a href="/" class="footer__logo-link" aria-label="Eventshoot.nl">
           <img
-            src="/logo.svg"
+            src="/images/logos/logo.svg"
             alt="Eventshoot.nl"
             class="footer__logo"
             onerror="this.style.display='none';this.nextElementSibling.style.display='block'"

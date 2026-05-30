@@ -79,7 +79,7 @@ const over = [
   <header class="navbar" :class="{ 'navbar--scrolled': scrolled }">
     <div class="container navbar__inner">
       <RouterLink to="/" class="navbar__logo" @click="closeMenu">
-        <img src="/logo.svg" alt="Eventshoot.nl" class="navbar__logo-img" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" />
+        <img src="/images/logos/logo.svg" alt="Eventshoot.nl" class="navbar__logo-img" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" />
         <span class="navbar__logo-text" style="display:none">Eventshoot.nl</span>
       </RouterLink>
 
