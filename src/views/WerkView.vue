@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import SectionHeading from '@/components/SectionHeading.vue'
 import UspGrid from '@/components/UspGrid.vue'
 import { useSeo } from '@/composables/useSeo'
 
@@ -174,12 +173,20 @@ watch(shareMenuOpen, (open) => {
 
 <template>
   <main>
+    <!-- Hero -->
+    <section class="werk-hero">
+      <div class="werk-hero__bg">
+        <img src="/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/eventshoot_121.jpg" alt="Eventfotografie Eventshoot.nl" />
+        <div class="werk-hero__overlay"></div>
+      </div>
+      <div class="container werk-hero__content">
+        <h1>{{ t('werk.h1') }}</h1>
+        <p>{{ t('werk.sub') }}</p>
+      </div>
+    </section>
+
     <section class="werk section">
       <div class="container">
-        <SectionHeading
-          :title="t('werk.h1')"
-          :subtitle="t('werk.sub')"
-        />
         <div class="werk__grid">
           <div
             v-for="(photo, i) in photos"
@@ -279,8 +286,54 @@ watch(shareMenuOpen, (open) => {
 </template>
 
 <style scoped>
-.werk {
+.werk-hero {
+  position: relative;
+  min-height: 70vh;
+  display: flex;
+  align-items: center;
+}
+
+.werk-hero__bg {
+  position: absolute;
+  inset: 0;
+}
+
+.werk-hero__bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+}
+
+.werk-hero__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.25) 100%);
+}
+
+.werk-hero__content {
+  position: relative;
+  z-index: 1;
   padding-top: 8rem;
+  padding-bottom: 4rem;
+  max-width: 680px;
+}
+
+.werk-hero__content h1 {
+  font-size: clamp(1.75rem, 3.5vw, 3rem);
+  font-weight: 800;
+  margin-bottom: 1rem;
+  line-height: 1.15;
+}
+
+.werk-hero__content p {
+  font-size: 1.05rem;
+  color: rgba(255,255,255,0.82);
+  line-height: 1.75;
+}
+
+.werk {
+  padding-top: 3rem;
 }
 
 .werk__grid {
