@@ -143,7 +143,7 @@ export default {
     allPackages: 'Alle pakketten bekijken',
     checklistTitle: 'Download gratis onze Event Content Checklist',
     checklistSub: 'Zorg dat je foto- en videograaf precies weet wat je nodig hebt. Niets missen, altijd bruikbare beelden. Gratis te downloaden.',
-    checklistPlaceholder: 'jouw@emailadres.nl',
+    checklistPlaceholder: "jouw{'@'}emailadres.nl",
     checklistBtn: 'Downloaden',
     checklistBusy: 'Moment…',
     checklistError: 'Er ging iets mis. Probeer het opnieuw.',

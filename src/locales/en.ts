@@ -143,7 +143,7 @@ export default {
     allPackages: 'View all packages',
     checklistTitle: 'Download our free Event Content Checklist',
     checklistSub: 'Make sure your photographer and videographer know exactly what you need. Never miss a shot, always usable images. Free to download.',
-    checklistPlaceholder: 'your@emailaddress.com',
+    checklistPlaceholder: "your{'@'}emailaddress.com",
     checklistBtn: 'Download',
     checklistBusy: 'Just a moment…',
     checklistError: 'Something went wrong. Please try again.',
