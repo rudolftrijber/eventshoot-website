@@ -36,44 +36,86 @@ const logos = [
   { file: 'vectocon.png', name: 'Vectocon' },
 ]
 
-const photos = [
-  { src: '/eventshoot-50.jpg',  alt: 'Eventfotografie congres Nederland' },
-  { src: '/eventshoot-52.jpg',  alt: 'Zakelijk evenement fotografie' },
-  { src: '/eventshoot-53.jpg',  alt: 'Seminar fotograaf' },
-  { src: '/eventshoot-54.jpg',  alt: 'Congres fotografie' },
-  { src: '/eventshoot-56.jpg',  alt: 'Professionele eventfotografie' },
-  { src: '/eventshoot-57.jpg',  alt: 'Evenement fotograaf' },
-  { src: '/eventshoot-58.jpg',  alt: 'Zakelijk congres fotografie' },
-  { src: '/eventshoot-59.jpg',  alt: 'Netwerkbijeenkomst fotografie' },
-  { src: '/eventshoot-62.jpg',  alt: 'Award uitreiking fotografie' },
-  { src: '/eventshoot-70.jpg',  alt: 'Bedrijfsevenement fotografie' },
-  { src: '/eventshoot-75.jpg',  alt: 'Beurs fotografie Nederland' },
-  { src: '/eventshoot-77.jpg',  alt: 'Productlancering fotografie' },
-  { src: '/eventshoot-78.jpg',  alt: 'Congres spreker fotografie' },
-  { src: '/eventshoot-79.jpg',  alt: 'Zakelijk event reportage' },
-  { src: '/eventshoot-81.jpg',  alt: 'Seminar fotoreportage' },
-  { src: '/eventshoot-82.jpg',  alt: 'Congres deelnemers fotografie' },
-  { src: '/eventshoot-83.jpg',  alt: 'Eventfotografie briefing' },
-  { src: '/eventshoot-84.jpg',  alt: 'Corporate event fotografie' },
-  { src: '/eventshoot-85.jpg',  alt: 'Zakelijk seminar fotografie' },
-  { src: '/eventshoot-88.jpg',  alt: 'Congres fotografie Nederland' },
-  { src: '/eventshoot-89.jpg',  alt: 'Evenement reportage fotografie' },
-  { src: '/eventshoot-92.jpg',  alt: 'Award uitreiking fotograaf' },
-  { src: '/eventshoot-94.jpg',  alt: 'Bijeenkomst fotografie' },
-  { src: '/eventshoot-95.jpg',  alt: 'Zakelijk evenement Nederland' },
-  { src: '/eventshoot-96.jpg',  alt: 'Congres en seminar fotografie' },
-  { src: '/eventshoot-98.jpg',  alt: 'Professionele event fotograaf' },
-  { src: '/eventshoot-101.jpg', alt: 'Corporate fotografie evenement' },
-  { src: '/eventshoot-102.jpg', alt: 'Zakelijke bijeenkomst fotografie' },
-  { src: '/eventshoot-104.jpg', alt: 'Event fotoreportage Nederland' },
-  { src: '/eventshoot-105.jpg', alt: 'Congres fotografie reportage' },
+const BASE = '/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/'
+
+const allPhotos = [
+  { src: BASE + 'eventshoot-50.jpg',  alt: 'Eventfotografie congres Nederland' },
+  { src: BASE + 'eventshoot-51.jpg',  alt: 'Zakelijk evenement fotografie' },
+  { src: BASE + 'eventshoot-52.jpg',  alt: 'Seminar fotograaf' },
+  { src: BASE + 'eventshoot-53.jpg',  alt: 'Congres fotografie' },
+  { src: BASE + 'eventshoot-54.jpg',  alt: 'Professionele eventfotografie' },
+  { src: BASE + 'eventshoot-55.jpg',  alt: 'Evenement fotograaf' },
+  { src: BASE + 'eventshoot-56.jpg',  alt: 'Zakelijk congres fotografie' },
+  { src: BASE + 'eventshoot-57.jpg',  alt: 'Netwerkbijeenkomst fotografie' },
+  { src: BASE + 'eventshoot-58.jpg',  alt: 'Award uitreiking fotografie' },
+  { src: BASE + 'eventshoot-59.jpg',  alt: 'Bedrijfsevenement fotografie' },
+  { src: BASE + 'eventshoot-60.jpg',  alt: 'Beurs fotografie Nederland' },
+  { src: BASE + 'eventshoot-61.jpg',  alt: 'Productlancering fotografie' },
+  { src: BASE + 'eventshoot-62.jpg',  alt: 'Congres spreker fotografie' },
+  { src: BASE + 'eventshoot-63.jpg',  alt: 'Zakelijk event reportage' },
+  { src: BASE + 'eventshoot-64.jpg',  alt: 'Seminar fotoreportage' },
+  { src: BASE + 'eventshoot-65.jpg',  alt: 'Congres deelnemers fotografie' },
+  { src: BASE + 'eventshoot-66.jpg',  alt: 'Eventfotografie briefing' },
+  { src: BASE + 'eventshoot-67.jpg',  alt: 'Corporate event fotografie' },
+  { src: BASE + 'eventshoot-69.jpg',  alt: 'Zakelijk seminar fotografie' },
+  { src: BASE + 'eventshoot-70.jpg',  alt: 'Congres fotografie Nederland' },
+  { src: BASE + 'eventshoot-72.jpg',  alt: 'Evenement reportage fotografie' },
+  { src: BASE + 'eventshoot-74.jpg',  alt: 'Award uitreiking fotograaf' },
+  { src: BASE + 'eventshoot-75.jpg',  alt: 'Bijeenkomst fotografie' },
+  { src: BASE + 'eventshoot-76.jpg',  alt: 'Zakelijk evenement Nederland' },
+  { src: BASE + 'eventshoot-77.jpg',  alt: 'Congres en seminar fotografie' },
+  { src: BASE + 'eventshoot-78.jpg',  alt: 'Professionele event fotograaf' },
+  { src: BASE + 'eventshoot-79.jpg',  alt: 'Corporate fotografie evenement' },
+  { src: BASE + 'eventshoot-80.jpg',  alt: 'Zakelijke bijeenkomst fotografie' },
+  { src: BASE + 'eventshoot-81.jpg',  alt: 'Event fotoreportage Nederland' },
+  { src: BASE + 'eventshoot-82.jpg',  alt: 'Congres fotografie reportage' },
+  { src: BASE + 'eventshoot-83.jpg',  alt: 'Eventfotografie zakelijk' },
+  { src: BASE + 'eventshoot-84.jpg',  alt: 'Seminar fotografie' },
+  { src: BASE + 'eventshoot-85.jpg',  alt: 'Congres fotografie' },
+  { src: BASE + 'eventshoot-86.jpg',  alt: 'Zakelijk event Nederland' },
+  { src: BASE + 'eventshoot-87.jpg',  alt: 'Evenement fotografie' },
+  { src: BASE + 'eventshoot-88.jpg',  alt: 'Congres spreker' },
+  { src: BASE + 'eventshoot-89.jpg',  alt: 'Bedrijfsevent fotografie' },
+  { src: BASE + 'eventshoot-90.jpg',  alt: 'Professionele fotografie' },
+  { src: BASE + 'eventshoot-91.jpg',  alt: 'Award ceremony fotografie' },
+  { src: BASE + 'eventshoot-92.jpg',  alt: 'Zakelijk congres' },
+  { src: BASE + 'eventshoot-93.jpg',  alt: 'Seminar deelnemers' },
+  { src: BASE + 'eventshoot-94.jpg',  alt: 'Netwerkborrel fotografie' },
+  { src: BASE + 'eventshoot-95.jpg',  alt: 'Ledendag fotografie' },
+  { src: BASE + 'eventshoot-96.jpg',  alt: 'Jaarcongres fotografie' },
+  { src: BASE + 'eventshoot-97.jpg',  alt: 'Congres reportage' },
+  { src: BASE + 'eventshoot-98.jpg',  alt: 'Event fotograaf Nederland' },
+  { src: BASE + 'eventshoot-99.jpg',  alt: 'Zakelijke bijeenkomst' },
+  { src: BASE + 'eventshoot-100.jpg', alt: 'Congres fotografie' },
+  { src: BASE + 'eventshoot-101.jpg', alt: 'Eventfotografie Holland' },
+  { src: BASE + 'eventshoot-102.jpg', alt: 'Corporate event' },
+  { src: BASE + 'eventshoot-103.jpg', alt: 'Seminar fotograaf' },
+  { src: BASE + 'eventshoot-104.jpg', alt: 'Productlancering event' },
+  { src: BASE + 'eventshoot-105.jpg', alt: 'Ledendag congres' },
+  { src: BASE + 'eventshoot-106.jpg', alt: 'Zakelijk evenement' },
+  { src: BASE + 'eventshoot-107.jpg', alt: 'Event reportage' },
+  { src: BASE + 'eventshoot_121.jpg', alt: 'Congres fotografie Nederland' },
+  { src: BASE + 'zakelijke-event-fotografie-8.jpg', alt: 'Zakelijke event fotografie' },
 ]
+
+const PHOTOS_PER_PAGE = 29
+const currentPage = ref(1)
+const totalPages = computed(() => Math.ceil(allPhotos.length / PHOTOS_PER_PAGE))
+const photos = computed(() => {
+  const start = (currentPage.value - 1) * PHOTOS_PER_PAGE
+  return allPhotos.slice(start, start + PHOTOS_PER_PAGE)
+})
+
+function goToPage(page: number) {
+  currentPage.value = page
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+}
 
 const lightboxIndex = ref<number | null>(null)
 const shareMenuOpen = ref(false)
 
 const currentPhoto = computed(() =>
-  lightboxIndex.value !== null ? photos[lightboxIndex.value] : null
+  lightboxIndex.value !== null ? photos.value[lightboxIndex.value] : null
 )
 
 function openLightbox(index: number) {
@@ -89,12 +131,12 @@ function closeLightbox() {
 
 function prevPhoto() {
   if (lightboxIndex.value === null) return
-  lightboxIndex.value = (lightboxIndex.value - 1 + photos.length) % photos.length
+  lightboxIndex.value = (lightboxIndex.value - 1 + photos.value.length) % photos.value.length
 }
 
 function nextPhoto() {
   if (lightboxIndex.value === null) return
-  lightboxIndex.value = (lightboxIndex.value + 1) % photos.length
+  lightboxIndex.value = (lightboxIndex.value + 1) % photos.value.length
 }
 
 function onKeydown(e: KeyboardEvent) {
@@ -151,6 +193,18 @@ watch(shareMenuOpen, (open) => {
             </div>
           </div>
         </div>
+
+        <!-- Paginering -->
+        <div class="werk__pagination">
+          <button
+            v-for="page in totalPages"
+            :key="page"
+            class="werk__page-btn"
+            :class="{ 'werk__page-btn--active': currentPage === page }"
+            @click="goToPage(page)"
+          >{{ page }}</button>
+        </div>
+
       </div>
     </section>
 
@@ -409,6 +463,37 @@ watch(shareMenuOpen, (open) => {
 .share-icon--linkedin { color: #0A66C2; }
 .share-icon--facebook { color: #1877F2; }
 .share-icon--instagram { color: #E1306C; }
+
+.werk__pagination {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 3rem;
+}
+
+.werk__page-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.25);
+  background: none;
+  color: rgba(255,255,255,0.7);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+}
+
+.werk__page-btn:hover {
+  border-color: var(--color-accent);
+  color: #fff;
+}
+
+.werk__page-btn--active {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: #fff;
+}
 
 @media (max-width: 768px) {
   .werk__grid { columns: 2; }
