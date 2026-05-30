@@ -89,7 +89,7 @@ watch(displayItems, upsertSchema, { deep: true })
 </script>
 
 <template>
-  <section v-if="!loading && displayItems.length" class="faq-block section section--dark">
+  <section v-if="!loading && displayItems.length" class="faq-block section">
     <div class="container faq-block__grid">
 
       <!-- Links: titel -->
@@ -130,11 +130,15 @@ watch(displayItems, upsertSchema, { deep: true })
 </template>
 
 <style scoped>
+.faq-block {
+  background: rgba(255, 140, 0, 0.42) !important;
+}
+
 .faq-block__grid {
   display: grid;
   grid-template-columns: 1fr 1.4fr;
   gap: 5rem;
-  align-items: start;
+  align-items: center;
 }
 
 .faq-block__left {
