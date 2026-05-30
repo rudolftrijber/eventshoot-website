@@ -51,10 +51,14 @@ const faqFallback = computed(() => [
 <template>
   <main>
     <!-- Hero -->
-    <section class="km-hero section">
-      <div class="container km-hero__inner">
-        <h1 class="km-hero__h1">{{ t('km.h1') }}</h1>
-        <p class="km-hero__sub">{{ t('km.sub') }}</p>
+    <section class="km-hero">
+      <div class="km-hero__bg">
+        <img src="/DATA_EVENTSHOOT/SITE_IMAGES/espresso.jpg" alt="Kennismaken met Rolf Trijber" />
+        <div class="km-hero__overlay"></div>
+      </div>
+      <div class="container km-hero__content">
+        <h1>{{ t('km.h1') }}</h1>
+        <p>{{ t('km.sub') }}</p>
       </div>
     </section>
 
@@ -138,24 +142,47 @@ const faqFallback = computed(() => [
 
 <style scoped>
 .km-hero {
-  padding-top: 9rem;
-  text-align: center;
+  position: relative;
+  min-height: 70vh;
+  display: flex;
+  align-items: center;
 }
 
-.km-hero__inner {
-  max-width: 640px;
-  margin: 0 auto;
+.km-hero__bg {
+  position: absolute;
+  inset: 0;
 }
 
-.km-hero__h1 {
-  font-size: clamp(2rem, 4vw, 3rem);
+.km-hero__bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.km-hero__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.25) 100%);
+}
+
+.km-hero__content {
+  position: relative;
+  z-index: 1;
+  padding-top: 8rem;
+  padding-bottom: 4rem;
+  max-width: 680px;
+}
+
+.km-hero__content h1 {
+  font-size: clamp(1.75rem, 3.5vw, 3rem);
   font-weight: 800;
   margin-bottom: 1.25rem;
+  line-height: 1.15;
 }
 
-.km-hero__sub {
+.km-hero__content p {
   font-size: 1.05rem;
-  color: rgba(255,255,255,0.75);
+  color: rgba(255,255,255,0.82);
   line-height: 1.75;
 }
 
