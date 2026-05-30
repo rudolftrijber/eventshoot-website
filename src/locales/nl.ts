@@ -126,6 +126,9 @@ export default {
     actie3P: 'Foto én video in één productiedag. Geen tweede leverancier, geen afstemming. Eén aanspreekpunt, één stijl, één factuur.',
     actie3Btn: 'Meer over video',
   },
+  pricing: {
+    mostChosen: 'Meest gekozen',
+  },
   home_featured: {
     title: 'Het meest gekozen pakket',
     sub: 'Voor jaarcongres, ledendag of groter bedrijfsevent is het Headline-pakket de perfecte match.',

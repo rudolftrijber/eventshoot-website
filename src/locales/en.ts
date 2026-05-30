@@ -126,6 +126,9 @@ export default {
     actie3P: 'Photo and video in one production day. No second supplier, no coordination. One point of contact, one style, one invoice.',
     actie3Btn: 'More about video',
   },
+  pricing: {
+    mostChosen: 'Most popular',
+  },
   home_featured: {
     title: 'The most popular package',
     sub: 'For annual congresses, member days or larger corporate events, the Headline package is the perfect match.',

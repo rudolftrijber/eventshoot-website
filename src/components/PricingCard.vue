@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
+
 defineProps<{
   name: string
   price: string
@@ -11,7 +14,7 @@ defineProps<{
 
 <template>
   <div class="card" :class="{ 'card--highlighted': highlighted }">
-    <div v-if="highlighted" class="card__badge">Meest gekozen</div>
+    <div v-if="highlighted" class="card__badge">{{ t('pricing.mostChosen') }}</div>
     <div v-else class="card__spacer"></div>
     <div class="card__inner">
       <h3 class="card__name">{{ name }}</h3>
