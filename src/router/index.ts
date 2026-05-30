@@ -19,6 +19,7 @@ const router = createRouter({
     { path: '/voor/eventbureaus', name: 'voor-eventbureaus', component: () => import('../views/VoorEventbureausView.vue') },
     { path: '/voor/hotels', name: 'voor-hotels', component: () => import('../views/VoorHotelsView.vue') },
     { path: '/voor/bedrijven', name: 'voor-bedrijven', component: () => import('../views/VoorBedrijvenView.vue') },
+    { path: '/gallery', name: 'gallery', component: () => import('../views/GalleryView.vue') },
     { path: '/privacy', name: 'privacy', component: () => import('../views/PrivacyView.vue') },
     // Redirects voor oude URL's
     { path: '/portfolio', redirect: '/werk' },

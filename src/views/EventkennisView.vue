@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
-import SectionHeading from '@/components/SectionHeading.vue'
 import { client, urlFor, postsQuery, type SanityPost } from '@/lib/sanity'
 import { useSeo } from '@/composables/useSeo'
 
@@ -35,12 +34,20 @@ function formatDate(d: string) {
 
 <template>
   <main>
+    <!-- Hero -->
+    <section class="ek-hero">
+      <div class="ek-hero__bg">
+        <img src="/eventshoot-78.jpg" alt="Eventkennis door Rolf Trijber" />
+        <div class="ek-hero__overlay"></div>
+      </div>
+      <div class="container ek-hero__content">
+        <h1>Eventkennis.</h1>
+        <p>Praktische artikelen over eventcontent, eventfotografie en zichtbaarheid na je event. Onderhouden door Rolf Trijber.</p>
+      </div>
+    </section>
+
     <section class="eventkennis section">
       <div class="container">
-        <SectionHeading
-          title="Eventkennis."
-          subtitle="Praktische artikelen over eventcontent, eventfotografie en zichtbaarheid na je event. Onderhouden door Rolf Trijber."
-        />
 
         <div v-if="loading" class="ek__state">
           <div class="ek__spinner"></div>
@@ -65,7 +72,7 @@ function formatDate(d: string) {
             <div class="ek__img-wrap">
               <img
                 v-if="post.mainImage"
-                :src="urlFor(post.mainImage).width(600).height(340).url()"
+                :src="urlFor(post.mainImage).width(600).url()"
                 :alt="post.mainImage.alt || post.title"
                 loading="lazy"
               />
@@ -88,7 +95,52 @@ function formatDate(d: string) {
 </template>
 
 <style scoped>
-.eventkennis { padding-top: 8rem; }
+.ek-hero {
+  position: relative;
+  min-height: 45vh;
+  display: flex;
+  align-items: center;
+}
+
+.ek-hero__bg {
+  position: absolute;
+  inset: 0;
+}
+
+.ek-hero__bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ek-hero__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.25) 100%);
+}
+
+.ek-hero__content {
+  position: relative;
+  z-index: 1;
+  padding-top: 8rem;
+  padding-bottom: 4rem;
+  max-width: 680px;
+}
+
+.ek-hero__content h1 {
+  font-size: clamp(1.75rem, 3.5vw, 3rem);
+  font-weight: 800;
+  margin-bottom: 1.25rem;
+  line-height: 1.15;
+}
+
+.ek-hero__content p {
+  font-size: 1.05rem;
+  color: rgba(255,255,255,0.82);
+  line-height: 1.75;
+}
+
+.eventkennis { padding-top: 3rem; }
 
 .ek__state {
   text-align: center;
@@ -111,40 +163,39 @@ function formatDate(d: string) {
 @keyframes spin { to { transform: rotate(360deg); } }
 
 .ek__grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2rem;
+  columns: 3;
+  column-gap: 1.5rem;
 }
 
 .ek__card {
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border);
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
   border-radius: var(--radius);
   overflow: hidden;
-  display: flex;
-  flex-direction: column;
+  display: block;
+  break-inside: avoid;
+  margin-bottom: 1.5rem;
   transition: border-color var(--transition), transform var(--transition);
 }
-.ek__card:hover { border-color: var(--color-accent); transform: translateY(-3px); }
+.ek__card:hover { transform: translateY(-3px); }
 
-.ek__img-wrap { aspect-ratio: 16/9; overflow: hidden; }
-.ek__img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s; }
+.ek__img-wrap { overflow: hidden; }
+.ek__img-wrap img { width: 100%; height: auto; display: block; transition: transform 0.3s; }
 .ek__card:hover .ek__img-wrap img { transform: scale(1.04); }
-.ek__img-placeholder { width: 100%; height: 100%; background: var(--color-border); }
+.ek__img-placeholder { width: 100%; height: 160px; background: var(--color-border); }
 
 .ek__body {
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  flex: 1;
 }
 
 .ek__meta { display: flex; gap: 1rem; font-size: 0.8rem; color: var(--color-text-muted); }
 .ek__title { font-size: 1.05rem; font-weight: 700; line-height: 1.3; color: var(--color-text); }
-.ek__excerpt { font-size: 0.875rem; color: var(--color-text-muted); line-height: 1.6; flex: 1; }
+.ek__excerpt { font-size: 0.875rem; color: var(--color-text-muted); line-height: 1.6; }
 .ek__read { font-size: 0.875rem; font-weight: 600; color: var(--color-accent); }
 
-@media (max-width: 900px) { .ek__grid { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 600px) { .ek__grid { grid-template-columns: 1fr; } }
+@media (max-width: 900px) { .ek__grid { columns: 2; } }
+@media (max-width: 600px) { .ek__grid { columns: 1; } }
 </style>
