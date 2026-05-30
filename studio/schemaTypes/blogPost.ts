@@ -1,32 +1,10 @@
 import { defineField, defineType } from 'sanity'
 
-const languageOptions = [
-  { title: 'Nederlands', value: 'nl' },
-  { title: 'English', value: 'en' },
-]
-
 export const blogPost = defineType({
   name: 'blogPost',
   title: 'Eventkennis-artikel',
   type: 'document',
   fields: [
-    defineField({
-      name: 'language',
-      title: 'Taal',
-      type: 'string',
-      options: { list: languageOptions, layout: 'radio' },
-      initialValue: 'nl',
-      validation: Rule => Rule.required(),
-    }),
-    defineField({
-      name: 'translationOf',
-      title: 'Vertaling van (NL-bronartikel)',
-      type: 'reference',
-      to: [{ type: 'blogPost' }],
-      description:
-        'Alleen invullen bij Engelse artikelen: koppel aan het Nederlandse bronartikel. NL-artikelen laten leeg.',
-      hidden: ({ document }) => document?.language !== 'en',
-    }),
     defineField({
       name: 'title',
       title: 'Titel (H1)',
@@ -98,12 +76,12 @@ export const blogPost = defineType({
     }),
     defineField({
       name: 'faq',
-      title: 'Veelgestelde vragen (FAQ)',
+      title: 'Veelgestelde vragen (alleen NL, onder dit artikel)',
       type: 'array',
       of: [
         {
           type: 'object',
-          name: 'faqItem',
+          name: 'articleFaqItem',
           title: 'Vraag & antwoord',
           fields: [
             defineField({
@@ -128,11 +106,10 @@ export const blogPost = defineType({
     }),
   ],
   preview: {
-    select: { title: 'title', media: 'mainImage', date: 'publishedAt', language: 'language' },
-    prepare({ title, media, date, language }) {
-      const langLabel = language === 'en' ? 'EN' : 'NL'
+    select: { title: 'title', media: 'mainImage', date: 'publishedAt' },
+    prepare({ title, media, date }) {
       return {
-        title: `[${langLabel}] ${title}`,
+        title,
         media,
         subtitle: date ? new Date(date).toLocaleDateString('nl-NL') : 'Geen datum',
       }

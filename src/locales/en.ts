@@ -1,4 +1,7 @@
 export default {
+  faq: {
+    title: 'Frequently asked questions',
+  },
   nav: {
     services: 'Services',
     photography: 'Event Photography',
@@ -176,6 +179,7 @@ export default {
     loading: 'Loading articles…',
     error: 'Could not load articles. Check the Sanity configuration.',
     empty: 'No articles published yet. Add them via Sanity Studio.',
+    nlOnly: 'Event Knowledge is only available in Dutch. Switch the language to NL at the top to read articles.',
   },
   artikel: {
     kbH1: 'Knowledge Base.',
@@ -305,6 +309,7 @@ export default {
     successTitle: 'Message received.',
     successDesc: 'Rolf responds personally, usually within 24 hours.',
     faqTitle: 'Frequently asked questions',
+    faqSub: 'Answers to the most common questions about event photography and working with Eventshoot.nl.',
     faq1Q: 'How quickly does Rolf respond?',
     faq1A: 'Usually within a few hours on working days. Rolf responds personally, no call centre.',
     faq2Q: 'How much does an introductory call cost?',

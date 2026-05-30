@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import FaqBlock from '@/components/FaqBlock.vue'
 import { useSeo } from '@/composables/useSeo'
 import { useEmailJS } from '@/composables/useEmailJS'
 
@@ -39,11 +40,11 @@ async function submitForm() {
   }
 }
 
-const faqs = computed(() => [
-  { q: t('km.faq1Q'), a: t('km.faq1A') },
-  { q: t('km.faq2Q'), a: t('km.faq2A') },
-  { q: t('km.faq3Q'), a: t('km.faq3A') },
-  { q: t('km.faq4Q'), a: t('km.faq4A') },
+const faqFallback = computed(() => [
+  { question: t('km.faq1Q'), answer: t('km.faq1A') },
+  { question: t('km.faq2Q'), answer: t('km.faq2A') },
+  { question: t('km.faq3Q'), answer: t('km.faq3A') },
+  { question: t('km.faq4Q'), answer: t('km.faq4A') },
 ])
 </script>
 
@@ -131,18 +132,7 @@ const faqs = computed(() => [
       </div>
     </section>
 
-    <!-- FAQ -->
-    <section class="faq section section--dark">
-      <div class="container">
-        <h2 class="faq__title">{{ t('km.faqTitle') }}</h2>
-        <div class="faq__list">
-          <div v-for="item in faqs" :key="item.q" class="faq__item">
-            <h3 class="faq__q">{{ item.q }}</h3>
-            <p class="faq__a">{{ item.a }}</p>
-          </div>
-        </div>
-      </div>
-    </section>
+    <FaqBlock page="kennismaken" :fallback="faqFallback" :subtitle="t('km.faqSub')" />
   </main>
 </template>
 
@@ -312,36 +302,6 @@ const faqs = computed(() => [
 
 .form-success p {
   color: rgba(255,255,255,0.7);
-}
-
-.faq__title {
-  font-size: clamp(1.4rem, 2.5vw, 2rem);
-  font-weight: 800;
-  margin-bottom: 2rem;
-}
-
-.faq__list {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  max-width: 760px;
-}
-
-.faq__item {
-  border-bottom: 1px solid var(--color-border);
-  padding-bottom: 1.5rem;
-}
-
-.faq__q {
-  font-size: 1rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-}
-
-.faq__a {
-  font-size: 0.9rem;
-  color: var(--color-text-muted);
-  line-height: 1.7;
 }
 
 @media (max-width: 768px) {

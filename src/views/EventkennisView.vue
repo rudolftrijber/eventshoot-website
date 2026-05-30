@@ -1,20 +1,11 @@
 <script setup lang="ts">
-import { ref, onMounted, watch, computed } from 'vue'
-import { RouterLink, useRoute } from 'vue-router'
+import { ref, onMounted } from 'vue'
+import { RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { client, urlFor, postsQuery, type SanityPost } from '@/lib/sanity'
 import { useSeo } from '@/composables/useSeo'
-import {
-  contentLocaleFromPath,
-  eventkennisArticlePath,
-  eventkennisListPath,
-} from '@/lib/eventkennisPaths'
 
-const { t } = useI18n()
-const route = useRoute()
-
-const contentLocale = computed(() => contentLocaleFromPath(route.path))
-const listPath = computed(() => eventkennisListPath(contentLocale.value))
+const { t, locale } = useI18n()
 
 const posts = ref<SanityPost[]>([])
 const loading = ref(true)
@@ -24,7 +15,7 @@ async function loadPosts() {
   loading.value = true
   error.value = false
   try {
-    posts.value = await client.fetch(postsQuery, { lang: contentLocale.value })
+    posts.value = await client.fetch(postsQuery)
   } catch {
     error.value = true
   } finally {
@@ -32,39 +23,19 @@ async function loadPosts() {
   }
 }
 
-function applySeo() {
-  const base = 'https://eventshoot.nl'
-  const isEn = contentLocale.value === 'en'
-  useSeo({
-    title: isEn
-      ? 'Event Knowledge | Eventshoot.nl'
-      : 'Eventkennis | Eventshoot.nl',
-    description: isEn
-      ? 'Practical articles about event content, event photography and visibility after your event. By Rolf Trijber.'
-      : 'Praktische artikelen over eventcontent, eventfotografie en zichtbaarheid na je event. Onderhouden door Rolf Trijber.',
-    url: `${base}${listPath.value}`,
-    locale: contentLocale.value,
-    alternates: [
-      { hreflang: 'nl', url: `${base}/eventkennis` },
-      { hreflang: 'en', url: `${base}/en/event-knowledge` },
-      { hreflang: 'x-default', url: `${base}/eventkennis` },
-    ],
-  })
-}
-
 onMounted(() => {
-  applySeo()
-  loadPosts()
-})
-
-watch(contentLocale, () => {
-  applySeo()
+  useSeo({
+    title: 'Eventkennis | Eventshoot.nl',
+    description: 'Praktische artikelen over eventcontent, eventfotografie en zichtbaarheid na je event. Onderhouden door Rolf Trijber.',
+    url: 'https://eventshoot.nl/eventkennis',
+    locale: 'nl',
+  })
   loadPosts()
 })
 </script>
 
 <template>
-  <main>
+  <main v-if="locale === 'nl'">
     <section class="ek-hero">
       <div class="ek-hero__bg">
         <img src="/eventshoot-78.jpg" alt="Eventkennis door Rolf Trijber" />
@@ -96,7 +67,7 @@ watch(contentLocale, () => {
           <RouterLink
             v-for="post in posts"
             :key="post._id"
-            :to="eventkennisArticlePath(contentLocale, post.slug.current)"
+            :to="`/eventkennis/${post.slug.current}`"
             class="ek__card"
           >
             <div class="ek__img-wrap">
@@ -117,6 +88,11 @@ watch(contentLocale, () => {
         </div>
       </div>
     </section>
+  </main>
+  <main v-else class="ek-nl-only section">
+    <div class="container">
+      <p>{{ t('eventkennis.nlOnly') }}</p>
+    </div>
   </main>
 </template>
 
@@ -223,4 +199,12 @@ watch(contentLocale, () => {
 
 @media (max-width: 900px) { .ek__grid { columns: 2; } }
 @media (max-width: 600px) { .ek__grid { columns: 1; } }
+
+.ek-nl-only {
+  padding-top: 10rem;
+  text-align: center;
+  color: var(--color-text-muted);
+  max-width: 520px;
+  margin: 0 auto;
+}
 </style>

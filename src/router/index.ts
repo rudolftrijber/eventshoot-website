@@ -1,6 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { i18n } from '@/i18n'
-import { contentLocaleFromPath } from '@/lib/eventkennisPaths'
 import HomeView from '../views/HomeView.vue'
 
 const router = createRouter({
@@ -15,16 +13,8 @@ const router = createRouter({
     { path: '/tarieven', name: 'tarieven', component: () => import('../views/TarievenView.vue') },
     { path: '/eventkennis', name: 'eventkennis', component: () => import('../views/EventkennisView.vue') },
     { path: '/eventkennis/:slug', name: 'eventkennis-artikel', component: () => import('../views/EventkennisArtikelView.vue') },
-    {
-      path: '/en/event-knowledge',
-      name: 'eventkennis-en',
-      component: () => import('../views/EventkennisView.vue'),
-    },
-    {
-      path: '/en/event-knowledge/:slug',
-      name: 'eventkennis-artikel-en',
-      component: () => import('../views/EventkennisArtikelView.vue'),
-    },
+    { path: '/en/event-knowledge', redirect: '/eventkennis' },
+    { path: '/en/event-knowledge/:slug', redirect: to => `/eventkennis/${to.params.slug}` },
     { path: '/over-rolf', name: 'over-rolf', component: () => import('../views/OverRolfView.vue') },
     { path: '/kennismaken', name: 'kennismaken', component: () => import('../views/KennismakenView.vue') },
     { path: '/voor/brancheverenigingen', name: 'voor-brancheverenigingen', component: () => import('../views/VoorBrancheverenigingenView.vue') },
@@ -42,17 +32,6 @@ const router = createRouter({
     { path: '/klanten/:slug', name: 'klant', component: () => import('../views/LeontineView.vue') },
     { path: '/leontine', name: 'leontine', component: () => import('../views/LeontineView.vue') },
   ],
-})
-
-router.beforeEach(to => {
-  const contentLocale = contentLocaleFromPath(to.path)
-  if (to.path.startsWith('/eventkennis') || to.path.startsWith('/en/event-knowledge')) {
-    if (i18n.global.locale.value !== contentLocale) {
-      i18n.global.locale.value = contentLocale
-      localStorage.setItem('lang', contentLocale)
-    }
-    document.documentElement.lang = contentLocale
-  }
 })
 
 export default router

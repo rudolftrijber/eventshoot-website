@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { SanityFaqItem } from '@/lib/sanity'
+import type { ArticleFaqItem } from '@/lib/sanity'
 
 const props = defineProps<{
-  items: SanityFaqItem[]
+  items: ArticleFaqItem[]
 }>()
 
 const { t } = useI18n()

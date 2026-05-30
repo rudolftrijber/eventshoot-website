@@ -309,6 +309,7 @@ export default {
     successTitle: 'Bericht ontvangen.',
     successDesc: 'Rolf reageert persoonlijk, doorgaans binnen 24 uur.',
     faqTitle: 'Veelgestelde vragen',
+    faqSub: 'Antwoorden op de meest gestelde vragen over eventfotografie en samenwerken met Eventshoot.nl.',
     faq1Q: 'Hoe snel reageert Rolf?',
     faq1A: 'Doorgaans binnen een paar uur op werkdagen. Rolf reageert persoonlijk, geen callcenter.',
     faq2Q: 'Wat kost een kennismaking?',

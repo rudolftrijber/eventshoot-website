@@ -5,7 +5,7 @@ import { schemaTypes } from './schemaTypes'
 
 export default defineConfig({
   name: 'eventshoot-studio',
-  title: 'Eventshoot.nl — Eventkennis',
+  title: 'Eventshoot.nl — Contentbeheer',
 
   projectId: process.env.SANITY_STUDIO_PROJECT_ID!,
   dataset: process.env.SANITY_STUDIO_DATASET || 'production',
@@ -17,11 +17,18 @@ export default defineConfig({
           .title('Inhoud')
           .items([
             S.listItem()
+              .title('FAQ')
+              .child(
+                S.documentTypeList('faqItem')
+                  .title('Alle FAQ-items')
+                  .defaultOrdering([{ field: 'sortOrder', direction: 'asc' }]),
+              ),
+            S.divider(),
+            S.listItem()
               .title('Eventkennis')
               .child(
                 S.documentTypeList('blogPost')
                   .title('Alle artikelen')
-                  .filter('_type == "blogPost"')
                   .defaultOrdering([{ field: 'publishedAt', direction: 'desc' }]),
               ),
           ]),

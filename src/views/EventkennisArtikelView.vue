@@ -1,67 +1,27 @@
 <script setup lang="ts">
-import { ref, onMounted, watch, computed } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { PortableText } from '@portabletext/vue'
 import ArticleFaqBlock from '@/components/ArticleFaqBlock.vue'
 import { client, urlFor, postBySlugQuery, postsQuery, type SanityPost } from '@/lib/sanity'
 import { useSeo } from '@/composables/useSeo'
-import {
-  contentLocaleFromPath,
-  eventkennisArticlePath,
-  eventkennisListPath,
-  type ContentLocale,
-} from '@/lib/eventkennisPaths'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const route = useRoute()
-
-const contentLocale = computed(() => contentLocaleFromPath(route.path))
-const listPath = computed(() => eventkennisListPath(contentLocale.value))
 
 const post = ref<SanityPost | null>(null)
 const recentPosts = ref<SanityPost[]>([])
 const loading = ref(true)
 const notFound = ref(false)
 
-function dateLocale(): string {
-  return contentLocale.value === 'en' ? 'en-GB' : 'nl-NL'
-}
-
-function formatDate(d: string) {
-  return new Date(d).toLocaleDateString(dateLocale(), { day: 'numeric', month: 'long', year: 'numeric' })
-}
-
-function buildAlternates(result: SanityPost) {
-  const base = 'https://eventshoot.nl'
-  const selfLocale = (result.language || 'nl') as ContentLocale
-  const selfUrl = `${base}${eventkennisArticlePath(selfLocale, result.slug.current)}`
-
-  let nlUrl = selfLocale === 'nl' ? selfUrl : undefined
-  let enUrl = selfLocale === 'en' ? selfUrl : undefined
-
-  if (result.alternate?.slug?.current) {
-    const altLocale = result.alternate.language as ContentLocale
-    const altUrl = `${base}${eventkennisArticlePath(altLocale, result.alternate.slug.current)}`
-    if (altLocale === 'nl') nlUrl = altUrl
-    else enUrl = altUrl
-  }
-
-  const alternates: { hreflang: string; url: string }[] = []
-  if (nlUrl) alternates.push({ hreflang: 'nl', url: nlUrl })
-  if (enUrl) alternates.push({ hreflang: 'en', url: enUrl })
-  alternates.push({ hreflang: 'x-default', url: nlUrl || selfUrl })
-  return alternates
-}
-
 async function loadPost(slug: string) {
   loading.value = true
   notFound.value = false
-  const lang = contentLocale.value
   try {
     const [result, all] = await Promise.all([
-      client.fetch<SanityPost | null>(postBySlugQuery, { slug, lang }),
-      client.fetch<SanityPost[]>(postsQuery, { lang }),
+      client.fetch<SanityPost | null>(postBySlugQuery, { slug }),
+      client.fetch<SanityPost[]>(postsQuery),
     ])
     if (!result) {
       notFound.value = true
@@ -70,15 +30,12 @@ async function loadPost(slug: string) {
     }
     post.value = result
     recentPosts.value = all.filter(p => p.slug.current !== slug).slice(0, 3)
-
-    const canonicalUrl = `https://eventshoot.nl${eventkennisArticlePath(lang, result.slug.current)}`
     useSeo({
       title: `${result.title} | Eventshoot.nl`,
       description: result.excerpt,
       image: result.mainImage ? urlFor(result.mainImage).width(1200).url() : undefined,
-      url: canonicalUrl,
-      locale: lang,
-      alternates: buildAlternates(result),
+      url: `https://eventshoot.nl/eventkennis/${result.slug.current}`,
+      locale: 'nl',
     })
   } finally {
     loading.value = false
@@ -86,13 +43,15 @@ async function loadPost(slug: string) {
 }
 
 onMounted(() => loadPost(route.params.slug as string))
-watch(() => [route.params.slug, contentLocale.value], () => {
-  loadPost(route.params.slug as string)
-})
+watch(() => route.params.slug, slug => loadPost(slug as string))
+
+function formatDate(d: string) {
+  return new Date(d).toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' })
+}
 </script>
 
 <template>
-  <main>
+  <main v-if="locale === 'nl'">
     <section class="kb-hero">
       <div class="kb-hero__bg">
         <img src="/eventshoot-78.jpg" alt="Eventkennis door Rolf Trijber" />
@@ -101,7 +60,7 @@ watch(() => [route.params.slug, contentLocale.value], () => {
       <div class="container kb-hero__content">
         <h1>{{ t('artikel.kbH1') }}</h1>
         <p>{{ t('artikel.kbSub') }}</p>
-        <RouterLink :to="listPath" class="kb-hero__back">&larr; {{ t('artikel.backAll') }}</RouterLink>
+        <RouterLink to="/eventkennis" class="kb-hero__back">&larr; {{ t('artikel.backAll') }}</RouterLink>
       </div>
     </section>
 
@@ -115,7 +74,7 @@ watch(() => [route.params.slug, contentLocale.value], () => {
     <div v-else-if="notFound" class="post-state section">
       <div class="container">
         <p>{{ t('artikel.notFound') }}</p>
-        <RouterLink :to="listPath" class="btn btn--primary" style="margin-top:1.5rem">&larr; {{ t('artikel.backBtn') }}</RouterLink>
+        <RouterLink to="/eventkennis" class="btn btn--primary" style="margin-top:1.5rem">&larr; {{ t('artikel.backBtn') }}</RouterLink>
       </div>
     </div>
 
@@ -141,7 +100,7 @@ watch(() => [route.params.slug, contentLocale.value], () => {
 
       <ArticleFaqBlock v-if="post.faq?.length" :items="post.faq" />
 
-      <RouterLink :to="listPath" class="post__back">&larr; {{ t('artikel.backBtn') }}</RouterLink>
+      <RouterLink to="/eventkennis" class="post__back">&larr; {{ t('artikel.backBtn') }}</RouterLink>
     </div>
 
     <section v-if="recentPosts.length" class="recent section">
@@ -151,7 +110,7 @@ watch(() => [route.params.slug, contentLocale.value], () => {
           <RouterLink
             v-for="p in recentPosts"
             :key="p._id"
-            :to="eventkennisArticlePath(contentLocale, p.slug.current)"
+            :to="`/eventkennis/${p.slug.current}`"
             class="recent__card"
           >
             <div v-if="p.mainImage" class="recent__img-wrap">
@@ -165,7 +124,11 @@ watch(() => [route.params.slug, contentLocale.value], () => {
         </div>
       </div>
     </section>
-
+  </main>
+  <main v-else class="post-state section">
+    <div class="container">
+      <p>{{ t('eventkennis.nlOnly') }}</p>
+    </div>
   </main>
 </template>
 
