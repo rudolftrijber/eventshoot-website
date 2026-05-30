@@ -131,7 +131,7 @@ const eventTypes = [
     <section class="video-upsell section">
       <div class="container video-upsell__inner">
         <div class="video-upsell__image">
-          <img src="/rolf_interview.png" alt="Rolf Trijber bij een interview shoot" />
+          <img src="/DATA_EVENTSHOOT/SITE_IMAGES/WERK/rolf_trijber_interview.jpg" alt="Rolf Trijber bij een interview shoot" />
         </div>
         <div class="video-upsell__text">
           <h2 class="video-upsell__title">Liever ook video?<br>Geen tweede leverancier nodig.</h2>
