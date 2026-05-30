@@ -151,6 +151,7 @@ watch(displayItems, upsertSchema, { deep: true })
   font-weight: 800;
   line-height: 1.15;
   margin-bottom: 1.25rem;
+  max-width: 8ch;
 }
 
 .faq-block__sub {
