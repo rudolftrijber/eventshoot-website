@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useSeo } from '@/composables/useSeo'
+
+const { t } = useI18n()
 
 onMounted(() => {
   useSeo({
@@ -123,8 +126,8 @@ function onKeydown(e: KeyboardEvent) {
     <section class="gallery section">
       <div class="container">
         <div class="gallery__header">
-          <h1>Persoonlijk portfolio.</h1>
-          <p>Fotografie buiten het eventcircuit. Portretten, reisfotografie, beauty, jazz en meer.</p>
+          <h1>{{ t('gallery.h1') }}</h1>
+          <p>{{ t('gallery.sub') }}</p>
         </div>
         <div class="gallery__grid">
           <div

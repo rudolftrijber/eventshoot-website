@@ -1,31 +1,33 @@
 <script setup lang="ts">
 import { TrophyIcon, UserGroupIcon, MapPinIcon, BoltIcon } from '@heroicons/vue/24/outline'
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 </script>
 
 <template>
   <section class="usp">
     <div class="container">
-      <h2 class="usp__heading">Waarom kiezen voor Eventshoot.nl</h2>
+      <h2 class="usp__heading">{{ t('usp.heading') }}</h2>
       <div class="usp__grid">
         <div class="usp__card">
           <TrophyIcon class="usp__icon" />
-          <h3 class="usp__title">40+ jaar ervaring</h3>
-          <p class="usp__text">Senioriteit als productiekracht. Veertig jaar in beeldproductie zit ingebakken in wat je krijgt. Geen onzekere handen, geen gemiste momenten. Een scherp oog voor wat zich aandient, en het sociale gemak om in twee tonen te schakelen: de taal van technici én die van de directiekamer.</p>
+          <h3 class="usp__title">{{ t('usp.usp1Title') }}</h3>
+          <p class="usp__text">{{ t('usp.usp1Text') }}</p>
         </div>
         <div class="usp__card">
           <UserGroupIcon class="usp__icon" />
-          <h3 class="usp__title">Mensen, geen AI</h3>
-          <p class="usp__text">Eventshoot.nl gebruikt geen AI-gegenereerde video of stockbeelden. Alles wat je krijgt is echt opgenomen op jouw event, met echte mensen en professionele apparatuur. Voor de nabewerking, zoals selectie, transcriptie en ondertiteling, gebruiken we AI. Voor de beelden zelf, mensen.</p>
+          <h3 class="usp__title">{{ t('usp.usp2Title') }}</h3>
+          <p class="usp__text">{{ t('usp.usp2Text') }}</p>
         </div>
         <div class="usp__card">
           <MapPinIcon class="usp__icon" />
-          <h3 class="usp__title">Vooraf afgestemd met de locatie</h3>
-          <p class="usp__text">Backdrop, beeldwand, podiumlicht, presentatieformat, groepsfoto-moment en interviewlocatie worden samen met techniek doorgenomen voordat de eerste gast binnenkomt. Dia's met een donkere achtergrond in plaats van andersom, beter voor de deelnemers én voor het beeld. Geen toeval, wel verschil.</p>
+          <h3 class="usp__title">{{ t('usp.usp3Title') }}</h3>
+          <p class="usp__text">{{ t('usp.usp3Text') }}</p>
         </div>
         <div class="usp__card">
           <BoltIcon class="usp__icon" />
-          <h3 class="usp__title">Geleverd binnen 48 uur</h3>
-          <p class="usp__text">Je bestanden zijn binnen twee dagen klaar voor je marketeer, terwijl het event nog vers in het geheugen zit. In de juiste formaten voor elk kanaal: horizontaal voor de website, 4:5 voor LinkedIn en verticaal voor Stories en Reels. Geen extra nabewerking nodig, direct te plaatsen.</p>
+          <h3 class="usp__title">{{ t('usp.usp4Title') }}</h3>
+          <p class="usp__text">{{ t('usp.usp4Text') }}</p>
         </div>
       </div>
     </div>

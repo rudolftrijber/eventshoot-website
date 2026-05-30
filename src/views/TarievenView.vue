@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import PricingCard from '@/components/PricingCard.vue'
 import UspGrid from '@/components/UspGrid.vue'
 import { useSeo } from '@/composables/useSeo'
+
+const { t } = useI18n()
 
 onMounted(() => {
   useSeo({
@@ -65,9 +68,9 @@ const logos = [
         <div class="tarieven-hero__overlay"></div>
       </div>
       <div class="container tarieven-hero__content">
-        <h1>Tarieven voor eventcontent.</h1>
-        <p>Drie pakketten plus een jaarcontract voor organisaties met meerdere events per jaar. Vooraf duidelijk, geen verrassingen achteraf.</p>
-        <RouterLink to="/kennismaken" class="btn btn--primary btn--lg">Vrijblijvend kennismaken</RouterLink>
+        <h1>{{ t('tarieven.h1') }}</h1>
+        <p>{{ t('tarieven.sub') }}</p>
+        <RouterLink to="/kennismaken" class="btn btn--primary btn--lg">{{ t('tarieven.cta') }}</RouterLink>
       </div>
     </section>
 
@@ -82,7 +85,7 @@ const logos = [
           />
         </div>
         <div class="download-cta">
-          <p class="download-cta__sub">Liever alles op één pagina? Download het tarievenoverzicht als PDF.</p>
+          <p class="download-cta__sub">{{ t('tarieven.downloadText') }}</p>
           <a
             href="/DATA_EVENTSHOOT/FILES/Eventshoot_onepager.pdf"
             download
@@ -91,7 +94,7 @@ const logos = [
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="16" height="16" style="flex-shrink:0">
               <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
             </svg>
-            Download tarievenoverzicht (PDF)
+            {{ t('tarieven.downloadBtn') }}
           </a>
         </div>
       </div>
@@ -100,7 +103,7 @@ const logos = [
     <!-- Motto strook -->
     <section class="motto-bar">
       <div class="container motto-bar__inner">
-        <p class="motto-bar__text">Jouw event is een goudmijn aan content.</p>
+        <p class="motto-bar__text">{{ t('tarieven.motto') }}</p>
       </div>
     </section>
 
@@ -110,37 +113,37 @@ const logos = [
 
         <!-- Links: inleiding -->
         <div class="content-year__left">
-          <h2 class="content-year__title">Content jaarcontract</h2>
-          <p class="content-year__intro">Veel organisaties hebben niet één event per jaar, maar drie of vier. Een jaarcongres, een ledendag, een vakdag. Elke keer opnieuw een fotograaf zoeken kost tijd, en de beeldstijl verschilt per keer.</p>
-          <p class="content-year__intro">Met het Content Year-contract leg je één afspraak vast voor het hele jaar. Rolf kent je organisatie, je huisstijl en je verwachtingen. Dat merk je meteen in het resultaat.</p>
-          <h3 class="content-year__why-title">Waarom een jaarcontract?</h3>
+          <h2 class="content-year__title">{{ t('tarieven.jaarcontract') }}</h2>
+          <p class="content-year__intro">{{ t('tarieven.jaarLeft1') }}</p>
+          <p class="content-year__intro">{{ t('tarieven.jaarLeft2') }}</p>
+          <h3 class="content-year__why-title">{{ t('tarieven.jaarWhyTitle') }}</h3>
           <ul class="content-year__why-list">
-            <li>Geen gedoe met offertes en briefings per event</li>
-            <li>Doorlopende beeldstijl die bij je organisatie past</li>
-            <li>Voorrang in de agenda, ook bij last-minute wijzigingen</li>
-            <li>Één aanspreekpunt die je events kent</li>
+            <li>{{ t('tarieven.jaarWhy1') }}</li>
+            <li>{{ t('tarieven.jaarWhy2') }}</li>
+            <li>{{ t('tarieven.jaarWhy3') }}</li>
+            <li>{{ t('tarieven.jaarWhy4') }}</li>
           </ul>
         </div>
 
         <!-- Rechts: wat je krijgt + prijs + CTA -->
         <div class="content-year__right">
           <div class="content-year__card">
-            <p class="content-year__card-eyebrow">Wat je krijgt</p>
+            <p class="content-year__card-eyebrow">{{ t('tarieven.jaarWhatTitle') }}</p>
             <ul class="content-year__list">
-              <li>3 events per jaar op Heroes-niveau</li>
-              <li>8 uur aanwezigheid per event</li>
-              <li>200–300 bewerkte foto's per event</li>
-              <li>Social aftermovie + corporate aftermovie per event</li>
-              <li>15–20 sprekersinterviews per event</li>
-              <li>Levering binnen 48 uur</li>
-              <li>Voorrang in de agenda</li>
-              <li>Doorlopende stijl, één aanspreekpunt</li>
+              <li>{{ t('tarieven.jaarFeature1') }}</li>
+              <li>{{ t('tarieven.jaarFeature2') }}</li>
+              <li>{{ t('tarieven.jaarFeature3') }}</li>
+              <li>{{ t('tarieven.jaarFeature4') }}</li>
+              <li>{{ t('tarieven.jaarFeature5') }}</li>
+              <li>{{ t('tarieven.jaarFeature6') }}</li>
+              <li>{{ t('tarieven.jaarFeature7') }}</li>
+              <li>{{ t('tarieven.jaarFeature8') }}</li>
             </ul>
             <div class="content-year__price-block">
-              <p class="content-year__price">€ 775 <span>per maand</span></p>
-              <p class="content-year__sub">€ 9.300 per jaar, excl. btw</p>
+              <p class="content-year__price">{{ t('tarieven.jaarPrice') }} <span>{{ t('tarieven.jaarPricePer') }}</span></p>
+              <p class="content-year__sub">{{ t('tarieven.jaarSub') }}</p>
             </div>
-            <RouterLink to="/kennismaken" class="btn btn--primary btn--full">Interesse? Plan een gesprek</RouterLink>
+            <RouterLink to="/kennismaken" class="btn btn--primary btn--full">{{ t('tarieven.jaarCta') }}</RouterLink>
           </div>
         </div>
 
@@ -151,7 +154,7 @@ const logos = [
 
     <!-- Vertrouwd door organisaties -->
     <section class="trust">
-      <p class="trust__label">Vertrouwd door organisaties als…</p>
+      <p class="trust__label">{{ t('tarieven.trust') }}</p>
       <div class="trust__track-wrap">
         <div class="trust__track">
           <div class="trust__slide" v-for="n in 2" :key="n">

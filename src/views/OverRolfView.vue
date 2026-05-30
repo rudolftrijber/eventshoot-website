@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useSeo } from '@/composables/useSeo'
+
+const { t } = useI18n()
 
 onMounted(() => {
   useSeo({
@@ -22,9 +25,9 @@ onMounted(() => {
         <div class="over-hero__overlay"></div>
       </div>
       <div class="container over-hero__content">
-        <h1>Rolf Trijber, achter Eventshoot.nl.</h1>
-        <p>Eventfotograaf en videograaf. Gespecialiseerd in zakelijke evenementen door heel Nederland.</p>
-        <RouterLink to="/kennismaken" class="btn btn--primary btn--lg">Vrijblijvend kennismaken</RouterLink>
+        <h1>{{ t('overRolf.h1') }}</h1>
+        <p>{{ t('overRolf.sub') }}</p>
+        <RouterLink to="/kennismaken" class="btn btn--primary btn--lg">{{ t('overRolf.cta') }}</RouterLink>
       </div>
     </section>
 
@@ -32,9 +35,9 @@ onMounted(() => {
     <section class="story section">
       <div class="container story__grid">
         <div class="story__text">
-          <h2 class="story__motto">Jouw event is een goudmijn aan content.</h2>
-          <p>Op mijn twaalfde had ik een eigen donkere kamer. Niet omdat het moest, maar omdat ik niet kon stoppen met fotograferen. Op mijn zestiende verkocht ik mijn eerste foto's. Sindsdien ben ik nooit gestopt.</p>
-          <p>Meer dan 40 jaar later is die gedrevenheid er nog steeds, alleen schiet ik nu op conferenties, jaarcongressen en productpresentaties in plaats van op de straten van mijn woonplaats. De essentie is dezelfde: het goede moment zien, en vastleggen voordat het voorbij is.</p>
+          <h2 class="story__motto">{{ t('overRolf.motto') }}</h2>
+          <p>{{ t('overRolf.story1') }}</p>
+          <p>{{ t('overRolf.story2') }}</p>
         </div>
         <div class="story__photo">
           <img src="/DATA_EVENTSHOOT/SITE_IMAGES/WERK/rolf_trijber_team.jpg" alt="Rolf Trijber in actie op een event" />
@@ -49,9 +52,9 @@ onMounted(() => {
           <img src="/DATA_EVENTSHOOT/SITE_IMAGES/WERK/rolf_trijber_eventshoot.jpg" alt="Rolf Trijber in actie op een congres" />
         </div>
         <div class="meer__text">
-          <h2>Meer dan een fotograaf.</h2>
-          <p>Ik ben van origine grafisch vormgever. Compositie, kleur en typografie zitten er bij mij ingebakken, dat merk je terug in elke foto en elke video die ik lever.</p>
-          <p>Organiseren staat op mijn voorhoofd geschreven. Ik stem vooraf af met locatie en techniek, ik ken het programma, en ik weet precies wanneer de groepsfoto moet worden gemaakt voordat de eerste gasten vertrekken. Een eventfotograaf moet niet alleen kunnen fotograferen, hij moet ook honderd mensen in beweging kunnen krijgen voor een memorabele groepsopname. Met overtuiging, niet met geroep.</p>
+          <h2>{{ t('overRolf.meerH2') }}</h2>
+          <p>{{ t('overRolf.meer1') }}</p>
+          <p>{{ t('overRolf.meer2') }}</p>
         </div>
       </div>
     </section>
@@ -60,10 +63,10 @@ onMounted(() => {
     <section class="relaties section">
       <div class="container relaties__grid">
         <div class="relaties__text">
-          <h2>Langetermijnrelaties, geen eenmalige klussen.</h2>
-          <p>Het gaat mij niet om zoveel mogelijk opdrachten. Het gaat mij om het opbouwen van een echte werkrelatie.</p>
-          <p>GBL Alliance vertrouwt mij al bijna negen jaar de contentproductie van hun conferenties toe. In die tijd ben ik niet alleen hun vaste fotograaf geworden, ik denk ook mee over de opzet en vormgeving van hun evenementen, zodat mijn beelden er elk jaar beter uit gaan zien. Dat is de samenwerking waar ik het voor doe.</p>
-          <p class="relaties__cta-tekst">Als jij een partner zoekt die je event jaar na jaar beter maakt, dan passen we waarschijnlijk goed bij elkaar.</p>
+          <h2>{{ t('overRolf.relatiesH2') }}</h2>
+          <p>{{ t('overRolf.relaties1') }}</p>
+          <p>{{ t('overRolf.relaties2') }}</p>
+          <p class="relaties__cta-tekst">{{ t('overRolf.relaties3') }}</p>
         </div>
         <div class="relaties__photo">
           <img src="/DATA_EVENTSHOOT/SITE_IMAGES/WERK/rolf_trijber_interview.jpg" alt="Rolf Trijber bij een interview op locatie" />
@@ -74,10 +77,10 @@ onMounted(() => {
     <!-- Buiten de lens -->
     <section class="buiten section">
       <div class="container buiten__inner">
-        <h2 class="buiten__title">Rolf buiten de lens.</h2>
-        <p class="buiten__text">Naast mijn werk vaar ik als vrijwillige schipper met mensen met een beperking. Die ervaring, goed zijn met mensen, schakelen op elk niveau en echt aanwezig zijn, neem ik mee naar elk evenement waar ik kom. Benieuwd naar de fotografie buiten het eventcircuit?</p>
+        <h2 class="buiten__title">{{ t('overRolf.buitenH2') }}</h2>
+        <p class="buiten__text">{{ t('overRolf.buiten1') }}</p>
         <p class="buiten__link-wrap">
-          <RouterLink to="/gallery" class="buiten__link">Bekijk mijn persoonlijk gallery →</RouterLink>
+          <RouterLink to="/gallery" class="buiten__link">{{ t('overRolf.buitenLink') }}</RouterLink>
         </p>
       </div>
     </section>
@@ -85,22 +88,22 @@ onMounted(() => {
     <!-- Actie kaarten -->
     <section class="actie section">
       <div class="container">
-        <h2 class="actie__title">Wat kan ik voor jou doen?</h2>
+        <h2 class="actie__title">{{ t('overRolf.actieH2') }}</h2>
         <div class="actie__grid">
           <div class="actie__card">
-            <h3>Last-minute boeking</h3>
-            <p>Event aanstaande week en nog geen fotograaf? Bel direct: 06 251 777 28. Ik probeer altijd iets te regelen.</p>
-            <a href="tel:+31625177728" class="btn btn--primary">Bel Rolf</a>
+            <h3>{{ t('overRolf.actie1H3') }}</h3>
+            <p>{{ t('overRolf.actie1P') }}</p>
+            <a href="tel:+31625177728" class="btn btn--primary">{{ t('overRolf.actie1Btn') }}</a>
           </div>
           <div class="actie__card">
-            <h3>Groot congres</h3>
-            <p>Jaarcongres of ledendag met 200+ deelnemers? Het Headline of Heroes pakket is hiervoor gemaakt, inclusief aftermovie en interviews.</p>
-            <RouterLink to="/tarieven" class="btn btn--primary">Bekijk pakketten</RouterLink>
+            <h3>{{ t('overRolf.actie2H3') }}</h3>
+            <p>{{ t('overRolf.actie2P') }}</p>
+            <RouterLink to="/tarieven" class="btn btn--primary">{{ t('overRolf.actie2Btn') }}</RouterLink>
           </div>
           <div class="actie__card">
-            <h3>Ook video nodig?</h3>
-            <p>Foto én video in één productiedag. Geen tweede leverancier, geen afstemming. Eén aanspreekpunt, één stijl, één factuur.</p>
-            <RouterLink to="/eventvideo" class="btn btn--primary">Meer over video</RouterLink>
+            <h3>{{ t('overRolf.actie3H3') }}</h3>
+            <p>{{ t('overRolf.actie3P') }}</p>
+            <RouterLink to="/eventvideo" class="btn btn--primary">{{ t('overRolf.actie3Btn') }}</RouterLink>
           </div>
         </div>
       </div>

@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { client, urlFor, postsQuery, type SanityPost } from '@/lib/sanity'
 import { useSeo } from '@/composables/useSeo'
+
+const { t } = useI18n()
 
 onMounted(() => {
   useSeo({
@@ -41,8 +44,8 @@ function formatDate(d: string) {
         <div class="ek-hero__overlay"></div>
       </div>
       <div class="container ek-hero__content">
-        <h1>Eventkennis.</h1>
-        <p>Praktische artikelen over eventcontent, eventfotografie en zichtbaarheid na je event. Onderhouden door Rolf Trijber.</p>
+        <h1>{{ t('eventkennis.h1') }}</h1>
+        <p>{{ t('eventkennis.sub') }}</p>
       </div>
     </section>
 
@@ -51,15 +54,15 @@ function formatDate(d: string) {
 
         <div v-if="loading" class="ek__state">
           <div class="ek__spinner"></div>
-          <p>Artikelen laden…</p>
+          <p>{{ t('eventkennis.loading') }}</p>
         </div>
 
         <div v-else-if="error" class="ek__state">
-          <p>Kon artikelen niet laden. Controleer de Sanity configuratie.</p>
+          <p>{{ t('eventkennis.error') }}</p>
         </div>
 
         <div v-else-if="posts.length === 0" class="ek__state">
-          <p>Nog geen artikelen gepubliceerd. Voeg ze toe via de Sanity Studio.</p>
+          <p>{{ t('eventkennis.empty') }}</p>
         </div>
 
         <div v-else class="ek__grid">

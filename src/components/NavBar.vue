@@ -1,6 +1,14 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
+
+const { t, locale } = useI18n()
+
+function setLang(lang: string) {
+  locale.value = lang
+  localStorage.setItem('lang', lang)
+}
 
 const route = useRoute()
 const scrolled = ref(false)
@@ -64,7 +72,7 @@ const over = [
 <template>
   <div class="topbar">
     <a href="tel:+31625177728" class="topbar__phone">
-      Vragen? Bel Rolf &mdash; 06 251 777 28
+      {{ t('nav.phone') }} &mdash; 06 251 777 28
     </a>
   </div>
 
@@ -80,7 +88,7 @@ const over = [
         <!-- Diensten -->
         <div class="dd" @mouseenter="onMouseEnter('diensten')" @mouseleave="onMouseLeave">
           <button class="navbar__link dd__trigger" :class="{ 'navbar__link--active': route.path.startsWith('/eventfotografie') || route.path.startsWith('/eventvideo') }" @click="toggleSection('diensten')">
-            Diensten <span class="dd__arrow">▾</span>
+            {{ t('nav.services') }} <span class="dd__arrow">▾</span>
           </button>
           <div class="dd__panel" :class="{ 'dd__panel--open': expanded === 'diensten' }">
             <RouterLink v-for="item in diensten" :key="item.to" :to="item.to" class="dd__link" @click="closeMenu">{{ item.label }}</RouterLink>
@@ -90,7 +98,7 @@ const over = [
         <!-- Voor wie -->
         <div class="dd" @mouseenter="onMouseEnter('voor')" @mouseleave="onMouseLeave">
           <button class="navbar__link dd__trigger" :class="{ 'navbar__link--active': route.path.startsWith('/voor') }" @click="toggleSection('voor')">
-            Voor wie <span class="dd__arrow">▾</span>
+            {{ t('nav.forWho') }} <span class="dd__arrow">▾</span>
           </button>
           <div class="dd__panel" :class="{ 'dd__panel--open': expanded === 'voor' }">
             <RouterLink v-for="item in voorWie" :key="item.to" :to="item.to" class="dd__link" @click="closeMenu">{{ item.label }}</RouterLink>
@@ -98,15 +106,15 @@ const over = [
         </div>
 
         <!-- Werk -->
-        <RouterLink to="/werk" class="navbar__link" :class="{ 'navbar__link--active': route.path.startsWith('/werk') }" @click="closeMenu">Werk</RouterLink>
+        <RouterLink to="/werk" class="navbar__link" :class="{ 'navbar__link--active': route.path.startsWith('/werk') }" @click="closeMenu">{{ t('nav.work') }}</RouterLink>
 
         <!-- Tarieven -->
-        <RouterLink to="/tarieven" class="navbar__link" :class="{ 'navbar__link--active': route.path === '/tarieven' }" @click="closeMenu">Tarieven</RouterLink>
+        <RouterLink to="/tarieven" class="navbar__link" :class="{ 'navbar__link--active': route.path === '/tarieven' }" @click="closeMenu">{{ t('nav.pricing') }}</RouterLink>
 
         <!-- Over -->
         <div class="dd" @mouseenter="onMouseEnter('over')" @mouseleave="onMouseLeave">
           <button class="navbar__link dd__trigger" :class="{ 'navbar__link--active': route.path.startsWith('/over') || route.path.startsWith('/eventkennis') }" @click="toggleSection('over')">
-            Over <span class="dd__arrow">▾</span>
+            {{ t('nav.about') }} <span class="dd__arrow">▾</span>
           </button>
           <div class="dd__panel" :class="{ 'dd__panel--open': expanded === 'over' }">
             <RouterLink v-for="item in over" :key="item.to" :to="item.to" class="dd__link" @click="closeMenu">{{ item.label }}</RouterLink>
@@ -114,7 +122,23 @@ const over = [
         </div>
 
         <!-- CTA -->
-        <RouterLink to="/kennismaken" class="navbar__cta" @click="closeMenu">Kennismaken</RouterLink>
+        <RouterLink to="/kennismaken" class="navbar__cta" @click="closeMenu">{{ t('nav.contact') }}</RouterLink>
+
+        <!-- Taalwisselaar -->
+        <div class="lang-switch">
+          <button
+            class="lang-switch__btn"
+            :class="{ 'lang-switch__btn--active': locale === 'nl' }"
+            @click="setLang('nl')"
+            title="Nederlands"
+          >🇳🇱</button>
+          <button
+            class="lang-switch__btn"
+            :class="{ 'lang-switch__btn--active': locale === 'en' }"
+            @click="setLang('en')"
+            title="English"
+          >🇬🇧</button>
+        </div>
 
       </nav>
 
@@ -320,5 +344,38 @@ const over = [
     font-size: 1rem;
     border-radius: 10px;
   }
+
+  .lang-switch {
+    margin: 0.75rem 2rem 1rem;
+    justify-content: center;
+  }
+}
+
+.lang-switch {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-left: 0.75rem;
+}
+
+.lang-switch__btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.25rem;
+  padding: 0.2rem 0.3rem;
+  border-radius: 6px;
+  opacity: 0.45;
+  transition: opacity 0.2s, background 0.2s;
+  line-height: 1;
+}
+
+.lang-switch__btn:hover {
+  opacity: 0.8;
+}
+
+.lang-switch__btn--active {
+  opacity: 1;
+  background: rgba(255,255,255,0.12);
 }
 </style>

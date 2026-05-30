@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import SectionHeading from '@/components/SectionHeading.vue'
 import UspGrid from '@/components/UspGrid.vue'
 import { useSeo } from '@/composables/useSeo'
+
+const { t } = useI18n()
 
 onMounted(() => {
   useSeo({
@@ -132,8 +135,8 @@ watch(shareMenuOpen, (open) => {
     <section class="werk section">
       <div class="container">
         <SectionHeading
-          title="Werk dat voor zichzelf spreekt."
-          subtitle="Een selectie uit congressen, jaarcongressen, ledendagen en bedrijfsbijeenkomsten."
+          :title="t('werk.h1')"
+          :subtitle="t('werk.sub')"
         />
         <div class="werk__grid">
           <div
@@ -155,7 +158,7 @@ watch(shareMenuOpen, (open) => {
 
     <!-- Vertrouwd door organisaties -->
     <section class="trust">
-      <p class="trust__label">Vertrouwd door organisaties als…</p>
+      <p class="trust__label">{{ t('werk.trust') }}</p>
       <div class="trust__track-wrap">
         <div class="trust__track">
           <div class="trust__slide" v-for="n in 2" :key="n">

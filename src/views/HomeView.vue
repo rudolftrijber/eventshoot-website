@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import UspGrid from '@/components/UspGrid.vue'
 import PricingCard from '@/components/PricingCard.vue'
 import SectionHeading from '@/components/SectionHeading.vue'
 import { useSeo } from '@/composables/useSeo'
 import { useEmailJS } from '@/composables/useEmailJS'
+
+const { t } = useI18n()
 
 onMounted(() => {
   useSeo({
@@ -89,11 +92,11 @@ const teaserImages = [
         <div class="hero__overlay"></div>
       </div>
       <div class="container hero__content">
-        <h1 class="hero__title">Eventcontent die maandenlang doorwerkt.</h1>
-        <p class="hero__subtitle">Eén event, een complete contentbox. Eventshoot.nl levert 25+ kant-en-klare foto's, aftermovies en interviews uit jouw zakelijke event. Gemaakt door mensen, geleverd binnen 48 uur. Voor congressen, conferenties, ledendagen en bedrijfsbijeenkomsten in heel Nederland.</p>
+        <h1 class="hero__title">{{ t('home.h1') }}</h1>
+        <p class="hero__subtitle">{{ t('home.sub') }}</p>
         <div class="hero__ctas">
-          <RouterLink to="/kennismaken" class="btn btn--primary btn--lg">Kennismaken</RouterLink>
-          <RouterLink to="/tarieven" class="btn btn--outline btn--lg">Bekijk de pakketten</RouterLink>
+          <RouterLink to="/kennismaken" class="btn btn--primary btn--lg">{{ t('home.cta1') }}</RouterLink>
+          <RouterLink to="/tarieven" class="btn btn--outline btn--lg">{{ t('home.cta2') }}</RouterLink>
         </div>
       </div>
     </section>
@@ -101,14 +104,14 @@ const teaserImages = [
     <!-- Motto strook -->
     <section class="intro">
       <div class="container intro__inner">
-        <h2 class="intro__title">Jouw event is een goudmijn aan content.</h2>
-        <p class="intro__text">Sprekers, deelnemers, reacties, sfeer, hoogtepunten. Elk event levert tientallen bruikbare momenten op. Eventshoot.nl zet die om in een complete contentbox: 25+ kant-en-klare foto's, aftermovies en interviews. Klaar voor je marketeer, terwijl het event nog top of mind is.</p>
+        <h2 class="intro__title">{{ t('home.motto') }}</h2>
+        <p class="intro__text">{{ t('home.mottoSub') }}</p>
       </div>
     </section>
 
     <!-- Trust logos carrousel -->
     <section class="trust">
-      <p class="trust__label">Vertrouwd door organisaties als…</p>
+      <p class="trust__label">{{ t('home.trust') }}</p>
       <div class="trust__track-wrap">
         <div class="trust__track">
           <div class="trust__slide" v-for="n in 2" :key="n">

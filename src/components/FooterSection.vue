@@ -1,3 +1,8 @@
+<script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
+</script>
+
 <template>
   <footer class="footer">
     <div class="container footer__inner">
@@ -13,7 +18,7 @@
           />
           <span class="footer__logo-text" style="display: none">Eventshoot.nl</span>
         </a>
-        <p class="footer__motto">Jouw event is een goudmijn aan content.</p>
+        <p class="footer__motto">{{ t('footer.motto') }}</p>
         <div class="footer__contact">
           <a href="tel:+31625177728" class="footer__contact-link">06 251 777 28</a>
           <a href="mailto:rolf@eventshoot.nl" class="footer__contact-link">rolf@eventshoot.nl</a>
@@ -23,7 +28,7 @@
 
       <!-- Kolom 2: Pagina's -->
       <div class="footer__col">
-        <h4 class="footer__col-heading">Pagina's</h4>
+        <h4 class="footer__col-heading">{{ t('footer.pages') }}</h4>
         <nav class="footer__nav">
           <a href="/eventfotografie">Eventfotografie</a>
           <a href="/eventvideo">Eventvideo</a>
@@ -36,7 +41,7 @@
 
       <!-- Kolom 3: Voor wie -->
       <div class="footer__col">
-        <h4 class="footer__col-heading">Voor wie</h4>
+        <h4 class="footer__col-heading">{{ t('footer.forWho') }}</h4>
         <nav class="footer__nav">
           <a href="/voor/brancheverenigingen">Brancheverenigingen</a>
           <a href="/voor/eventbureaus">Eventbureaus &amp; DMC's</a>
@@ -47,7 +52,7 @@
 
       <!-- Kolom 4: Eventkennis -->
       <div class="footer__col">
-        <h4 class="footer__col-heading">Eventkennis</h4>
+        <h4 class="footer__col-heading">{{ t('footer.knowledge') }}</h4>
         <nav class="footer__nav">
           <a href="/eventkennis">Alle artikelen</a>
           <a href="/eventkennis">Eventfotografie tips</a>
