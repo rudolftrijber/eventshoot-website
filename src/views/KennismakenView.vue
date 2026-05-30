@@ -150,7 +150,7 @@ const faqFallback = computed(() => [
 <style scoped>
 .km-hero {
   position: relative;
-  min-height: 70vh;
+  min-height: 45vh;
   display: flex;
   align-items: center;
 }
@@ -164,6 +164,7 @@ const faqFallback = computed(() => [
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center center;
 }
 
 .km-hero__overlay {
