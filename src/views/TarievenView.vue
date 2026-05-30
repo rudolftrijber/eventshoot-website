@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import PricingCard from '@/components/PricingCard.vue'
@@ -16,32 +16,32 @@ onMounted(() => {
   })
 })
 
-const packages = [
+const packages = computed(() => [
   {
     name: 'Highlight',
     price: '€895',
-    description: 'Ideaal voor een kleiner event of als je social-only content nodig hebt.',
-    features: ['4 uur aanwezig op jouw event', '100–150 professioneel bewerkte foto\'s', '1 social aftermovie (45–90 seconden)', 'Levering binnen 24 uur', 'Online galerij met downloadlink'],
+    description: t('pkg.highlightDesc'),
+    features: [t('pkg.f4uur'), t('pkg.f100foto'), t('pkg.fSocial'), t('pkg.f24uur'), t('pkg.fGalerij')],
     image: '/images/Eventshoot_DAGLICHT.jpg',
     highlighted: false,
   },
   {
     name: 'Headline',
     price: '€2.250',
-    description: 'Het meest gekozen pakket. Voor jaarcongres, ledendag of groter bedrijfsevent.',
-    features: ['8 uur aanwezig op jouw event', '150–250 professioneel bewerkte foto\'s', '1 social aftermovie (45–90 seconden)', '10–15 sprekersinterviews (één camera)', 'Geleverd binnen 48 uur', 'Online galerij met downloadlink'],
+    description: t('pkg.headlineDesc'),
+    features: [t('pkg.f8uur'), t('pkg.f150foto'), t('pkg.fSocial'), t('pkg.fInterviews'), t('pkg.f48uur'), t('pkg.fGalerij')],
     image: '/images/Eventshoot_GOLDEN_HOUR.jpg',
     highlighted: true,
   },
   {
     name: 'Heroes',
     price: '€3.450',
-    description: 'Voor hoog-profile congressen met maximale contentbehoefte.',
-    features: ['8 uur aanwezig, 2 crew', '200–300 professioneel bewerkte foto\'s', '1 social aftermovie (45–90 sec)', '1 corporate aftermovie (90–180 sec)', '15–20 sprekersinterviews (één camera)', 'Drone/timelapse indien mogelijk', 'Geleverd binnen 48 uur'],
+    description: t('pkg.heroesDesc'),
+    features: [t('pkg.f8uur2crew'), t('pkg.f200foto'), t('pkg.fSocial'), t('pkg.fCorporate'), t('pkg.fInterviews'), t('pkg.fDrone'), t('pkg.f48uur')],
     image: '/images/Eventshoot_SPOTLIGHT.jpg',
     highlighted: false,
   },
-]
+])
 
 const logos = [
   { file: 'gbl.png', name: 'GBL Alliance' },
