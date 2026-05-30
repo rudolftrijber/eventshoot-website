@@ -131,7 +131,7 @@ watch(displayItems, upsertSchema, { deep: true })
 
 <style scoped>
 .faq-block {
-  background: rgba(255, 140, 0, 0.42) !important;
+  background: rgba(0, 0, 0, 0.40) !important;
 }
 
 .faq-block__grid {
