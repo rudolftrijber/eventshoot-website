@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 
@@ -53,19 +53,19 @@ onUnmounted(() => {
   document.removeEventListener('mousedown', onDocClick)
 })
 
-const diensten = [
-  { label: 'Eventfotografie', to: '/eventfotografie' },
-  { label: 'Eventvideo', to: '/eventvideo' },
-]
-const voorWie = [
-  { label: 'Brancheverenigingen', to: '/voor/brancheverenigingen' },
-  { label: "Eventbureaus & DMC's", to: '/voor/eventbureaus' },
-  { label: 'Hotels met congresfaciliteiten', to: '/voor/hotels' },
-  { label: 'Bedrijven met eigen events', to: '/voor/bedrijven' },
-]
-const over = [
-  { label: 'Over Rolf', to: '/over-rolf' },
-]
+const diensten = computed(() => [
+  { label: t('nav.photography'), to: '/eventfotografie' },
+  { label: t('nav.video'), to: '/eventvideo' },
+])
+const voorWie = computed(() => [
+  { label: t('nav.associations'), to: '/voor/brancheverenigingen' },
+  { label: t('nav.agencies'), to: '/voor/eventbureaus' },
+  { label: t('nav.hotels'), to: '/voor/hotels' },
+  { label: t('nav.companies'), to: '/voor/bedrijven' },
+])
+const over = computed(() => [
+  { label: t('nav.aboutRolf'), to: '/over-rolf' },
+])
 </script>
 
 <template>
