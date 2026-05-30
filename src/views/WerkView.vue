@@ -176,7 +176,7 @@ watch(shareMenuOpen, (open) => {
     <!-- Hero -->
     <section class="werk-hero">
       <div class="werk-hero__bg">
-        <img src="/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/eventshoot_121.jpg" alt="Eventfotografie Eventshoot.nl" />
+        <img src="/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/eventshoot-57.jpg" alt="Eventfotografie Eventshoot.nl" />
         <div class="werk-hero__overlay"></div>
       </div>
       <div class="container werk-hero__content">
