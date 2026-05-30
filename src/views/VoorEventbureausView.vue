@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import UspGrid from '@/components/UspGrid.vue'
 import MottoStrip from '@/components/MottoStrip.vue'
 import VoorWieHero from '@/components/VoorWieHero.vue'
@@ -7,6 +8,8 @@ import PainPointBlock from '@/components/PainPointBlock.vue'
 import { RouterLink } from 'vue-router'
 import CaseTeaser from '@/components/CaseTeaser.vue'
 import { useSeo } from '@/composables/useSeo'
+
+const { t } = useI18n()
 
 onMounted(() => {
   useSeo({
@@ -16,20 +19,20 @@ onMounted(() => {
   })
 })
 
-const pijnpunten = [
-  'Jij bent verantwoordelijk voor het totaalplaatje, inclusief het visuele resultaat. Een zwakke fotograaf kan dat beeld volledig verpesten.',
-  'Je hebt geen tijd om een briefing van tien pagina\'s te schrijven. Je wil een professional die de sfeer aanvoelt en zelfstandig werkt.',
-  'Je klant wil content snel, liefst nog dezelfde dag. Dat vraagt om iemand die begrijpt hoe de eventwereld werkt.',
-  'Je zoekt geen zzp\'er die je elke keer opnieuw moet uitleggen wat je verwacht, maar een vaste partner die je vertrouwt.',
-]
+const pijnpunten = computed(() => [
+  t('bureaus.pain1'),
+  t('bureaus.pain2'),
+  t('bureaus.pain3'),
+  t('bureaus.pain4'),
+])
 
-const waarom = [
-  'Volledige eventreportage (foto + video).',
-  'Same-day highlights voor sociale media van je klant.',
-  'Sprekersportretten, sfeerbeelden, detailopnames.',
-  'Snelle levering voor klantrapportages.',
-  'White-label mogelijk, content op naam van jouw bureau.',
-]
+const waarom = computed(() => [
+  t('bureaus.offer1'),
+  t('bureaus.offer2'),
+  t('bureaus.offer3'),
+  t('bureaus.offer4'),
+  t('bureaus.offer5'),
+])
 
 const logos = [
   { file: 'gbl.png', name: 'GBL Alliance' },
@@ -50,35 +53,35 @@ const logos = [
 <template>
   <main>
     <VoorWieHero
-      label="Voor eventbureaus en DMC's"
-      title="Voor eventbureaus en DMC's."
-      sub="Vaste content-partner achter de schermen. Wij produceren, jullie leveren één pakket aan jullie klant."
-      cta-label="Plan een kennismaking"
+      :label="t('bureaus.label')"
+      :title="t('bureaus.h1')"
+      :sub="t('bureaus.sub')"
+      :cta-label="t('bureaus.cta')"
       cta-to="/kennismaken"
       image="/eventshoot-92.jpg"
     />
 
-    <MottoStrip body="Ik snap hoe een runsheet werkt, wat je klant verwacht en waarom timing op locatie alles is. Geen uitleg nodig, geen briefing van tien pagina's. Jij hoeft me niet te managen: ik vind mijn weg. Event na event, betrouwbaar en op niveau." />
+    <MottoStrip :body="t('bureaus.mottoBody')" />
 
-    <PainPointBlock title="Dit herken je vast" :items="pijnpunten" />
+    <PainPointBlock :title="t('bureaus.painTitle')" :items="pijnpunten" />
 
     <CaseTeaser />
 
     <section class="aanbod section">
       <div class="container aanbod__inner">
         <div class="aanbod__wat">
-          <h2 class="aanbod__title">Wat je krijgt</h2>
+          <h2 class="aanbod__title">{{ t('bureaus.offerTitle') }}</h2>
           <ul class="aanbod__list">
             <li v-for="item in waarom" :key="item">
               <span class="aanbod__check">✓</span>{{ item }}
             </li>
           </ul>
-          <RouterLink to="/tarieven" class="btn btn--primary aanbod__cta">Bekijk pakketten</RouterLink>
+          <RouterLink to="/tarieven" class="btn btn--primary aanbod__cta">{{ t('bureaus.offerCta') }}</RouterLink>
         </div>
         <div class="aanbod__jaar">
-          <h2 class="aanbod__title">Meerdere events per jaar?</h2>
-          <p class="aanbod__text">Met het Content Year jaarcontract heb je drie events per jaar op Heroes-niveau, voorrang in de agenda en een doorlopende stijl, voor één vaste maandelijkse prijs.</p>
-          <RouterLink to="/tarieven" class="btn btn--primary aanbod__cta">Bekijk jaarcontract</RouterLink>
+          <h2 class="aanbod__title">{{ t('bureaus.yearTitle') }}</h2>
+          <p class="aanbod__text">{{ t('bureaus.yearDesc') }}</p>
+          <RouterLink to="/tarieven" class="btn btn--primary aanbod__cta">{{ t('bureaus.yearCta') }}</RouterLink>
         </div>
       </div>
     </section>
@@ -86,7 +89,7 @@ const logos = [
     <UspGrid />
 
     <section class="trust">
-      <p class="trust__label">Vertrouwd door organisaties als…</p>
+      <p class="trust__label">{{ t('bureaus.trust') }}</p>
       <div class="trust__track-wrap">
         <div class="trust__track">
           <div class="trust__slide" v-for="n in 2" :key="n">

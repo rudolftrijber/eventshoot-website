@@ -1,7 +1,10 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useSeo } from '@/composables/useSeo'
 import { useEmailJS } from '@/composables/useEmailJS'
+
+const { t } = useI18n()
 
 onMounted(() => {
   useSeo({
@@ -36,12 +39,12 @@ async function submitForm() {
   }
 }
 
-const faqs = [
-  { q: 'Hoe snel reageert Rolf?', a: 'Doorgaans binnen een paar uur op werkdagen. Rolf reageert persoonlijk, geen callcenter.' },
-  { q: 'Wat kost een kennismaking?', a: 'Een kennismaking is gratis en vrijblijvend. Geen verplichtingen.' },
-  { q: 'Kan ik ook last-minute boeken?', a: 'Bel direct: 06 251 777 28. Rolf probeert altijd iets te regelen als de agenda het toelaat.' },
-  { q: 'Werkt Rolf door heel Nederland?', a: 'Ja, Eventshoot.nl is actief door heel Nederland. Reiskosten worden separaat berekend.' },
-]
+const faqs = computed(() => [
+  { q: t('km.faq1Q'), a: t('km.faq1A') },
+  { q: t('km.faq2Q'), a: t('km.faq2A') },
+  { q: t('km.faq3Q'), a: t('km.faq3A') },
+  { q: t('km.faq4Q'), a: t('km.faq4A') },
+])
 </script>
 
 <template>
@@ -49,8 +52,8 @@ const faqs = [
     <!-- Hero -->
     <section class="km-hero section">
       <div class="container km-hero__inner">
-        <h1 class="km-hero__h1">Even kennismaken?</h1>
-        <p class="km-hero__sub">Een korte kennismaking duurt 20 minuten. Daarna weet je precies welk pakket bij je event past, en of we elkaar liggen.</p>
+        <h1 class="km-hero__h1">{{ t('km.h1') }}</h1>
+        <p class="km-hero__sub">{{ t('km.sub') }}</p>
       </div>
     </section>
 
@@ -60,21 +63,21 @@ const faqs = [
         <div class="opties__grid">
           <div class="opties__card">
             <div class="opties__icon">📞</div>
-            <h3>Bel direct</h3>
-            <p>Liever gelijk een stem? Bel Rolf. Beschikbaar op werkdagen.</p>
-            <a href="tel:+31625177728" class="btn btn--primary">06 251 777 28</a>
+            <h3>{{ t('km.callTitle') }}</h3>
+            <p>{{ t('km.callDesc') }}</p>
+            <a href="tel:+31625177728" class="btn btn--primary">{{ t('km.callBtn') }}</a>
           </div>
           <div class="opties__card">
             <div class="opties__icon">✉️</div>
-            <h3>Stuur een mail</h3>
-            <p>Rolf reageert persoonlijk, doorgaans binnen een paar uur op werkdagen.</p>
-            <a href="mailto:rolf@eventshoot.nl" class="btn btn--primary">rolf@eventshoot.nl</a>
+            <h3>{{ t('km.emailTitle') }}</h3>
+            <p>{{ t('km.emailDesc') }}</p>
+            <a href="mailto:rolf@eventshoot.nl" class="btn btn--primary">{{ t('km.emailBtn') }}</a>
           </div>
           <div class="opties__card">
             <div class="opties__icon">💬</div>
-            <h3>Stuur een bericht</h3>
-            <p>Vertel kort over je event. Rolf kijkt wat hij voor je kan doen.</p>
-            <a href="#contact-form" class="btn btn--primary">Formulier hieronder</a>
+            <h3>{{ t('km.formTitle') }}</h3>
+            <p>{{ t('km.formDesc') }}</p>
+            <a href="#contact-form" class="btn btn--primary">{{ t('km.formBtn') }}</a>
           </div>
         </div>
       </div>
@@ -84,44 +87,44 @@ const faqs = [
     <section id="contact-form" class="form-section section">
       <div class="container form-section__inner">
         <div class="form-section__text">
-          <h2>Vertel over je event</h2>
-          <p>Rolf reageert persoonlijk binnen 24 uur. Geen geautomatiseerde reacties, geen callcenters.</p>
+          <h2>{{ t('km.sectionTitle') }}</h2>
+          <p>{{ t('km.sectionDesc') }}</p>
           <ul class="form-section__checks">
-            <li><span>✓</span> Vrijblijvend</li>
-            <li><span>✓</span> Binnen 24 uur reactie</li>
-            <li><span>✓</span> Persoonlijk antwoord</li>
+            <li><span>✓</span> {{ t('km.check1') }}</li>
+            <li><span>✓</span> {{ t('km.check2') }}</li>
+            <li><span>✓</span> {{ t('km.check3') }}</li>
           </ul>
         </div>
         <div class="form-wrap">
           <template v-if="!submitted">
             <form class="contact-form" @submit.prevent="submitForm" novalidate>
               <div class="form-field">
-                <label for="name">Naam</label>
-                <input id="name" v-model="form.name" type="text" placeholder="Jouw naam" required />
+                <label for="name">{{ t('km.labelName') }}</label>
+                <input id="name" v-model="form.name" type="text" :placeholder="t('km.placeholderName')" required />
               </div>
               <div class="form-field">
-                <label for="email">E-mail</label>
-                <input id="email" v-model="form.email" type="email" placeholder="jouw@emailadres.nl" required />
+                <label for="email">{{ t('km.labelEmail') }}</label>
+                <input id="email" v-model="form.email" type="email" :placeholder="t('km.placeholderEmail')" required />
               </div>
               <div class="form-field">
-                <label for="phone">Telefoon</label>
-                <input id="phone" v-model="form.phone" type="tel" placeholder="06 xx xx xx xx" />
+                <label for="phone">{{ t('km.labelPhone') }}</label>
+                <input id="phone" v-model="form.phone" type="tel" :placeholder="t('km.placeholderPhone')" />
               </div>
               <div class="form-field">
-                <label for="message">Je event</label>
-                <textarea id="message" v-model="form.message" rows="5" placeholder="Vertel me over je event, dan kijk ik wat ik voor je kan doen." required></textarea>
+                <label for="message">{{ t('km.labelMessage') }}</label>
+                <textarea id="message" v-model="form.message" rows="5" :placeholder="t('km.placeholderMessage')" required></textarea>
               </div>
-              <p v-if="error" class="form-error">Er ging iets mis. Probeer het opnieuw of bel direct.</p>
+              <p v-if="error" class="form-error">{{ t('km.errorMsg') }}</p>
               <button type="submit" class="btn btn--primary btn--full" :disabled="submitting">
-                {{ submitting ? 'Versturen…' : 'Verstuur' }}
+                {{ submitting ? t('km.submitting') : t('km.submitBtn') }}
               </button>
             </form>
           </template>
           <template v-else>
             <div class="form-success">
               <p class="form-success__icon">✓</p>
-              <h3>Bericht ontvangen.</h3>
-              <p>Rolf reageert persoonlijk, doorgaans binnen 24 uur.</p>
+              <h3>{{ t('km.successTitle') }}</h3>
+              <p>{{ t('km.successDesc') }}</p>
             </div>
           </template>
         </div>
@@ -131,7 +134,7 @@ const faqs = [
     <!-- FAQ -->
     <section class="faq section section--dark">
       <div class="container">
-        <h2 class="faq__title">Veelgestelde vragen</h2>
+        <h2 class="faq__title">{{ t('km.faqTitle') }}</h2>
         <div class="faq__list">
           <div v-for="item in faqs" :key="item.q" class="faq__item">
             <h3 class="faq__q">{{ item.q }}</h3>

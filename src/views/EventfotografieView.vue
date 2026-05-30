@@ -1,8 +1,11 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import { RouterLink } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import SectionHeading from '@/components/SectionHeading.vue'
 import { useSeo } from '@/composables/useSeo'
+
+const { t } = useI18n()
 
 onMounted(() => {
   useSeo({
@@ -31,13 +34,13 @@ function injectServiceSchema() {
   document.head.appendChild(script)
 }
 
-const steps = [
-  { n: 1, title: 'Korte briefing vooraf', text: 'We stemmen af wat voor jou belangrijk is: de sleutelmomenten, de gewenste sfeer en eventuele aandachtspunten.' },
-  { n: 2, title: 'Aanwezigheid op het event', text: 'Rolf weet wanneer hij wel en niet in beeld moet zijn. Discreet, maar altijd op het juiste moment.' },
-  { n: 3, title: 'Selectie en nabewerking', text: 'Alleen de beste beelden, professioneel nabewerkt op kleur en belichting.' },
-  { n: 4, title: 'Online levering binnen 48 uur', text: 'Klaar voor gebruik terwijl het event nog top of mind is. Je ontvangt een downloadlink.' },
-  { n: 5, title: 'Blijf zichtbaar na het event', text: 'Gebruik de beelden periodiek op LinkedIn, in nieuwsbrieven en op je website. Eén event, weken aan content.' },
-]
+const steps = computed(() => [
+  { n: 1, title: t('ef.step1Title'), text: t('ef.step1Text') },
+  { n: 2, title: t('ef.step2Title'), text: t('ef.step2Text') },
+  { n: 3, title: t('ef.step3Title'), text: t('ef.step3Text') },
+  { n: 4, title: t('ef.step4Title'), text: t('ef.step4Text') },
+  { n: 5, title: t('ef.step5Title'), text: t('ef.step5Text') },
+])
 
 const carouselPhotos = [
   '/eventshoot-50.jpg', '/eventshoot-54.jpg', '/eventshoot-57.jpg',
@@ -61,13 +64,13 @@ onMounted(() => {
   setInterval(nextSlide, 3500)
 })
 
-const eventTypes = [
-  'Congressen en seminars',
-  'Netwerkbijeenkomsten en borrels',
-  'Award-uitreikingen en jubileums',
-  'Interne bedrijfsevents en townhalls',
-  'Beurzen en productlanceringen',
-]
+const eventTypes = computed(() => [
+  t('ef.eventType1'),
+  t('ef.eventType2'),
+  t('ef.eventType3'),
+  t('ef.eventType4'),
+  t('ef.eventType5'),
+])
 </script>
 
 <template>
@@ -82,16 +85,16 @@ const eventTypes = [
         <div class="ef-hero__overlay"></div>
       </div>
       <div class="container ef-hero__content">
-        <h1>Eventfotografie, binnen 48 uur.</h1>
-        <p>Professionele eventfotografie voor congressen, conferenties, ledendagen, seminars en bedrijfsbijeenkomsten in heel Nederland. Foto's die je marketeer direct kan plaatsen op LinkedIn, je website en in je nieuwsbrief.</p>
-        <RouterLink to="/kennismaken" class="btn btn--primary btn--lg">Vrijblijvend kennismaken</RouterLink>
+        <h1>{{ t('ef.h1') }}</h1>
+        <p>{{ t('ef.sub') }}</p>
+        <RouterLink to="/kennismaken" class="btn btn--primary btn--lg">{{ t('ef.cta') }}</RouterLink>
       </div>
     </section>
 
     <!-- Motto strook -->
     <section class="motto-bar">
       <div class="container motto-bar__inner">
-        <p class="motto-bar__text">Jouw event is een goudmijn aan content.</p>
+        <p class="motto-bar__text">{{ t('ef.motto') }}</p>
       </div>
     </section>
 
@@ -99,8 +102,8 @@ const eventTypes = [
     <section class="overview section">
       <div class="container overview__inner">
         <div class="overview__text">
-          <h2 class="overview__title">Van congres tot netwerkborrel,<br>alles in beeld.</h2>
-          <p class="overview__desc">Of het nu gaat om een congresfotograaf inhuren voor 500 aanwezigen of een besloten seminar voor 30 mensen: Rolf past zich aan aan de situatie. Geen opvallende flitsopstelling, geen ongemakkelijke poses. Gewoon echte momenten, vastgelegd met oog voor detail.</p>
+          <h2 class="overview__title">{{ t('ef.overviewTitle') }}</h2>
+          <p class="overview__desc">{{ t('ef.overviewDesc') }}</p>
           <ul class="overview__list">
             <li v-for="type in eventTypes" :key="type">
               <span class="overview__check">✓</span>{{ type }}
@@ -116,7 +119,7 @@ const eventTypes = [
     <!-- Werkproces -->
     <section class="process section section--blue">
       <div class="container">
-        <SectionHeading title="Hoe het werkt, van boeking tot levering." subtitle="Vijf stappen, geen gedoe." />
+        <SectionHeading :title="t('ef.processTitle')" :subtitle="t('ef.processSub')" />
         <div class="process__grid">
           <div v-for="step in steps" :key="step.n" class="process__card">
             <div class="process__num">{{ step.n }}</div>
@@ -134,10 +137,10 @@ const eventTypes = [
           <img src="/DATA_EVENTSHOOT/SITE_IMAGES/WERK/rolf_trijber_interview.jpg" alt="Rolf Trijber bij een interview shoot" />
         </div>
         <div class="video-upsell__text">
-          <h2 class="video-upsell__title">Liever ook video?<br>Geen tweede leverancier nodig.</h2>
-          <p class="video-upsell__desc">Bij het Headline en Heroes pakket verzorgt Eventshoot.nl ook een social aftermovie, perfect voor LinkedIn. Wil je meer? Het Heroes pakket bevat bovendien een corporate aftermovie én interviews met sprekers of deelnemers voor op je website. Zo heb je met één event foto én video in handen.</p>
-          <RouterLink to="/tarieven" class="btn btn--primary">Bekijk onze pakketten</RouterLink>
-          <RouterLink to="/eventvideo" class="btn btn--primary">Bekijk de video mogelijkheden</RouterLink>
+          <h2 class="video-upsell__title">{{ t('ef.videoTitle') }}</h2>
+          <p class="video-upsell__desc">{{ t('ef.videoDesc') }}</p>
+          <RouterLink to="/tarieven" class="btn btn--primary">{{ t('ef.videoCta1') }}</RouterLink>
+          <RouterLink to="/eventvideo" class="btn btn--primary">{{ t('ef.videoCta2') }}</RouterLink>
         </div>
       </div>
     </section>
@@ -145,9 +148,9 @@ const eventTypes = [
     <!-- Foto carousel -->
     <section class="carousel section section--blue">
       <div class="container">
-        <SectionHeading title="Zo ziet ons werk eruit" subtitle="Een selectie uit onze portfolio." />
+        <SectionHeading :title="t('ef.carouselTitle')" :subtitle="t('ef.carouselSub')" />
         <div class="carousel__track-wrap">
-          <button class="carousel__btn carousel__btn--prev" @click="prevSlide" aria-label="Vorige">&#8249;</button>
+          <button class="carousel__btn carousel__btn--prev" @click="prevSlide" :aria-label="t('ef.prevSlide')">&#8249;</button>
           <div class="carousel__track">
             <div
               v-for="(photo, i) in carouselPhotos"
@@ -155,13 +158,13 @@ const eventTypes = [
               class="carousel__slide"
               :class="{ 'carousel__slide--active': i === carouselIndex, 'carousel__slide--prev': i === (carouselIndex - 1 + carouselPhotos.length) % carouselPhotos.length, 'carousel__slide--next': i === (carouselIndex + 1) % carouselPhotos.length }"
             >
-              <img :src="photo" :alt="`Eventfotografie ${i + 1}`" />
+              <img :src="photo" :alt="`${t('ef.imgAlt')} ${i + 1}`" />
             </div>
           </div>
-          <button class="carousel__btn carousel__btn--next" @click="nextSlide" aria-label="Volgende">&#8250;</button>
+          <button class="carousel__btn carousel__btn--next" @click="nextSlide" :aria-label="t('ef.nextSlide')">&#8250;</button>
         </div>
         <div class="carousel__cta">
-          <RouterLink to="/werk" class="btn btn--primary">Bekijk het werk</RouterLink>
+          <RouterLink to="/werk" class="btn btn--primary">{{ t('ef.carouselCta') }}</RouterLink>
         </div>
       </div>
     </section>
@@ -169,7 +172,7 @@ const eventTypes = [
     <!-- Reviews -->
     <section class="reviews">
       <div class="container">
-        <SectionHeading title="Wat zeggen onze opdrachtgevers" />
+        <SectionHeading :title="t('ef.reviewsTitle')" />
         <div class="elfsight-app-4ed38ed1-21e2-4238-bb5c-d1127391e146"></div>
       </div>
     </section>

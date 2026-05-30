@@ -1,9 +1,12 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, computed } from 'vue'
 import { RouterLink } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import SectionHeading from '@/components/SectionHeading.vue'
 import UspGrid from '@/components/UspGrid.vue'
 import { useSeo } from '@/composables/useSeo'
+
+const { t } = useI18n()
 
 onMounted(() => {
   useSeo({
@@ -13,32 +16,32 @@ onMounted(() => {
   })
 })
 
-const videoTypes = [
+const videoTypes = computed(() => [
   {
-    title: 'Social aftermovie',
-    duration: '45–75 seconden',
-    ideal: 'LinkedIn, website, uitnodigingen',
-    desc: 'Energieke, strak gemonteerde samenvatting van de sfeer en hoogtepunten. Perfect om te delen terwijl het event nog vers is.',
+    title: t('ev.type1Title'),
+    duration: t('ev.type1Duration'),
+    ideal: t('ev.type1Ideal'),
+    desc: t('ev.type1Desc'),
   },
   {
-    title: 'Corporate aftermovie',
-    duration: '90–180 seconden',
-    ideal: 'Website, jaarverslag, intern',
-    desc: 'Een uitgebreider verhaal: context, inhoud en reacties van deelnemers. Ideaal voor je website of jaarverslag.',
+    title: t('ev.type2Title'),
+    duration: t('ev.type2Duration'),
+    ideal: t('ev.type2Ideal'),
+    desc: t('ev.type2Desc'),
   },
   {
-    title: 'Sprekersinterviews',
-    duration: '1–3 min per interview',
-    ideal: 'Website, thought leadership',
-    desc: '15–20 interviews met sprekers of deelnemers. Eén camera, helder geluid, professioneel gemonteerd. Levert weken aan content op.',
+    title: t('ev.type3Title'),
+    duration: t('ev.type3Duration'),
+    ideal: t('ev.type3Ideal'),
+    desc: t('ev.type3Desc'),
   },
   {
-    title: 'Event promotievideo',
-    duration: 'Op maat',
-    ideal: 'Registraties verhogen, volgende editie',
-    desc: 'Gebruik beelden van dit jaar om inschrijvingen voor de volgende editie te stimuleren. Collega\'s delen het, het netwerk groeit.',
+    title: t('ev.type4Title'),
+    duration: t('ev.type4Duration'),
+    ideal: t('ev.type4Ideal'),
+    desc: t('ev.type4Desc'),
   },
-]
+])
 
 const logos = [
   { file: 'gbl.png', name: 'GBL Alliance' },
@@ -65,11 +68,11 @@ const logos = [
         <div class="ev-hero__overlay"></div>
       </div>
       <div class="container ev-hero__content">
-        <h1>Eventvideo en aftermovies.</h1>
-        <p>Eventvideo's voor congressen, conferenties, productlanceringen en bedrijfsbijeenkomsten in heel Nederland. Van social aftermovie voor LinkedIn tot corporate aftermovie met sprekersinterviews.</p>
+        <h1>{{ t('ev.h1') }}</h1>
+        <p>{{ t('ev.sub') }}</p>
         <div class="ev-hero__btns">
-          <RouterLink to="/kennismaken" class="btn btn--primary btn--lg">Kennismaken</RouterLink>
-          <RouterLink to="/tarieven" class="btn btn--outline btn--lg">Bekijk de pakketten</RouterLink>
+          <RouterLink to="/kennismaken" class="btn btn--primary btn--lg">{{ t('ev.cta1') }}</RouterLink>
+          <RouterLink to="/tarieven" class="btn btn--outline btn--lg">{{ t('ev.cta2') }}</RouterLink>
         </div>
       </div>
     </section>
@@ -77,7 +80,7 @@ const logos = [
     <!-- Motto strook -->
     <section class="motto-bar">
       <div class="container motto-bar__inner">
-        <p class="motto-bar__text">Jouw event is een goudmijn aan content.</p>
+        <p class="motto-bar__text">{{ t('ev.motto') }}</p>
       </div>
     </section>
 
@@ -88,9 +91,9 @@ const logos = [
           <iframe src="https://player.vimeo.com/video/1139974588?h=d77d047995&background=1" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
         </div>
         <div class="ev-block__text">
-          <h2 class="ev-block__title">Social aftermovie (45–90 seconden)</h2>
-          <p class="ev-block__desc">Energieke, strak gemonteerde samenvatting van de sfeer en hoogtepunten. Perfect om te delen op LinkedIn terwijl het event nog vers is. Zit in het Highlight, Headline en Heroes pakket.</p>
-          <RouterLink to="/tarieven" class="btn btn--primary">Bekijk pakketten</RouterLink>
+          <h2 class="ev-block__title">{{ t('ev.block1Title') }}</h2>
+          <p class="ev-block__desc">{{ t('ev.block1Desc') }}</p>
+          <RouterLink to="/tarieven" class="btn btn--primary">{{ t('ev.block1Cta') }}</RouterLink>
         </div>
       </div>
     </section>
@@ -101,9 +104,9 @@ const logos = [
           <iframe src="https://player.vimeo.com/video/1177248996?background=1" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
         </div>
         <div class="ev-block__text">
-          <h2 class="ev-block__title">Corporate aftermovie (90–180 seconden)</h2>
-          <p class="ev-block__desc">Een uitgebreider verhaal: context, inhoud en reacties van deelnemers. Ideaal voor je website, jaarverslag of intern gebruik. Inclusief sprekersinterviews. Zit in het Heroes pakket.</p>
-          <RouterLink to="/tarieven" class="btn btn--primary">Bekijk het Heroes pakket</RouterLink>
+          <h2 class="ev-block__title">{{ t('ev.block2Title') }}</h2>
+          <p class="ev-block__desc">{{ t('ev.block2Desc') }}</p>
+          <RouterLink to="/tarieven" class="btn btn--primary">{{ t('ev.block2Cta') }}</RouterLink>
         </div>
       </div>
     </section>
@@ -114,9 +117,9 @@ const logos = [
           <iframe src="https://player.vimeo.com/video/1085449090?background=1" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
         </div>
         <div class="ev-block__text">
-          <h2 class="ev-block__title">Sprekersinterviews (1–3 min per interview)</h2>
-          <p class="ev-block__desc">15–20 interviews met sprekers of deelnemers. Eén camera, helder geluid, professioneel gemonteerd. Levert weken aan content op voor LinkedIn en je website. Zit in het Headline en Heroes pakket.</p>
-          <RouterLink to="/kennismaken" class="btn btn--primary">Plan een gesprek</RouterLink>
+          <h2 class="ev-block__title">{{ t('ev.block3Title') }}</h2>
+          <p class="ev-block__desc">{{ t('ev.block3Desc') }}</p>
+          <RouterLink to="/kennismaken" class="btn btn--primary">{{ t('ev.block3Cta') }}</RouterLink>
         </div>
       </div>
     </section>
@@ -127,9 +130,9 @@ const logos = [
           <iframe src="https://player.vimeo.com/video/1196606331?background=1" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
         </div>
         <div class="ev-block__text">
-          <h2 class="ev-block__title">Event promotievideo (op maat)</h2>
-          <p class="ev-block__desc">Gebruik beelden van dit jaar om inschrijvingen voor de volgende editie te stimuleren. Collega's delen het, het netwerk groeit. Op offerte beschikbaar naast elk pakket.</p>
-          <RouterLink to="/kennismaken" class="btn btn--primary">Vraag een offerte aan</RouterLink>
+          <h2 class="ev-block__title">{{ t('ev.block4Title') }}</h2>
+          <p class="ev-block__desc">{{ t('ev.block4Desc') }}</p>
+          <RouterLink to="/kennismaken" class="btn btn--primary">{{ t('ev.block4Cta') }}</RouterLink>
         </div>
       </div>
     </section>
@@ -137,7 +140,7 @@ const logos = [
     <!-- Video types -->
     <section class="video-types section section--blue">
       <div class="container">
-        <SectionHeading title="Welke video past bij jouw event?" subtitle="Van snelle social clip tot uitgebreide corporate productie." />
+        <SectionHeading :title="t('ev.typesTitle')" :subtitle="t('ev.typesSub')" />
         <div class="video-types__grid">
           <div v-for="t in videoTypes" :key="t.title" class="video-types__card">
             <h3 class="video-types__title">{{ t.title }}</h3>
@@ -153,7 +156,7 @@ const logos = [
 
     <!-- Logo carousel -->
     <section class="trust">
-      <p class="trust__label">Vertrouwd door organisaties als…</p>
+      <p class="trust__label">{{ t('ev.trust') }}</p>
       <div class="trust__track-wrap">
         <div class="trust__track">
           <div class="trust__slide" v-for="n in 2" :key="n">
@@ -169,7 +172,7 @@ const logos = [
     <!-- Reviews -->
     <section class="reviews">
       <div class="container">
-        <SectionHeading title="Wat zeggen onze opdrachtgevers" />
+        <SectionHeading :title="t('ev.reviewsTitle')" />
         <div class="elfsight-app-4ed38ed1-21e2-4238-bb5c-d1127391e146"></div>
       </div>
     </section>
