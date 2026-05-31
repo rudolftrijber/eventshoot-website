@@ -293,33 +293,43 @@ const voorWie = computed(() => [
     display: none;
     position: fixed;
     top: 112px; left: 0; right: 0; bottom: 0;
-    background: var(--color-bg);
+    background: rgba(8, 8, 8, 0.98);
+    backdrop-filter: blur(12px);
     flex-direction: column;
     align-items: stretch;
     justify-content: flex-start;
     gap: 0;
     margin-left: 0;
     overflow-y: auto;
-    padding: 1rem 0 4rem;
+    padding: 0.5rem 0 5rem;
+    border-top: 1px solid rgba(255,255,255,0.08);
   }
 
   .navbar__nav--open { display: flex; }
 
   .navbar__link {
-    font-size: 1.1rem;
-    padding: 1rem 2rem;
+    font-size: 1.05rem;
+    font-weight: 500;
+    padding: 1rem 1.5rem;
     border-radius: 0;
     text-align: left;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    color: rgba(255,255,255,0.9);
   }
 
   .dd { width: 100%; }
-  .dd__trigger { width: 100%; justify-content: space-between; }
+  .dd__trigger {
+    width: 100%;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    padding: 1rem 1.5rem;
+  }
 
   .dd__panel {
     position: static;
     border: none;
     border-radius: 0;
-    background: rgba(255,255,255,0.04);
+    background: rgba(255,255,255,0.03);
     box-shadow: none;
     padding: 0;
     min-width: unset;
@@ -327,13 +337,15 @@ const voorWie = computed(() => [
   .dd__panel::before { display: none; }
 
   .dd__link {
-    padding: 0.75rem 3rem;
+    padding: 0.85rem 2.5rem;
     border-radius: 0;
-    font-size: 1rem;
+    font-size: 0.95rem;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    color: rgba(255,255,255,0.75);
   }
 
   .navbar__cta {
-    margin: 1.5rem 2rem 0;
+    margin: 1.5rem 1.5rem 0;
     text-align: center;
     padding: 0.9rem 2rem;
     font-size: 1rem;
@@ -341,7 +353,7 @@ const voorWie = computed(() => [
   }
 
   .lang-switch {
-    margin: 0.75rem 2rem 1rem;
+    margin: 1rem 1.5rem;
     justify-content: center;
   }
 }
