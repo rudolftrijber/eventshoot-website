@@ -3,6 +3,7 @@ import { onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useSeo } from '@/composables/useSeo'
+import FaqBlock from '@/components/FaqBlock.vue'
 
 const { t } = useI18n()
 
@@ -109,6 +110,7 @@ onMounted(() => {
       </div>
     </section>
 
+    <FaqBlock page="over-rolf" />
 
   </main>
 </template>

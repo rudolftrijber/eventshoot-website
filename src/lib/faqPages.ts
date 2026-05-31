@@ -1,8 +1,10 @@
 export const FAQ_PAGE_KEYS = [
+  'home',
   'kennismaken',
   'eventfotografie',
   'eventvideo',
   'tarieven',
+  'over-rolf',
   'voor-brancheverenigingen',
   'voor-eventbureaus',
   'voor-hotels',

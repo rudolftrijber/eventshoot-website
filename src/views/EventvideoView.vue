@@ -4,6 +4,7 @@ import { RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import SectionHeading from '@/components/SectionHeading.vue'
 import UspGrid from '@/components/UspGrid.vue'
+import FaqBlock from '@/components/FaqBlock.vue'
 import { useSeo } from '@/composables/useSeo'
 
 const { t } = useI18n()
@@ -168,6 +169,8 @@ const logos = [
 
     <!-- USP -->
     <UspGrid />
+
+    <FaqBlock page="eventvideo" />
 
     <!-- Reviews -->
     <section class="reviews">

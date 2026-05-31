@@ -10,6 +10,7 @@
     "lint": "eslint . --ext .vue,.ts,.tsx --fix",
     "type-check": "vue-tsc --noEmit",
     "seed:faq": "node scripts/seed-faq-kennismaken.mjs",
+    "import:faq": "node scripts/import-faq-from-csv.mjs",
     "studio": "npm run dev --prefix studio"
   },
   "dependencies": {

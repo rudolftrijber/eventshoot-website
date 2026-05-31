@@ -9,10 +9,12 @@ export const faqCategories = [
 ]
 
 export const faqPages = [
+  { title: 'Home', value: 'home' },
   { title: 'Kennismaken', value: 'kennismaken' },
   { title: 'Eventfotografie', value: 'eventfotografie' },
   { title: 'Eventvideo', value: 'eventvideo' },
   { title: 'Tarieven', value: 'tarieven' },
+  { title: 'Over Rolf', value: 'over-rolf' },
   { title: 'Brancheverenigingen', value: 'voor-brancheverenigingen' },
   { title: 'Eventbureaus & DMC\'s', value: 'voor-eventbureaus' },
   { title: 'Hotels', value: 'voor-hotels' },

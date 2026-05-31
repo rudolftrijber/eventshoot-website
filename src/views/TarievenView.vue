@@ -4,6 +4,7 @@ import { RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import PricingCard from '@/components/PricingCard.vue'
 import UspGrid from '@/components/UspGrid.vue'
+import FaqBlock from '@/components/FaqBlock.vue'
 import { useSeo } from '@/composables/useSeo'
 
 const { t } = useI18n()
@@ -151,6 +152,8 @@ const logos = [
     </section>
 
     <UspGrid />
+
+    <FaqBlock page="tarieven" />
 
     <!-- Vertrouwd door organisaties -->
     <section class="trust">

@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n'
 import UspGrid from '@/components/UspGrid.vue'
 import PricingCard from '@/components/PricingCard.vue'
 import SectionHeading from '@/components/SectionHeading.vue'
+import FaqBlock from '@/components/FaqBlock.vue'
 import { useSeo } from '@/composables/useSeo'
 import { useEmailJS } from '@/composables/useEmailJS'
 
@@ -174,6 +175,8 @@ const teaserImages = [
         </template>
       </div>
     </section>
+
+    <FaqBlock page="home" />
 
     <!-- Google Reviews -->
     <section class="reviews">

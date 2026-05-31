@@ -100,6 +100,14 @@ Wissel 🇬🇧 / 🇳🇱: de FAQ toont automatisch EN of NL velden.
 In Sanity: **API → Tokens → Add API token** (rechten: **Editor**).
 
 ```bash
+SANITY_TOKEN=sk... npm run import:faq
+```
+
+Importeert alle 60 rijen uit `data/FAQ-import-eventshoot.csv` naar Sanity (FAQ-items).
+
+Of alleen Kennismaken (4 items):
+
+```bash
 SANITY_TOKEN=sk... npm run seed:faq
 ```
 

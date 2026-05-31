@@ -3,6 +3,7 @@ import { onMounted, ref, computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import SectionHeading from '@/components/SectionHeading.vue'
+import FaqBlock from '@/components/FaqBlock.vue'
 import { useSeo } from '@/composables/useSeo'
 
 const { t } = useI18n()
@@ -174,6 +175,8 @@ const eventTypes = computed(() => [
         <div class="elfsight-app-4ed38ed1-21e2-4238-bb5c-d1127391e146"></div>
       </div>
     </section>
+
+    <FaqBlock page="eventfotografie" />
 
   </main>
 </template>

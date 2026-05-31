@@ -7,6 +7,7 @@ import VoorWieHero from '@/components/VoorWieHero.vue'
 import PainPointBlock from '@/components/PainPointBlock.vue'
 import { RouterLink } from 'vue-router'
 import CaseTeaser from '@/components/CaseTeaser.vue'
+import FaqBlock from '@/components/FaqBlock.vue'
 import { useSeo } from '@/composables/useSeo'
 
 const { t } = useI18n()
@@ -109,6 +110,7 @@ const logos = [
       </div>
     </section>
 
+    <FaqBlock page="voor-hotels" />
 
   </main>
 </template>
