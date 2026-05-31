@@ -1,6 +1,13 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-const { t } = useI18n()
+const { t, locale } = useI18n()
+
+const termsUrl = computed(() =>
+  locale.value === 'en'
+    ? '/DATA_EVENTSHOOT/FILES/general_terms_eventshoot.pdf'
+    : '/DATA_EVENTSHOOT/FILES/algemene_voorwaarden_eventshoot.pdf'
+)
 </script>
 
 <template>
@@ -69,7 +76,7 @@ const { t } = useI18n()
         &nbsp;&middot;&nbsp;
         <a href="/privacy">Privacy &amp; Disclaimer</a>
         &nbsp;&middot;&nbsp;
-        <a href="https://eventshoot.nl/wp-content/uploads/2026/03/algemene_voorwaarden_event_shoot.pdf" target="_blank" rel="noopener">Algemene voorwaarden</a>
+        <a :href="termsUrl" target="_blank" rel="noopener">{{ t('footer.terms') }}</a>
       </p>
     </div>
   </footer>
