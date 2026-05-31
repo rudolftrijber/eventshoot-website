@@ -144,7 +144,7 @@ const faqFallback = computed(() => [
       </div>
     </section>
 
-    <FaqBlock page="kennismaken" :fallback="faqFallback" :subtitle="t('km.faqSub')" />
+    <!-- FaqBlock tijdelijk uitgeschakeld -->
   </main>
 </template>
 

@@ -44,10 +44,8 @@ const steps = computed(() => [
 
 const carouselPhotos = [
   '/eventshoot-50.jpg', '/eventshoot-54.jpg', '/eventshoot-57.jpg',
-  '/eventshoot-59.jpg', '/eventshoot-70.jpg', '/eventshoot-75.jpg',
-  '/eventshoot-78.jpg', '/eventshoot-81.jpg', '/eventshoot-84.jpg',
-  '/eventshoot-88.jpg', '/eventshoot-92.jpg', '/eventshoot-96.jpg',
-  '/eventshoot-101.jpg', '/eventshoot-104.jpg',
+  '/eventshoot-77.jpg', '/eventshoot-79.jpg', '/eventshoot-88.jpg',
+  '/eventshoot-96.jpg',
 ]
 
 const carouselIndex = ref(0)
