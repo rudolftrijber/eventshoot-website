@@ -58,9 +58,6 @@ const voorWie = computed(() => [
   { label: t('nav.hotels'), to: '/voor/hotels' },
   { label: t('nav.companies'), to: '/voor/bedrijven' },
 ])
-const over = computed(() => [
-  { label: t('nav.aboutRolf'), to: '/over-rolf' },
-])
 </script>
 
 <template>
@@ -114,14 +111,7 @@ const over = computed(() => [
         >{{ t('nav.knowledge') }}</RouterLink>
 
         <!-- Over -->
-        <div class="dd" @mouseenter="onMouseEnter('over')" @mouseleave="onMouseLeave">
-          <button class="navbar__link dd__trigger" :class="{ 'navbar__link--active': route.path.startsWith('/over') }" @click="toggleSection('over')">
-            {{ t('nav.about') }} <span class="dd__arrow">▾</span>
-          </button>
-          <div class="dd__panel" :class="{ 'dd__panel--open': expanded === 'over' }">
-            <RouterLink v-for="item in over" :key="item.to" :to="item.to" class="dd__link" @click="closeMenu">{{ item.label }}</RouterLink>
-          </div>
-        </div>
+        <RouterLink to="/over-rolf" class="navbar__link" :class="{ 'navbar__link--active': route.path.startsWith('/over') }" @click="closeMenu">{{ t('nav.aboutRolf') }}</RouterLink>
 
         <!-- CTA -->
         <RouterLink to="/kennismaken" class="navbar__cta" @click="closeMenu">{{ t('nav.contact') }}</RouterLink>
