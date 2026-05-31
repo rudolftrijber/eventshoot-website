@@ -305,8 +305,8 @@ const voorWie = computed(() => [
     gap: 0;
     margin-left: 0;
     overflow-y: auto;
-    padding: 0.5rem 0 2rem;
-    border-top: 1px solid rgba(255,255,255,0.08);
+    padding: 0 0 2rem;
+    border-top: none;
     z-index: 999;
   }
 
