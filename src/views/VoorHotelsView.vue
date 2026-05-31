@@ -66,11 +66,15 @@ const logos = [
     <PainPointBlock :title="t('hotels.painTitle')" :items="pijnpunten" />
 
     <CaseTeaser :photos="[
-      '/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/eventshoot-62.jpg',
+      '/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/eventshoot-55.jpg',
+      '/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/eventshoot-56.jpg',
+      '/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/eventshoot-59.jpg',
       '/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/eventshoot-72.jpg',
-      '/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/eventshoot-84.jpg',
+      '/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/eventshoot-75.jpg',
+      '/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/eventshoot-89.jpg',
+      '/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/eventshoot-91.jpg',
+      '/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/eventshoot-92.jpg',
       '/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/eventshoot-97.jpg',
-      '/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/eventshoot-103.jpg',
     ]" />
 
     <section class="aanbod section">
