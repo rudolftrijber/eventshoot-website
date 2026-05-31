@@ -66,11 +66,11 @@ const logos = [
     <PainPointBlock :title="t('branche.painTitle')" :items="pijnpunten" />
 
     <CaseTeaser :photos="[
-      '/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/eventshoot-52.jpg',
-      '/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/eventshoot-63.jpg',
-      '/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/eventshoot-78.jpg',
+      '/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/eventshoot-62.jpg',
+      '/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/eventshoot-65.jpg',
+      '/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/eventshoot-84.jpg',
+      '/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/eventshoot-50.jpg',
       '/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/eventshoot-88.jpg',
-      '/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/eventshoot-96.jpg',
     ]" />
 
     <section class="aanbod section">
