@@ -2,6 +2,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import FaqBlock from '@/components/FaqBlock.vue'
+import OptimizedImage from '@/components/OptimizedImage.vue'
 import { useSeo } from '@/composables/useSeo'
 import { useEmailJS } from '@/composables/useEmailJS'
 import { PhoneIcon, EnvelopeIcon, ChatBubbleLeftRightIcon } from '@heroicons/vue/24/outline'
@@ -54,7 +55,7 @@ const faqFallback = computed(() => [
     <!-- Hero -->
     <section class="km-hero">
       <div class="km-hero__bg">
-        <img src="/DATA_EVENTSHOOT/SITE_IMAGES/espresso.jpg" alt="Kennismaken met Rolf Trijber" />
+        <OptimizedImage src="/DATA_EVENTSHOOT/SITE_IMAGES/espresso.jpg" alt="Kennismaken met Rolf Trijber" preset="hero" :priority="true" />
         <div class="km-hero__overlay"></div>
       </div>
       <div class="container km-hero__content">

@@ -4,6 +4,7 @@ import { RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useSeo } from '@/composables/useSeo'
 import FaqBlock from '@/components/FaqBlock.vue'
+import OptimizedImage from '@/components/OptimizedImage.vue'
 
 const { t } = useI18n()
 
@@ -22,7 +23,12 @@ onMounted(() => {
     <!-- Hero -->
     <section class="over-hero">
       <div class="over-hero__bg">
-        <img src="/DATA_EVENTSHOOT/SITE_IMAGES/WERK/rolf_trijber_werk.jpg" alt="Rolf Trijber aan het werk als eventfotograaf" />
+        <OptimizedImage
+          src="/DATA_EVENTSHOOT/SITE_IMAGES/WERK/rolf_trijber_werk.jpg"
+          alt="Rolf Trijber aan het werk als eventfotograaf"
+          preset="hero"
+          :priority="true"
+        />
         <div class="over-hero__overlay"></div>
       </div>
       <div class="container over-hero__content">
@@ -41,7 +47,7 @@ onMounted(() => {
           <p>{{ t('overRolf.story2') }}</p>
         </div>
         <div class="story__photo">
-          <img src="/DATA_EVENTSHOOT/SITE_IMAGES/WERK/rolf_trijber_team.jpg" alt="Rolf Trijber in actie op een event" />
+          <OptimizedImage src="/DATA_EVENTSHOOT/SITE_IMAGES/WERK/rolf_trijber_team.jpg" alt="Rolf Trijber in actie op een event" preset="content" />
         </div>
       </div>
     </section>
@@ -50,7 +56,7 @@ onMounted(() => {
     <section class="meer section section--blue">
       <div class="container meer__grid">
         <div class="meer__photo">
-          <img src="/DATA_EVENTSHOOT/SITE_IMAGES/WERK/rolf_trijber_eventshoot.jpg" alt="Rolf Trijber in actie op een congres" />
+          <OptimizedImage src="/DATA_EVENTSHOOT/SITE_IMAGES/WERK/rolf_trijber_eventshoot.jpg" alt="Rolf Trijber in actie op een congres" preset="content" />
         </div>
         <div class="meer__text">
           <h2>{{ t('overRolf.meerH2') }}</h2>
@@ -70,7 +76,7 @@ onMounted(() => {
           <p class="relaties__cta-tekst">{{ t('overRolf.relaties3') }}</p>
         </div>
         <div class="relaties__photo">
-          <img src="/DATA_EVENTSHOOT/SITE_IMAGES/WERK/rolf_trijber_interview.jpg" alt="Rolf Trijber bij een interview op locatie" />
+          <OptimizedImage src="/DATA_EVENTSHOOT/SITE_IMAGES/WERK/rolf_trijber_interview.jpg" alt="Rolf Trijber bij een interview op locatie" preset="content" />
         </div>
       </div>
     </section>

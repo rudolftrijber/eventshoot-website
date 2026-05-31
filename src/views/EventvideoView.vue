@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n'
 import SectionHeading from '@/components/SectionHeading.vue'
 import UspGrid from '@/components/UspGrid.vue'
 import FaqBlock from '@/components/FaqBlock.vue'
+import OptimizedImage from '@/components/OptimizedImage.vue'
 import { useSeo } from '@/composables/useSeo'
 
 const { t } = useI18n()
@@ -65,7 +66,12 @@ const logos = [
     <!-- Hero -->
     <section class="ev-hero">
       <div class="ev-hero__bg">
-        <img :src="'/DATA_EVENTSHOOT/SITE_IMAGES/VIDEO/eventshoot-71.jpg'" alt="Eventvideo opname tijdens zakelijk congres" />
+        <OptimizedImage
+          src="/DATA_EVENTSHOOT/SITE_IMAGES/VIDEO/eventshoot-71.jpg"
+          alt="Eventvideo opname tijdens zakelijk congres"
+          preset="hero"
+          :priority="true"
+        />
         <div class="ev-hero__overlay"></div>
       </div>
       <div class="container ev-hero__content">

@@ -1,20 +1,22 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
+import OptimizedImage from '@/components/OptimizedImage.vue'
+
 const { t } = useI18n()
-const rolfPortrait = '/DATA_EVENTSHOOT/SITE_IMAGES/ROLF/evenshoot_Rolf_Trijber.png?v=20260525'
+const rolfPortrait = '/DATA_EVENTSHOOT/SITE_IMAGES/ROLF/evenshoot_Rolf_Trijber.png'
 </script>
 
 <template>
   <section class="rolf">
     <div class="rolf__inner">
       <div class="rolf__photo-wrap">
-        <img
+        <OptimizedImage
           :src="rolfPortrait"
-          alt="Rolf Trijber, Eventfotograaf"
-          class="rolf__photo"
-          width="200"
-          height="200"
-          decoding="async"
+          alt="Rolf Trijber, eventfotograaf"
+          preset="portrait"
+          :width="200"
+          :height="200"
+          img-class="rolf__photo"
         />
       </div>
       <h2 class="rolf__title">{{ t('belRolf.title') }}</h2>

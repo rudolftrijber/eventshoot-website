@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 import SectionHeading from '@/components/SectionHeading.vue'
+import OptimizedImage from '@/components/OptimizedImage.vue'
 import { useSeo } from '@/composables/useSeo'
 
 onMounted(() => {
@@ -138,7 +139,7 @@ async function sharePhoto() {
             class="portfolio__item"
             @click="openLightbox(i)"
           >
-            <img :src="photo.src" :alt="photo.alt" loading="lazy" />
+            <OptimizedImage :src="photo.src" :alt="photo.alt" preset="thumb" />
             <div class="portfolio__hover">
               <span>🔍</span>
             </div>

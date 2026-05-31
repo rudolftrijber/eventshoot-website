@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { RouterLink } from 'vue-router'
+import OptimizedImage from '@/components/OptimizedImage.vue'
 
 defineProps<{
   label: string
@@ -17,7 +18,16 @@ defineProps<{
     :class="{ 'voor-hero--with-image': image }"
   >
     <template v-if="image">
-      <img class="voor-hero__bg" :src="image" alt="" aria-hidden="true" />
+      <div class="voor-hero__bg">
+        <OptimizedImage
+          :src="image"
+          alt=""
+          preset="hero"
+          decorative
+          img-class="voor-hero__bg-img"
+          :priority="true"
+        />
+      </div>
       <div class="voor-hero__overlay" />
     </template>
     <div class="container voor-hero__content">
@@ -46,11 +56,15 @@ defineProps<{
 .voor-hero__bg {
   position: absolute;
   inset: 0;
+  z-index: 0;
+}
+
+.voor-hero__bg :deep(img),
+.voor-hero__bg-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   object-position: center;
-  z-index: 0;
 }
 .voor-hero__overlay {
   position: absolute;

@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n'
 import PricingCard from '@/components/PricingCard.vue'
 import UspGrid from '@/components/UspGrid.vue'
 import FaqBlock from '@/components/FaqBlock.vue'
+import OptimizedImage from '@/components/OptimizedImage.vue'
 import { useSeo } from '@/composables/useSeo'
 
 const { t } = useI18n()
@@ -65,7 +66,7 @@ const logos = [
     <!-- Hero -->
     <section class="tarieven-hero">
       <div class="tarieven-hero__bg">
-        <img src="/eventshoot-84.jpg" alt="Eventfotografie tarieven Eventshoot.nl" />
+        <OptimizedImage src="/eventshoot-84.jpg" alt="Eventfotografie tarieven Eventshoot.nl" preset="hero" :priority="true" />
         <div class="tarieven-hero__overlay"></div>
       </div>
       <div class="container tarieven-hero__content">

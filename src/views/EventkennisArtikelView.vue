@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n'
 import { PortableText } from '@portabletext/vue'
 import ArticleFaqBlock from '@/components/ArticleFaqBlock.vue'
 import { client, urlFor, postBySlugQuery, postsQuery, type SanityPost } from '@/lib/sanity'
+import OptimizedImage from '@/components/OptimizedImage.vue'
 import { useSeo } from '@/composables/useSeo'
 
 const { t } = useI18n()
@@ -54,7 +55,7 @@ function formatDate(d: string) {
   <main>
     <section class="kb-hero">
       <div class="kb-hero__bg">
-        <img src="/eventshoot-78.jpg" alt="Eventkennis door Rolf Trijber" />
+        <OptimizedImage src="/eventshoot-78.jpg" alt="Eventkennis door Rolf Trijber" preset="hero" :priority="true" />
         <div class="kb-hero__overlay"></div>
       </div>
       <div class="container kb-hero__content">

@@ -4,6 +4,7 @@ import { useRoute } from 'vue-router'
 import NavBar from '@/components/NavBar.vue'
 import RolfContact from '@/components/RolfContact.vue'
 import FooterSection from '@/components/FooterSection.vue'
+import BackgroundVideo from '@/components/BackgroundVideo.vue'
 import { RouterView } from 'vue-router'
 
 type ElfsightWindow = Window & {
@@ -27,13 +28,9 @@ watch(() => route.path, () => {
 
 <template>
   <div class="app-bg">
-    <video
-      class="app-bg__video"
+    <BackgroundVideo
+      video-class="app-bg__video"
       src="/images/es_bokey_bckgrnd_v1-1080p.mp4"
-      autoplay
-      muted
-      loop
-      playsinline
     />
   </div>
 

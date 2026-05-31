@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { onMounted, ref, computed } from 'vue'
+import { onMounted, computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import SectionHeading from '@/components/SectionHeading.vue'
 import FaqBlock from '@/components/FaqBlock.vue'
+import OptimizedImage from '@/components/OptimizedImage.vue'
+import PhotoCarousel from '@/components/PhotoCarousel.vue'
 import { useSeo } from '@/composables/useSeo'
 
 const { t } = useI18n()
@@ -49,20 +51,6 @@ const carouselPhotos = [
   '/eventshoot-96.jpg',
 ]
 
-const carouselIndex = ref(0)
-
-function prevSlide() {
-  carouselIndex.value = (carouselIndex.value - 1 + carouselPhotos.length) % carouselPhotos.length
-}
-
-function nextSlide() {
-  carouselIndex.value = (carouselIndex.value + 1) % carouselPhotos.length
-}
-
-onMounted(() => {
-  setInterval(nextSlide, 3500)
-})
-
 const eventTypes = computed(() => [
   t('ef.eventType1'),
   t('ef.eventType2'),
@@ -77,9 +65,12 @@ const eventTypes = computed(() => [
     <!-- Hero -->
     <section class="ef-hero">
       <div class="ef-hero__bg">
-        <img
+        <OptimizedImage
           src="/eventshoot-77.jpg"
           alt="Eventfotograaf bij zakelijk congres"
+          preset="hero"
+          img-class="ef-hero__img"
+          :priority="true"
         />
         <div class="ef-hero__overlay"></div>
       </div>
@@ -110,7 +101,7 @@ const eventTypes = computed(() => [
           </ul>
         </div>
         <div class="overview__image">
-          <img src="/eventshoot-88.jpg" alt="Eventfotografie in actie" />
+          <OptimizedImage src="/eventshoot-88.jpg" alt="Eventfotografie in actie" preset="content" img-class="overview__img" />
         </div>
       </div>
     </section>
@@ -133,7 +124,12 @@ const eventTypes = computed(() => [
     <section class="video-upsell section">
       <div class="container video-upsell__inner">
         <div class="video-upsell__image">
-          <img src="/DATA_EVENTSHOOT/SITE_IMAGES/WERK/rolf_trijber_interview.jpg" alt="Rolf Trijber bij een interview shoot" />
+          <OptimizedImage
+            src="/DATA_EVENTSHOOT/SITE_IMAGES/WERK/rolf_trijber_interview.jpg"
+            alt="Rolf Trijber bij een interview shoot"
+            preset="content"
+            img-class="video-upsell__img"
+          />
         </div>
         <div class="video-upsell__text">
           <h2 class="video-upsell__title">{{ t('ef.videoTitle') }}</h2>
@@ -148,20 +144,7 @@ const eventTypes = computed(() => [
     <section class="carousel section section--blue">
       <div class="container">
         <SectionHeading :title="t('ef.carouselTitle')" :subtitle="t('ef.carouselSub')" />
-        <div class="carousel__track-wrap">
-          <button class="carousel__btn carousel__btn--prev" @click="prevSlide" :aria-label="t('ef.prevSlide')">&#8249;</button>
-          <div class="carousel__track">
-            <div
-              v-for="(photo, i) in carouselPhotos"
-              :key="photo"
-              class="carousel__slide"
-              :class="{ 'carousel__slide--active': i === carouselIndex, 'carousel__slide--prev': i === (carouselIndex - 1 + carouselPhotos.length) % carouselPhotos.length, 'carousel__slide--next': i === (carouselIndex + 1) % carouselPhotos.length }"
-            >
-              <img :src="photo" :alt="`${t('ef.imgAlt')} ${i + 1}`" />
-            </div>
-          </div>
-          <button class="carousel__btn carousel__btn--next" @click="nextSlide" :aria-label="t('ef.nextSlide')">&#8250;</button>
-        </div>
+        <PhotoCarousel :photos="carouselPhotos" :alt="t('ef.imgAlt')" />
         <div class="carousel__cta">
           <RouterLink to="/werk" class="btn btn--primary">{{ t('ef.carouselCta') }}</RouterLink>
         </div>

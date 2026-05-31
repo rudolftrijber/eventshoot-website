@@ -6,6 +6,7 @@ import UspGrid from '@/components/UspGrid.vue'
 import PricingCard from '@/components/PricingCard.vue'
 import SectionHeading from '@/components/SectionHeading.vue'
 import FaqBlock from '@/components/FaqBlock.vue'
+import BackgroundVideo from '@/components/BackgroundVideo.vue'
 import { useSeo } from '@/composables/useSeo'
 import { useEmailJS } from '@/composables/useEmailJS'
 
@@ -82,13 +83,11 @@ const teaserImages = [
     <!-- Hero -->
     <section class="hero">
       <div class="hero__bg">
-        <video
-          class="hero__video"
+        <BackgroundVideo
+          video-class="hero__video"
+          fallback-class="hero__video"
+          fallback-src="/eventshoot-57.jpg"
           src="/images/eventshoot.nl_hero_homepagina_v9%20(1080p).mp4"
-          autoplay
-          muted
-          loop
-          playsinline
         />
         <div class="hero__overlay"></div>
       </div>
@@ -202,7 +201,8 @@ const teaserImages = [
   inset: 0;
 }
 
-.hero__video {
+.hero__video,
+.hero__bg :deep(img) {
   width: 100%;
   height: 100%;
   object-fit: cover;

@@ -2,6 +2,7 @@
 import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import UspGrid from '@/components/UspGrid.vue'
+import OptimizedImage from '@/components/OptimizedImage.vue'
 import { useSeo } from '@/composables/useSeo'
 
 const { t } = useI18n()
@@ -176,7 +177,12 @@ watch(shareMenuOpen, (open) => {
     <!-- Hero -->
     <section class="werk-hero">
       <div class="werk-hero__bg">
-        <img src="/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/eventshoot-57.jpg" alt="Eventfotografie Eventshoot.nl" />
+        <OptimizedImage
+          src="/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/eventshoot-57.jpg"
+          alt="Eventfotografie Eventshoot.nl"
+          preset="hero"
+          :priority="true"
+        />
         <div class="werk-hero__overlay"></div>
       </div>
       <div class="container werk-hero__content">
@@ -194,7 +200,7 @@ watch(shareMenuOpen, (open) => {
             class="werk__item"
             @click="openLightbox(i)"
           >
-            <img :src="photo.src" :alt="photo.alt" loading="lazy" />
+            <OptimizedImage :src="photo.src" :alt="photo.alt" preset="thumb" />
             <div class="werk__hover">
               <span>🔍</span>
             </div>

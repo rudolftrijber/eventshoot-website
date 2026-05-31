@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
+import OptimizedImage from '@/components/OptimizedImage.vue'
+
 const { t } = useI18n()
 
 defineProps<{
@@ -19,7 +21,7 @@ defineProps<{
     <div class="card__inner">
       <h3 class="card__name">{{ name }}</h3>
       <div class="card__img-wrap">
-        <img :src="image" :alt="name" class="card__img" />
+        <OptimizedImage :src="image" :alt="name" preset="card" img-class="card__img" />
       </div>
       <div class="card__price" :class="{ 'card__price--accent': highlighted }">{{ price }}</div>
       <p class="card__desc">{{ description }}</p>

@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { client, urlFor, postsQuery, type SanityPost } from '@/lib/sanity'
+import OptimizedImage from '@/components/OptimizedImage.vue'
 import { useSeo } from '@/composables/useSeo'
 
 const { t } = useI18n()
@@ -38,7 +39,7 @@ onMounted(() => {
   <main>
     <section class="ek-hero">
       <div class="ek-hero__bg">
-        <img src="/eventshoot-78.jpg" alt="Eventkennis door Rolf Trijber" />
+        <OptimizedImage src="/eventshoot-78.jpg" alt="Eventkennis door Rolf Trijber" preset="hero" :priority="true" />
         <div class="ek-hero__overlay"></div>
       </div>
       <div class="container ek-hero__content">
