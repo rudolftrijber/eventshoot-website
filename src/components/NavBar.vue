@@ -293,24 +293,25 @@ const voorWie = computed(() => [
     display: none;
     position: fixed;
     top: 112px; left: 0; right: 0; bottom: 0;
-    background: rgba(8, 8, 8, 0.98);
-    backdrop-filter: blur(12px);
+    background: rgba(0, 0, 0, 0.88);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     flex-direction: column;
     align-items: stretch;
-    justify-content: flex-start;
+    justify-content: center;
     gap: 0;
     margin-left: 0;
     overflow-y: auto;
-    padding: 0.5rem 0 5rem;
+    padding: 0;
     border-top: 1px solid rgba(255,255,255,0.08);
   }
 
   .navbar__nav--open { display: flex; }
 
   .navbar__link {
-    font-size: 1.05rem;
+    font-size: 1rem;
     font-weight: 500;
-    padding: 1rem 1.5rem;
+    padding: 0.7rem 1.5rem;
     border-radius: 0;
     text-align: left;
     border-bottom: 1px solid rgba(255,255,255,0.06);
@@ -322,7 +323,7 @@ const voorWie = computed(() => [
     width: 100%;
     justify-content: space-between;
     border-bottom: 1px solid rgba(255,255,255,0.06);
-    padding: 1rem 1.5rem;
+    padding: 0.7rem 1.5rem;
   }
 
   .dd__panel {
@@ -337,24 +338,26 @@ const voorWie = computed(() => [
   .dd__panel::before { display: none; }
 
   .dd__link {
-    padding: 0.85rem 2.5rem;
+    padding: 0.6rem 2.5rem;
     border-radius: 0;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     border-bottom: 1px solid rgba(255,255,255,0.04);
-    color: rgba(255,255,255,0.75);
+    color: rgba(255,255,255,0.7);
   }
 
   .navbar__cta {
-    margin: 1.5rem 1.5rem 0;
+    margin: 0.75rem 1.5rem;
     text-align: center;
-    padding: 0.9rem 2rem;
-    font-size: 1rem;
+    padding: 0.75rem 2rem;
+    font-size: 0.95rem;
     border-radius: 10px;
+    border-bottom: none;
   }
 
   .lang-switch {
-    margin: 1rem 1.5rem;
+    margin: 0.5rem 1.5rem 0.75rem;
     justify-content: center;
+    border-bottom: none;
   }
 }
 
