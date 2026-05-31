@@ -86,4 +86,12 @@ watch(() => route.path, () => {
   border: none !important;
   box-shadow: none !important;
 }
+
+/* Elfsight portal mag geen klikken onderscheppen buiten de widget */
+#ELEV8_PORTAL {
+  pointer-events: none;
+}
+#ELEV8_PORTAL * {
+  pointer-events: auto;
+}
 </style>
