@@ -4,7 +4,7 @@ import type { TypedObject } from '@portabletext/types'
 import type { FaqPageKey } from '@/lib/faqPages'
 
 export const client = createClient({
-  projectId: import.meta.env.VITE_SANITY_PROJECT_ID,
+  projectId: import.meta.env.VITE_SANITY_PROJECT_ID || 'pn3eisnr',
   dataset: import.meta.env.VITE_SANITY_DATASET || 'production',
   useCdn: true,
   apiVersion: '2026-05-08',
