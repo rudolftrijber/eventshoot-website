@@ -58,7 +58,7 @@ const logos = [
       :sub="t('bureaus.sub')"
       :cta-label="t('bureaus.cta')"
       cta-to="/kennismaken"
-      image="/eventshoot-92.jpg"
+      image="/eventshoot-70.jpg"
     />
 
     <MottoStrip :body="t('bureaus.mottoBody')" />
