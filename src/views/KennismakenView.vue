@@ -121,7 +121,7 @@ const faqFallback = computed(() => [
                 <textarea id="message" v-model="form.message" rows="5" :placeholder="t('km.placeholderMessage')" required></textarea>
               </div>
               <p v-if="error" class="form-error">{{ t('km.errorMsg') }}</p>
-              <button type="submit" class="btn btn--primary btn--full" :disabled="submitting">
+              <button type="submit" class="btn btn--primary" :disabled="submitting">
                 {{ submitting ? t('km.submitting') : t('km.submitBtn') }}
               </button>
             </form>
@@ -292,6 +292,11 @@ const faqFallback = computed(() => [
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
+  align-items: flex-start;
+}
+
+.contact-form .form-field {
+  width: 100%;
 }
 
 .form-field {
@@ -309,7 +314,7 @@ const faqFallback = computed(() => [
 .form-field input,
 .form-field textarea {
   background: rgba(255,255,255,0.07);
-  border: 1px solid rgba(255,255,255,0.12);
+  border: none;
   border-radius: 8px;
   color: #fff;
   font-size: 0.95rem;
@@ -336,7 +341,6 @@ const faqFallback = computed(() => [
   color: #ffcdd2;
 }
 
-.btn--full { width: 100%; justify-content: center; }
 
 .form-success {
   text-align: center;

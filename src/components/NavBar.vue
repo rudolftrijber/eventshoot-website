@@ -111,7 +111,7 @@ const voorWie = computed(() => [
         >{{ t('nav.knowledge') }}</RouterLink>
 
         <!-- Over -->
-        <RouterLink to="/over-rolf" class="navbar__link" :class="{ 'navbar__link--active': route.path.startsWith('/over') }" @click="closeMenu">{{ t('nav.aboutRolf') }}</RouterLink>
+        <RouterLink to="/over-rolf" class="navbar__link" :class="{ 'navbar__link--active': route.path.startsWith('/over') }" @click="closeMenu">{{ t('nav.about') }}</RouterLink>
 
         <!-- CTA -->
         <RouterLink to="/kennismaken" class="navbar__cta" @click="closeMenu">{{ t('nav.contact') }}</RouterLink>
