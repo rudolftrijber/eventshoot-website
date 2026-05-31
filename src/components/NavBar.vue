@@ -292,18 +292,22 @@ const voorWie = computed(() => [
   .navbar__nav {
     display: none;
     position: fixed;
-    top: 112px; left: 0; right: 0; bottom: 0;
+    top: 112px;
+    left: 0;
+    right: 0;
+    height: calc(100vh - 112px);
     background: rgba(0, 0, 0, 0.88);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     flex-direction: column;
     align-items: stretch;
-    justify-content: center;
+    justify-content: flex-start;
     gap: 0;
     margin-left: 0;
     overflow-y: auto;
-    padding: 0;
+    padding: 0.5rem 0 2rem;
     border-top: 1px solid rgba(255,255,255,0.08);
+    z-index: 999;
   }
 
   .navbar__nav--open { display: flex; }
