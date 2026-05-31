@@ -7,7 +7,7 @@ import ArticleFaqBlock from '@/components/ArticleFaqBlock.vue'
 import { client, urlFor, postBySlugQuery, postsQuery, type SanityPost } from '@/lib/sanity'
 import { useSeo } from '@/composables/useSeo'
 
-const { t, locale } = useI18n()
+const { t } = useI18n()
 const route = useRoute()
 
 const post = ref<SanityPost | null>(null)
@@ -51,7 +51,7 @@ function formatDate(d: string) {
 </script>
 
 <template>
-  <main v-if="locale === 'nl'">
+  <main>
     <section class="kb-hero">
       <div class="kb-hero__bg">
         <img src="/eventshoot-78.jpg" alt="Eventkennis door Rolf Trijber" />
@@ -124,11 +124,6 @@ function formatDate(d: string) {
         </div>
       </div>
     </section>
-  </main>
-  <main v-else class="post-state section">
-    <div class="container">
-      <p>{{ t('eventkennis.nlOnly') }}</p>
-    </div>
   </main>
 </template>
 

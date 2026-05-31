@@ -5,7 +5,7 @@ import { useI18n } from 'vue-i18n'
 import { client, urlFor, postsQuery, type SanityPost } from '@/lib/sanity'
 import { useSeo } from '@/composables/useSeo'
 
-const { t, locale } = useI18n()
+const { t } = useI18n()
 
 const posts = ref<SanityPost[]>([])
 const loading = ref(true)
@@ -35,7 +35,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <main v-if="locale === 'nl'">
+  <main>
     <section class="ek-hero">
       <div class="ek-hero__bg">
         <img src="/eventshoot-78.jpg" alt="Eventkennis door Rolf Trijber" />
@@ -88,11 +88,6 @@ onMounted(() => {
         </div>
       </div>
     </section>
-  </main>
-  <main v-else class="ek-nl-only section">
-    <div class="container">
-      <p>{{ t('eventkennis.nlOnly') }}</p>
-    </div>
   </main>
 </template>
 
