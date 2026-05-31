@@ -120,14 +120,14 @@ const voorWie = computed(() => [
         <!-- Over -->
         <RouterLink to="/over-rolf" class="navbar__link" :class="{ 'navbar__link--active': route.path.startsWith('/over') }" @click="closeMenu">{{ t('nav.about') }}</RouterLink>
 
-        <!-- CTA -->
-        <RouterLink to="/kennismaken" class="navbar__cta" @click="closeMenu">{{ t('nav.contact') }}</RouterLink>
-
         <!-- Taalwisselaar -->
         <div class="lang-switch">
           <button class="lang-switch__btn" :class="{ 'lang-switch__btn--active': locale === 'nl' }" @click="setLang('nl')" title="Nederlands">🇳🇱</button>
           <button class="lang-switch__btn" :class="{ 'lang-switch__btn--active': locale === 'en' }" @click="setLang('en')" title="English">🇬🇧</button>
         </div>
+
+        <!-- CTA -->
+        <RouterLink to="/kennismaken" class="navbar__cta" @click="closeMenu">{{ t('nav.contact') }}</RouterLink>
 
       </nav>
 
