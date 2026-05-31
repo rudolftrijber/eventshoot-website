@@ -3,7 +3,14 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
+
+function setLang(lang: string) {
+  locale.value = lang
+  localStorage.setItem('lang', lang)
+  document.documentElement.lang = lang
+  closeMenu()
+}
 
 const route = useRoute()
 const scrolled = ref(false)
@@ -116,6 +123,11 @@ const voorWie = computed(() => [
         <!-- CTA -->
         <RouterLink to="/kennismaken" class="navbar__cta" @click="closeMenu">{{ t('nav.contact') }}</RouterLink>
 
+        <!-- Taalwisselaar -->
+        <div class="lang-switch">
+          <button class="lang-switch__btn" :class="{ 'lang-switch__btn--active': locale === 'nl' }" @click="setLang('nl')" title="Nederlands">🇳🇱</button>
+          <button class="lang-switch__btn" :class="{ 'lang-switch__btn--active': locale === 'en' }" @click="setLang('en')" title="English">🇬🇧</button>
+        </div>
 
       </nav>
 
@@ -322,6 +334,35 @@ const voorWie = computed(() => [
     border-radius: 10px;
   }
 
+  .lang-switch {
+    margin: 0.75rem 2rem 1rem;
+    justify-content: center;
+  }
 }
 
+.lang-switch {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-left: 0.75rem;
+}
+
+.lang-switch__btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.25rem;
+  padding: 0.2rem 0.3rem;
+  border-radius: 6px;
+  opacity: 0.45;
+  transition: opacity 0.2s, background 0.2s;
+  line-height: 1;
+}
+
+.lang-switch__btn:hover { opacity: 0.8; }
+
+.lang-switch__btn--active {
+  opacity: 1;
+  background: rgba(255,255,255,0.12);
+}
 </style>
