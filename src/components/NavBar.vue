@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { RouterLink, useRoute } from 'vue-router'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 
 const { t, locale } = useI18n()
@@ -13,6 +13,12 @@ function setLang(lang: string) {
 }
 
 const route = useRoute()
+const router = useRouter()
+
+function goKennismaken() {
+  closeMenu()
+  router.push('/kennismaken')
+}
 const scrolled = ref(false)
 const menuOpen = ref(false)
 const expanded = ref<string | null>(null)
@@ -127,7 +133,7 @@ const voorWie = computed(() => [
         </div>
 
         <!-- CTA -->
-        <RouterLink to="/kennismaken" class="navbar__cta" @click="closeMenu">{{ t('nav.contact') }}</RouterLink>
+        <a href="/kennismaken" class="navbar__cta" @click.prevent="goKennismaken">{{ t('nav.contact') }}</a>
 
       </nav>
 
