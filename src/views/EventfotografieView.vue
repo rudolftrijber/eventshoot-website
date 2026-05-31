@@ -366,14 +366,11 @@ const eventTypes = computed(() => [
 /* Carousel */
 .carousel__track-wrap {
   position: relative;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
   margin-top: 2rem;
 }
 
 .carousel__track {
-  flex: 1;
+  width: 100%;
   position: relative;
   aspect-ratio: 16/9;
   overflow: hidden;
@@ -409,12 +406,16 @@ const eventTypes = computed(() => [
 }
 
 .carousel__btn {
-  flex-shrink: 0;
-  width: 48px;
-  height: 48px;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   border: none;
-  background: rgba(255,255,255,0.15);
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(4px);
   color: #fff;
   font-size: 1.75rem;
   line-height: 1;
@@ -424,6 +425,9 @@ const eventTypes = computed(() => [
   align-items: center;
   justify-content: center;
 }
+
+.carousel__btn--prev { left: 0.75rem; }
+.carousel__btn--next { right: 0.75rem; }
 
 .carousel__btn:hover {
   background: var(--color-accent);
