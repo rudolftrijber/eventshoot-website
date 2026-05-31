@@ -3,12 +3,9 @@ import imageUrlBuilder from '@sanity/image-url'
 import type { TypedObject } from '@portabletext/types'
 import type { FaqPageKey } from '@/lib/faqPages'
 
-const rawProjectId = import.meta.env.VITE_SANITY_PROJECT_ID as string
-const projectId = rawProjectId && /^[a-z0-9-]+$/.test(rawProjectId) ? rawProjectId : 'pn3eisnr'
-
 export const client = createClient({
-  projectId,
-  dataset: (import.meta.env.VITE_SANITY_DATASET as string) || 'production',
+  projectId: 'pn3eisnr',
+  dataset: 'production',
   useCdn: true,
   apiVersion: '2026-05-08',
 })
