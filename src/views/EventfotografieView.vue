@@ -168,7 +168,8 @@ const eventTypes = computed(() => [
 /* Hero */
 .ef-hero {
   position: relative;
-  min-height: 70vh;
+  aspect-ratio: 16/9;
+  min-height: 420px;
   display: flex;
   align-items: center;
 }
@@ -176,9 +177,16 @@ const eventTypes = computed(() => [
 .ef-hero__bg {
   position: absolute;
   inset: 0;
+  overflow: hidden;
 }
 
-.ef-hero__bg img {
+.ef-hero__bg :deep(picture) {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.ef-hero__bg :deep(img) {
   width: 100%;
   height: 100%;
   object-fit: cover;

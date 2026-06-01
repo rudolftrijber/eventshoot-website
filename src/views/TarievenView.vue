@@ -173,7 +173,8 @@ const logos = [
 <style scoped>
 .tarieven-hero {
   position: relative;
-  min-height: 70vh;
+  aspect-ratio: 16/9;
+  min-height: 420px;
   display: flex;
   align-items: center;
 }
@@ -181,9 +182,16 @@ const logos = [
 .tarieven-hero__bg {
   position: absolute;
   inset: 0;
+  overflow: hidden;
 }
 
-.tarieven-hero__bg img {
+.tarieven-hero__bg :deep(picture) {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.tarieven-hero__bg :deep(img) {
   width: 100%;
   height: 100%;
   object-fit: cover;

@@ -125,7 +125,8 @@ onMounted(() => {
 /* Hero */
 .over-hero {
   position: relative;
-  min-height: 70vh;
+  aspect-ratio: 16/9;
+  min-height: 420px;
   display: flex;
   align-items: center;
 }
@@ -133,9 +134,16 @@ onMounted(() => {
 .over-hero__bg {
   position: absolute;
   inset: 0;
+  overflow: hidden;
 }
 
-.over-hero__bg img {
+.over-hero__bg :deep(picture) {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.over-hero__bg :deep(img) {
   width: 100%;
   height: 100%;
   object-fit: cover;

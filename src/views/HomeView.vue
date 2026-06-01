@@ -191,7 +191,8 @@ const teaserImages = [
 <style scoped>
 .hero {
   position: relative;
-  min-height: 100vh;
+  aspect-ratio: 16/9;
+  min-height: 480px;
   display: flex;
   align-items: center;
 }

@@ -101,6 +101,14 @@ const faqFallback = computed(() => [
             <li><span>✓</span> {{ t('km.check2') }}</li>
             <li><span>✓</span> {{ t('km.check3') }}</li>
           </ul>
+          <div class="form-section__rolf">
+            <OptimizedImage
+              src="/DATA_EVENTSHOOT/SITE_IMAGES/ROLF/evenshoot_Rolf_Trijber.png"
+              alt="Rolf Trijber, eventfotograaf Eventshoot.nl"
+              preset="portrait"
+              img-class="form-section__rolf-img"
+            />
+          </div>
         </div>
         <div class="form-wrap">
           <template v-if="!submitted">
@@ -152,7 +160,8 @@ const faqFallback = computed(() => [
 <style scoped>
 .km-hero {
   position: relative;
-  min-height: 45vh;
+  aspect-ratio: 16/9;
+  min-height: 420px;
   display: flex;
   align-items: center;
 }
@@ -160,9 +169,16 @@ const faqFallback = computed(() => [
 .km-hero__bg {
   position: absolute;
   inset: 0;
+  overflow: hidden;
 }
 
-.km-hero__bg img {
+.km-hero__bg :deep(picture) {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.km-hero__bg :deep(img) {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -287,6 +303,27 @@ const faqFallback = computed(() => [
 .form-section__checks span {
   color: var(--color-accent);
   font-weight: 700;
+}
+
+.form-section__rolf {
+  margin-top: 2.5rem;
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.form-section__rolf :deep(picture) {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.form-section__rolf-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 15%;
 }
 
 .contact-form {

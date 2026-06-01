@@ -187,13 +187,6 @@ const logos = [
   height: 120px;
   width: auto;
   object-fit: contain;
-  filter: grayscale(1) brightness(1.8);
-  opacity: 0.6;
-  transition: filter 0.3s, opacity 0.3s;
-}
-.trust__logo:hover {
-  filter: grayscale(0);
-  opacity: 1;
 }
 @keyframes marquee {
   from { transform: translateX(0); }
