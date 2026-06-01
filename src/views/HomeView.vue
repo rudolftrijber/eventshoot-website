@@ -12,14 +12,16 @@ import { useEmailJS } from '@/composables/useEmailJS'
 
 const { t, locale } = useI18n()
 
+const isEnglish = computed(() => locale.value.startsWith('en'))
+
 const checklistPdf = computed(() =>
-  locale.value === 'en'
-    ? '/images/Checklist_Eventfotografie_aftermovie_interviews_eng.pdf'
-    : '/images/Checklist_Eventfotografie_aftermovie_interviews.pdf',
+  isEnglish.value
+    ? '/images/Checklist_Eventfotografie_aftermovie_interviews_eng.pdf?v=2'
+    : '/images/Checklist_Eventfotografie_aftermovie_interviews.pdf?v=2',
 )
 
 const checklistDownloadName = computed(() =>
-  locale.value === 'en'
+  isEnglish.value
     ? 'Event_Content_Checklist_Eventshoot_EN.pdf'
     : 'Evenementen_Content_Checklist_Eventshoot.pdf',
 )
@@ -43,13 +45,13 @@ async function submitChecklistEmail() {
   checklistSubmitting.value = true
   checklistError.value = false
   try {
-    const isEn = locale.value === 'en'
+    const isEn = isEnglish.value
     await send(import.meta.env.VITE_EMAILJS_CHECKLIST_TEMPLATE_ID, {
       from_email: checklistEmail.value,
+      taal: isEn ? 'EN' : 'NL',
       message: isEn
         ? 'Downloaded the Event Content Checklist via eventshoot.nl (EN)'
         : 'Heeft de Evenementen Content Checklist gedownload via eventshoot.nl (NL)',
-      language: isEn ? 'EN' : 'NL',
     })
     checklistSubmitted.value = true
     triggerDownload()
