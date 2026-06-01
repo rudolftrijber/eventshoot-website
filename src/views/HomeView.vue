@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import UspGrid from '@/components/UspGrid.vue'
@@ -10,7 +10,19 @@ import BackgroundVideo from '@/components/BackgroundVideo.vue'
 import { useSeo } from '@/composables/useSeo'
 import { useEmailJS } from '@/composables/useEmailJS'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
+
+const checklistPdf = computed(() =>
+  locale.value === 'en'
+    ? '/images/Checklist_Eventfotografie_aftermovie_interviews_eng.pdf'
+    : '/images/Checklist_Eventfotografie_aftermovie_interviews.pdf',
+)
+
+const checklistDownloadName = computed(() =>
+  locale.value === 'en'
+    ? 'Event_Content_Checklist_Eventshoot_EN.pdf'
+    : 'Evenementen_Content_Checklist_Eventshoot.pdf',
+)
 
 onMounted(() => {
   useSeo({
@@ -31,9 +43,13 @@ async function submitChecklistEmail() {
   checklistSubmitting.value = true
   checklistError.value = false
   try {
+    const isEn = locale.value === 'en'
     await send(import.meta.env.VITE_EMAILJS_CHECKLIST_TEMPLATE_ID, {
       from_email: checklistEmail.value,
-      message: 'Heeft de Evenementen Content Checklist gedownload via eventshoot.nl',
+      message: isEn
+        ? 'Downloaded the Event Content Checklist via eventshoot.nl (EN)'
+        : 'Heeft de Evenementen Content Checklist gedownload via eventshoot.nl (NL)',
+      language: isEn ? 'EN' : 'NL',
     })
     checklistSubmitted.value = true
     triggerDownload()
@@ -46,8 +62,8 @@ async function submitChecklistEmail() {
 
 function triggerDownload() {
   const link = document.createElement('a')
-  link.href = '/images/Checklist_Eventfotografie_aftermovie_interviews.pdf'
-  link.download = 'Evenementen_Content_Checklist_Eventshoot.pdf'
+  link.href = checklistPdf.value
+  link.download = checklistDownloadName.value
   document.body.appendChild(link)
   link.click()
   document.body.removeChild(link)

@@ -199,7 +199,7 @@ export default {
     sub: 'Photography outside the event circuit. Portraits, travel photography, beauty, jazz and more.',
   },
   kennismaken: {
-    h1: 'Get acquainted?',
+    h1: 'Get in touch?',
     sub: 'A short introductory call takes 20 minutes. Afterwards you\'ll know exactly which package suits your event.',
   },
   ef: {
@@ -279,7 +279,7 @@ export default {
     type4Desc: 'Use footage from this year to boost registrations for the next edition. Colleagues share it, the network grows.',
   },
   km: {
-    h1: 'Get acquainted?',
+    h1: 'Get in touch?',
     sub: 'A short introductory call takes 20 minutes. Afterwards you\'ll know exactly which package suits your event, and whether we\'re a good fit.',
     callTitle: 'Call directly',
     callDesc: 'Prefer to hear a voice? Call Rolf. Available on working days.',
