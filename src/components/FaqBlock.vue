@@ -94,7 +94,7 @@ watch(displayItems, upsertSchema, { deep: true })
 
       <!-- Links: titel -->
       <div class="faq-block__left">
-        <h2 class="faq-block__title">{{ t('faq.title') }}</h2>
+        <h2 class="faq-block__title">FAQ</h2>
         <p v-if="subtitle" class="faq-block__sub">{{ subtitle }}</p>
       </div>
 
@@ -147,11 +147,11 @@ watch(displayItems, upsertSchema, { deep: true })
 }
 
 .faq-block__title {
-  font-size: clamp(2rem, 4vw, 3rem);
-  font-weight: 800;
-  line-height: 1.15;
+  font-size: clamp(6rem, 16vw, 14rem);
+  font-weight: 200;
+  line-height: 1;
   margin-bottom: 1.25rem;
-  max-width: 8ch;
+  letter-spacing: -0.02em;
 }
 
 .faq-block__sub {
