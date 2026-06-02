@@ -3,16 +3,13 @@ import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import UspGrid from '@/components/UspGrid.vue'
 import OptimizedImage from '@/components/OptimizedImage.vue'
-import { useSeo } from '@/composables/useSeo'
+import { usePageSeo } from '@/composables/usePageSeo'
 
 const { t } = useI18n()
 
+usePageSeo('werk', { url: 'https://eventshoot.nl/werk' })
+
 onMounted(() => {
-  useSeo({
-    title: 'Werk dat voor zichzelf spreekt | Eventshoot.nl',
-    description: 'Een selectie uit congressen, jaarcongressen, ledendagen en bedrijfsbijeenkomsten die Eventshoot.nl heeft mogen vastleggen.',
-    url: 'https://eventshoot.nl/werk',
-  })
   document.addEventListener('keydown', onKeydown)
 })
 

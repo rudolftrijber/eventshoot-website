@@ -6,16 +6,13 @@ import SectionHeading from '@/components/SectionHeading.vue'
 import FaqBlock from '@/components/FaqBlock.vue'
 import OptimizedImage from '@/components/OptimizedImage.vue'
 import PhotoCarousel from '@/components/PhotoCarousel.vue'
-import { useSeo } from '@/composables/useSeo'
+import { usePageSeo } from '@/composables/usePageSeo'
 
 const { t } = useI18n()
 
+usePageSeo('eventfotografie', { url: 'https://eventshoot.nl/eventfotografie' })
+
 onMounted(() => {
-  useSeo({
-    title: 'Eventfotografie voor congressen & seminars | Eventshoot.nl',
-    description: 'Professionele eventfotografie voor congressen, seminars, netwerkbijeenkomsten en bedrijfsevents door heel Nederland. 48 uur levering, 40+ jaar ervaring.',
-    url: 'https://eventshoot.nl/eventfotografie',
-  })
   injectServiceSchema()
 })
 

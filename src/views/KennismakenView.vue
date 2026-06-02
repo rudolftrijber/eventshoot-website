@@ -1,21 +1,15 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import FaqBlock from '@/components/FaqBlock.vue'
 import OptimizedImage from '@/components/OptimizedImage.vue'
-import { useSeo } from '@/composables/useSeo'
+import { usePageSeo } from '@/composables/usePageSeo'
 import { useEmailJS } from '@/composables/useEmailJS'
 import { PhoneIcon, EnvelopeIcon, ChatBubbleLeftRightIcon } from '@heroicons/vue/24/outline'
 
 const { t } = useI18n()
 
-onMounted(() => {
-  useSeo({
-    title: 'Kennismaken | Eventshoot.nl',
-    description: 'Een korte kennismaking duurt 20 minuten. Daarna weet je precies welk pakket bij je event past. Bel, mail of stuur een bericht.',
-    url: 'https://eventshoot.nl/kennismaken',
-  })
-})
+usePageSeo('kennismaken', { url: 'https://eventshoot.nl/kennismaken' })
 
 const { send } = useEmailJS()
 

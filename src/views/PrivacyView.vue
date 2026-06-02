@@ -1,21 +1,10 @@
 <script setup lang="ts">
-import { onMounted, watch } from 'vue'
+import { usePageSeo } from '@/composables/usePageSeo'
 import { useI18n } from 'vue-i18n'
-import { useSeo } from '@/composables/useSeo'
 
-const { t, locale } = useI18n()
+const { t } = useI18n()
 
-function applySeo() {
-  useSeo({
-    title: t('privacyPage.seoTitle'),
-    description: t('privacyPage.seoDesc'),
-    url: 'https://eventshoot.nl/privacy',
-    locale: locale.value.startsWith('en') ? 'en' : 'nl',
-  })
-}
-
-onMounted(applySeo)
-watch(locale, applySeo)
+usePageSeo('privacy', { url: 'https://eventshoot.nl/privacy' })
 </script>
 
 <template>

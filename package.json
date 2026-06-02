@@ -12,7 +12,8 @@
     "seed:faq": "node scripts/seed-faq-kennismaken.mjs",
     "import:faq": "node scripts/import-faq-from-csv.mjs",
     "optimize:images": "node scripts/optimize-site-images.mjs",
-    "prebuild": "npm run optimize:images",
+    "generate:sitemap": "node scripts/generate-sitemap.mjs",
+    "prebuild": "npm run optimize:images && npm run generate:sitemap",
     "studio": "npm run dev --prefix studio"
   },
   "dependencies": {

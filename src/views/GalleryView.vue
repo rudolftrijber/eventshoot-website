@@ -1,16 +1,13 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useSeo } from '@/composables/useSeo'
+import { usePageSeo } from '@/composables/usePageSeo'
 
 const { t } = useI18n()
 
+usePageSeo('gallery', { url: 'https://eventshoot.nl/gallery' })
+
 onMounted(() => {
-  useSeo({
-    title: 'Persoonlijk portfolio | Rolf Trijber',
-    description: 'Fotografie buiten het eventcircuit. Portretten, reisfotografie, beauty en meer van Rolf Trijber.',
-    url: 'https://eventshoot.nl/gallery',
-  })
   document.addEventListener('keydown', onKeydown)
 })
 

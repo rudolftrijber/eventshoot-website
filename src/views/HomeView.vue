@@ -7,7 +7,7 @@ import PricingCard from '@/components/PricingCard.vue'
 import SectionHeading from '@/components/SectionHeading.vue'
 import FaqBlock from '@/components/FaqBlock.vue'
 import BackgroundVideo from '@/components/BackgroundVideo.vue'
-import { useSeo } from '@/composables/useSeo'
+import { usePageSeo } from '@/composables/usePageSeo'
 import { useEmailJS } from '@/composables/useEmailJS'
 
 const { t, locale } = useI18n()
@@ -26,13 +26,7 @@ const checklistDownloadName = computed(() =>
     : 'Evenementen_Content_Checklist_Eventshoot.pdf',
 )
 
-onMounted(() => {
-  useSeo({
-    title: 'Eventshoot.nl | Jouw event is een goudmijn aan content',
-    description: 'Professionele eventfotografie en video voor congressen, jaarcongressen en bedrijfsevents. 25+ kant-en-klare items binnen 48 uur. Gemaakt door mensen, niet door AI.',
-  })
-
-})
+usePageSeo('home', { url: 'https://eventshoot.nl/' })
 
 const { send } = useEmailJS()
 

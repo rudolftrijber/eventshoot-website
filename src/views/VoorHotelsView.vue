@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, computed } from 'vue'
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import UspGrid from '@/components/UspGrid.vue'
 import MottoStrip from '@/components/MottoStrip.vue'
@@ -8,17 +8,11 @@ import PainPointBlock from '@/components/PainPointBlock.vue'
 import { RouterLink } from 'vue-router'
 import CaseTeaser from '@/components/CaseTeaser.vue'
 import FaqBlock from '@/components/FaqBlock.vue'
-import { useSeo } from '@/composables/useSeo'
+import { usePageSeo } from '@/composables/usePageSeo'
 
 const { t } = useI18n()
 
-onMounted(() => {
-  useSeo({
-    title: 'Voor hotels met congresfaciliteiten | Eventshoot.nl',
-    description: 'Eventcontent voor de congressen die jullie hosten. Plus marketingbeelden van jullie eigen faciliteiten.',
-    url: 'https://eventshoot.nl/voor/hotels',
-  })
-})
+usePageSeo('voorHotels', { url: 'https://eventshoot.nl/voor/hotels' })
 
 const pijnpunten = computed(() => [
   t('hotels.pain1'),

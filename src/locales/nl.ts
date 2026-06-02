@@ -38,6 +38,64 @@ export default {
     kvk: 'KvK',
     btw: 'BTW',
   },
+  seo: {
+    home: {
+      title: 'Eventshoot.nl | Jouw event is een goudmijn aan content',
+      description: 'Professionele eventfotografie en video voor congressen, conferenties en bedrijfsevents. 25+ kant-en-klare items binnen 48 uur. Gemaakt door mensen, niet door AI.',
+    },
+    eventfotografie: {
+      title: 'Eventfotografie voor congressen & seminars | Eventshoot.nl',
+      description: 'Professionele eventfotografie voor congressen, conferenties, ledendagen en bedrijfsbijeenkomsten. 48 uur levering, 40+ jaar ervaring.',
+    },
+    eventvideo: {
+      title: 'Eventvideo & aftermovie | Eventshoot.nl',
+      description: 'Eventvideo\'s en aftermovies voor LinkedIn, je website en corporate gebruik. Social en corporate aftermovie, plus interviews.',
+    },
+    werk: {
+      title: 'Werk dat voor zichzelf spreekt | Eventshoot.nl',
+      description: 'Een selectie uit congressen, jaarcongressen, ledendagen en bedrijfsbijeenkomsten die Eventshoot.nl heeft mogen vastleggen.',
+    },
+    tarieven: {
+      title: 'Tarieven voor eventcontent | Eventshoot.nl',
+      description: 'Drie pakketten voor eventfotografie en eventvideo. Highlight vanaf €895, Headline €2.250, Heroes €3.450. Levering binnen 48 uur.',
+    },
+    kennismaken: {
+      title: 'Kennismaken | Eventshoot.nl',
+      description: 'Een korte kennismaking duurt 20 minuten. Daarna weet je precies welk pakket bij je event past. Bel, mail of stuur een bericht.',
+    },
+    overRolf: {
+      title: 'Over Rolf Trijber | Eventshoot.nl',
+      description: 'Eventfotograaf en videograaf met 40+ jaar ervaring. Gespecialiseerd in congressen, jaarcongressen, ledendagen en bedrijfsbijeenkomsten.',
+    },
+    voorBranche: {
+      title: 'Voor brancheverenigingen | Eventshoot.nl',
+      description: 'Één content-partner voor je jaarcongres, ledendagen en vakdagen. Geleverd binnen 48 uur, klaar voor je ledencommunicatie.',
+    },
+    voorBureaus: {
+      title: 'Voor eventbureaus & DMC\'s | Eventshoot.nl',
+      description: 'Vaste content-partner achter de schermen. Wij produceren, jullie leveren één pakket aan jullie klant.',
+    },
+    voorHotels: {
+      title: 'Voor hotels met congresfaciliteiten | Eventshoot.nl',
+      description: 'Eventcontent voor de congressen die jullie hosten. Plus marketingbeelden van jullie eigen faciliteiten.',
+    },
+    voorBedrijven: {
+      title: 'Voor bedrijven met eigen events | Eventshoot.nl',
+      description: 'User conferences, klantdagen, bedrijfsbijeenkomsten. Eén productiedag, een contentbox waar je marketeer maanden mee vooruit kan.',
+    },
+    eventkennis: {
+      title: 'Eventkennis | Eventshoot.nl',
+      description: 'Praktische artikelen over eventcontent, eventfotografie en zichtbaarheid na je event. Onderhouden door Rolf Trijber.',
+    },
+    privacy: {
+      title: 'Privacy & Disclaimer | Eventshoot.nl',
+      description: 'Privacy- en disclaimer-informatie van Eventshoot.nl BV.',
+    },
+    gallery: {
+      title: 'Persoonlijk portfolio | Rolf Trijber',
+      description: 'Fotografie buiten het eventcircuit. Portretten, reisfotografie, beauty en meer van Rolf Trijber.',
+    },
+  },
   belRolf: {
     title: 'Vragen? Bel Rolf.',
     sub: 'Of stuur een bericht via LinkedIn.',
@@ -420,8 +478,6 @@ export default {
     trust: 'Vertrouwd door organisaties als…',
   },
   privacyPage: {
-    seoTitle: 'Privacy & Disclaimer | Eventshoot.nl',
-    seoDesc: 'Privacy- en disclaimer-informatie van Eventshoot.nl BV.',
     h1: 'Privacy & Disclaimer',
     intro: 'Eventshoot.nl BV, gevestigd in Nederland, is verantwoordelijk voor de verwerking van persoonsgegevens zoals weergegeven in deze privacyverklaring.',
     h2Contact: 'Contactgegevens',

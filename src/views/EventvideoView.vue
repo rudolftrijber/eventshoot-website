@@ -1,22 +1,16 @@
 <script setup lang="ts">
-import { onMounted, computed } from 'vue'
+import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import SectionHeading from '@/components/SectionHeading.vue'
 import UspGrid from '@/components/UspGrid.vue'
 import FaqBlock from '@/components/FaqBlock.vue'
 import OptimizedImage from '@/components/OptimizedImage.vue'
-import { useSeo } from '@/composables/useSeo'
+import { usePageSeo } from '@/composables/usePageSeo'
 
 const { t } = useI18n()
 
-onMounted(() => {
-  useSeo({
-    title: 'Eventvideo & aftermovie | Eventshoot.nl',
-    description: 'Professionele eventvideo\'s en aftermovies voor LinkedIn, je website en corporate gebruik. Social aftermovie (30–60 sec) tot lange corporate aftermovie met interviews.',
-    url: 'https://eventshoot.nl/eventvideo',
-  })
-})
+usePageSeo('eventvideo', { url: 'https://eventshoot.nl/eventvideo' })
 
 const videoTypes = computed(() => [
   {

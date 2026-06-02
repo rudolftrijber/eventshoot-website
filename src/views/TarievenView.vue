@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { onMounted, computed } from 'vue'
+import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import PricingCard from '@/components/PricingCard.vue'
 import UspGrid from '@/components/UspGrid.vue'
 import FaqBlock from '@/components/FaqBlock.vue'
 import OptimizedImage from '@/components/OptimizedImage.vue'
-import { useSeo } from '@/composables/useSeo'
+import { usePageSeo } from '@/composables/usePageSeo'
 
 const { t, locale } = useI18n()
 
@@ -24,13 +24,7 @@ const onepagerDownloadName = computed(() =>
     : 'Eventshoot_tarievenoverzicht.pdf',
 )
 
-onMounted(() => {
-  useSeo({
-    title: 'Tarieven voor eventcontent | Eventshoot.nl',
-    description: 'Drie pakketten voor eventfotografie en eventvideo. Highlight vanaf €895, Headline €2.250, Heroes €3.450. Inclusief aftermovie en levering binnen 48 uur.',
-    url: 'https://eventshoot.nl/tarieven',
-  })
-})
+usePageSeo('tarieven', { url: 'https://eventshoot.nl/tarieven' })
 
 const packages = computed(() => [
   {

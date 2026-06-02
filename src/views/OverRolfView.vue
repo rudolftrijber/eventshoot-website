@@ -1,20 +1,13 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { useSeo } from '@/composables/useSeo'
+import { usePageSeo } from '@/composables/usePageSeo'
 import FaqBlock from '@/components/FaqBlock.vue'
 import OptimizedImage from '@/components/OptimizedImage.vue'
 
 const { t } = useI18n()
 
-onMounted(() => {
-  useSeo({
-    title: 'Over Rolf Trijber | Eventshoot.nl',
-    description: 'Eventfotograaf en videograaf met 40+ jaar ervaring in beeldproductie. Gespecialiseerd in zakelijke events: congressen, jaarcongressen, ledendagen en bedrijfsbijeenkomsten.',
-    url: 'https://eventshoot.nl/over-rolf',
-  })
-})
+usePageSeo('overRolf', { url: 'https://eventshoot.nl/over-rolf' })
 </script>
 
 <template>

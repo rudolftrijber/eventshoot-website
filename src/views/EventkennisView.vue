@@ -4,7 +4,7 @@ import { RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { client, urlFor, postsQuery, type SanityPost } from '@/lib/sanity'
 import OptimizedImage from '@/components/OptimizedImage.vue'
-import { useSeo } from '@/composables/useSeo'
+import { usePageSeo } from '@/composables/usePageSeo'
 
 const { t } = useI18n()
 
@@ -24,13 +24,12 @@ async function loadPosts() {
   }
 }
 
+usePageSeo('eventkennis', {
+  url: 'https://eventshoot.nl/eventkennis',
+  fixedLocale: 'nl',
+})
+
 onMounted(() => {
-  useSeo({
-    title: 'Eventkennis | Eventshoot.nl',
-    description: 'Praktische artikelen over eventcontent, eventfotografie en zichtbaarheid na je event. Onderhouden door Rolf Trijber.',
-    url: 'https://eventshoot.nl/eventkennis',
-    locale: 'nl',
-  })
   loadPosts()
 })
 </script>

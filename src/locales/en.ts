@@ -38,6 +38,64 @@ export default {
     kvk: 'Chamber of Commerce',
     btw: 'VAT',
   },
+  seo: {
+    home: {
+      title: 'Eventshoot.nl | Your event is a goldmine of content',
+      description: 'Professional event photography and video for congresses, conferences and corporate events. 25+ ready-to-use items within 48 hours. Made by people, not AI.',
+    },
+    eventfotografie: {
+      title: 'Event photography for congresses & seminars | Eventshoot.nl',
+      description: 'Professional event photography for congresses, conferences, member days and corporate meetings. 48-hour delivery, 40+ years of experience.',
+    },
+    eventvideo: {
+      title: 'Event video & aftermovies | Eventshoot.nl',
+      description: 'Event videos and aftermovies for LinkedIn, your website and corporate use. Social and corporate aftermovies plus interviews.',
+    },
+    werk: {
+      title: 'Work that speaks for itself | Eventshoot.nl',
+      description: 'A selection from congresses, annual congresses, member days and corporate meetings captured by Eventshoot.nl.',
+    },
+    tarieven: {
+      title: 'Pricing for event content | Eventshoot.nl',
+      description: 'Three packages for event photography and video. Highlight from €895, Headline €2,250, Heroes €3,450. Delivered within 48 hours.',
+    },
+    kennismaken: {
+      title: 'Get in touch | Eventshoot.nl',
+      description: 'A short introductory call takes 20 minutes. Afterwards you\'ll know exactly which package suits your event. Call, email or send a message.',
+    },
+    overRolf: {
+      title: 'About Rolf Trijber | Eventshoot.nl',
+      description: 'Event photographer and videographer with 40+ years of experience. Specialised in congresses, member days and corporate meetings.',
+    },
+    voorBranche: {
+      title: 'For trade associations | Eventshoot.nl',
+      description: 'One content partner for your annual congress, member days and industry events. Delivered within 48 hours, ready for member communications.',
+    },
+    voorBureaus: {
+      title: 'For event agencies & DMCs | Eventshoot.nl',
+      description: 'Your fixed content partner behind the scenes. We produce, you deliver one package to your client.',
+    },
+    voorHotels: {
+      title: 'For hotels with conference facilities | Eventshoot.nl',
+      description: 'Event content for the congresses you host. Plus marketing images of your own facilities.',
+    },
+    voorBedrijven: {
+      title: 'For companies with own events | Eventshoot.nl',
+      description: 'User conferences, customer days, corporate meetings. One production day, a content box your marketing team can use for months.',
+    },
+    eventkennis: {
+      title: 'Event Knowledge | Eventshoot.nl',
+      description: 'Practical articles on event content, event photography and visibility after your event. Maintained by Rolf Trijber.',
+    },
+    privacy: {
+      title: 'Privacy & Disclaimer | Eventshoot.nl',
+      description: 'Privacy and disclaimer information for Eventshoot.nl BV.',
+    },
+    gallery: {
+      title: 'Personal portfolio | Rolf Trijber',
+      description: 'Photography outside the event circuit. Portraits, travel photography, beauty and more by Rolf Trijber.',
+    },
+  },
   belRolf: {
     title: 'Questions? Call Rolf.',
     sub: 'Or send a message via LinkedIn.',
@@ -420,8 +478,6 @@ export default {
     trust: 'Trusted by organisations such as…',
   },
   privacyPage: {
-    seoTitle: 'Privacy & Disclaimer | Eventshoot.nl',
-    seoDesc: 'Privacy and disclaimer information for Eventshoot.nl BV.',
     h1: 'Privacy & Disclaimer',
     intro: 'Eventshoot.nl BV, based in the Netherlands, is responsible for processing personal data as described in this privacy statement.',
     h2Contact: 'Contact details',
