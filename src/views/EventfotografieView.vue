@@ -281,7 +281,8 @@ const eventTypes = computed(() => [
   flex-shrink: 0;
 }
 
-.overview__image img {
+.overview__image :deep(picture),
+.overview__image :deep(img) {
   width: 100%;
   border-radius: 12px;
   object-fit: cover;
@@ -344,7 +345,8 @@ const eventTypes = computed(() => [
   align-items: center;
 }
 
-.video-upsell__image img {
+.video-upsell__image :deep(picture),
+.video-upsell__image :deep(img) {
   width: 100%;
   border-radius: 12px;
   object-fit: cover;

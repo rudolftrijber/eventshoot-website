@@ -201,7 +201,8 @@ onMounted(() => {
   margin-bottom: 1rem;
 }
 
-.story__photo img {
+.story__photo :deep(picture),
+.story__photo :deep(img) {
   width: 100%;
   border-radius: 16px;
   object-fit: cover;
@@ -221,8 +222,13 @@ onMounted(() => {
   justify-content: center;
 }
 
-.meer__photo img {
+.meer__photo :deep(picture) {
   width: 80%;
+  margin: 0 auto;
+}
+
+.meer__photo :deep(img) {
+  width: 100%;
   border-radius: 16px;
   object-fit: cover;
   aspect-ratio: 4/5;
@@ -269,7 +275,8 @@ onMounted(() => {
   font-weight: 600;
 }
 
-.relaties__photo img {
+.relaties__photo :deep(picture),
+.relaties__photo :deep(img) {
   width: 100%;
   border-radius: 16px;
   object-fit: cover;

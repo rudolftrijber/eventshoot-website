@@ -119,6 +119,12 @@ defineExpose({ prev, next, current })
   pointer-events: none;
 }
 
+.photo-carousel__slide :deep(picture) {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
 .photo-carousel__slide :deep(.photo-carousel__img),
 .photo-carousel__slide :deep(img) {
   width: 100%;

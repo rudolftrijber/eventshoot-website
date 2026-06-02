@@ -55,7 +55,13 @@ const rolfPortrait = '/DATA_EVENTSHOOT/SITE_IMAGES/ROLF/evenshoot_Rolf_Trijber.p
   overflow: hidden;
 }
 
-.rolf__photo {
+.rolf__photo-wrap :deep(picture) {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.rolf__photo-wrap :deep(img) {
   width: 100%;
   height: 100%;
   object-fit: cover;

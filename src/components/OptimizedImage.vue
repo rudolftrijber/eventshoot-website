@@ -35,14 +35,14 @@ const originalSrc = computed(() => stripImageQuery(props.src))
 </script>
 
 <template>
-  <picture>
+  <picture class="optimized-image" :class="imgClass">
     <source type="image/webp" :srcset="srcset" :sizes="sizesAttr" />
     <img
       :src="fallbackSrc"
       :alt="decorative ? '' : alt"
       :width="width"
       :height="height"
-      :class="imgClass"
+      :class="['optimized-image__img', imgClass]"
       :loading="priority ? 'eager' : 'lazy'"
       :fetchpriority="priority ? 'high' : 'auto'"
       decoding="async"
@@ -50,3 +50,17 @@ const originalSrc = computed(() => stripImageQuery(props.src))
     />
   </picture>
 </template>
+
+<style scoped>
+.optimized-image {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  line-height: 0;
+}
+
+.optimized-image__img {
+  display: block;
+  max-width: 100%;
+}
+</style>

@@ -215,14 +215,20 @@ async function sharePhoto() {
   aspect-ratio: 4/3;
 }
 
-.portfolio__item img {
+.portfolio__item :deep(picture) {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.portfolio__item :deep(img) {
   width: 100%;
   height: 100%;
   object-fit: cover;
   transition: transform 0.3s ease;
 }
 
-.portfolio__item:hover img {
+.portfolio__item:hover :deep(img) {
   transform: scale(1.04);
 }
 

@@ -59,6 +59,12 @@ defineProps<{
   z-index: 0;
 }
 
+.voor-hero__bg :deep(picture) {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
 .voor-hero__bg :deep(img),
 .voor-hero__bg-img {
   width: 100%;

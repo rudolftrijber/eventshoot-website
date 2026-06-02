@@ -319,7 +319,7 @@ const faqFallback = computed(() => [
   height: 100%;
 }
 
-.form-section__rolf-img {
+.form-section__rolf :deep(img) {
   width: 100%;
   height: 100%;
   object-fit: cover;

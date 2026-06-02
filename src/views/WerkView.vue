@@ -364,14 +364,19 @@ watch(shareMenuOpen, (open) => {
   margin-bottom: 0.75rem;
 }
 
-.werk__item img {
+.werk__item :deep(picture) {
+  display: block;
+  width: 100%;
+}
+
+.werk__item :deep(img) {
   width: 100%;
   height: auto;
   display: block;
   transition: transform 0.3s ease;
 }
 
-.werk__item:hover img {
+.werk__item:hover :deep(img) {
   transform: scale(1.04);
 }
 
