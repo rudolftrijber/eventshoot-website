@@ -8,7 +8,21 @@ import FaqBlock from '@/components/FaqBlock.vue'
 import OptimizedImage from '@/components/OptimizedImage.vue'
 import { useSeo } from '@/composables/useSeo'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
+
+const isEnglish = computed(() => locale.value.startsWith('en'))
+
+const onepagerPdf = computed(() =>
+  isEnglish.value
+    ? '/DATA_EVENTSHOOT/FILES/ES_onepager_ENG.pdf'
+    : '/DATA_EVENTSHOOT/FILES/Eventshoot_onepager.pdf',
+)
+
+const onepagerDownloadName = computed(() =>
+  isEnglish.value
+    ? 'Eventshoot_pricing_overview_EN.pdf'
+    : 'Eventshoot_tarievenoverzicht.pdf',
+)
 
 onMounted(() => {
   useSeo({
@@ -89,8 +103,8 @@ const logos = [
         <div class="download-cta">
           <p class="download-cta__sub">{{ t('tarieven.downloadText') }}</p>
           <a
-            href="/DATA_EVENTSHOOT/FILES/Eventshoot_onepager.pdf"
-            download
+            :href="onepagerPdf"
+            :download="onepagerDownloadName"
             class="btn btn--primary"
           >
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="16" height="16" style="flex-shrink:0">

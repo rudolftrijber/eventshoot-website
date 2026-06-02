@@ -3,16 +3,41 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 const { t, locale } = useI18n()
 
+const showEventkennis = computed(() => !locale.value.startsWith('en'))
+
 const termsUrl = computed(() =>
   locale.value === 'en'
     ? '/DATA_EVENTSHOOT/FILES/general_terms_eventshoot.pdf'
     : '/DATA_EVENTSHOOT/FILES/algemene_voorwaarden_eventshoot.pdf'
 )
+
+const pagesLinks = computed(() => [
+  { to: '/eventfotografie', label: t('nav.photography') },
+  { to: '/eventvideo', label: t('nav.video') },
+  { to: '/werk', label: t('nav.work') },
+  { to: '/tarieven', label: t('nav.pricing') },
+  { to: '/over-rolf', label: t('nav.aboutRolf') },
+  { to: '/kennismaken', label: t('nav.contact') },
+])
+
+const forWhoLinks = computed(() => [
+  { to: '/voor/brancheverenigingen', label: t('footer.linkAssociations') },
+  { to: '/voor/eventbureaus', label: t('footer.linkAgencies') },
+  { to: '/voor/hotels', label: t('footer.linkHotels') },
+  { to: '/voor/bedrijven', label: t('footer.linkCompanies') },
+])
+
+const knowledgeLinks = computed(() => [
+  { to: '/eventkennis', label: t('footer.linkAllArticles') },
+  { to: '/eventkennis', label: t('footer.linkPhotoTips') },
+  { to: '/eventkennis', label: t('footer.linkAftermovie') },
+  { to: '/eventkennis', label: t('footer.linkContent') },
+])
 </script>
 
 <template>
   <footer class="footer">
-    <div class="container footer__inner">
+    <div class="container footer__inner" :class="{ 'footer__inner--no-knowledge': !showEventkennis }">
 
       <!-- Kolom 1: Brand + contact -->
       <div class="footer__col footer__col--brand">
@@ -37,12 +62,7 @@ const termsUrl = computed(() =>
       <div class="footer__col">
         <h4 class="footer__col-heading">{{ t('footer.pages') }}</h4>
         <nav class="footer__nav">
-          <a href="/eventfotografie">Eventfotografie</a>
-          <a href="/eventvideo">Eventvideo</a>
-          <a href="/werk">Werk</a>
-          <a href="/tarieven">Tarieven</a>
-          <a href="/over-rolf">Over Rolf</a>
-          <a href="/kennismaken">Kennismaken</a>
+          <a v-for="link in pagesLinks" :key="link.to + link.label" :href="link.to">{{ link.label }}</a>
         </nav>
       </div>
 
@@ -50,21 +70,15 @@ const termsUrl = computed(() =>
       <div class="footer__col">
         <h4 class="footer__col-heading">{{ t('footer.forWho') }}</h4>
         <nav class="footer__nav">
-          <a href="/voor/brancheverenigingen">Brancheverenigingen</a>
-          <a href="/voor/eventbureaus">Eventbureaus &amp; DMC's</a>
-          <a href="/voor/hotels">Hotels</a>
-          <a href="/voor/bedrijven">Bedrijven</a>
+          <a v-for="link in forWhoLinks" :key="link.to" :href="link.to">{{ link.label }}</a>
         </nav>
       </div>
 
-      <!-- Kolom 4: Eventkennis -->
-      <div class="footer__col">
+      <!-- Kolom 4: Eventkennis (alleen NL) -->
+      <div v-if="showEventkennis" class="footer__col">
         <h4 class="footer__col-heading">{{ t('footer.knowledge') }}</h4>
         <nav class="footer__nav">
-          <a href="/eventkennis">Alle artikelen</a>
-          <a href="/eventkennis">Eventfotografie tips</a>
-          <a href="/eventkennis">Aftermovie laten maken</a>
-          <a href="/eventkennis">Content na je event</a>
+          <a v-for="link in knowledgeLinks" :key="link.label" :href="link.to">{{ link.label }}</a>
         </nav>
       </div>
 
@@ -74,7 +88,7 @@ const termsUrl = computed(() =>
       <p>
         &copy; Eventshoot.nl BV &ndash; {{ new Date().getFullYear() }}
         &nbsp;&middot;&nbsp;
-        <a href="/privacy">Privacy &amp; Disclaimer</a>
+        <a href="/privacy">{{ t('footer.privacy') }}</a>
         &nbsp;&middot;&nbsp;
         <a :href="termsUrl" target="_blank" rel="noopener">{{ t('footer.terms') }}</a>
       </p>
@@ -96,6 +110,10 @@ const termsUrl = computed(() =>
   gap: 3rem;
   padding-bottom: 4rem;
   align-items: start;
+}
+
+.footer__inner--no-knowledge {
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr);
 }
 
 .footer__col--brand {

@@ -5,6 +5,8 @@ import { useI18n } from 'vue-i18n'
 
 const { t, locale } = useI18n()
 
+const showEventkennis = computed(() => !locale.value.startsWith('en'))
+
 function setLang(lang: string) {
   locale.value = lang
   localStorage.setItem('lang', lang)
@@ -87,55 +89,58 @@ const voorWie = computed(() => [
         <span class="navbar__logo-text" style="display:none">Eventshoot.nl</span>
       </RouterLink>
 
-      <nav class="navbar__nav" :class="{ 'navbar__nav--open': menuOpen }">
+      <Teleport to="body" :disabled="!menuOpen">
+        <nav class="navbar__nav" :class="{ 'navbar__nav--open': menuOpen }">
 
-        <!-- Diensten -->
-        <div class="dd" @mouseenter="onMouseEnter('diensten')" @mouseleave="onMouseLeave">
-          <button class="navbar__link dd__trigger" :class="{ 'navbar__link--active': route.path.startsWith('/eventfotografie') || route.path.startsWith('/eventvideo') }" @click="toggleSection('diensten')">
-            {{ t('nav.services') }} <span class="dd__arrow">▾</span>
-          </button>
-          <div class="dd__panel" :class="{ 'dd__panel--open': expanded === 'diensten' }">
-            <RouterLink v-for="item in diensten" :key="item.to" :to="item.to" class="dd__link" @click="closeMenu">{{ item.label }}</RouterLink>
+          <!-- Diensten -->
+          <div class="dd" @mouseenter="onMouseEnter('diensten')" @mouseleave="onMouseLeave">
+            <button class="navbar__link dd__trigger" :class="{ 'navbar__link--active': route.path.startsWith('/eventfotografie') || route.path.startsWith('/eventvideo') }" @click="toggleSection('diensten')">
+              {{ t('nav.services') }} <span class="dd__arrow">▾</span>
+            </button>
+            <div class="dd__panel" :class="{ 'dd__panel--open': expanded === 'diensten' }">
+              <RouterLink v-for="item in diensten" :key="item.to" :to="item.to" class="dd__link" @click="closeMenu">{{ item.label }}</RouterLink>
+            </div>
           </div>
-        </div>
 
-        <!-- Voor wie -->
-        <div class="dd" @mouseenter="onMouseEnter('voor')" @mouseleave="onMouseLeave">
-          <button class="navbar__link dd__trigger" :class="{ 'navbar__link--active': route.path.startsWith('/voor') }" @click="toggleSection('voor')">
-            {{ t('nav.forWho') }} <span class="dd__arrow">▾</span>
-          </button>
-          <div class="dd__panel" :class="{ 'dd__panel--open': expanded === 'voor' }">
-            <RouterLink v-for="item in voorWie" :key="item.to" :to="item.to" class="dd__link" @click="closeMenu">{{ item.label }}</RouterLink>
+          <!-- Voor wie -->
+          <div class="dd" @mouseenter="onMouseEnter('voor')" @mouseleave="onMouseLeave">
+            <button class="navbar__link dd__trigger" :class="{ 'navbar__link--active': route.path.startsWith('/voor') }" @click="toggleSection('voor')">
+              {{ t('nav.forWho') }} <span class="dd__arrow">▾</span>
+            </button>
+            <div class="dd__panel" :class="{ 'dd__panel--open': expanded === 'voor' }">
+              <RouterLink v-for="item in voorWie" :key="item.to" :to="item.to" class="dd__link" @click="closeMenu">{{ item.label }}</RouterLink>
+            </div>
           </div>
-        </div>
 
-        <!-- Werk -->
-        <RouterLink to="/werk" class="navbar__link" :class="{ 'navbar__link--active': route.path.startsWith('/werk') }" @click="closeMenu">{{ t('nav.work') }}</RouterLink>
+          <!-- Werk -->
+          <RouterLink to="/werk" class="navbar__link" :class="{ 'navbar__link--active': route.path.startsWith('/werk') }" @click="closeMenu">{{ t('nav.work') }}</RouterLink>
 
-        <!-- Tarieven -->
-        <RouterLink to="/tarieven" class="navbar__link" :class="{ 'navbar__link--active': route.path === '/tarieven' }" @click="closeMenu">{{ t('nav.pricing') }}</RouterLink>
+          <!-- Tarieven -->
+          <RouterLink to="/tarieven" class="navbar__link" :class="{ 'navbar__link--active': route.path === '/tarieven' }" @click="closeMenu">{{ t('nav.pricing') }}</RouterLink>
 
-        <!-- Eventkennis -->
-        <RouterLink
-          to="/eventkennis"
-          class="navbar__link"
-          :class="{ 'navbar__link--active': route.path.startsWith('/eventkennis') }"
-          @click="closeMenu"
-        >{{ t('nav.knowledge') }}</RouterLink>
+          <!-- Eventkennis (alleen NL) -->
+          <RouterLink
+            v-if="showEventkennis"
+            to="/eventkennis"
+            class="navbar__link"
+            :class="{ 'navbar__link--active': route.path.startsWith('/eventkennis') }"
+            @click="closeMenu"
+          >{{ t('nav.knowledge') }}</RouterLink>
 
-        <!-- Over -->
-        <RouterLink to="/over-rolf" class="navbar__link" :class="{ 'navbar__link--active': route.path.startsWith('/over') }" @click="closeMenu">{{ t('nav.about') }}</RouterLink>
+          <!-- Over -->
+          <RouterLink to="/over-rolf" class="navbar__link" :class="{ 'navbar__link--active': route.path.startsWith('/over') }" @click="closeMenu">{{ t('nav.about') }}</RouterLink>
 
-        <!-- Taalwisselaar -->
-        <div class="lang-switch">
-          <button class="lang-switch__btn" :class="{ 'lang-switch__btn--active': locale === 'nl' }" @click="setLang('nl')" title="Nederlands">🇳🇱</button>
-          <button class="lang-switch__btn" :class="{ 'lang-switch__btn--active': locale === 'en' }" @click="setLang('en')" title="English">🇬🇧</button>
-        </div>
+          <!-- Taalwisselaar -->
+          <div class="lang-switch">
+            <button class="lang-switch__btn" :class="{ 'lang-switch__btn--active': locale === 'nl' }" @click="setLang('nl')" title="Nederlands">🇳🇱</button>
+            <button class="lang-switch__btn" :class="{ 'lang-switch__btn--active': locale === 'en' }" @click="setLang('en')" title="English">🇬🇧</button>
+          </div>
 
-        <!-- CTA -->
-        <a href="/kennismaken" class="navbar__cta" @click.prevent="goKennismaken">{{ t('nav.contact') }}</a>
+          <!-- CTA -->
+          <a href="/kennismaken" class="navbar__cta" @click.prevent="goKennismaken">{{ t('nav.contact') }}</a>
 
-      </nav>
+        </nav>
+      </Teleport>
 
       <button class="navbar__burger" @click="menuOpen = !menuOpen; expanded = null" :aria-label="menuOpen ? 'Menu sluiten' : 'Menu openen'">
         <span></span><span></span><span></span>
