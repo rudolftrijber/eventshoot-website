@@ -565,6 +565,7 @@ watch(shareMenuOpen, (open) => {
 }
 
 @media (max-width: 768px) {
+  .werk-hero { aspect-ratio: unset; width: 100%; }
   .werk__grid { columns: 2; }
   .lightbox__prev { left: 0.5rem; }
   .lightbox__next { right: 0.5rem; }

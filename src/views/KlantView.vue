@@ -426,6 +426,7 @@ async function downloadPhoto(url: string) {
 }
 
 @media (max-width: 768px) {
+  .klant-video-wrap { aspect-ratio: unset; width: 100%; min-height: unset; }
   .klant-photos__grid { grid-template-columns: repeat(2, 1fr); }
   .klant-videos__grid { grid-template-columns: 1fr; }
 }

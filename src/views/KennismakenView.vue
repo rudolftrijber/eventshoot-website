@@ -399,6 +399,7 @@ const faqFallback = computed(() => [
 }
 
 @media (max-width: 768px) {
+  .km-hero { aspect-ratio: unset; width: 100%; }
   .opties__grid { grid-template-columns: 1fr; }
   .form-section__inner { grid-template-columns: 1fr; gap: 2.5rem; }
 }
