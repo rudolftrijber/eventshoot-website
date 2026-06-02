@@ -519,6 +519,8 @@ const eventTypes = computed(() => [
 }
 
 @media (max-width: 768px) {
+  .ef-hero { aspect-ratio: unset; width: 100%; }
+
   .overview__inner,
   .video-upsell__inner {
     grid-template-columns: 1fr;

@@ -413,6 +413,8 @@ const logos = [
 }
 
 @media (max-width: 768px) {
+  .ev-hero { aspect-ratio: unset; width: 100%; }
+
   .ev-block__inner {
     grid-template-columns: 1fr;
     gap: 2.5rem;

@@ -468,6 +468,10 @@ const logos = [
   100% { transform: translateX(-50%); }
 }
 
+@media (max-width: 768px) {
+  .tarieven-hero { aspect-ratio: unset; width: 100%; }
+}
+
 @media (max-width: 900px) {
   .pricing-grid {
     grid-template-columns: 1fr;

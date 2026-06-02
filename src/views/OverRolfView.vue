@@ -373,5 +373,6 @@ usePageSeo('overRolf', { url: 'https://eventshoot.nl/over-rolf' })
 
 @media (max-width: 768px) {
   .actie__grid { grid-template-columns: 1fr; }
+  .over-hero { aspect-ratio: unset; width: 100%; }
 }
 </style>

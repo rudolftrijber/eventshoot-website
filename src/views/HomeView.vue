@@ -576,6 +576,10 @@ const teaserImages = [
   cursor: not-allowed;
 }
 
+@media (max-width: 768px) {
+  .hero { aspect-ratio: unset; width: 100%; }
+}
+
 @media (max-width: 640px) {
   .teaser__grid {
     grid-template-columns: repeat(2, 1fr);
