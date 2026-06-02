@@ -1,47 +1,58 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useSeo } from '@/composables/useSeo'
 
-onMounted(() => {
+const { t, locale } = useI18n()
+
+function applySeo() {
   useSeo({
-    title: 'Privacy & Disclaimer | Eventshoot.nl',
-    description: 'Privacy- en disclaimer-informatie van Eventshoot.nl BV.',
+    title: t('privacyPage.seoTitle'),
+    description: t('privacyPage.seoDesc'),
     url: 'https://eventshoot.nl/privacy',
+    locale: locale.value.startsWith('en') ? 'en' : 'nl',
   })
-})
+}
+
+onMounted(applySeo)
+watch(locale, applySeo)
 </script>
 
 <template>
   <main>
     <section class="privacy section">
       <div class="container privacy__inner">
-        <h1>Privacy &amp; Disclaimer</h1>
-        <p class="privacy__intro">Eventshoot.nl BV, gevestigd in Nederland, is verantwoordelijk voor de verwerking van persoonsgegevens zoals weergegeven in deze privacyverklaring.</p>
+        <h1>{{ t('privacyPage.h1') }}</h1>
+        <p class="privacy__intro">{{ t('privacyPage.intro') }}</p>
 
-        <h2>Contactgegevens</h2>
+        <h2>{{ t('privacyPage.h2Contact') }}</h2>
         <p>
           Eventshoot.nl BV<br>
           E-mail: <a href="mailto:rolf@eventshoot.nl">rolf@eventshoot.nl</a><br>
-          Telefoon: <a href="tel:+31625177728">06 251 777 28</a>
+          {{ t('privacyPage.contactPhone') }}:
+          <a href="tel:+31625177728">{{ t('belRolf.phoneDisplay') }}</a>
         </p>
 
-        <h2>Persoonsgegevens die wij verwerken</h2>
-        <p>Eventshoot.nl verwerkt persoonsgegevens die je zelf actief verstrekt via het contactformulier of per e-mail. Dit betreft naam, e-mailadres en telefoonnummer.</p>
+        <h2>{{ t('privacyPage.h2Data') }}</h2>
+        <p>{{ t('privacyPage.pData') }}</p>
 
-        <h2>Doel van de verwerking</h2>
-        <p>Wij verwerken persoonsgegevens uitsluitend voor het beantwoorden van vragen en het aangaan of uitvoeren van opdrachten.</p>
+        <h2>{{ t('privacyPage.h2Purpose') }}</h2>
+        <p>{{ t('privacyPage.pPurpose') }}</p>
 
-        <h2>Bewaarperiode</h2>
-        <p>Persoonsgegevens worden niet langer bewaard dan noodzakelijk voor de doeleinden waarvoor ze zijn verzameld, met een maximum van 2 jaar na het laatste contact.</p>
+        <h2>{{ t('privacyPage.h2Retention') }}</h2>
+        <p>{{ t('privacyPage.pRetention') }}</p>
 
-        <h2>Delen met derden</h2>
-        <p>Wij verkopen jouw gegevens niet aan derden en verstrekken deze uitsluitend indien dit nodig is voor de uitvoering van onze overeenkomst of om te voldoen aan een wettelijke verplichting.</p>
+        <h2>{{ t('privacyPage.h2Third') }}</h2>
+        <p>{{ t('privacyPage.pThird') }}</p>
 
-        <h2>Disclaimer</h2>
-        <p>Aan de informatie op deze website kunnen geen rechten worden ontleend. Eventshoot.nl BV is niet aansprakelijk voor schade die voortvloeit uit het gebruik van of het vertrouwen op de inhoud van deze website.</p>
+        <h2>{{ t('privacyPage.h2Disclaimer') }}</h2>
+        <p>{{ t('privacyPage.pDisclaimer') }}</p>
 
-        <h2>Vragen?</h2>
-        <p>Stuur een e-mail naar <a href="mailto:rolf@eventshoot.nl">rolf@eventshoot.nl</a>.</p>
+        <h2>{{ t('privacyPage.h2Questions') }}</h2>
+        <p>
+          {{ t('privacyPage.pQuestionsBefore') }}
+          <a href="mailto:rolf@eventshoot.nl">rolf@eventshoot.nl</a>.
+        </p>
       </div>
     </section>
   </main>

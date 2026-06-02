@@ -98,14 +98,23 @@ onMounted(() => {
   min-height: 45vh;
   display: flex;
   align-items: center;
+  overflow: hidden;
 }
 
 .ek-hero__bg {
   position: absolute;
   inset: 0;
+  overflow: hidden;
+  z-index: 0;
 }
 
-.ek-hero__bg img {
+.ek-hero__bg :deep(picture) {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.ek-hero__bg :deep(img) {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -114,6 +123,7 @@ onMounted(() => {
 .ek-hero__overlay {
   position: absolute;
   inset: 0;
+  z-index: 1;
   background: linear-gradient(to right, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.25) 100%);
 }
 
@@ -138,7 +148,11 @@ onMounted(() => {
   line-height: 1.75;
 }
 
-.eventkennis { padding-top: 3rem; }
+.eventkennis {
+  position: relative;
+  z-index: 1;
+  padding-top: 3rem;
+}
 
 .ek__state {
   text-align: center;

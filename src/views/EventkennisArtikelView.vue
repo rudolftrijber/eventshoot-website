@@ -134,14 +134,23 @@ function formatDate(d: string) {
   min-height: 45vh;
   display: flex;
   align-items: center;
+  overflow: hidden;
 }
 
 .kb-hero__bg {
   position: absolute;
   inset: 0;
+  overflow: hidden;
+  z-index: 0;
 }
 
-.kb-hero__bg img {
+.kb-hero__bg :deep(picture) {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.kb-hero__bg :deep(img) {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -150,6 +159,7 @@ function formatDate(d: string) {
 .kb-hero__overlay {
   position: absolute;
   inset: 0;
+  z-index: 1;
   background: linear-gradient(to right, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.25) 100%);
 }
 
