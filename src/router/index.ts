@@ -28,9 +28,12 @@ const router = createRouter({
     { path: '/blog', redirect: '/eventkennis' },
     { path: '/blog/:slug', redirect: to => `/eventkennis/${to.params.slug}` },
     { path: '/contact', redirect: '/kennismaken' },
+    { path: '/hello-world', redirect: '/' },
+    { path: '/hello-world/', redirect: '/' },
     // Client delivery (aparte functie, geen werk-case)
     { path: '/klanten/:slug', name: 'klant', component: () => import('../views/LeontineView.vue') },
     { path: '/leontine', name: 'leontine', component: () => import('../views/LeontineView.vue') },
+    { path: '/:pathMatch(.*)*', name: 'not-found', component: () => import('../views/NotFoundView.vue') },
   ],
 })
 
