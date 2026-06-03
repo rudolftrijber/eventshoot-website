@@ -11,7 +11,9 @@
     { "source": "/home", "destination": "/", "permanent": true },
     { "source": "/home/", "destination": "/", "permanent": true },
     { "source": "/faq", "destination": "/eventkennis", "permanent": true },
-    { "source": "/faq/", "destination": "/eventkennis", "permanent": true }
+    { "source": "/faq/", "destination": "/eventkennis", "permanent": true },
+    { "source": "/category/:slug/feed", "destination": "/:slug", "permanent": true },
+    { "source": "/category/:slug/feed/", "destination": "/:slug", "permanent": true }
   ],
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }],
   "headers": [
