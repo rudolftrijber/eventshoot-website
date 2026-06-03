@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import SectionHeading from '@/components/SectionHeading.vue'
@@ -11,6 +11,24 @@ import { usePageSeo } from '@/composables/usePageSeo'
 const { t } = useI18n()
 
 usePageSeo('eventvideo', { url: 'https://eventshoot.nl/eventvideo' })
+
+onMounted(() => {
+  const existing = document.getElementById('service-schema-eventvideo')
+  if (existing) return
+  const script = document.createElement('script')
+  script.id = 'service-schema-eventvideo'
+  script.type = 'application/ld+json'
+  script.text = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    serviceType: 'Eventvideo',
+    name: 'Eventvideo en aftermovies',
+    provider: { '@type': 'LocalBusiness', name: 'Eventshoot.nl' },
+    areaServed: 'Nederland',
+    description: 'Eventvideo\'s en aftermovies voor congressen en zakelijke events.',
+  })
+  document.head.appendChild(script)
+})
 
 const videoTypes = computed(() => [
   {

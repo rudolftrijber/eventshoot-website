@@ -1,32 +1,42 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
-import { useRoute, RouterLink } from 'vue-router'
+import { ref, computed, onMounted, watch } from 'vue'
+import { useRoute, useRouter, RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { PortableText } from '@portabletext/vue'
 import ArticleFaqBlock from '@/components/ArticleFaqBlock.vue'
 import { client, urlFor, postBySlugQuery, postsQuery, type SanityPost } from '@/lib/sanity'
 import OptimizedImage from '@/components/OptimizedImage.vue'
 import { useSeo } from '@/composables/useSeo'
+import { useArticleSchema } from '@/composables/useArticleSchema'
 
 const { t } = useI18n()
 const route = useRoute()
+const router = useRouter()
 
 const post = ref<SanityPost | null>(null)
 const recentPosts = ref<SanityPost[]>([])
 const loading = ref(true)
-const notFound = ref(false)
+
+const articleUrl = computed(() =>
+  post.value ? `https://eventshoot.nl/eventkennis/${post.value.slug.current}` : undefined,
+)
+
+const articleImageUrl = computed(() =>
+  post.value?.mainImage ? urlFor(post.value.mainImage).width(1200).url() : undefined,
+)
+
+useArticleSchema(post, articleUrl, articleImageUrl)
 
 async function loadPost(slug: string) {
   loading.value = true
-  notFound.value = false
+  post.value = null
   try {
     const [result, all] = await Promise.all([
       client.fetch<SanityPost | null>(postBySlugQuery, { slug }),
       client.fetch<SanityPost[]>(postsQuery),
     ])
     if (!result) {
-      notFound.value = true
-      post.value = null
+      await router.replace({ name: 'not-found' })
       return
     }
     post.value = result
@@ -34,8 +44,8 @@ async function loadPost(slug: string) {
     useSeo({
       title: `${result.title} | Eventshoot.nl`,
       description: result.excerpt,
-      image: result.mainImage ? urlFor(result.mainImage).width(1200).url() : undefined,
-      url: `https://eventshoot.nl/eventkennis/${result.slug.current}`,
+      image: articleImageUrl.value,
+      url: articleUrl.value,
       locale: 'nl',
     })
   } finally {
@@ -59,9 +69,19 @@ function formatDate(d: string) {
         <div class="kb-hero__overlay"></div>
       </div>
       <div class="container kb-hero__content">
-        <h1>{{ t('artikel.kbH1') }}</h1>
-        <p>{{ t('artikel.kbSub') }}</p>
         <RouterLink to="/eventkennis" class="kb-hero__back">&larr; {{ t('artikel.backAll') }}</RouterLink>
+        <template v-if="post">
+          <p class="post__author">{{ t('artikel.author') }}</p>
+          <p v-if="post.publishedAt" class="post__meta">
+            {{ formatDate(post.publishedAt) }} · {{ post.readTime }} {{ t('artikel.readTimeUnit') }}
+          </p>
+          <h1>{{ post.title }}</h1>
+          <p class="post__excerpt post__excerpt--hero">{{ post.excerpt }}</p>
+        </template>
+        <template v-else>
+          <h1>{{ t('artikel.kbH1') }}</h1>
+          <p>{{ t('artikel.kbSub') }}</p>
+        </template>
       </div>
     </section>
 
@@ -72,21 +92,7 @@ function formatDate(d: string) {
       </div>
     </div>
 
-    <div v-else-if="notFound" class="post-state section">
-      <div class="container">
-        <p>{{ t('artikel.notFound') }}</p>
-        <RouterLink to="/eventkennis" class="btn btn--primary" style="margin-top:1.5rem">&larr; {{ t('artikel.backBtn') }}</RouterLink>
-      </div>
-    </div>
-
     <div v-else-if="post" class="container post__wrap">
-
-      <div class="post__header">
-        <p class="post__author">{{ t('artikel.author') }}</p>
-        <p v-if="post.publishedAt" class="post__meta">{{ formatDate(post.publishedAt) }} · {{ post.readTime }} {{ t('artikel.readTimeUnit') }}</p>
-        <h2 class="post__title">{{ post.title }}</h2>
-        <p class="post__excerpt">{{ post.excerpt }}</p>
-      </div>
 
       <div v-if="post.mainImage" class="post__img-wrap">
         <img
@@ -212,8 +218,10 @@ function formatDate(d: string) {
   max-width: 860px;
 }
 
-.post__header {
-  margin-bottom: 2.5rem;
+.post__excerpt--hero {
+  border-left: none;
+  padding-left: 0;
+  margin-bottom: 0;
 }
 
 .post__author {
@@ -228,13 +236,6 @@ function formatDate(d: string) {
   font-size: 0.85rem;
   color: var(--color-text-muted);
   margin-bottom: 0.75rem;
-}
-
-.post__title {
-  font-size: clamp(1.5rem, 3vw, 2.5rem);
-  font-weight: 800;
-  line-height: 1.2;
-  margin-bottom: 1.25rem;
 }
 
 .post__excerpt {
