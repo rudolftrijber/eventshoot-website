@@ -8,6 +8,8 @@
     { "source": "/blog/:slug", "destination": "/eventkennis/:slug", "permanent": true },
     { "source": "/hello-world", "destination": "/", "permanent": true },
     { "source": "/hello-world/", "destination": "/", "permanent": true },
+    { "source": "/home", "destination": "/", "permanent": true },
+    { "source": "/home/", "destination": "/", "permanent": true },
     { "source": "/faq", "destination": "/eventkennis", "permanent": true },
     { "source": "/faq/", "destination": "/eventkennis", "permanent": true }
   ],

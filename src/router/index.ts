@@ -30,6 +30,8 @@ const router = createRouter({
     { path: '/contact', redirect: '/kennismaken' },
     { path: '/hello-world', redirect: '/' },
     { path: '/hello-world/', redirect: '/' },
+    { path: '/home', redirect: '/' },
+    { path: '/home/', redirect: '/' },
     // Client delivery (aparte functie, geen werk-case)
     { path: '/klanten/:slug', name: 'klant', component: () => import('../views/LeontineView.vue') },
     { path: '/leontine', name: 'leontine', component: () => import('../views/LeontineView.vue') },
