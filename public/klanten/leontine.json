@@ -4,5 +4,31 @@
   "subtitle": "Hier zijn jouw foto's, klaar om te bekijken en te downloaden. Veel plezier ermee!",
   "cloudinaryFolder": "Leontine",
   "localFolder": "Leontine",
-  "videos": []
+  "videos": [
+    {
+      "title": "BTS Leontine",
+      "url": "https://vimeo.com/1191236589",
+      "type": "vimeo"
+    },
+    {
+      "title": "Leontine, 13 jaar zandstroom",
+      "url": "https://vimeo.com/1189386911",
+      "type": "vimeo"
+    },
+    {
+      "title": "Interview David Moolenburgh",
+      "url": "https://vimeo.com/1191236323",
+      "type": "vimeo"
+    },
+    {
+      "title": "Interview Manja Vreeswijk",
+      "url": "https://vimeo.com/1191236320",
+      "type": "vimeo"
+    },
+    {
+      "title": "Interview Mireille Oosterhof",
+      "url": "https://vimeo.com/1191236321",
+      "type": "vimeo"
+    }
+  ]
 }
