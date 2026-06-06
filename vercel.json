@@ -15,7 +15,9 @@
     { "source": "/category/:slug/feed", "destination": "/:slug", "permanent": true },
     { "source": "/category/:slug/feed/", "destination": "/:slug", "permanent": true }
   ],
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }],
+  "rewrites": [
+    { "source": "/((?!api/).*)", "destination": "/index.html" }
+  ],
   "headers": [
     {
       "source": "/opt/(.*)",

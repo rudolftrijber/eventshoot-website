@@ -55,10 +55,18 @@ function applyNoIndex() {
   robots.setAttribute('content', 'noindex, nofollow')
 }
 
-async function loadKlantData(slug: string): Promise<KlantData> {
-  const apiRes = await fetch(`/api/klanten/${slug}`)
-  if (apiRes.ok) return apiRes.json() as Promise<KlantData>
+async function loadPhotosFromManifest(folder: string): Promise<KlantPhoto[]> {
+  const manifestRes = await fetch(`/def/${folder}/manifest.json`)
+  if (!manifestRes.ok) return []
 
+  const manifest = await manifestRes.json() as { photos: string[] }
+  return manifest.photos.map((photoPath) => {
+    const filename = photoPath.split('/').pop() || photoPath
+    return { url: photoPath, thumbUrl: photoPath, filename }
+  })
+}
+
+async function loadKlantFromStatic(slug: string): Promise<KlantData> {
   const configRes = await fetch(`/klanten/${slug}.json`)
   if (!configRes.ok) throw new Error('not found')
 
@@ -67,17 +75,9 @@ async function loadKlantData(slug: string): Promise<KlantData> {
     heroImage?: string
   }
 
-  let photos: KlantPhoto[] = []
-  if (config.localFolder) {
-    const manifestRes = await fetch(`/def/${config.localFolder}/manifest.json`)
-    if (manifestRes.ok) {
-      const manifest = await manifestRes.json() as { photos: string[] }
-      photos = manifest.photos.map((photoPath) => {
-        const filename = photoPath.split('/').pop() || photoPath
-        return { url: photoPath, thumbUrl: photoPath, filename }
-      })
-    }
-  }
+  const photos = config.localFolder
+    ? await loadPhotosFromManifest(config.localFolder)
+    : []
 
   return {
     slug: config.slug,
@@ -87,6 +87,20 @@ async function loadKlantData(slug: string): Promise<KlantData> {
     videos: config.videos ?? [],
     photos,
   }
+}
+
+async function loadKlantData(slug: string): Promise<KlantData> {
+  try {
+    const apiRes = await fetch(`/api/klanten/${slug}`)
+    const contentType = apiRes.headers.get('content-type') ?? ''
+    if (apiRes.ok && contentType.includes('application/json')) {
+      return await apiRes.json() as KlantData
+    }
+  } catch {
+    /* API niet beschikbaar, val terug op statische bestanden */
+  }
+
+  return loadKlantFromStatic(slug)
 }
 
 onMounted(async () => {
