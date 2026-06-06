@@ -32,9 +32,9 @@ const router = createRouter({
     { path: '/hello-world/', redirect: '/' },
     { path: '/home', redirect: '/' },
     { path: '/home/', redirect: '/' },
-    // Client delivery (aparte functie, geen werk-case)
-    { path: '/klanten/:slug', name: 'klant', component: () => import('../views/LeontineView.vue') },
-    { path: '/leontine', name: 'leontine', component: () => import('../views/LeontineView.vue') },
+    // Klant-leveringen (unlisted, noindex)
+    { path: '/klanten/:slug', name: 'klant', component: () => import('../views/KlantView.vue') },
+    { path: '/leontine', redirect: '/klanten/leontine' },
     { path: '/:pathMatch(.*)*', name: 'not-found', component: () => import('../views/NotFoundView.vue') },
   ],
 })
