@@ -71,13 +71,11 @@ watch(() => props.index, () => {
   <Teleport to="body">
     <div class="lightbox" @click.self="emit('close')">
       <button class="lightbox__close" type="button" @click="emit('close')">✕</button>
-      <button class="lightbox__prev" type="button" @click="emit('prev')">&#8249;</button>
-
       <div class="lightbox__img-wrap">
+        <button class="lightbox__prev" type="button" @click="emit('prev')">&#8249;</button>
         <img :src="current.url" :alt="current.filename" />
+        <button class="lightbox__next" type="button" @click="emit('next')">&#8250;</button>
       </div>
-
-      <button class="lightbox__next" type="button" @click="emit('next')">&#8250;</button>
 
       <div class="lightbox__toolbar">
         <span class="lightbox__counter">{{ index + 1 }} / {{ photos.length }}</span>
@@ -143,15 +141,20 @@ watch(() => props.index, () => {
 }
 
 .lightbox__img-wrap {
-  max-width: 90vw;
-  max-height: 80vh;
+  position: relative;
+  max-width: 92vw;
+  max-height: 85vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .lightbox__img-wrap img {
   max-width: 100%;
-  max-height: 80vh;
+  max-height: 85vh;
   object-fit: contain;
   border-radius: var(--radius);
+  display: block;
 }
 
 .lightbox__close {
@@ -173,21 +176,30 @@ watch(() => props.index, () => {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background: rgba(255,255,255,0.1);
-  border: none;
-  color: #fff;
-  font-size: 2rem;
-  width: 50px;
-  height: 50px;
+  z-index: 10;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
+  border: none;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(4px);
+  color: #fff;
+  font-size: 1.75rem;
+  line-height: 1;
   cursor: pointer;
+  transition: background 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.lightbox__prev { left: 1.5rem; }
-.lightbox__next { right: 1.5rem; }
+.lightbox__prev { left: 0.75rem; }
+.lightbox__next { right: 0.75rem; }
+
+.lightbox__prev:hover,
+.lightbox__next:hover {
+  background: var(--color-accent);
+}
 
 .lightbox__toolbar {
   position: absolute;
@@ -291,8 +303,8 @@ watch(() => props.index, () => {
 .share-icon--instagram { color: #E1306C; }
 
 @media (max-width: 768px) {
-  .lightbox__prev { left: 0.5rem; }
-  .lightbox__next { right: 0.5rem; }
+  .lightbox__prev { left: 0.4rem; }
+  .lightbox__next { right: 0.4rem; }
   .lightbox__filename { max-width: 180px; }
 }
 </style>
