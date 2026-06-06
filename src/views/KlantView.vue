@@ -45,6 +45,24 @@ const lightboxPhotos = computed(() =>
   visiblePhotos.value.map(p => ({ url: p.url, filename: p.filename })),
 )
 
+const heroCountText = computed(() => {
+  if (!klant.value) return ''
+
+  const photoCount = klant.value.photos.length
+  const videoCount = klant.value.videos.length
+  const parts: string[] = []
+
+  if (photoCount) {
+    parts.push(`${photoCount} foto${photoCount === 1 ? '' : "'s"}`)
+  }
+  if (videoCount) {
+    parts.push(`${videoCount} video${videoCount === 1 ? '' : "'s"}`)
+  }
+
+  if (!parts.length) return ''
+  return `${parts.join(' en ')} beschikbaar`
+})
+
 function applyNoIndex() {
   let robots = document.querySelector('meta[name="robots"]') as HTMLMetaElement | null
   if (!robots) {
@@ -186,7 +204,7 @@ function onKeydown(e: KeyboardEvent) {
           <p class="klant-hero__eyebrow">Exclusief voor jou</p>
           <h1 class="klant-hero__title">{{ klant.title }}</h1>
           <p class="klant-hero__subtitle">{{ klant.subtitle }}</p>
-          <p v-if="klant.photos.length" class="klant-hero__count">{{ klant.photos.length }} foto's beschikbaar</p>
+          <p v-if="heroCountText" class="klant-hero__count">{{ heroCountText }}</p>
         </div>
       </section>
 
