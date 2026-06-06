@@ -63,6 +63,12 @@ const heroCountText = computed(() => {
   return `${parts.join(' en ')} beschikbaar`
 })
 
+function absoluteUrl(path: string) {
+  if (!path) return undefined
+  if (path.startsWith('http')) return path
+  return `https://eventshoot.nl${path.startsWith('/') ? path : `/${path}`}`
+}
+
 function applyNoIndex() {
   let robots = document.querySelector('meta[name="robots"]') as HTMLMetaElement | null
   if (!robots) {
@@ -131,6 +137,7 @@ onMounted(async () => {
     useSeo({
       title: `${data.title} | Eventshoot.nl`,
       description: data.subtitle,
+      image: absoluteUrl(data.heroImage),
       url: `https://eventshoot.nl/klanten/${slug}`,
       locale: 'nl',
     })
