@@ -190,13 +190,6 @@ function onKeydown(e: KeyboardEvent) {
         </div>
       </section>
 
-      <section v-for="(video, i) in klant.videos" :key="i" class="klant-video section">
-        <div class="container">
-          <h2 class="klant-section-title">{{ video.title }}</h2>
-          <KlantVideoEmbed :video="video" />
-        </div>
-      </section>
-
       <section class="klant-photos section">
         <div class="container">
           <div class="klant-photos__header">
@@ -229,6 +222,13 @@ function onKeydown(e: KeyboardEvent) {
               {{ page }}
             </button>
           </div>
+        </div>
+      </section>
+
+      <section v-for="(video, i) in klant.videos" :key="i" class="klant-video section">
+        <div class="container">
+          <h2 class="klant-section-title">{{ video.title }}</h2>
+          <KlantVideoEmbed :video="video" />
         </div>
       </section>
     </template>
