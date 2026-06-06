@@ -212,7 +212,6 @@ function onKeydown(e: KeyboardEvent) {
         <div class="container">
           <div class="klant-photos__header">
             <h2 class="klant-section-title">Jouw foto's ({{ klant.photos.length }})</h2>
-            <p class="klant-photos__hint">Klik voor vergroting. Bestandsnaam staat in de lightbox, handig voor hoge-res aanvragen.</p>
           </div>
 
           <div class="klant-photos__grid">
@@ -338,12 +337,6 @@ function onKeydown(e: KeyboardEvent) {
 
 .klant-photos__header {
   margin-bottom: 1.5rem;
-}
-
-.klant-photos__hint {
-  font-size: 0.85rem;
-  color: var(--color-text-muted);
-  margin-top: 0.35rem;
 }
 
 .klant-photos__grid {
