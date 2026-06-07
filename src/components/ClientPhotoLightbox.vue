@@ -21,6 +21,9 @@ const shareMenuOpen = ref(false)
 
 const current = computed(() => props.photos[props.index])
 
+const canPrev = computed(() => props.index > 0)
+const canNext = computed(() => props.index < props.photos.length - 1)
+
 async function copyFilename() {
   if (!current.value) return
   try {
@@ -72,9 +75,23 @@ watch(() => props.index, () => {
     <div class="lightbox" @click.self="emit('close')">
       <button class="lightbox__close" type="button" @click="emit('close')">✕</button>
       <div class="lightbox__img-wrap">
-        <button class="lightbox__prev" type="button" @click="emit('prev')">&#8249;</button>
+        <button
+          class="lightbox__prev"
+          type="button"
+          :disabled="!canPrev"
+          @click="emit('prev')"
+        >
+          &#8249;
+        </button>
         <img :src="current.url" :alt="current.filename" />
-        <button class="lightbox__next" type="button" @click="emit('next')">&#8250;</button>
+        <button
+          class="lightbox__next"
+          type="button"
+          :disabled="!canNext"
+          @click="emit('next')"
+        >
+          &#8250;
+        </button>
       </div>
 
       <div class="lightbox__toolbar">
@@ -196,9 +213,15 @@ watch(() => props.index, () => {
 .lightbox__prev { left: 0.75rem; }
 .lightbox__next { right: 0.75rem; }
 
-.lightbox__prev:hover,
-.lightbox__next:hover {
+.lightbox__prev:hover:not(:disabled),
+.lightbox__next:hover:not(:disabled) {
   background: var(--color-accent);
+}
+
+.lightbox__prev:disabled,
+.lightbox__next:disabled {
+  opacity: 0.3;
+  cursor: default;
 }
 
 .lightbox__toolbar {

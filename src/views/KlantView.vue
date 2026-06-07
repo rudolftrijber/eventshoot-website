@@ -42,7 +42,7 @@ const visiblePhotos = computed(() => {
 })
 
 const lightboxPhotos = computed(() =>
-  visiblePhotos.value.map(p => ({ url: p.url, filename: p.filename })),
+  klant.value?.photos.map(p => ({ url: p.url, filename: p.filename })) ?? [],
 )
 
 const heroCountText = computed(() => {
@@ -155,13 +155,23 @@ onUnmounted(() => {
   document.body.style.overflow = ''
 })
 
-function goToPage(page: number) {
+function goToPage(page: number, scroll = true) {
   currentPage.value = page
-  window.scrollTo({ top: 0, behavior: 'smooth' })
+  if (scroll) window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
-function openLightbox(index: number) {
-  lightboxIndex.value = index
+function globalPhotoIndex(pageLocalIndex: number) {
+  return (currentPage.value - 1) * PHOTOS_PER_PAGE + pageLocalIndex
+}
+
+function syncGridPageToLightbox() {
+  if (lightboxIndex.value === null) return
+  const page = Math.floor(lightboxIndex.value / PHOTOS_PER_PAGE) + 1
+  if (page !== currentPage.value) goToPage(page, false)
+}
+
+function openLightbox(pageLocalIndex: number) {
+  lightboxIndex.value = globalPhotoIndex(pageLocalIndex)
   document.body.style.overflow = 'hidden'
 }
 
@@ -171,14 +181,16 @@ function closeLightbox() {
 }
 
 function prevPhoto() {
-  if (lightboxIndex.value === null || !klant.value) return
-  lightboxIndex.value =
-    (lightboxIndex.value - 1 + visiblePhotos.value.length) % visiblePhotos.value.length
+  if (lightboxIndex.value === null || lightboxIndex.value <= 0) return
+  lightboxIndex.value--
+  syncGridPageToLightbox()
 }
 
 function nextPhoto() {
   if (lightboxIndex.value === null || !klant.value) return
-  lightboxIndex.value = (lightboxIndex.value + 1) % visiblePhotos.value.length
+  if (lightboxIndex.value >= klant.value.photos.length - 1) return
+  lightboxIndex.value++
+  syncGridPageToLightbox()
 }
 
 function onKeydown(e: KeyboardEvent) {
@@ -231,16 +243,37 @@ function onKeydown(e: KeyboardEvent) {
           </div>
 
           <div v-if="totalPages > 1" class="klant-pagination">
-            <button
-              v-for="page in totalPages"
-              :key="page"
-              class="klant-page-btn"
-              :class="{ 'klant-page-btn--active': currentPage === page }"
-              type="button"
-              @click="goToPage(page)"
-            >
-              {{ page }}
-            </button>
+            <p class="klant-pagination__label">Pagina {{ currentPage }} van {{ totalPages }}</p>
+            <div class="klant-pagination__buttons">
+              <button
+                class="klant-page-btn klant-page-btn--arrow"
+                type="button"
+                :disabled="currentPage === 1"
+                aria-label="Vorige pagina"
+                @click="goToPage(currentPage - 1)"
+              >
+                ‹
+              </button>
+              <button
+                v-for="page in totalPages"
+                :key="page"
+                class="klant-page-btn"
+                :class="{ 'klant-page-btn--active': currentPage === page }"
+                type="button"
+                @click="goToPage(page)"
+              >
+                {{ page }}
+              </button>
+              <button
+                class="klant-page-btn klant-page-btn--arrow"
+                type="button"
+                :disabled="currentPage === totalPages"
+                aria-label="Volgende pagina"
+                @click="goToPage(currentPage + 1)"
+              >
+                ›
+              </button>
+            </div>
           </div>
         </div>
       </section>
@@ -399,9 +432,23 @@ function onKeydown(e: KeyboardEvent) {
 
 .klant-pagination {
   display: flex;
-  justify-content: center;
-  gap: 0.75rem;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
   margin-top: 3rem;
+}
+
+.klant-pagination__label {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.klant-pagination__buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
 }
 
 .klant-page-btn {
@@ -420,6 +467,11 @@ function onKeydown(e: KeyboardEvent) {
   background: var(--color-accent);
   border-color: var(--color-accent);
   color: #fff;
+}
+
+.klant-page-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
 }
 
 @media (max-width: 768px) {
