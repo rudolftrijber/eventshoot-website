@@ -217,10 +217,6 @@ function onKeydown(e: KeyboardEvent) {
 
       <section class="klant-photos section">
         <div class="container">
-          <div class="klant-photos__header">
-            <h2 class="klant-section-title">Jouw foto's ({{ klant.photos.length }})</h2>
-          </div>
-
           <div class="klant-photos__grid">
             <div
               v-for="(photo, i) in visiblePhotos"
@@ -339,10 +335,6 @@ function onKeydown(e: KeyboardEvent) {
 .klant-section-title {
   font-size: clamp(1.3rem, 2.5vw, 1.75rem);
   font-weight: 700;
-  margin-bottom: 1.5rem;
-}
-
-.klant-photos__header {
   margin-bottom: 1.5rem;
 }
 
