@@ -2,3 +2,4 @@ User-agent: *
 Allow: /
 
 Sitemap: https://eventshoot.nl/sitemap.xml
+# LLM-vriendelijke sitesamenvatting: https://eventshoot.nl/llms.txt

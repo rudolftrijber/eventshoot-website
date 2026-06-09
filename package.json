@@ -13,7 +13,8 @@
     "import:faq": "node scripts/import-faq-from-csv.mjs",
     "optimize:images": "node scripts/optimize-site-images.mjs",
     "generate:sitemap": "node scripts/generate-sitemap.mjs",
-    "prebuild": "npm run optimize:images && npm run generate:sitemap",
+    "generate:llms": "node scripts/generate-llms.mjs",
+    "prebuild": "npm run optimize:images && npm run generate:sitemap && npm run generate:llms",
     "studio": "npm run dev --prefix studio"
   },
   "dependencies": {
