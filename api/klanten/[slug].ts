@@ -22,6 +22,7 @@ interface KlantConfig {
   cloudinaryFolder?: string
   localFolder?: string
   heroImage?: string
+  reversePhotos?: boolean
   videos?: KlantVideo[]
 }
 
@@ -117,6 +118,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (!photos.length && config.localFolder) {
       photos = loadLocalPhotos(config.localFolder)
+    }
+
+    if (config.reversePhotos) {
+      photos.reverse()
     }
 
     const heroImage = config.heroImage || photos[0]?.url || ''

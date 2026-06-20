@@ -97,11 +97,16 @@ async function loadKlantFromStatic(slug: string): Promise<KlantData> {
   const config = await configRes.json() as Omit<KlantData, 'photos' | 'heroImage'> & {
     localFolder?: string
     heroImage?: string
+    reversePhotos?: boolean
   }
 
-  const photos = config.localFolder
+  let photos = config.localFolder
     ? await loadPhotosFromManifest(config.localFolder)
     : []
+
+  if (config.reversePhotos) {
+    photos = [...photos].reverse()
+  }
 
   return {
     slug: config.slug,
