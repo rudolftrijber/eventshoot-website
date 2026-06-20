@@ -489,11 +489,18 @@ Niet alle event-types passen bij de propositie. Deze lijst is leidend voor alle 
 Drie soorten content, drie opslaglocaties:
 
 1. **Website-assets** → Cloudinary (cdn voor foto/video) of `/public/` (kleine assets)
-2. **Klant-galleries** → Pixieset (externe service met eigen URL)
+2. **Klant-levering** → browse-galerij op `/klanten/{slug}/` (unlisted, `noindex`) + bulk/hoge res via **Swiss Transfer** (niet WeTransfer)
 3. **Bronbestanden** → Lokaal `~/Documents/DATA_EVENTSHOOT/` + externe SSD backup
 
-NOOIT bronbestanden (RAW, Lightroom-catalog) committeren naar de repo. NOOIT klant-galleries
-in de Vue-codebase bouwen — gebruik externe Pixieset met link vanuit /klanten/.
+NOOIT bronbestanden (RAW, Lightroom-catalog) committeren naar de repo.
+
+### Klant-levering (twee kanalen)
+
+**Browse-galerij op de site** (`/klanten/{slug}/`): klant bekijkt foto's en video's, downloadt losse bestanden via de lightbox. Pagina is niet geïndexeerd. Config per klant: `public/klanten/{slug}.json`. Foto's in `public/def/{Folder}/` (+ `manifest.json` via `node scripts/generate-manifest.js {Folder}`) of Cloudinary via `api/klanten/[slug].ts`. Nieuwe klant: JSON + foto's + manifest + push; OG-preview via `scripts/prerender-klanten.mjs` bij build.
+
+**Bulk/hoge resolutie** → **Swiss Transfer**. Rolf stuurt het volledige pakket (alle bestanden, printkwaliteit) via Swiss Transfer, vaak samen met telefonisch contact. De site-galerij is géén vervanging voor die levering: browsen en los downloaden, niet het complete archief in één keer.
+
+Gebruik **Swiss Transfer**, niet WeTransfer — dat is de vaste werkwijze voor bulk-levering aan klanten.
 
 
 ## Website content — doelgroeppagina's
