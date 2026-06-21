@@ -44,8 +44,8 @@ export default {
       description: 'Professionele eventfotografie en video voor congressen, conferenties en bedrijfsevents. 25+ kant-en-klare items binnen 48 uur. Gemaakt door mensen, niet door AI.',
     },
     eventfotografie: {
-      title: 'Eventfotografie voor congressen & seminars | Eventshoot.nl',
-      description: 'Professionele eventfotografie voor congressen, conferenties, ledendagen en bedrijfsbijeenkomsten. 48 uur levering, 40+ jaar ervaring.',
+      title: 'Eventfotograaf & eventfotografie | 48 uur | Eventshoot.nl',
+      description: 'Eventfotograaf voor congressen en bedrijfsevents in heel Nederland. 150+ foto\'s binnen 48 uur, klaar voor LinkedIn. 40+ jaar ervaring. Bekijk tarieven.',
     },
     eventvideo: {
       title: 'Eventvideo & aftermovie | Eventshoot.nl',

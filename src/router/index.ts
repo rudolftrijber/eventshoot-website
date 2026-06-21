@@ -30,6 +30,8 @@ const router = createRouter({
     { path: '/contact', redirect: '/kennismaken' },
     { path: '/hello-world', redirect: '/' },
     { path: '/hello-world/', redirect: '/' },
+    { path: '/faq', redirect: '/eventkennis' },
+    { path: '/faq/', redirect: '/eventkennis' },
     { path: '/home', redirect: '/' },
     { path: '/home/', redirect: '/' },
     // Klant-leveringen (unlisted, noindex)

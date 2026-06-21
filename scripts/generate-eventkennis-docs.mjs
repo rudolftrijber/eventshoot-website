@@ -1,0 +1,272 @@
+/**
+ * Genereert Eventkennis-artikelen als .docx (Word + Pages) uit HTML-bron.
+ * Run: node scripts/generate-eventkennis-docs.mjs
+ */
+import { writeFileSync, mkdirSync, readFileSync } from 'node:fs'
+import { join, dirname } from 'node:path'
+import { fileURLToPath } from 'node:url'
+import { execSync } from 'node:child_process'
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
+const OUT_DIR = join(__dirname, '..', 'data', 'eventkennis-artikelen')
+
+const articles = [
+  {
+    filename: '01-wat-kost-eventfotografie-congres',
+    slug: 'wat-kost-eventfotografie-congres',
+    metaTitle: 'Wat kost eventfotografie voor een congres? | Eventshoot.nl',
+    metaDescription: 'Eventfotografie voor een congres kost vanaf €895 excl. BTW. Drie pakketten, levering binnen 48 uur. Overzicht van prijzen en wat je krijgt.',
+    category: 'Eventfotografie',
+    h1: 'Wat kost eventfotografie voor een congres?',
+    body: `
+<p><strong>Direct antwoord:</strong> Eventfotografie voor een congres kost bij Eventshoot.nl vanaf €895 excl. BTW (Highlight, 4 uur aanwezigheid) tot €3.450 excl. BTW (Heroes, 8 uur met foto en video). Alle pakketten bevatten levering binnen 48 uur.</p>
+
+<h2>Welke pakketten zijn er voor congresfotografie?</h2>
+<p>Eventshoot.nl werkt met drie vaste pakketten. Geen losse uurtarieven achteraf, geen verrassingen op de factuur.</p>
+<ul>
+<li><strong>Highlight — €895 excl. BTW:</strong> 4 uur aanwezigheid, 100–150 foto's, social aftermovie (45–90 sec), 1 fotograaf. Levering binnen 24 uur. Past bij kleinere events of social-only.</li>
+<li><strong>Headline — €2.250 excl. BTW (meest gekozen):</strong> 8 uur aanwezigheid, 150–250 foto's, social aftermovie, 10–15 interviews (één camera), 2 personen crew. Levering binnen 48 uur. Past bij een jaarcongres of ledendag.</li>
+<li><strong>Heroes — €3.450 excl. BTW:</strong> 8 uur aanwezigheid, 200–300 foto's, social én corporate aftermovie (90–180 sec), 15–20 interviews, 2 personen crew. Levering binnen 48 uur. Past bij een hoog-profile congres.</li>
+</ul>
+
+<h2>Wat zit standaard in elk pakket?</h2>
+<p>Ongeacht welk pakket je kiest, altijd inbegrepen: een pre-production meeting, AI-ondertiteling op video, post-production met één correctieronde, en levering binnen 48 uur (Highlight: 24 uur). Je ontvangt geen ruwe dump van duizenden bestanden, maar een selectie kant-en-klare items die je marketeer direct kan plaatsen.</p>
+
+<h2>Wat kost eventfotografie niet?</h2>
+<p>Reisuren en transportkosten worden separaat berekend. Dat geldt voor congressen door heel Nederland. Same-day levering direct na het event is mogelijk tegen meerprijs (€425 / €650 / €925 afhankelijk van pakket). Human ondertiteling op video (98% correct) kost €13 per minuut, alleen bij Headline en Heroes.</p>
+
+<h2>Is een jaarcontract goedkoper bij meerdere congressen per jaar?</h2>
+<p>Organiseer je drie of meer events per jaar? Dan is Content Year interessant: €775 per maand (€9.300 per jaar), drie events op Heroes-niveau, 8 uur per event, voorrang in de agenda en doorlopende stijl met één aanspreekpunt.</p>
+
+<h2>Hoe kies je het juiste pakket voor jouw congres?</h2>
+<p>Stel jezelf drie vragen: hoe lang duurt het programma, wil je naast foto ook video, en hoe snel moet de content live? Een korte ledendag van een halve dag past bij Highlight. Een volledig jaarcongres met sprekers, netwerk en afsluiting vraagt meestal om Headline of Heroes. Twijfel je? Een kennismaking van 20 minuten is genoeg om te bepalen welk pakket past.</p>
+
+<h2>Veelgestelde vragen</h2>
+<p><strong>Is BTW inbegrepen in de genoemde prijzen?</strong><br>Nee. Alle tarieven op Eventshoot.nl zijn excl. BTW.</p>
+<p><strong>Krijg ik ruwe foto's of alleen een selectie?</strong><br>Je ontvangt een bewerkte selectie in de juiste formaten voor LinkedIn, website en nieuwsbrief. Geen onbewerkte RAW-bestanden in de standaardpakketten.</p>
+<p><strong>Kan ik alleen foto huren, zonder video?</strong><br>Ja. Highlight is foto plus een korte social aftermovie. Wil je uitsluitend foto's zonder video? Bespreek dat in de kennismaking, dan stemmen we het pakket af.</p>
+<p><strong>Wat als mijn congres langer duurt dan 8 uur?</strong><br>Neem contact op. Langere aanwezigheid of een tweede dag is op offerte mogelijk.</p>
+
+<p><em>Meta title:</em> ${'Wat kost eventfotografie voor een congres? | Eventshoot.nl'}<br>
+<em>Meta description:</em> Eventfotografie voor een congres kost vanaf €895 excl. BTW. Drie pakketten, levering binnen 48 uur. Overzicht van prijzen en wat je krijgt.<br>
+<em>URL-slug:</em> /eventkennis/wat-kost-eventfotografie-congres/<br>
+<em>Auteur:</em> Rolf Trijber<br>
+<em>Categorie:</em> Eventfotografie</p>
+`,
+  },
+  {
+    filename: '02-eventfotograaf-inhuren-waar-op-letten',
+    slug: 'eventfotograaf-inhuren-waar-op-letten',
+    metaTitle: 'Eventfotograaf inhuren: waar op letten? | Eventshoot.nl',
+    metaDescription: 'Waar let je op bij het inhuren van een eventfotograaf? Ervaring, levertijd, pakket en locatie-afstemming. Checklist voor congressen en bedrijfsevents.',
+    category: 'Eventfotografie',
+    h1: 'Waar let je op bij het inhuren van een eventfotograaf?',
+    body: `
+<p><strong>Direct antwoord:</strong> Let op ervaring met zakelijke events, levertijd na afloop, het aantal kant-en-klare items dat je krijgt, en of de fotograaf vooraf met de locatie afstemt. Vraag altijd naar recent werk en een duidelijk pakket met vaste prijs.</p>
+
+<h2>Waarom is ervaring met zakelijke events belangrijk?</h2>
+<p>Een eventfotograaf die vooral bruiloften of feesten doet, werkt anders dan iemand die dagelijks congressen, conferenties en bedrijfsbijeenkomsten fotografeert. Op een congres draait het om sprekers op een donker podium, netwerkgesprekken in wisselend licht, en de balans tussen sfeer en zakelijke uitstraling. Vraag naar portfolio's met vergelijkbare events, niet alleen de mooiste losse foto.</p>
+
+<h2>Hoe snel moet je content krijgen na het event?</h2>
+<p>Het event is vers in het geheugen van deelnemers en op social media. Na een week is de energie weg. Eventshoot.nl levert standaard binnen 48 uur, zodat je marketeer direct kan posten terwijl het congres nog top of mind is. Vraag elke fotograaf concreet: wanneer zijn de eerste bestanden bruikbaar, en in welke formaten?</p>
+
+<h2>Krijg je losse foto's of een complete contentbox?</h2>
+<p>Veel organisatoren verwachten "500 foto's" en denken dat ze klaar zijn. In de praktijk wil je marketeer 25+ kant-en-klare items: horizontaal voor de website, 4:5 voor LinkedIn, verticaal voor Stories. Vraag wat je concreet ontvangt en of nabewerking en formaat-conversie inbegrepen zijn.</p>
+
+<h2>Stemt de fotograaf vooraf af met de locatie?</h2>
+<p>Backdrop, podiumlicht, presentatieformat en interviewplek bepalen of je beelden bruikbaar zijn. Een goede eventfotograaf bespreekt dit met techniek vóór de eerste gast binnenkomt. Dia's met een donkere achtergrond in plaats van wit, bijvoorbeeld, is beter voor deelnemers én voor het beeld.</p>
+
+<h2>Wat vraag je in een kennismaking?</h2>
+<ul>
+<li>Welke vergelijkbare events heb je recent gedraaid?</li>
+<li>Wat kost het pakket all-in, excl. BTW?</li>
+<li>Hoeveel kant-en-klare items lever je, en binnen welke termijn?</li>
+<li>Werk je alleen of met een crew bij grotere events?</li>
+<li>Ben je verzekerd en wat gebeurt er bij uitval?</li>
+</ul>
+
+<h2>Veelgestelde vragen</h2>
+<p><strong>Is de goedkoopste eventfotograaf de beste keuze?</strong><br>Niet als je marketeer uren extra nabewerking moet doen of content te laat komt. Reken de totale kosten door: inhuur plus interne uren plus gemiste zichtbaarheid.</p>
+<p><strong>Moet de fotograaf op locatie komen kennismaken?</strong><br>Niet altijd nodig. Een video-call of telefoongesprek van 20 minuten volstaat vaak. Locatiebezoek kan wel als het een complex congres is.</p>
+<p><strong>Wat als we naast foto ook video willen?</strong><br>Kies een partij die beide levert met één crew en één stijl. Dat scheelt coördinatie en levert consistente content op.</p>
+<p><strong>Hoe check ik of iemand echt op locatie fotografeert?</strong><br>Eventshoot.nl gebruikt geen AI-beelden of stockmateriaal. Alles is opgenomen op jouw event. Vraag elke fotograaf expliciet naar dit onderscheid.</p>
+
+<p><em>Meta title:</em> Eventfotograaf inhuren: waar op letten? | Eventshoot.nl<br>
+<em>Meta description:</em> Waar let je op bij het inhuren van een eventfotograaf? Ervaring, levertijd, pakket en locatie-afstemming. Checklist voor congressen en bedrijfsevents.<br>
+<em>URL-slug:</em> /eventkennis/eventfotograaf-inhuren-waar-op-letten/<br>
+<em>Auteur:</em> Rolf Trijber<br>
+<em>Categorie:</em> Eventfotografie</p>
+`,
+  },
+  {
+    filename: '03-evenement-fotograaf-vs-eventfotograaf',
+    slug: 'evenement-fotograaf-vs-eventfotograaf',
+    metaTitle: 'Evenement fotograaf vs eventfotograaf | Eventshoot.nl',
+    metaDescription: 'Zoek je een evenement fotograaf of eventfotograaf? Het verschil in zoektermen, type opdrachten en wat je mag verwachten bij zakelijke events.',
+    category: 'Eventfotografie',
+    h1: 'Wat is het verschil tussen een evenement fotograaf en een eventfotograaf?',
+    body: `
+<p><strong>Direct antwoord:</strong> In de praktijk zoeken organisatoren hetzelfde: een fotograaf voor congressen, seminars en bedrijfsbijeenkomsten. "Eventfotograaf" is de gangbare term in de B2B-eventbranche. "Evenement fotograaf" is dezelfde behoefte, andere spelling in Google.</p>
+
+<h2>Waarom zie je beide termen in zoekresultaten?</h2>
+<p>Nederlandse marketeers typen variaties: event fotograaf, eventfotograaf, evenement fotograaf, evenementen fotograaf. Google behandelt die termen grotendeels als verwant. Toch is het slim om content te schrijven die beide varianten natuurlijk opneemt, zodat je site voor alle formuleringen gevonden wordt.</p>
+
+<h2>Is er een stijlverschil tussen evenementenfotografie en eventfotografie?</h2>
+<p>Formeel bestaat er geen officiële grens. In de praktijk associeert de B2B-markt "eventfotograaf" met zakelijke congressen, conferenties, ledendagen en productlanceringen. "Evenement" roept soms vaker beelden op van festivals, personeelsfeesten of borrels. Voor een jaarcongres of ledendag wil je een fotograaf die gewend is aan podia, sprekers en netwerkzones, niet aan feestfotografie.</p>
+
+<h2>Wat bedient Eventshoot.nl wel en niet?</h2>
+<p>Eventshoot.nl is gespecialiseerd in zakelijke events: congressen, conferenties, ledendagen, seminars en bedrijfsbijeenkomsten in heel Nederland. Geen bruiloften, personeelsfeesten, teamuitjes of open dagen voor consumenten. Die focus zorgt ervoor dat elk beeld past bij LinkedIn, je website en je ledencommunicatie.</p>
+
+<h2>Hoe kies je de juiste fotograaf ongeacht de zoekterm?</h2>
+<p>Kijk niet naar het woord in de Google-zoekbalk, maar naar het portfolio. Herken je vergelijkbare events? Ziet het er zakelijk en representatief uit op elk niveau, van technische sessie tot borrel? En levert de fotograaf binnen 48 uur kant-en-klare content, zodat je marketeer direct kan posten?</p>
+
+<h2>Veelgestelde vragen</h2>
+<p><strong>Is "congresfotograaf" hetzelfde als "eventfotograaf"?</strong><br>Voor congressen en jaarcongressen worden die termen door elkaar gebruikt. Congresfotograaf benadrukt het event-type, eventfotograaf de bredere markt.</p>
+<p><strong>Moet ik in mijn briefing "event" of "evenement" schrijven?</strong><br>Beide is prima. Beschrijf vooral het programma, de locatie, het publiek en wat je met de beelden wilt doen.</p>
+<p><strong>Zoeken buitenlandse sprekers op andere termen?</strong><br>Engels: event photographer. Eventshoot.nl werkt in Nederland; internationale deelnemers zijn welkom op het event zelf.</p>
+
+<p><em>Meta title:</em> Evenement fotograaf vs eventfotograaf | Eventshoot.nl<br>
+<em>Meta description:</em> Zoek je een evenement fotograaf of eventfotograaf? Het verschil in zoektermen, type opdrachten en wat je mag verwachten bij zakelijke events.<br>
+<em>URL-slug:</em> /eventkennis/evenement-fotograaf-vs-eventfotograaf/<br>
+<em>Auteur:</em> Rolf Trijber<br>
+<em>Categorie:</em> Eventfotografie</p>
+`,
+  },
+  {
+    filename: '04-hoeveel-fotos-na-jaarcongres',
+    slug: 'hoeveel-fotos-na-jaarcongres',
+    metaTitle: "Hoeveel foto's na een jaarcongres? | Eventshoot.nl",
+    metaDescription: "Hoeveel foto's krijg je na een jaarcongres? 100–300 bewerkte foto's plus video, afhankelijk van pakket. Overzicht Highlight, Headline en Heroes.",
+    category: 'Eventfotografie',
+    h1: "Hoeveel foto's krijg je na een jaarcongres?",
+    body: `
+<p><strong>Direct antwoord:</strong> Bij Eventshoot.nl ontvang je 100 tot 300 bewerkte foto's per jaarcongres, afhankelijk van het pakket. Headline en Heroes leveren daarnaast aftermovies en interviews. Het gaat om kant-en-klare items, niet om duizenden onbewerkte bestanden.</p>
+
+<h2>Hoeveel foto's per pakket?</h2>
+<ul>
+<li><strong>Highlight:</strong> 100–150 foto's, 4 uur aanwezigheid</li>
+<li><strong>Headline:</strong> 150–250 foto's, 8 uur aanwezigheid, plus social aftermovie en 10–15 interviews</li>
+<li><strong>Heroes:</strong> 200–300 foto's, 8 uur aanwezigheid, plus social en corporate aftermovie en 15–20 interviews</li>
+</ul>
+
+<h2>Waarom niet "alle foto's" van het congres?</h2>
+<p>Op een jaarcongres van acht uur maakt een fotograaf duizenden opnames. Daarvan is een groot deel technisch dubbel, out of focus of inhoudelijk hetzelfde moment. Je marketeer heeft geen tijd om te selecteren. Eventshoot.nl levert een professionele selectie: representatief, bewerkt, en direct te plaatsen in de formaten die je nodig hebt.</p>
+
+<h2>Wat bedoelen we met "25+ kant-en-klare items"?</h2>
+<p>Naast individuele foto's ontvang je een complete contentbox: foto's in horizontaal, 4:5 en verticaal, plus video's en interviews waar het pakket dat omvat. Het totaal aan bruikbare items voor je kanalen is 25 of meer. Jouw event is een goudmijn aan content, mits je die content snel en in de juiste vorm krijgt.</p>
+
+<h2>Hoe snel liggen de foto's klaar?</h2>
+<p>Standaard binnen 48 uur na afloop van het jaarcongres. Highlight zelfs binnen 24 uur. Same-day levering is mogelijk tegen meerprijs als je marketeer dezelfde avond al wil posten.</p>
+
+<h2>Veelgestelde vragen</h2>
+<p><strong>Krijg ik ook groepsfoto's van het bestuur of de deelnemers?</strong><br>Ja, als dat in het programma past en vooraf is afgestemd. Bespreek het gewenste groepsmoment in de pre-production meeting.</p>
+<p><strong>Zijn portretten van sprekers inbegrepen?</strong><br>Sprekers op podium en in interviewsetting zitten in de standaardselectie. Studio-portretten op locatie kunnen we apart afstemmen.</p>
+<p><strong>Mag ik de foto's onbeperkt gebruiken?</strong><br>Standaard voor promotioneel gebruik door de opdrachtgever. Licentie en details staan in de offerte.</p>
+<p><strong>Wat als we meerdere dagen congres hebben?</strong><br>Neem contact op. Meerdere dagen vragen om maatwerk in aanwezigheid en selectie.</p>
+
+<p><em>Meta title:</em> Hoeveel foto's na een jaarcongres? | Eventshoot.nl<br>
+<em>Meta description:</em> Hoeveel foto's krijg je na een jaarcongres? 100–300 bewerkte foto's plus video, afhankelijk van pakket. Overzicht Highlight, Headline en Heroes.<br>
+<em>URL-slug:</em> /eventkennis/hoeveel-fotos-na-jaarcongres/<br>
+<em>Auteur:</em> Rolf Trijber<br>
+<em>Categorie:</em> Eventfotografie</p>
+`,
+  },
+  {
+    filename: '05-eventfotograaf-nederland-werkgebied',
+    slug: 'eventfotograaf-nederland-werkgebied',
+    metaTitle: 'Eventfotograaf heel Nederland | Eventshoot.nl',
+    metaDescription: 'Werkt een eventfotograaf door heel Nederland? Ja. Eventshoot.nl fotografeert congressen en bedrijfsevents landelijk. Reiskosten apart berekend.',
+    category: 'Eventfotografie',
+    h1: 'Werkt een eventfotograaf door heel Nederland?',
+    body: `
+<p><strong>Direct antwoord:</strong> Ja. Eventshoot.nl werkt door heel Nederland voor congressen, conferenties, ledendagen, seminars en bedrijfsbijeenkomsten. Reis- en transportkosten worden separaat berekend, transparant vooraf in de offerte.</p>
+
+<h2>Waar is Eventshoot.nl actief?</h2>
+<p>Van Groningen tot Maastricht, van congrescentra in de Randstad tot hotels met congresfaciliteiten in de regio. Het werkgebied is Nederland. Internationale events buiten Nederland vallen buiten de standaardpropositie, maar zijn op aanvraag bespreekbaar.</p>
+
+<h2>Hoe werkt de voorbereiding op afstand?</h2>
+<p>De pre-production meeting gaat via telefoon of video. Locatie, techniek, programma en contentdoelen worden doorgenomen vóór de eerste gast binnenkomt. Waar nodig stemt Eventshoot.nl af met de technische dienst of het eventbureau van de locatie.</p>
+
+<h2>Wat kosten reis en transport?</h2>
+<p>Reisuren en transportkosten staan separaat op de offerte, excl. BTW. Geen verborgen posten achteraf. Voor events in de directe regio zijn de kosten lager dan voor een congres aan de andere kant van het land. Vraag vooraf een all-in indicatie.</p>
+
+<h2>Waarom één vaste fotograaf landelijk inschakelen?</h2>
+<p>Organiseer je meerdere events per jaar op verschillende locaties? Dan wil je één aanspreekpunt, één visuele stijl en voorspelbare levering binnen 48 uur. Het Content Year-jaarcontract (€775 per maand, drie events per jaar op Heroes-niveau) is daarop ingericht.</p>
+
+<h2>Veelgestelde vragen</h2>
+<p><strong>Komt de fotograaf alleen of met een crew?</strong><br>Highlight: één fotograaf. Headline en Heroes: twee personen crew voor foto en video parallel.</p>
+<p><strong>Hoe vroeg moet ik boeken?</strong><br>Hoe eerder, hoe beter, zeker rond congresseizoen (september–november en voorjaar). Content Year geeft voorrang in de agenda.</p>
+<p><strong>Werken jullie ook voor eventbureaus die landelijk opereren?</strong><br>Ja. Eventbureaus en DMC's schakelen Eventshoot.nl in als vaste content-partner achter de schermen.</p>
+<p><strong>Wat als de locatie lastige lichtomstandigheden heeft?</strong><br>Daarvoor is de locatie-afstemming vooraf. Podiumlicht, achtergrond en interviewplek worden samen met techniek doorgenomen.</p>
+
+<p><em>Meta title:</em> Eventfotograaf heel Nederland | Eventshoot.nl<br>
+<em>Meta description:</em> Werkt een eventfotograaf door heel Nederland? Ja. Eventshoot.nl fotografeert congressen en bedrijfsevents landelijk. Reiskosten apart berekend.<br>
+<em>URL-slug:</em> /eventkennis/eventfotograaf-nederland-werkgebied/<br>
+<em>Auteur:</em> Rolf Trijber<br>
+<em>Categorie:</em> Eventfotografie</p>
+`,
+  },
+]
+
+function htmlDoc(article) {
+  return `<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<title>${article.h1}</title>
+<style>
+  body { font-family: Arial, Helvetica, sans-serif; font-size: 12pt; line-height: 1.5; max-width: 700px; margin: 2cm; color: #111; }
+  h1 { font-size: 20pt; color: #1B9CFC; margin-bottom: 0.5em; }
+  h2 { font-size: 14pt; margin-top: 1.2em; }
+  p { margin: 0.6em 0; }
+  ul { margin: 0.5em 0; }
+  .meta-box { margin-top: 2em; padding: 1em; background: #f5f5f5; font-size: 10pt; }
+  .label { font-size: 10pt; color: #666; margin-top: 1.5em; }
+</style>
+</head>
+<body>
+<p class="label">EVENTKENNIS — TE PUBLICEREN IN SANITY — Eventshoot.nl</p>
+<h1>${article.h1}</h1>
+<p class="label"><strong>Voorgestelde slug:</strong> ${article.slug} &nbsp;|&nbsp; <strong>Categorie:</strong> ${article.category}</p>
+${article.body}
+<div class="meta-box">
+<strong>Sanity-checklist na publicatie</strong><br>
+☐ H1 = vraag (hierboven)<br>
+☐ Eerste alinea = direct antwoord<br>
+☐ FAQ-blok onderaan invullen (vragen uit sectie "Veelgestelde vragen")<br>
+☐ Meta title en description overnemen<br>
+☐ Publicatiedatum + auteur Rolf Trijber<br>
+☐ Interne link naar /eventfotografie/ en /tarieven/ waar relevant
+</div>
+</body>
+</html>`
+}
+
+mkdirSync(OUT_DIR, { recursive: true })
+
+const docxFiles = []
+
+for (const article of articles) {
+  const htmlPath = join(OUT_DIR, `${article.filename}.html`)
+  const docxPath = join(OUT_DIR, `${article.filename}.docx`)
+  writeFileSync(htmlPath, htmlDoc(article), 'utf8')
+  execSync(`textutil -convert docx -output "${docxPath}" "${htmlPath}"`)
+  docxFiles.push(docxPath)
+  console.log(`✓ ${article.filename}.docx`)
+}
+
+// Gecombineerd Word-document via HTML merge
+const combinedHtml = `<!DOCTYPE html>
+<html lang="nl"><head><meta charset="utf-8"><title>Eventkennis artikelen GSC</title>
+<style>body{font-family:Arial;margin:2cm}h1{color:#1B9CFC;page-break-before:always}h1:first-of-type{page-break-before:auto}.divider{border-top:3px solid #1B9CFC;margin:3em 0}</style>
+</head><body>
+<p><strong>Eventshoot.nl — Eventkennis artikelen (GSC)</strong><br>Vijf artikelen op basis van Google Search Console zoektermen. Juni 2026.<br>Review in Word of Pages, daarna publiceren in Sanity Studio.</p>
+${articles.map(a => `<div class="divider"></div>${htmlDoc(a).match(/<body>([\s\S]*)<\/body>/)[1]}`).join('')}
+</body></html>`
+
+const combinedHtmlPath = join(OUT_DIR, '00-alle-artikelen-eventkennis-gsc.html')
+const combinedDocxPath = join(OUT_DIR, '00-alle-artikelen-eventkennis-gsc.docx')
+writeFileSync(combinedHtmlPath, combinedHtml, 'utf8')
+execSync(`textutil -convert docx -output "${combinedDocxPath}" "${combinedHtmlPath}"`)
+console.log(`✓ 00-alle-artikelen-eventkennis-gsc.docx (bundel)`)
+console.log(`\nBestanden in: ${OUT_DIR}`)

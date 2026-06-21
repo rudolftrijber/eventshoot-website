@@ -44,8 +44,8 @@ export default {
       description: 'Professional event photography and video for congresses, conferences and corporate events. 25+ ready-to-use items within 48 hours. Made by people, not AI.',
     },
     eventfotografie: {
-      title: 'Event photography for congresses & seminars | Eventshoot.nl',
-      description: 'Professional event photography for congresses, conferences, member days and corporate meetings. 48-hour delivery, 40+ years of experience.',
+      title: 'Event photographer Netherlands | 48 hours | Eventshoot.nl',
+      description: 'Event photographer for congresses and corporate events across the Netherlands. 150+ photos within 48 hours, ready for LinkedIn. 40+ years of experience.',
     },
     eventvideo: {
       title: 'Event video & aftermovies | Eventshoot.nl',
