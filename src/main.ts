@@ -6,9 +6,6 @@ import router from './router'
 import { i18n } from './i18n'
 
 import './assets/main.css'
-import { applySiteTheme } from './lib/theme'
-
-applySiteTheme()
 
 const app = createApp(App)
 

@@ -1,6 +1,5 @@
 :root {
   --color-bg: #000740;
-  --site-header-height: 112px;
   --color-bg-section: #000f5a;
   --color-bg-card: rgba(0, 16, 112, 0.65);
   --color-text: #ffffff;
@@ -30,7 +29,7 @@ html {
 
 body {
   font-family: var(--font-base);
-  background-color: #319FE8;
+  background-color: #000000;
   color: var(--color-text);
   line-height: 1.6;
   font-size: 16px;
