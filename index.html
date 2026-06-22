@@ -6,9 +6,25 @@
     <link rel="apple-touch-icon" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#319FE8" />
-    <meta name="color-scheme" content="dark" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="msapplication-TileColor" content="#319FE8" />
+    <style>
+      /* Safari 26: tabblad-kleur uit eerste paint (vóór Vue). Coolblue doet hetzelfde via body/header-kleur. */
+      html { background-color: #319FE8; }
+      body { background-color: #000000; }
+      #safari-chrome-tint {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        min-height: 8px;
+        height: 36px;
+        background-color: #319FE8;
+        z-index: 2147483646;
+        pointer-events: none;
+      }
+    </style>
     <title>Eventfotograaf Nederland | Eventshoot.nl</title>
     <meta name="description" content="Professionele eventfotografie en eventvideo voor congressen, seminars en zakelijke bijeenkomsten door heel Nederland. Geleverd binnen 48 uur." />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -34,6 +50,7 @@
     <script src="https://elfsightcdn.com/platform.js" async></script>
   </head>
   <body>
+    <div id="safari-chrome-tint" aria-hidden="true"></div>
     <div id="app"></div>
     <script type="module" src="/src/main.ts"></script>
   </body>

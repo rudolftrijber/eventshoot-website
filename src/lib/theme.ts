@@ -3,7 +3,6 @@ export const SITE_THEME_COLOR = '#319FE8'
 
 export function applySiteTheme() {
   setMeta('theme-color', SITE_THEME_COLOR)
-  setMeta('color-scheme', 'dark')
 }
 
 function setMeta(name: string, content: string) {

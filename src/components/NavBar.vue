@@ -179,16 +179,17 @@ const voorWie = computed(() => [
   position: fixed;
   top: 36px; left: 0; right: 0;
   z-index: 100;
-  background: rgba(0, 0, 5, 0.45);
-  backdrop-filter: blur(10px);
+  background: transparent;
   border-bottom: 1px solid rgba(255,255,255,0.06);
 }
 
 .navbar__inner {
+  position: relative;
   display: flex;
   align-items: center;
   height: 76px;
   gap: 0.25rem;
+  background-color: rgba(0, 0, 5, 0.88);
 }
 
 .navbar__logo { flex-shrink: 0; margin-right: 1.5rem; }
