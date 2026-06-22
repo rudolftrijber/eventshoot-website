@@ -1,4 +1,4 @@
-/** Browser UI-kleur (Safari tabbalk, Chrome Android adresbalk). Gelijk aan --color-blue / telefoonstrook. */
+/** Browser UI-kleur (Chrome Android, oudere Safari). Safari 26+ samplet .topbar in NavBar.vue. */
 export const SITE_THEME_COLOR = '#319FE8'
 
 export function applySiteTheme() {

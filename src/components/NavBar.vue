@@ -155,9 +155,9 @@ const voorWie = computed(() => [
   position: fixed;
   top: 0; left: 0; right: 0;
   z-index: 101;
-  background: rgba(49, 159, 232, 0.70);
-  backdrop-filter: blur(6px);
-  border-bottom: 1px solid rgba(49, 159, 232, 0.40);
+  /* Effen kleur: Safari 26+ samplet fixed headers voor tabblad-tint (theme-color meta wordt genegeerd). */
+  background-color: #319FE8;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
   display: flex;
   justify-content: center;
   align-items: center;
