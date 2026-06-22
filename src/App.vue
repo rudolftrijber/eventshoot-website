@@ -41,10 +41,13 @@ watch(() => route.path, () => {
 </template>
 
 <style>
-/* Vaste video-achtergrond over de hele site */
+/* Vaste video-achtergrond — start onder header zodat Safari de blauwe header samplet */
 .app-bg {
   position: fixed;
-  inset: 0;
+  top: var(--site-header-height);
+  left: 0;
+  right: 0;
+  bottom: 0;
   z-index: -1;
   overflow: hidden;
 }

@@ -9,17 +9,16 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="msapplication-TileColor" content="#319FE8" />
     <style>
-      /* Safari 26: tabblad-kleur uit eerste paint (vóór Vue). Coolblue doet hetzelfde via body/header-kleur. */
-      html { background-color: #319FE8; }
-      body { background-color: #000000; }
+      /* Safari 26: samplet html/body + fixed header bovenaan (niet de video). */
+      html, body { background-color: #319FE8; margin: 0; }
+      #app { min-height: 100vh; }
       #safari-chrome-tint {
         position: fixed;
         top: 0;
         left: 0;
         right: 0;
         width: 100%;
-        min-height: 8px;
-        height: 36px;
+        height: 112px;
         background-color: #319FE8;
         z-index: 2147483646;
         pointer-events: none;

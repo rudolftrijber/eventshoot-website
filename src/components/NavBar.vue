@@ -76,14 +76,15 @@ const voorWie = computed(() => [
 </script>
 
 <template>
-  <div class="topbar">
-    <a href="tel:+31625177728" class="topbar__phone">
-      {{ t('nav.phone') }} &mdash; {{ t('belRolf.phoneDisplay') }}
-    </a>
-  </div>
+  <header class="site-header">
+    <div class="topbar">
+      <a href="tel:+31625177728" class="topbar__phone">
+        {{ t('nav.phone') }} &mdash; {{ t('belRolf.phoneDisplay') }}
+      </a>
+    </div>
 
-  <header class="navbar" :class="{ 'navbar--scrolled': scrolled }">
-    <div class="container navbar__inner">
+    <div class="navbar">
+      <div class="container navbar__inner">
       <RouterLink to="/" class="navbar__logo" @click="closeMenu">
         <img src="/images/logos/logo.svg" alt="Eventshoot.nl" class="navbar__logo-img" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" />
         <span class="navbar__logo-text" style="display:none">Eventshoot.nl</span>
@@ -146,22 +147,29 @@ const voorWie = computed(() => [
         <span></span><span></span><span></span>
       </button>
     </div>
+    </div>
   </header>
 </template>
 
 <style scoped>
+/* Eén fixed header: Safari 26 samplet background-color van top-element (niet de video-achtergrond). */
+.site-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 101;
+  width: 100%;
+  background-color: #319FE8;
+}
+
 /* ── Topbalk ────────────────────────────────────────────── */
 .topbar {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  z-index: 101;
-  /* Effen kleur: Safari 26+ samplet fixed headers voor tabblad-tint (theme-color meta wordt genegeerd). */
-  background-color: #319FE8;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
   display: flex;
   justify-content: center;
   align-items: center;
   height: 36px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
 }
 
 .topbar__phone {
@@ -176,20 +184,15 @@ const voorWie = computed(() => [
 
 /* ── Navbar ─────────────────────────────────────────────── */
 .navbar {
-  position: fixed;
-  top: 36px; left: 0; right: 0;
-  z-index: 100;
-  background: transparent;
+  background-color: #050508;
   border-bottom: 1px solid rgba(255,255,255,0.06);
 }
 
 .navbar__inner {
-  position: relative;
   display: flex;
   align-items: center;
   height: 76px;
   gap: 0.25rem;
-  background-color: rgba(0, 0, 5, 0.88);
 }
 
 .navbar__logo { flex-shrink: 0; margin-right: 1.5rem; }
