@@ -23,6 +23,7 @@ interface KlantConfig {
   localFolder?: string
   heroImage?: string
   reversePhotos?: boolean
+  eyebrow?: string
   videos?: KlantVideo[]
 }
 
@@ -130,6 +131,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       slug: config.slug,
       title: config.title,
       subtitle: config.subtitle,
+      eyebrow: config.eyebrow,
       heroImage,
       videos: config.videos ?? [],
       photos,

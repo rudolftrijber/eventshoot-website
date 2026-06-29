@@ -18,6 +18,7 @@ interface KlantData {
   slug: string
   title: string
   subtitle: string
+  eyebrow?: string
   heroImage: string
   videos: KlantVideo[]
   photos: KlantPhoto[]
@@ -98,6 +99,7 @@ async function loadKlantFromStatic(slug: string): Promise<KlantData> {
     localFolder?: string
     heroImage?: string
     reversePhotos?: boolean
+    eyebrow?: string
   }
 
   let photos = config.localFolder
@@ -112,6 +114,7 @@ async function loadKlantFromStatic(slug: string): Promise<KlantData> {
     slug: config.slug,
     title: config.title,
     subtitle: config.subtitle,
+    eyebrow: config.eyebrow,
     heroImage: config.heroImage || photos[0]?.url || '',
     videos: config.videos ?? [],
     photos,
@@ -225,7 +228,7 @@ function onKeydown(e: KeyboardEvent) {
           <div class="klant-hero__overlay"></div>
         </div>
         <div class="container klant-hero__content">
-          <p class="klant-hero__eyebrow">Exclusief voor jou</p>
+          <p class="klant-hero__eyebrow">{{ klant.eyebrow ?? 'Unlisted fotogallerij' }}</p>
           <h1 class="klant-hero__title">{{ klant.title }}</h1>
           <p class="klant-hero__subtitle">{{ klant.subtitle }}</p>
           <p v-if="heroCountText" class="klant-hero__count">{{ heroCountText }}</p>
@@ -344,8 +347,7 @@ function onKeydown(e: KeyboardEvent) {
 .klant-hero__eyebrow {
   font-size: 0.8rem;
   font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  letter-spacing: 0.06em;
   color: var(--color-accent);
   margin-bottom: 0.75rem;
 }
