@@ -12,7 +12,7 @@ const exts = ['.jpg', '.jpeg', '.png', '.webp']
 
 const files = readdirSync(dir)
   .filter(f => exts.includes(extname(f).toLowerCase()))
-  .sort()
+  .sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }))
 
 const manifest = { name, photos: files.map(f => `/def/${name}/${f}`) }
 const out = join(dir, 'manifest.json')

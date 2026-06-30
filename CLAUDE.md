@@ -498,6 +498,8 @@ NOOIT bronbestanden (RAW, Lightroom-catalog) committeren naar de repo.
 
 **Browse-galerij op de site** (`/klanten/{slug}/`): klant bekijkt foto's en video's, downloadt losse bestanden via de lightbox. Pagina is niet geïndexeerd. Config per klant: `public/klanten/{slug}.json`. Foto's in `public/def/{Folder}/` (+ `manifest.json` via `node scripts/generate-manifest.js {Folder}`) of Cloudinary via `api/klanten/[slug].ts`. Nieuwe klant: JSON + foto's + manifest + push; OG-preview via `scripts/prerender-klanten.mjs` bij build.
 
+**Let op: foto-volgorde (terugkerende valkuil).** Bestandsnamen met volgnummers (`-50.jpg`, `-100.jpg`) sorteren in JavaScript standaard alfabetisch, waardoor `-100` vóór `-50` komt. Daardoor stonden galerijen bij DSR congres, DSR portretten en Duit Connect al meerdere keren verkeerd om. **Altijd lokaal controleren** op `/klanten/{slug}` vóór je pusht. `generate-manifest.js` sorteert numeriek; bij twijfel of oud manifest: opnieuw genereren. Noodgreep in `public/klanten/{slug}.json`: `"reversePhotos": true` draait de getoonde volgorde om (geen structurele fix). Standaard `false` of weglaten.
+
 **Bulk/hoge resolutie** → **Swiss Transfer**. Rolf stuurt het volledige pakket (alle bestanden, printkwaliteit) via Swiss Transfer, vaak samen met telefonisch contact. De site-galerij is géén vervanging voor die levering: browsen en los downloaden, niet het complete archief in één keer.
 
 Gebruik **Swiss Transfer**, niet WeTransfer — dat is de vaste werkwijze voor bulk-levering aan klanten.
