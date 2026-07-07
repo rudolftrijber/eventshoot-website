@@ -60,7 +60,7 @@ Bekijk meer werk →
 
 1. **Briefing** — Ik leer je bedrijf en je doelstelling kennen. Wat wil je communiceren en naar wie?
 2. **Op het event** — Ik werk zelfstandig en onopvallend. Geen gedoe, geen aanwijzingen nodig.
-3. **Content ontvangen** — Binnen 48 uur heb je je materiaal, klaar voor gebruik.
+3. **Content ontvangen** — Foto's en aftermovies binnen 48 uur, overige content binnen 5 werkdagen.
 
 ---
 

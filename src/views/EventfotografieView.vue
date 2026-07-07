@@ -29,7 +29,7 @@ function injectServiceSchema() {
     name: 'Professionele eventfotografie',
     provider: { '@type': 'LocalBusiness', name: 'Eventshoot.nl' },
     areaServed: 'Nederland',
-    description: 'Eventfotograaf voor congressen, conferenties en bedrijfsevents in heel Nederland. 150+ foto\'s binnen 48 uur, klaar voor LinkedIn en je website.',
+    description: 'Eventfotograaf voor congressen, conferenties en bedrijfsevents in heel Nederland. 150+ foto\'s binnen 48 uur, overige content binnen 5 werkdagen. Klaar voor LinkedIn en je website.',
   })
   document.head.appendChild(script)
 }

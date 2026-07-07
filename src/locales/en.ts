@@ -41,7 +41,7 @@ export default {
   seo: {
     home: {
       title: 'Eventshoot.nl | Your event is a goldmine of content',
-      description: 'Professional event photography and video for congresses, conferences and corporate events. 25+ ready-to-use items within 48 hours. Made by people, not AI.',
+      description: 'Professional event photography and video for congresses, conferences and corporate events. Photos and aftermovies within 48 hours, other content within 5 business days. Made by people, not AI.',
     },
     eventfotografie: {
       title: 'Event photographer Netherlands | 48 hours | Eventshoot.nl',
@@ -57,7 +57,7 @@ export default {
     },
     tarieven: {
       title: 'Pricing for event content | Eventshoot.nl',
-      description: 'Three packages for event photography and video. Highlight from €895, Headline €2,250, Heroes €3,450. Delivered within 48 hours.',
+      description: 'Three packages for event photography and video. Highlight from €895, Headline €2,250, Heroes €3,450. Photos and aftermovies within 48 hours.',
     },
     kennismaken: {
       title: 'Get in touch | Eventshoot.nl',
@@ -69,7 +69,7 @@ export default {
     },
     voorBranche: {
       title: 'For trade associations | Eventshoot.nl',
-      description: 'One content partner for your annual congress, member days and industry events. Delivered within 48 hours, ready for member communications.',
+      description: 'One content partner for your annual congress, member days and industry events. Photos and aftermovies within 48 hours, ready for member communications.',
     },
     voorBureaus: {
       title: 'For event agencies & DMCs | Eventshoot.nl',
@@ -111,12 +111,12 @@ export default {
     usp2Text: 'Eventshoot.nl does not use AI-generated video or stock footage. Everything you receive is genuinely recorded at your event, with real people and professional equipment. For post-production, such as selection, transcription and subtitling, we use AI. For the images themselves, people.',
     usp3Title: 'Pre-coordinated with the venue',
     usp3Text: 'Backdrop, display wall, stage lighting, presentation format, group photo moment and interview location are all reviewed with the technical team before the first guest arrives. No coincidence, but a difference.',
-    usp4Title: 'Delivered within 48 hours',
-    usp4Text: 'Your files are ready for your marketing team within two days, while the event is still fresh in everyone\'s minds. In the right formats for every channel: horizontal for the website, 4:5 for LinkedIn, and vertical for Stories and Reels.',
+    usp4Title: 'Photos and aftermovies within 48 hours',
+    usp4Text: 'Photos and aftermovies are ready for your marketing team within two days, while the event is still fresh in everyone\'s minds. Other content, such as interviews, is delivered within 5 business days. In the right formats for every channel: horizontal for the website, 4:5 for LinkedIn, and vertical for Stories and Reels.',
   },
   home: {
     h1: 'Event content that keeps working for months.',
-    sub: 'One event, a complete content box. Eventshoot.nl delivers 25+ ready-to-use photos, aftermovies and interviews from your corporate event. Made by people, delivered within 48 hours. For congresses, conferences, member days and corporate meetings throughout the Netherlands.',
+    sub: 'One event, a complete content box. Eventshoot.nl delivers 25+ ready-to-use photos, aftermovies and interviews from your corporate event. Made by people. Photos and aftermovies within 48 hours, other content within 5 business days. For congresses, conferences, member days and corporate meetings throughout the Netherlands.',
     cta1: 'Get in touch',
     cta2: 'View packages',
     motto: 'Your event is a goldmine of content.',
@@ -159,7 +159,7 @@ export default {
     jaarFeature3: '200–300 edited photos per event',
     jaarFeature4: 'Social aftermovie + corporate aftermovie per event',
     jaarFeature5: '15–20 speaker interviews per event',
-    jaarFeature6: 'Delivery within 48 hours',
+    jaarFeature6: 'Photos and aftermovies within 48 hours, other content within 5 business days',
     jaarFeature7: 'Priority in the calendar',
     jaarFeature8: 'Consistent style, one point of contact',
     jaarPrice: '€ 775',
@@ -213,8 +213,8 @@ export default {
     fCorporate: '1 corporate aftermovie (90–180 sec)',
     fInterviews: '10–15 speaker interviews (one camera)',
     fDrone: 'Drone/timelapse if possible',
-    f24uur: 'Delivery within 24 hours',
-    f48uur: 'Delivered within 48 hours',
+    f48uurFotoAftermovie: 'Photos and aftermovie within 48 hours',
+    fDeliverySplit: 'Photos and aftermovies within 48 hours, other content within 5 business days',
     fGalerij: 'Online gallery with download link',
   },
   home_featured: {
@@ -226,7 +226,7 @@ export default {
     pkgFeature2: '150–250 professionally edited photos',
     pkgFeature3: '1 social aftermovie (45–90 seconds)',
     pkgFeature4: '10–15 speaker interviews (one camera)',
-    pkgFeature5: 'Delivered within 48 hours',
+    pkgFeature5: 'Photos and aftermovies within 48 hours, other content within 5 business days',
     pkgFeature6: 'Online gallery with download link',
     allPackages: 'View all packages',
     checklistTitle: 'Download our free Event Content Checklist',
@@ -288,8 +288,8 @@ export default {
     step2Text: 'Rolf knows when to be visible and when not to. Discreet, but always at the right moment.',
     step3Title: 'Selection and post-processing',
     step3Text: 'Only the best images, professionally edited for colour and exposure.',
-    step4Title: 'Online delivery within 48 hours',
-    step4Text: 'Ready to use while the event is still top of mind. You receive a download link.',
+    step4Title: 'Photos online within 48 hours',
+    step4Text: 'Your photos are ready to use while the event is still top of mind. You receive a download link. Other content follows within 5 business days.',
     step5Title: 'Stay visible after the event',
     step5Text: 'Use the images periodically on LinkedIn, in newsletters and on your website. One event, weeks of content.',
     videoTitle: 'Need video too? No second supplier needed.',
@@ -388,7 +388,7 @@ export default {
   branche: {
     label: 'For trade associations',
     h1: 'For trade associations.',
-    sub: 'One content partner for your annual congress, member days and trade days. Delivered within 48 hours, ready for your member communications.',
+    sub: 'One content partner for your annual congress, member days and trade days. Photos and aftermovies within 48 hours, ready for your member communications.',
     cta: 'Schedule an introductory call',
     mottoBody: 'Speakers, attendees, reactions, atmosphere, highlights. Every annual congress or member day yields dozens of usable moments. Eventshoot.nl turns them into a complete content box: 25+ ready-to-use photos, aftermovies and interviews. Ready for your member communications while the event is still top of mind.',
     painTitle: 'Does this sound familiar?',

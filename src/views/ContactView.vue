@@ -52,7 +52,7 @@ async function submit() {
             <div class="contact__usps">
               <div class="contact__usp"><span>✓</span> 40+ jaar ervaring</div>
               <div class="contact__usp"><span>✓</span> Één aanspreekpunt</div>
-              <div class="contact__usp"><span>✓</span> Geleverd binnen 48 uur</div>
+              <div class="contact__usp"><span>✓</span> Foto's en aftermovies binnen 48 uur</div>
               <div class="contact__usp"><span>✓</span> Corporate kwaliteit</div>
             </div>
           </div>

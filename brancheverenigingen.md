@@ -60,7 +60,7 @@ Bekijk meer werk →
 
 1. **Kennismaking & briefing** — Ik leer jouw vereniging kennen, je doelgroepen en wat je wil communiceren.
 2. **Op het event** — Ik werk zelfstandig, onopvallend en professioneel.
-3. **Content ontvangen** — Binnen 48 uur heb je je beeldmateriaal, klaar voor gebruik.
+3. **Content ontvangen** — Foto's en aftermovies binnen 48 uur, overige content binnen 5 werkdagen.
 
 ---
 
@@ -73,7 +73,7 @@ Jazeker. Ik werk ook voor verenigingen die minder frequent events organiseren. W
 Ja. Op aanvraag verzorg ik korte interviewopnames met leden of sprekers, als aanvulling op de eventreportage.
 
 **Hoe snel ontvangen we de beelden?**
-Standaard binnen 48 uur na het event. Same-day levering is ook mogelijk — ideaal als je snel iets op social media wil zetten.
+Foto's en aftermovies binnen 48 uur na het event. Overige content binnen 5 werkdagen. Same-day levering is ook mogelijk — ideaal als je snel iets op social media wil zetten.
 
 **Wij hebben een beperkt budget. Wat zijn de opties?**
 Neem contact op voor een eerlijk gesprek. Ik denk graag mee in wat haalbaar is.

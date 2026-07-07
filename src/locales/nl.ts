@@ -41,7 +41,7 @@ export default {
   seo: {
     home: {
       title: 'Eventshoot.nl | Jouw event is een goudmijn aan content',
-      description: 'Professionele eventfotografie en video voor congressen, conferenties en bedrijfsevents. 25+ kant-en-klare items binnen 48 uur. Gemaakt door mensen, niet door AI.',
+      description: 'Professionele eventfotografie en video voor congressen, conferenties en bedrijfsevents. Foto\'s en aftermovies binnen 48 uur, overige content binnen 5 werkdagen. Gemaakt door mensen, niet door AI.',
     },
     eventfotografie: {
       title: 'Eventfotograaf & eventfotografie | 48 uur | Eventshoot.nl',
@@ -57,7 +57,7 @@ export default {
     },
     tarieven: {
       title: 'Tarieven voor eventcontent | Eventshoot.nl',
-      description: 'Drie pakketten voor eventfotografie en eventvideo. Highlight vanaf €895, Headline €2.250, Heroes €3.450. Levering binnen 48 uur.',
+      description: 'Drie pakketten voor eventfotografie en eventvideo. Highlight vanaf €895, Headline €2.250, Heroes €3.450. Foto\'s en aftermovies binnen 48 uur.',
     },
     kennismaken: {
       title: 'Kennismaken | Eventshoot.nl',
@@ -69,7 +69,7 @@ export default {
     },
     voorBranche: {
       title: 'Voor brancheverenigingen | Eventshoot.nl',
-      description: 'Één content-partner voor je jaarcongres, ledendagen en vakdagen. Geleverd binnen 48 uur, klaar voor je ledencommunicatie.',
+      description: 'Één content-partner voor je jaarcongres, ledendagen en vakdagen. Foto\'s en aftermovies binnen 48 uur, klaar voor je ledencommunicatie.',
     },
     voorBureaus: {
       title: 'Voor eventbureaus & DMC\'s | Eventshoot.nl',
@@ -111,12 +111,12 @@ export default {
     usp2Text: 'Eventshoot.nl gebruikt geen AI-gegenereerde video of stockbeelden. Alles wat je krijgt is echt opgenomen op jouw event, met echte mensen en professionele apparatuur. Voor de nabewerking, zoals selectie, transcriptie en ondertiteling, gebruiken we AI. Voor de beelden zelf, mensen.',
     usp3Title: 'Vooraf afgestemd met de locatie',
     usp3Text: 'Backdrop, beeldwand, podiumlicht, presentatieformat, groepsfoto-moment en interviewlocatie worden samen met techniek doorgenomen voordat de eerste gast binnenkomt. Geen toeval, wel verschil.',
-    usp4Title: 'Geleverd binnen 48 uur',
-    usp4Text: 'Je bestanden zijn binnen twee dagen klaar voor je marketeer, terwijl het event nog vers in het geheugen zit. In de juiste formaten voor elk kanaal: horizontaal voor de website, 4:5 voor LinkedIn en verticaal voor Stories en Reels.',
+    usp4Title: 'Foto\'s en aftermovies binnen 48 uur',
+    usp4Text: 'Foto\'s en aftermovies zijn binnen twee dagen klaar voor je marketeer, terwijl het event nog vers in het geheugen zit. Overige content, zoals interviews, leveren we binnen 5 werkdagen. In de juiste formaten voor elk kanaal: horizontaal voor de website, 4:5 voor LinkedIn en verticaal voor Stories en Reels.',
   },
   home: {
     h1: 'Eventcontent die maandenlang doorwerkt.',
-    sub: 'Eén event, een complete contentbox. Eventshoot.nl levert 25+ kant-en-klare foto\'s, aftermovies en interviews uit jouw zakelijke event. Gemaakt door mensen, geleverd binnen 48 uur. Voor congressen, conferenties, ledendagen en bedrijfsbijeenkomsten in heel Nederland.',
+    sub: 'Eén event, een complete contentbox. Eventshoot.nl levert 25+ kant-en-klare foto\'s, aftermovies en interviews uit jouw zakelijke event. Gemaakt door mensen. Foto\'s en aftermovies binnen 48 uur, overige content binnen 5 werkdagen. Voor congressen, conferenties, ledendagen en bedrijfsbijeenkomsten in heel Nederland.',
     cta1: 'Kennismaken',
     cta2: 'Bekijk de pakketten',
     motto: 'Jouw event is een goudmijn aan content.',
@@ -159,7 +159,7 @@ export default {
     jaarFeature3: '200–300 bewerkte foto\'s per event',
     jaarFeature4: 'Social aftermovie + corporate aftermovie per event',
     jaarFeature5: '15–20 sprekersinterviews per event',
-    jaarFeature6: 'Levering binnen 48 uur',
+    jaarFeature6: 'Foto\'s en aftermovies binnen 48 uur, overige content binnen 5 werkdagen',
     jaarFeature7: 'Voorrang in de agenda',
     jaarFeature8: 'Doorlopende stijl, één aanspreekpunt',
     jaarPrice: '€ 775',
@@ -213,8 +213,8 @@ export default {
     fCorporate: '1 corporate aftermovie (90–180 sec)',
     fInterviews: '10–15 sprekersinterviews (één camera)',
     fDrone: 'Drone/timelapse indien mogelijk',
-    f24uur: 'Levering binnen 24 uur',
-    f48uur: 'Geleverd binnen 48 uur',
+    f48uurFotoAftermovie: 'Foto\'s en aftermovie binnen 48 uur',
+    fDeliverySplit: 'Foto\'s en aftermovies binnen 48 uur, overige content binnen 5 werkdagen',
     fGalerij: 'Online galerij met downloadlink',
   },
   home_featured: {
@@ -226,7 +226,7 @@ export default {
     pkgFeature2: '150–250 professioneel bewerkte foto\'s',
     pkgFeature3: '1 social aftermovie (45–90 seconden)',
     pkgFeature4: '10–15 sprekersinterviews (één camera)',
-    pkgFeature5: 'Geleverd binnen 48 uur',
+    pkgFeature5: 'Foto\'s en aftermovies binnen 48 uur, overige content binnen 5 werkdagen',
     pkgFeature6: 'Online galerij met downloadlink',
     allPackages: 'Alle pakketten bekijken',
     checklistTitle: 'Download gratis onze Event Content Checklist',
@@ -288,8 +288,8 @@ export default {
     step2Text: 'Rolf weet wanneer hij wel en niet in beeld moet zijn. Discreet, maar altijd op het juiste moment.',
     step3Title: 'Selectie en nabewerking',
     step3Text: 'Alleen de beste beelden, professioneel nabewerkt op kleur en belichting.',
-    step4Title: 'Online levering binnen 48 uur',
-    step4Text: 'Klaar voor gebruik terwijl het event nog top of mind is. Je ontvangt een downloadlink.',
+    step4Title: 'Foto\'s binnen 48 uur online',
+    step4Text: 'Je foto\'s zijn klaar voor gebruik terwijl het event nog top of mind is. Je ontvangt een downloadlink. Overige content volgt binnen 5 werkdagen.',
     step5Title: 'Blijf zichtbaar na het event',
     step5Text: 'Gebruik de beelden periodiek op LinkedIn, in nieuwsbrieven en op je website. Eén event, weken aan content.',
     videoTitle: 'Liever ook video? Geen tweede leverancier nodig.',
@@ -388,7 +388,7 @@ export default {
   branche: {
     label: 'Voor brancheverenigingen',
     h1: 'Voor brancheverenigingen.',
-    sub: 'Eén content-partner voor je jaarcongres, ledendagen en vakdagen. Geleverd binnen 48 uur, klaar voor je ledencommunicatie.',
+    sub: 'Eén content-partner voor je jaarcongres, ledendagen en vakdagen. Foto\'s en aftermovies binnen 48 uur, klaar voor je ledencommunicatie.',
     cta: 'Vraag een kennismaking aan',
     mottoBody: 'Sprekers, deelnemers, reacties, sfeer, hoogtepunten. Elk jaarcongres of ledendag levert tientallen bruikbare momenten op. Eventshoot.nl zet die om in een complete contentbox: 25+ kant-en-klare foto\'s, aftermovies en interviews. Klaar voor je ledencommunicatie, terwijl het event nog top of mind is.',
     painTitle: 'Dit herken je vast',
