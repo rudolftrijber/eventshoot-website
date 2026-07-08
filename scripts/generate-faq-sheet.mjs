@@ -329,10 +329,10 @@ const faqs = [
   },
   {
     page: 'tarieven', category: 'tarieven', order: 2,
-    qNl: 'Wat is het Content Year jaarcontract?',
-    aNl: '€ 775 per maand (€ 9.300 per jaar) voor 3 events per jaar op Heroes-niveau, 8 uur aanwezigheid per event, voorrang in de agenda en doorlopende stijl met één aanspreekpunt.',
-    qEn: 'What is the Content Year annual contract?',
-    aEn: '€ 775 per month (€ 9,300 per year) for 3 events per year at Heroes level, 8 hours on site per event, priority scheduling and consistent style with one point of contact.',
+    qNl: 'Wat is Event Vodcast Recording?',
+    aNl: 'Op één eventdag krijg je 8 vodcast-afleveringen van 15 tot 25 minuten plus minimaal 20 short form snippets voor social media. De prijs is € 3.250 excl. btw, exclusief auteursrechtcorrecties, reis- en verblijfkosten. Levering binnen 5 werkdagen.',
+    qEn: 'What is Event Vodcast Recording?',
+    aEn: 'In one event day you get 8 vodcast episodes of 15 to 25 minutes plus at least 20 short form snippets for social media. The price is € 3,250 excl. VAT, excluding copyright corrections, travel and accommodation costs. Delivery within 5 business days.',
   },
   {
     page: 'tarieven', category: 'tarieven', order: 3,

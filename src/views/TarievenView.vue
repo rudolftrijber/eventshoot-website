@@ -117,43 +117,55 @@ const logos = [
       </div>
     </section>
 
-    <!-- Content Year jaarcontract -->
-    <section class="content-year section section--dark">
-      <div class="container content-year__grid">
+    <!-- Event Vodcast Recording -->
+    <section class="vodcast section section--dark">
+      <div class="container vodcast__grid">
 
         <!-- Links: inleiding -->
-        <div class="content-year__left">
-          <h2 class="content-year__title">{{ t('tarieven.jaarcontract') }}</h2>
-          <p class="content-year__intro">{{ t('tarieven.jaarLeft1') }}</p>
-          <p class="content-year__intro">{{ t('tarieven.jaarLeft2') }}</p>
-          <h3 class="content-year__why-title">{{ t('tarieven.jaarWhyTitle') }}</h3>
-          <ul class="content-year__why-list">
-            <li>{{ t('tarieven.jaarWhy1') }}</li>
-            <li>{{ t('tarieven.jaarWhy2') }}</li>
-            <li>{{ t('tarieven.jaarWhy3') }}</li>
-            <li>{{ t('tarieven.jaarWhy4') }}</li>
+        <div class="vodcast__left">
+          <h2 class="vodcast__title">{{ t('tarieven.vodcastTitle') }}</h2>
+          <p class="vodcast__intro">{{ t('tarieven.vodcastIntro') }}</p>
+          <h3 class="vodcast__why-title">{{ t('tarieven.vodcastWhyTitle') }}</h3>
+          <ul class="vodcast__why-list">
+            <li>{{ t('tarieven.vodcastWhy1') }}</li>
+            <li>{{ t('tarieven.vodcastWhy2') }}</li>
+            <li>{{ t('tarieven.vodcastWhy3') }}</li>
+            <li>{{ t('tarieven.vodcastWhy4') }}</li>
           </ul>
         </div>
 
-        <!-- Rechts: wat je krijgt + prijs + CTA -->
-        <div class="content-year__right">
-          <div class="content-year__card">
-            <p class="content-year__card-eyebrow">{{ t('tarieven.jaarWhatTitle') }}</p>
-            <ul class="content-year__list">
-              <li>{{ t('tarieven.jaarFeature1') }}</li>
-              <li>{{ t('tarieven.jaarFeature2') }}</li>
-              <li>{{ t('tarieven.jaarFeature3') }}</li>
-              <li>{{ t('tarieven.jaarFeature4') }}</li>
-              <li>{{ t('tarieven.jaarFeature5') }}</li>
-              <li>{{ t('tarieven.jaarFeature6') }}</li>
-              <li>{{ t('tarieven.jaarFeature7') }}</li>
-              <li>{{ t('tarieven.jaarFeature8') }}</li>
+        <!-- Rechts: pakket + prijs + CTA -->
+        <div class="vodcast__right">
+          <div class="vodcast__card">
+            <p class="vodcast__card-eyebrow">{{ t('tarieven.vodcastWhatTitle') }}</p>
+            <ul class="vodcast__list">
+              <li>{{ t('tarieven.vodcastFeature1') }}</li>
+              <li>{{ t('tarieven.vodcastFeature2') }}</li>
+              <li>{{ t('tarieven.vodcastFeature3') }}</li>
+              <li>{{ t('tarieven.vodcastFeature4') }}</li>
             </ul>
-            <div class="content-year__price-block">
-              <p class="content-year__price">{{ t('tarieven.jaarPrice') }} <span>{{ t('tarieven.jaarPricePer') }}</span></p>
-              <p class="content-year__sub">{{ t('tarieven.jaarSub') }}</p>
+            <div class="vodcast__meta-rows">
+              <div class="vodcast__price-row">
+                <span>{{ t('tarieven.vodcastPriceLine1') }}</span>
+                <span>{{ t('tarieven.vodcastPriceAmount1') }}</span>
+              </div>
+              <div class="vodcast__price-row">
+                <span>{{ t('tarieven.vodcastPriceLine2') }}</span>
+                <span>{{ t('tarieven.vodcastPriceAmount2') }}</span>
+              </div>
             </div>
-            <RouterLink to="/kennismaken" class="btn btn--primary btn--full">{{ t('tarieven.jaarCta') }}</RouterLink>
+            <div class="vodcast__price-block">
+              <p class="vodcast__price">{{ t('tarieven.vodcastPrice') }} <span>{{ t('tarieven.vodcastPricePer') }}</span></p>
+              <p class="vodcast__sub">{{ t('tarieven.vodcastSub') }}</p>
+            </div>
+            <RouterLink to="/kennismaken" class="btn btn--primary btn--full">{{ t('tarieven.vodcastCta') }}</RouterLink>
+            <a
+              href="/DATA_EVENTSHOOT/FILES/Eventshoot_Vodcast_Onepager.pdf"
+              download="Eventshoot_Vodcast_Onepager.pdf"
+              class="vodcast__download"
+            >
+              {{ t('tarieven.vodcastDownload') }}
+            </a>
           </div>
         </div>
 
@@ -281,26 +293,17 @@ const logos = [
   font-style: italic;
 }
 
-.content-year {
+.vodcast {
 }
 
-.content-year__grid {
+.vodcast__grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 5rem;
   align-items: start;
 }
 
-.content-year__label {
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: rgba(255,255,255,0.4);
-  margin-bottom: 0.5rem;
-}
-
-.content-year__title {
+.vodcast__title {
   font-size: clamp(1.75rem, 3vw, 2.5rem);
   font-weight: 800;
   color: #fff;
@@ -308,21 +311,21 @@ const logos = [
   line-height: 1.15;
 }
 
-.content-year__intro {
+.vodcast__intro {
   font-size: 0.95rem;
   color: rgba(255,255,255,0.75);
   line-height: 1.8;
   margin-bottom: 1rem;
 }
 
-.content-year__why-title {
+.vodcast__why-title {
   font-size: 1rem;
   font-weight: 700;
   color: #fff;
   margin: 1.75rem 0 0.75rem;
 }
 
-.content-year__why-list {
+.vodcast__why-list {
   list-style: none;
   padding: 0;
   display: flex;
@@ -330,7 +333,7 @@ const logos = [
   gap: 0.6rem;
 }
 
-.content-year__why-list li {
+.vodcast__why-list li {
   font-size: 0.9rem;
   color: rgba(255,255,255,0.75);
   padding-left: 1.5rem;
@@ -338,7 +341,7 @@ const logos = [
   line-height: 1.5;
 }
 
-.content-year__why-list li::before {
+.vodcast__why-list li::before {
   content: '→';
   position: absolute;
   left: 0;
@@ -346,7 +349,7 @@ const logos = [
   font-weight: 700;
 }
 
-.content-year__card {
+.vodcast__card {
   background: rgba(255,255,255,0.06);
   border: 1px solid rgba(255,255,255,0.1);
   border-radius: 16px;
@@ -356,7 +359,7 @@ const logos = [
   gap: 1.25rem;
 }
 
-.content-year__card-eyebrow {
+.vodcast__card-eyebrow {
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.1em;
@@ -365,7 +368,7 @@ const logos = [
   margin: 0;
 }
 
-.content-year__list {
+.vodcast__list {
   list-style: none;
   padding: 0;
   display: flex;
@@ -374,7 +377,7 @@ const logos = [
   margin: 0;
 }
 
-.content-year__list li {
+.vodcast__list li {
   font-size: 0.9rem;
   color: rgba(255,255,255,0.85);
   padding-left: 1.5rem;
@@ -382,7 +385,7 @@ const logos = [
   line-height: 1.5;
 }
 
-.content-year__list li::before {
+.vodcast__list li::before {
   content: '✓';
   position: absolute;
   left: 0;
@@ -390,12 +393,34 @@ const logos = [
   font-weight: 700;
 }
 
-.content-year__price-block {
+.vodcast__meta-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
   border-top: 1px solid rgba(255,255,255,0.1);
   padding-top: 1.25rem;
 }
 
-.content-year__price {
+.vodcast__price-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.9rem;
+  color: rgba(255,255,255,0.75);
+}
+
+.vodcast__price-row span:last-child {
+  color: rgba(255,255,255,0.9);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.vodcast__price-block {
+  border-top: 1px solid rgba(255,255,255,0.1);
+  padding-top: 1.25rem;
+}
+
+.vodcast__price {
   font-size: 2.75rem;
   font-weight: 900;
   color: var(--color-accent);
@@ -403,16 +428,28 @@ const logos = [
   margin: 0 0 0.25rem;
 }
 
-.content-year__price span {
+.vodcast__price span {
   font-size: 1rem;
   font-weight: 400;
   color: rgba(255,255,255,0.55);
 }
 
-.content-year__sub {
+.vodcast__sub {
   font-size: 0.85rem;
   color: rgba(255,255,255,0.45);
   margin: 0;
+}
+
+.vodcast__download {
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.55);
+  text-align: center;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.vodcast__download:hover {
+  color: #fff;
 }
 
 .btn--full {
@@ -479,7 +516,7 @@ const logos = [
     margin: 0 auto;
   }
 
-  .content-year__grid {
+  .vodcast__grid {
     grid-template-columns: 1fr;
     gap: 2.5rem;
   }
