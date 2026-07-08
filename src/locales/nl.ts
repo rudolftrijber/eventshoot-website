@@ -146,7 +146,7 @@ export default {
     downloadBtn: 'Download tarievenoverzicht (PDF)',
     motto: 'Jouw event is een goudmijn aan content.',
     vodcastTitle: 'Event Vodcast Recording',
-    vodcastIntro: 'Met ons inoovatieve plug and play meercamerasysteem met 5 AI-gestuurde camera\'s produceren we op één dag tot ca. 8 professionele vodcasts, zonder cameraoperators en zonder omweg naar een studio.',
+    vodcastIntro: 'Met ons innovatieve plug and play meercamerasysteem met 5 AI-gestuurde camera\'s produceren we op één dag tot ca. 8 professionele vodcasts, zonder cameraoperators en zonder omweg naar een studio.',
     vodcastWhyTitle: 'Wat levert één dag op?',
     vodcastWhy1: '8 vodcasts van 15 tot 25 minuten, semilive gemonteerd',
     vodcastWhy2: 'Minimaal 20 short form snippets, direct inzetbaar op social media',
