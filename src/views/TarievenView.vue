@@ -15,13 +15,13 @@ const isEnglish = computed(() => locale.value.startsWith('en'))
 const onepagerPdf = computed(() =>
   isEnglish.value
     ? '/DATA_EVENTSHOOT/FILES/ES_onepager_ENG.pdf'
-    : '/DATA_EVENTSHOOT/FILES/Eventshoot_onepager.pdf',
+    : '/DATA_EVENTSHOOT/FILES/Eventshoot_tarievenoverzicht_nl.pdf',
 )
 
 const onepagerDownloadName = computed(() =>
   isEnglish.value
     ? 'Eventshoot_pricing_overview_EN.pdf'
-    : 'Eventshoot_tarievenoverzicht.pdf',
+    : 'Eventshoot_tarievenoverzicht_nl.pdf',
 )
 
 usePageSeo('tarieven', { url: 'https://eventshoot.nl/tarieven' })
