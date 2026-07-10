@@ -212,6 +212,7 @@ export default {
     fSocial: '1 social aftermovie (45–90 seconds)',
     fCorporate: '1 corporate aftermovie (90–180 sec)',
     fInterviews: '10–15 speaker interviews (one camera)',
+    fInterviewsHeroes: '25–30 speaker interviews (one camera)',
     fDrone: 'Drone/timelapse if possible',
     f48uurFotoAftermovie: 'Photos and aftermovie within 48 hours',
     fDeliverySplit: 'Photos and aftermovies within 48 hours, other content within 5 business days',

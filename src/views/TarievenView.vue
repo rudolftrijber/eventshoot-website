@@ -47,7 +47,7 @@ const packages = computed(() => [
     name: 'Heroes',
     price: '€3.450',
     description: t('pkg.heroesDesc'),
-    features: [t('pkg.f8uur2crew'), t('pkg.f200foto'), t('pkg.fSocial'), t('pkg.fCorporate'), t('pkg.fInterviews'), t('pkg.fDrone'), t('pkg.fDeliverySplit')],
+    features: [t('pkg.f8uur2crew'), t('pkg.f200foto'), t('pkg.fSocial'), t('pkg.fCorporate'), t('pkg.fInterviewsHeroes'), t('pkg.fDrone'), t('pkg.fDeliverySplit')],
     image: '/DATA_EVENTSHOOT/SITE_IMAGES/PRIJZEN/INTERVIEWS.png',
     highlighted: false,
   },
