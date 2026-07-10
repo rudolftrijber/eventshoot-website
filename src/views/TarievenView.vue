@@ -27,7 +27,7 @@ const onepagerDownloadName = computed(() =>
 
 const vodcastPdf = computed(() =>
   isEnglish.value
-    ? '/DATA_EVENTSHOOT/FILES/Event_Vodcast_Recording_ENG.pdf'
+    ? '/DATA_EVENTSHOOT/FILES/Event_Vodcast_Recording_ENG.pdf?v=2'
     : '/DATA_EVENTSHOOT/FILES/Event_Vodcast_Recording_NL.pdf',
 )
 
