@@ -12,13 +12,14 @@ cloudinary.config({
 interface KlantVideo {
   title: string
   url: string
-  type?: 'vimeo' | 'iframe' | 'link'
+  type?: 'vimeo' | 'iframe' | 'script' | 'link'
 }
 
 interface KlantConfig {
   slug: string
   title: string
   subtitle: string
+  urlPath?: string
   cloudinaryFolder?: string
   localFolder?: string
   heroImage?: string
@@ -133,6 +134,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       subtitle: config.subtitle,
       eyebrow: config.eyebrow,
       heroImage,
+      urlPath: config.urlPath,
       videos: config.videos ?? [],
       photos,
     })

@@ -90,14 +90,15 @@ for (const file of configs) {
   const slug = config.slug || basename(file, '.json')
   const title = `${config.title} | Eventshoot.nl`
   const description = config.subtitle || ''
-  const url = `${BASE_URL}/klanten/${slug}`
+  const urlPath = config.urlPath || `/klanten/${slug}`
+  const url = `${BASE_URL}${urlPath}`
   const image = resolveHeroImage(config)
 
   const html = injectMeta(template, { title, description, image, url })
-  const outDir = join('dist', 'klanten', slug)
+  const outDir = join('dist', ...urlPath.replace(/^\//, '').split('/'))
   mkdirSync(outDir, { recursive: true })
   writeFileSync(join(outDir, 'index.html'), html)
-  console.log(`✓ OG-prerender: /klanten/${slug} → ${image}`)
+  console.log(`✓ OG-prerender: ${urlPath} → ${image}`)
 }
 
 console.log(`prerender-klanten: ${configs.length} pagina('s) klaar.`)

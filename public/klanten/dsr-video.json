@@ -1,0 +1,20 @@
+{
+  "slug": "dsr-video",
+  "urlPath": "/klanten/DSR/Video",
+  "title": "DSR Summit, jouw video's",
+  "eyebrow": "Exclusief voor jou",
+  "subtitle": "Hier staan jouw video's, klaar om te bekijken. Veel plezier ermee!",
+  "heroImage": "/def/DSR_CONGRES/DSR_SUMMIT_18_6_2026-73.jpg",
+  "videos": [
+    {
+      "title": "Aftermovie European Resilience Summit The Hague",
+      "url": "https://luteijnmedia.bbvms.com/p/default/c/7332404.js",
+      "type": "iframe"
+    },
+    {
+      "title": "Interview Andreas Prins",
+      "url": "https://luteijnmedia.bbvms.com/p/default/c/7330716.js",
+      "type": "iframe"
+    }
+  ]
+}

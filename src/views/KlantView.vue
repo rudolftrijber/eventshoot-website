@@ -20,6 +20,7 @@ interface KlantData {
   subtitle: string
   eyebrow?: string
   heroImage: string
+  urlPath?: string
   videos: KlantVideo[]
   photos: KlantPhoto[]
 }
@@ -100,6 +101,7 @@ async function loadKlantFromStatic(slug: string): Promise<KlantData> {
     heroImage?: string
     reversePhotos?: boolean
     eyebrow?: string
+    urlPath?: string
   }
 
   let photos = config.localFolder
@@ -116,6 +118,7 @@ async function loadKlantFromStatic(slug: string): Promise<KlantData> {
     subtitle: config.subtitle,
     eyebrow: config.eyebrow,
     heroImage: config.heroImage || photos[0]?.url || '',
+    urlPath: config.urlPath,
     videos: config.videos ?? [],
     photos,
   }
@@ -137,16 +140,19 @@ async function loadKlantData(slug: string): Promise<KlantData> {
 
 onMounted(async () => {
   applyNoIndex()
-  const slug = String(route.params.slug).toLowerCase()
+  const slug = String(route.meta.klantSlug ?? route.params.slug).toLowerCase()
 
   try {
     const data = await loadKlantData(slug)
     klant.value = data
+    const pageUrl = data.urlPath
+      ? `https://eventshoot.nl${data.urlPath}`
+      : `https://eventshoot.nl/klanten/${slug}`
     useSeo({
       title: `${data.title} | Eventshoot.nl`,
       description: data.subtitle,
       image: absoluteUrl(data.heroImage),
-      url: `https://eventshoot.nl/klanten/${slug}`,
+      url: pageUrl,
       locale: 'nl',
     })
   } catch {
@@ -235,7 +241,7 @@ function onKeydown(e: KeyboardEvent) {
         </div>
       </section>
 
-      <section class="klant-photos section">
+      <section v-if="klant.photos.length" class="klant-photos section">
         <div class="container">
           <div class="klant-photos__grid">
             <div
