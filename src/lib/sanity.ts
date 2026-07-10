@@ -4,8 +4,8 @@ import type { TypedObject } from '@portabletext/types'
 import type { FaqPageKey } from '@/lib/faqPages'
 
 export const client = createClient({
-  projectId: 'pn3eisnr',
-  dataset: 'production',
+  projectId: import.meta.env.VITE_SANITY_PROJECT_ID || 'pn3eisnr',
+  dataset: import.meta.env.VITE_SANITY_DATASET || 'production',
   useCdn: true,
   apiVersion: '2026-05-08',
 })
@@ -17,7 +17,7 @@ export function urlFor(source: object) {
 }
 
 export function isSanityConfigured(): boolean {
-  return Boolean(import.meta.env.VITE_SANITY_PROJECT_ID)
+  return Boolean(import.meta.env.VITE_SANITY_PROJECT_ID || 'pn3eisnr')
 }
 
 export interface ArticleFaqItem {
