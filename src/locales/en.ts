@@ -115,12 +115,12 @@ export default {
     usp4Text: 'Photos and aftermovies are ready for your marketing team within two days, while the event is still fresh in everyone\'s minds. Other content, such as interviews, is delivered within 5 business days. In the right formats for every channel: horizontal for the website, 4:5 for LinkedIn, and vertical for Stories and Reels.',
   },
   home: {
-    h1: 'Event content that keeps working for months.',
-    sub: 'One event, a complete content box. Eventshoot.nl delivers 25+ ready-to-use photos, aftermovies and interviews from your corporate event. Made by people. Photos and aftermovies within 48 hours, other content within 5 business days. For congresses, conferences, member days and corporate meetings throughout the Netherlands.',
+    h1: 'Your event is a goldmine of content.',
+    sub: 'One event, a complete content box for months. Eventshoot.nl delivers event impression photos, aftermovies and in-depth interviews from your corporate event, among other things, made by people. Photos and aftermovies within 48 hours, other content within 5 business days. For congresses, conferences, member days and corporate meetings throughout the Netherlands.',
     cta1: 'Get in touch',
     cta2: 'View packages',
-    motto: 'Your event is a goldmine of content.',
-    mottoSub: 'Speakers, attendees, reactions, atmosphere, highlights. Every event yields dozens of usable moments. Eventshoot.nl turns them into a complete content box: 25+ ready-to-use photos, aftermovies and interviews. Ready for your marketing team while the event is still top of mind.',
+    motto: 'Event content that keeps working for months.',
+    mottoSub: 'Speakers, attendees, reactions, atmosphere, highlights. Every event yields dozens of usable moments. Eventshoot.nl turns them into a complete content box for your marketing team, so your event lives on for months.',
     trust: 'Trusted by organisations such as…',
   },
   eventfotografie: {

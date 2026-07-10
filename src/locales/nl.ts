@@ -115,12 +115,12 @@ export default {
     usp4Text: 'Foto\'s en aftermovies zijn binnen twee dagen klaar voor je marketeer, terwijl het event nog vers in het geheugen zit. Overige content, zoals interviews, leveren we binnen 5 werkdagen. In de juiste formaten voor elk kanaal: horizontaal voor de website, 4:5 voor LinkedIn en verticaal voor Stories en Reels.',
   },
   home: {
-    h1: 'Eventcontent die maandenlang doorwerkt.',
-    sub: 'Eén event, een complete contentbox. Eventshoot.nl levert 25+ kant-en-klare foto\'s, aftermovies en interviews uit jouw zakelijke event. Gemaakt door mensen. Foto\'s en aftermovies binnen 48 uur, overige content binnen 5 werkdagen. Voor congressen, conferenties, ledendagen en bedrijfsbijeenkomsten in heel Nederland.',
+    h1: 'Jouw event is een goudmijn aan content.',
+    sub: 'Eén event, een complete contentbox voor maanden. Eventshoot.nl levert onder andere event impressie foto\'s, aftermovies en diepte interviews van jouw zakelijke event, gemaakt door mensen. Foto\'s en aftermovies binnen 48 uur, overige content binnen 5 werkdagen. Voor congressen, conferenties, ledendagen en bedrijfsbijeenkomsten in heel Nederland.',
     cta1: 'Kennismaken',
     cta2: 'Bekijk de pakketten',
-    motto: 'Jouw event is een goudmijn aan content.',
-    mottoSub: 'Sprekers, deelnemers, reacties, sfeer, hoogtepunten. Elk event levert tientallen bruikbare momenten op. Eventshoot.nl zet die om in een complete contentbox: 25+ kant-en-klare foto\'s, aftermovies en interviews. Klaar voor je marketeer, terwijl het event nog top of mind is.',
+    motto: 'Eventcontent die maandenlang doorwerkt.',
+    mottoSub: 'Sprekers, deelnemers, reacties, sfeer, hoogtepunten. Elk event levert tientallen bruikbare momenten op. Eventshoot.nl zet die om in een complete contentbox voor je marketeer, zodat je event nog maanden doorleeft.',
     trust: 'Vertrouwd door organisaties als…',
   },
   eventfotografie: {
