@@ -563,7 +563,4 @@ watch(shareMenuOpen, (open) => {
 @media (max-width: 480px) {
   .werk__grid { columns: 1; }
 }
-
-  100% { transform: translateX(-50%); }
-}
 </style>

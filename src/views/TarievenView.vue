@@ -435,9 +435,6 @@ const packages = computed(() => [
   justify-content: center;
 }
 
-  100% { transform: translateX(-50%); }
-}
-
 @media (max-width: 768px) {
   .tarieven-hero { aspect-ratio: unset; width: 100%; }
 }

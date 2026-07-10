@@ -128,7 +128,4 @@ const waarom = computed(() => [
 @media (max-width: 800px) {
   .aanbod__inner { grid-template-columns: 1fr; gap: 3rem; }
 }
-
-  to   { transform: translateX(-50%); }
-}
 </style>

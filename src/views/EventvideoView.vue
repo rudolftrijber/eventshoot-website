@@ -356,10 +356,6 @@ const videoTypes = computed(() => [
   line-height: 1.7;
 }
 
-/* Logo carousel */
-  to { transform: translateX(-50%); }
-}
-
 /* Reviews */
 .reviews {
   padding: 4rem 0;
