@@ -7,6 +7,7 @@ import PricingCard from '@/components/PricingCard.vue'
 import SectionHeading from '@/components/SectionHeading.vue'
 import FaqBlock from '@/components/FaqBlock.vue'
 import BackgroundVideo from '@/components/BackgroundVideo.vue'
+import ClientLogoCarousel from '@/components/ClientLogoCarousel.vue'
 import { usePageSeo } from '@/composables/usePageSeo'
 import { useEmailJS } from '@/composables/useEmailJS'
 
@@ -65,21 +66,6 @@ function triggerDownload() {
   document.body.removeChild(link)
 }
 
-const logos = [
-  { file: 'gbl.png', name: 'GBL Alliance' },
-  { file: 'gladwell.png', name: 'Gladwell Academy' },
-  { file: 'datto.png', name: 'Datto' },
-  { file: 's2grupo.png', name: 'S2Grupo' },
-  { file: 'koers.png', name: 'Koers' },
-  { file: 'dux.png', name: 'Dux' },
-  { file: 'scpa.png', name: 'SCPA' },
-  { file: 'evascript.png', name: 'EvaScript' },
-  { file: 'dell.png', name: 'Dell' },
-  { file: 'beelegal.png', name: 'BeeLegal' },
-  { file: 'powermatching.png', name: 'Powermatching' },
-  { file: 'vectocon.png', name: 'Vectocon' },
-]
-
 const teaserImages = [
   { src: 'https://eventshoot.nl/wp-content/uploads/2026/03/eventshoot-50-1-scaled.jpg', alt: 'Eventfotografie congres Nederland' },
   { src: 'https://eventshoot.nl/wp-content/uploads/2026/03/eventshoot-52-1.jpg', alt: 'Zakelijk evenement fotograaf' },
@@ -121,17 +107,7 @@ const teaserImages = [
       </div>
     </section>
 
-    <!-- Trust logos carrousel -->
-    <section class="trust">
-      <p class="trust__label">{{ t('home.trust') }}</p>
-      <div class="trust__track-wrap">
-        <div class="trust__track">
-          <div class="trust__slide" v-for="n in 2" :key="n">
-            <img v-for="logo in logos" :key="logo.file + n" :src="`/DATA_EVENTSHOOT/SITE_IMAGES/OPDRACHTGEVERS/${logo.file}`" :alt="logo.name" class="trust__logo" />
-          </div>
-        </div>
-      </div>
-    </section>
+    <ClientLogoCarousel :label="t('home.trust')" />
 
     <!-- USPs -->
     <UspGrid />
@@ -279,54 +255,6 @@ const teaserImages = [
   font-size: 1rem;
   color: rgba(255, 255, 255, 0.8);
   line-height: 1.8;
-}
-
-.trust {
-  padding: 5rem 0;
-  background: transparent;
-  overflow: hidden;
-}
-
-.trust__label {
-  font-size: 0.9rem;
-  color: var(--color-text-muted);
-  text-align: center;
-  margin-bottom: 1.5rem;
-}
-
-.trust__track-wrap {
-  overflow: hidden;
-  mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
-  -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
-}
-
-.trust__track {
-  display: flex;
-  width: max-content;
-  animation: marquee 28s linear infinite;
-}
-
-.trust__track:hover {
-  animation-play-state: paused;
-}
-
-.trust__slide {
-  display: flex;
-  align-items: center;
-  gap: 4rem;
-  padding: 0 2rem;
-}
-
-.trust__logo {
-  height: 120px;
-  width: auto;
-  object-fit: contain;
-  flex-shrink: 0;
-}
-
-@keyframes marquee {
-  0%   { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
 }
 
 .featured__card-wrap {

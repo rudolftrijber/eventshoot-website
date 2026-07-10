@@ -15,7 +15,8 @@
     "generate:sitemap": "node scripts/generate-sitemap.mjs",
     "generate:llms": "node scripts/generate-llms.mjs",
     "generate:faq": "node scripts/generate-faq-data.mjs",
-    "prebuild": "npm run optimize:images && npm run generate:sitemap && npm run generate:llms && npm run generate:faq",
+    "generate:client-logos": "node scripts/generate-client-logos.mjs",
+    "prebuild": "npm run optimize:images && npm run generate:sitemap && npm run generate:llms && npm run generate:faq && npm run generate:client-logos",
     "studio": "npm run dev --prefix studio"
   },
   "dependencies": {
