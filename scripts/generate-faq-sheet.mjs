@@ -147,9 +147,9 @@ const faqs = [
   {
     page: 'voor-brancheverenigingen', category: 'voor-wie', order: 1,
     qNl: 'Wij organiseren maar twee events per jaar. Is dat genoeg voor een samenwerking?',
-    aNl: 'Jazeker. Eventshoot.nl werkt ook voor verenigingen met minder frequente events. We bespreken vooraf wat je nodig hebt en stemmen het aanbod daarop af, inclusief het Content Year jaarcontract als je structureel wilt samenwerken.',
+    aNl: 'Jazeker. Eventshoot.nl werkt ook voor verenigingen met minder frequente events. We bespreken vooraf wat je nodig hebt en stemmen het aanbod daarop af.',
     qEn: 'We only organise two events per year. Is that enough for a partnership?',
-    aEn: 'Absolutely. Eventshoot.nl also works with associations that hold events less frequently. We discuss your needs in advance and tailor the offer, including the Content Year annual contract for ongoing collaboration.',
+    aEn: 'Absolutely. Eventshoot.nl also works with associations that hold events less frequently. We discuss your needs in advance and tailor the offer.',
   },
   {
     page: 'voor-brancheverenigingen', category: 'voor-wie', order: 2,
