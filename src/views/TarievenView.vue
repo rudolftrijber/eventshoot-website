@@ -15,14 +15,26 @@ const isEnglish = computed(() => locale.value.startsWith('en'))
 
 const onepagerPdf = computed(() =>
   isEnglish.value
-    ? '/DATA_EVENTSHOOT/FILES/ES_onepager_ENG.pdf'
-    : '/DATA_EVENTSHOOT/FILES/Eventshoot_tarievenoverzicht_nl.pdf',
+    ? '/DATA_EVENTSHOOT/FILES/Eventshoot_tarievenoverzicht_ENG.pdf'
+    : '/DATA_EVENTSHOOT/FILES/Eventshoot_tarievenoverzicht_NL.pdf',
 )
 
 const onepagerDownloadName = computed(() =>
   isEnglish.value
-    ? 'Eventshoot_pricing_overview_EN.pdf'
-    : 'Eventshoot_tarievenoverzicht_nl.pdf',
+    ? 'Eventshoot_tarievenoverzicht_ENG.pdf'
+    : 'Eventshoot_tarievenoverzicht_NL.pdf',
+)
+
+const vodcastPdf = computed(() =>
+  isEnglish.value
+    ? '/DATA_EVENTSHOOT/FILES/Event_Vodcast_Recording_ENG.pdf'
+    : '/DATA_EVENTSHOOT/FILES/Event_Vodcast_Recording_NL.pdf',
+)
+
+const vodcastDownloadName = computed(() =>
+  isEnglish.value
+    ? 'Event_Vodcast_Recording_ENG.pdf'
+    : 'Event_Vodcast_Recording_NL.pdf',
 )
 
 usePageSeo('tarieven', { url: 'https://eventshoot.nl/tarieven' })
@@ -147,8 +159,8 @@ const packages = computed(() => [
             </div>
             <RouterLink to="/kennismaken" class="btn btn--primary btn--full">{{ t('tarieven.vodcastCta') }}</RouterLink>
             <a
-              href="/DATA_EVENTSHOOT/FILES/Eventshoot_Vodcast_Onepager.pdf"
-              download="Eventshoot_Vodcast_Onepager.pdf"
+              :href="vodcastPdf"
+              :download="vodcastDownloadName"
               class="vodcast__download"
             >
               {{ t('tarieven.vodcastDownload') }}
