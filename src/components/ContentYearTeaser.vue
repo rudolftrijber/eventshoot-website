@@ -8,11 +8,11 @@ import { RouterLink } from 'vue-router'
       <div class="contentyear__copy">
         <h2 class="contentyear__title">Meerdere events per jaar?</h2>
         <p class="contentyear__text">
-          Met het Content Year jaarcontract heb je drie events per jaar op Heroes-niveau, voorrang in de agenda en een doorlopende stijl.
+          We stemmen vooraf af welk pakket bij elk event past. Zo houd je één aanspreekpunt, een doorlopende stijl en voorspelbare levering.
         </p>
       </div>
       <div class="contentyear__cta">
-        <RouterLink to="/tarieven" class="btn btn--primary">Bekijk jaarcontract</RouterLink>
+        <RouterLink to="/tarieven" class="btn btn--primary">Bekijk pakketten</RouterLink>
       </div>
     </div>
   </section>

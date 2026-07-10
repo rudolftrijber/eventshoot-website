@@ -59,9 +59,9 @@ const faqs = [
   {
     page: 'eventfotografie', category: 'eventfotografie', order: 1,
     qNl: 'Hoeveel foto\'s ontvang ik na een event?',
-    aNl: 'Afhankelijk van het pakket ontvang je 100 tot 300 bewerkte foto\'s. Het Highlight-pakket levert 100–150 foto\'s, Headline 150–250 en Heroes 200–300. Allemaal kant-en-klaar voor direct gebruik.',
+    aNl: 'Afhankelijk van het pakket ontvang je 100 tot 300 bewerkte foto\'s. Het Highlight-pakket levert 100–150 foto\'s, Headline 150–200 en Heroes 200–300. Allemaal kant-en-klaar voor direct gebruik.',
     qEn: 'How many photos do I receive after an event?',
-    aEn: 'Depending on the package you receive 100 to 300 edited photos. The Highlight package delivers 100–150 photos, Headline 150–250 and Heroes 200–300. All ready for immediate use.',
+    aEn: 'Depending on the package you receive 100 to 300 edited photos. The Highlight package delivers 100–150 photos, Headline 150–200 and Heroes 200–300. All ready for immediate use.',
   },
   {
     page: 'eventfotografie', category: 'eventfotografie', order: 2,
@@ -110,9 +110,9 @@ const faqs = [
   {
     page: 'eventvideo', category: 'eventvideo', order: 2,
     qNl: 'Hoe lang duurt een aftermovie?',
-    aNl: 'De social aftermovie duurt 45–90 seconden, ideaal voor LinkedIn. Het Heroes-pakket levert daarnaast een corporate aftermovie van 90–180 seconden voor je website.',
+    aNl: 'De social aftermovie duurt 45–90 seconden, ideaal voor LinkedIn. Het Headline- en Heroes-pakket leveren daarnaast een corporate aftermovie van 90–180 seconden voor je website.',
     qEn: 'How long is an aftermovie?',
-    aEn: 'The social aftermovie runs 45–90 seconds, ideal for LinkedIn. The Heroes package also includes a corporate aftermovie of 90–180 seconds for your website.',
+    aEn: 'The social aftermovie runs 45–90 seconds, ideal for LinkedIn. The Headline and Heroes packages also include a corporate aftermovie of 90–180 seconds for your website.',
   },
   {
     page: 'eventvideo', category: 'eventvideo', order: 3,
@@ -124,9 +124,9 @@ const faqs = [
   {
     page: 'eventvideo', category: 'eventvideo', order: 4,
     qNl: 'Hoeveel interviews kan ik verwachten?',
-    aNl: 'In het Headline-pakket 10–15 één-camera interviews, in Heroes 15–20. Ideaal voor quotes op LinkedIn en content voor je volgende editie.',
+    aNl: 'In het Headline-pakket 10–15 één-camera interviews, in Heroes 25–30. Ideaal voor quotes op LinkedIn en content voor je volgende editie.',
     qEn: 'How many interviews can I expect?',
-    aEn: 'The Headline package includes 10–15 single-camera interviews, Heroes 15–20. Ideal for LinkedIn quotes and content for your next edition.',
+    aEn: 'The Headline package includes 10–15 single-camera interviews, Heroes 25–30. Ideal for LinkedIn quotes and content for your next edition.',
   },
   {
     page: 'eventvideo', category: 'eventvideo', order: 5,
@@ -293,9 +293,9 @@ const faqs = [
   {
     page: 'voor-bedrijven', category: 'voor-wie', order: 3,
     qNl: 'Kunnen jullie interviews met klanten of sprekers verzorgen?',
-    aNl: 'Ja. Het Headline-pakket bevat 10–15 interviews, Heroes 15–20. Handig voor testimonials, LinkedIn-posts en content voor je volgende editie.',
+    aNl: 'Ja. Het Headline-pakket bevat 10–15 interviews, Heroes 25–30. Handig voor testimonials, LinkedIn-posts en content voor je volgende editie.',
     qEn: 'Can you conduct interviews with customers or speakers?',
-    aEn: 'Yes. The Headline package includes 10–15 interviews, Heroes 15–20. Useful for testimonials, LinkedIn posts and content for your next edition.',
+    aEn: 'Yes. The Headline package includes 10–15 interviews, Heroes 25–30. Useful for testimonials, LinkedIn posts and content for your next edition.',
   },
   {
     page: 'voor-bedrijven', category: 'voor-wie', order: 4,
@@ -323,16 +323,16 @@ const faqs = [
   {
     page: 'tarieven', category: 'tarieven', order: 1,
     qNl: 'Wat kosten de pakketten?',
-    aNl: 'Highlight € 895 (4 uur), Headline € 2.250 (8 uur, meest gekozen) en Heroes € 3.450 (8 uur, foto + video). Alle prijzen excl. BTW. Reis- en transportkosten separaat.',
+    aNl: 'Highlight € 825 (4 uur), Headline € 2.250 (8 uur, meest gekozen) en Heroes € 3.450 (10 uur, foto + video). Alle prijzen excl. BTW. Reis- en transportkosten separaat.',
     qEn: 'What do the packages cost?',
-    aEn: 'Highlight € 895 (4 hours), Headline € 2,250 (8 hours, most popular) and Heroes € 3,450 (8 hours, photo + video). All prices excl. VAT. Travel and transport costs separate.',
+    aEn: 'Highlight € 825 (4 hours), Headline € 2,250 (8 hours, most popular) and Heroes € 3,450 (10 hours, photo + video). All prices excl. VAT. Travel and transport costs separate.',
   },
   {
     page: 'tarieven', category: 'tarieven', order: 2,
-    qNl: 'Wat is Event Vodcast Recording?',
-    aNl: 'Op één eventdag krijg je 8 vodcast-afleveringen van 15 tot 25 minuten plus minimaal 20 short form snippets voor social media. De prijs is € 3.250 excl. btw, exclusief auteursrechtcorrecties, reis- en verblijfkosten. Levering binnen 5 werkdagen.',
-    qEn: 'What is Event Vodcast Recording?',
-    aEn: 'In one event day you get 8 vodcast episodes of 15 to 25 minutes plus at least 20 short form snippets for social media. The price is € 3,250 excl. VAT, excluding copyright corrections, travel and accommodation costs. Delivery within 5 business days.',
+    qNl: 'Wat zit standaard inbegrepen bij elk pakket?',
+    aNl: 'Een online pre-production meeting, post-production met één correctieronde en AI-ondertiteling op video\'s (met controle op naamweergave). Reisuren, reis- en transportkosten en btw komen daar bovenop.',
+    qEn: 'What is included as standard in every package?',
+    aEn: 'An online pre-production meeting, post-production with one revision round and AI subtitling on videos (with name display checks). Travel time, travel and transport costs and VAT are additional.',
   },
   {
     page: 'tarieven', category: 'tarieven', order: 3,

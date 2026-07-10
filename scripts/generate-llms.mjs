@@ -47,7 +47,7 @@ Eventshoot.nl is de website van Rolf Trijber, eventfotograaf en videograaf met 4
 
 Kernbeloftes (in deze volgorde): 25+ kant-en-klare items per event, geleverd binnen 48 uur, gefotografeerd en gefilmd door mensen. Motto: "Jouw event is een goudmijn aan content."
 
-Pakketten (excl. BTW): Highlight €895 (4 uur, social aftermovie), Headline €2.250 (8 uur, meest gekozen), Heroes €3.450 (8 uur, social + corporate aftermovie + interviews). Jaarcontract Content Year: €775/maand, 3 events per jaar op Heroes-niveau.
+Pakketten (excl. BTW): Highlight €825 (4 uur, social aftermovie), Headline €2.250 (8 uur, meest gekozen, social + corporate aftermovie), Heroes €3.450 (10 uur, social + corporate aftermovie + interviews).
 
 Ideale klanten: brancheverenigingen, eventbureaus en DMC's, hotels met congresfaciliteiten, bedrijven met eigen events, en marketingbureaus. De klant heeft iemand die content kan uitrollen (marketeer of communicatiemedewerker).
 
@@ -57,7 +57,7 @@ ${link('Home', `${BASE}/`, 'Propositie, USP\'s, pakketten en reviews')}
 ${link('Eventfotografie', `${BASE}/eventfotografie`, 'Foto\'s voor LinkedIn, website en nieuwsbrief, binnen 48 uur')}
 ${link('Eventvideo', `${BASE}/eventvideo`, 'Social aftermovies, corporate aftermovies en interviews')}
 ${link('Werk / portfolio', `${BASE}/werk`, 'Selectie congressen, jaarcongressen en bedrijfsbijeenkomsten')}
-${link('Tarieven', `${BASE}/tarieven`, 'Highlight, Headline, Heroes en Content Year jaarcontract')}
+${link('Tarieven', `${BASE}/tarieven`, 'Highlight, Headline en Heroes pakketten')}
 
 ## Voor wie
 

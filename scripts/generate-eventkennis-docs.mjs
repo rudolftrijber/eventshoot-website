@@ -15,28 +15,28 @@ const articles = [
     filename: '01-wat-kost-eventfotografie-congres',
     slug: 'wat-kost-eventfotografie-congres',
     metaTitle: 'Wat kost eventfotografie voor een congres? | Eventshoot.nl',
-    metaDescription: 'Eventfotografie voor een congres kost vanaf €895 excl. BTW. Drie pakketten, levering binnen 48 uur. Overzicht van prijzen en wat je krijgt.',
+    metaDescription: 'Eventfotografie voor een congres kost vanaf €825 excl. BTW. Drie pakketten, levering binnen 48 uur. Overzicht van prijzen en wat je krijgt.',
     category: 'Eventfotografie',
     h1: 'Wat kost eventfotografie voor een congres?',
     body: `
-<p><strong>Direct antwoord:</strong> Eventfotografie voor een congres kost bij Eventshoot.nl vanaf €895 excl. BTW (Highlight, 4 uur aanwezigheid) tot €3.450 excl. BTW (Heroes, 8 uur met foto en video). Alle pakketten bevatten levering binnen 48 uur.</p>
+<p><strong>Direct antwoord:</strong> Eventfotografie voor een congres kost bij Eventshoot.nl vanaf €825 excl. BTW (Highlight, 4 uur aanwezigheid) tot €3.450 excl. BTW (Heroes, 10 uur met foto en video). Alle pakketten bevatten levering binnen 48 uur.</p>
 
 <h2>Welke pakketten zijn er voor congresfotografie?</h2>
 <p>Eventshoot.nl werkt met drie vaste pakketten. Geen losse uurtarieven achteraf, geen verrassingen op de factuur.</p>
 <ul>
-<li><strong>Highlight — €895 excl. BTW:</strong> 4 uur aanwezigheid, 100–150 foto's, social aftermovie (45–90 sec), 1 fotograaf. Levering binnen 24 uur. Past bij kleinere events of social-only.</li>
-<li><strong>Headline — €2.250 excl. BTW (meest gekozen):</strong> 8 uur aanwezigheid, 150–250 foto's, social aftermovie, 10–15 interviews (één camera), 2 personen crew. Levering binnen 48 uur. Past bij een jaarcongres of ledendag.</li>
-<li><strong>Heroes — €3.450 excl. BTW:</strong> 8 uur aanwezigheid, 200–300 foto's, social én corporate aftermovie (90–180 sec), 15–20 interviews, 2 personen crew. Levering binnen 48 uur. Past bij een hoog-profile congres.</li>
+<li><strong>Highlight — €825 excl. BTW:</strong> 4 uur aanwezigheid, 100–150 foto's, social aftermovie (45–90 sec), 1 fotograaf. Levering binnen 48 uur. Past bij kleinere events of social-only.</li>
+<li><strong>Headline — €2.250 excl. BTW (meest gekozen):</strong> 8 uur aanwezigheid, 150–200 foto's, social én corporate aftermovie, 10–15 interviews (één camera), 2 personen crew. Levering binnen 48 uur. Past bij een jaarcongres of ledendag.</li>
+<li><strong>Heroes — €3.450 excl. BTW:</strong> 10 uur aanwezigheid, 200–300 foto's, social én corporate aftermovie (90–180 sec), 25–30 interviews, 3 personen crew. Levering binnen 48 uur. Past bij een hoog-profile congres.</li>
 </ul>
 
 <h2>Wat zit standaard in elk pakket?</h2>
-<p>Ongeacht welk pakket je kiest, altijd inbegrepen: een pre-production meeting, AI-ondertiteling op video, post-production met één correctieronde, en levering binnen 48 uur (Highlight: 24 uur). Je ontvangt geen ruwe dump van duizenden bestanden, maar een selectie kant-en-klare items die je marketeer direct kan plaatsen.</p>
+<p>Ongeacht welk pakket je kiest, altijd inbegrepen: een pre-production meeting, AI-ondertiteling op video, post-production met één correctieronde, en levering binnen 48 uur. Je ontvangt geen ruwe dump van duizenden bestanden, maar een selectie kant-en-klare items die je marketeer direct kan plaatsen.</p>
 
 <h2>Wat kost eventfotografie niet?</h2>
 <p>Reisuren en transportkosten worden separaat berekend. Dat geldt voor congressen door heel Nederland. Same-day levering direct na het event is mogelijk tegen meerprijs (€425 / €650 / €925 afhankelijk van pakket). Human ondertiteling op video (98% correct) kost €13 per minuut, alleen bij Headline en Heroes.</p>
 
-<h2>Is een jaarcontract goedkoper bij meerdere congressen per jaar?</h2>
-<p>Organiseer je drie of meer events per jaar? Dan is Content Year interessant: €775 per maand (€9.300 per jaar), drie events op Heroes-niveau, 8 uur per event, voorrang in de agenda en doorlopende stijl met één aanspreekpunt.</p>
+<h2>Organiseer je meerdere congressen per jaar?</h2>
+<p>Stem vooraf af welk pakket bij elk event past. Zo houd je één aanspreekpunt, een doorlopende stijl en voorspelbare levering. Neem contact op als je meerdere events plant, dan bespreken we wat het beste past.</p>
 
 <h2>Hoe kies je het juiste pakket voor jouw congres?</h2>
 <p>Stel jezelf drie vragen: hoe lang duurt het programma, wil je naast foto ook video, en hoe snel moet de content live? Een korte ledendag van een halve dag past bij Highlight. Een volledig jaarcongres met sprekers, netwerk en afsluiting vraagt meestal om Headline of Heroes. Twijfel je? Een kennismaking van 20 minuten is genoeg om te bepalen welk pakket past.</p>
@@ -48,7 +48,7 @@ const articles = [
 <p><strong>Wat als mijn congres langer duurt dan 8 uur?</strong><br>Neem contact op. Langere aanwezigheid of een tweede dag is op offerte mogelijk.</p>
 
 <p><em>Meta title:</em> ${'Wat kost eventfotografie voor een congres? | Eventshoot.nl'}<br>
-<em>Meta description:</em> Eventfotografie voor een congres kost vanaf €895 excl. BTW. Drie pakketten, levering binnen 48 uur. Overzicht van prijzen en wat je krijgt.<br>
+<em>Meta description:</em> Eventfotografie voor een congres kost vanaf €825 excl. BTW. Drie pakketten, levering binnen 48 uur. Overzicht van prijzen en wat je krijgt.<br>
 <em>URL-slug:</em> /eventkennis/wat-kost-eventfotografie-congres/<br>
 <em>Auteur:</em> Rolf Trijber<br>
 <em>Categorie:</em> Eventfotografie</p>
@@ -145,8 +145,8 @@ const articles = [
 <h2>Hoeveel foto's per pakket?</h2>
 <ul>
 <li><strong>Highlight:</strong> 100–150 foto's, 4 uur aanwezigheid</li>
-<li><strong>Headline:</strong> 150–250 foto's, 8 uur aanwezigheid, plus social aftermovie en 10–15 interviews</li>
-<li><strong>Heroes:</strong> 200–300 foto's, 8 uur aanwezigheid, plus social en corporate aftermovie en 15–20 interviews</li>
+<li><strong>Headline:</strong> 150–200 foto's, 8 uur aanwezigheid, plus social en corporate aftermovie en 10–15 interviews</li>
+<li><strong>Heroes:</strong> 200–300 foto's, 10 uur aanwezigheid, plus social en corporate aftermovie en 25–30 interviews</li>
 </ul>
 
 <h2>Waarom niet "alle foto's" van het congres?</h2>
@@ -156,7 +156,7 @@ const articles = [
 <p>Naast individuele foto's ontvang je een complete contentbox: foto's in horizontaal, 4:5 en verticaal, plus video's en interviews waar het pakket dat omvat. Het totaal aan bruikbare items voor je kanalen is 25 of meer. Jouw event is een goudmijn aan content, mits je die content snel en in de juiste vorm krijgt.</p>
 
 <h2>Hoe snel liggen de foto's klaar?</h2>
-<p>Standaard binnen 48 uur na afloop van het jaarcongres. Highlight zelfs binnen 24 uur. Same-day levering is mogelijk tegen meerprijs als je marketeer dezelfde avond al wil posten.</p>
+<p>Standaard binnen 48 uur na afloop van het jaarcongres. Same-day levering is mogelijk tegen meerprijs als je marketeer dezelfde avond al wil posten.</p>
 
 <h2>Veelgestelde vragen</h2>
 <p><strong>Krijg ik ook groepsfoto's van het bestuur of de deelnemers?</strong><br>Ja, als dat in het programma past en vooraf is afgestemd. Bespreek het gewenste groepsmoment in de pre-production meeting.</p>
@@ -191,11 +191,11 @@ const articles = [
 <p>Reisuren en transportkosten staan separaat op de offerte, excl. BTW. Geen verborgen posten achteraf. Voor events in de directe regio zijn de kosten lager dan voor een congres aan de andere kant van het land. Vraag vooraf een all-in indicatie.</p>
 
 <h2>Waarom één vaste fotograaf landelijk inschakelen?</h2>
-<p>Organiseer je meerdere events per jaar op verschillende locaties? Dan wil je één aanspreekpunt, één visuele stijl en voorspelbare levering binnen 48 uur. Het Content Year-jaarcontract (€775 per maand, drie events per jaar op Heroes-niveau) is daarop ingericht.</p>
+<p>Organiseer je meerdere events per jaar op verschillende locaties? Dan wil je één aanspreekpunt, één visuele stijl en voorspelbare levering binnen 48 uur. Neem contact op, dan stemmen we vooraf af welk pakket bij elk event past.</p>
 
 <h2>Veelgestelde vragen</h2>
-<p><strong>Komt de fotograaf alleen of met een crew?</strong><br>Highlight: één fotograaf. Headline en Heroes: twee personen crew voor foto en video parallel.</p>
-<p><strong>Hoe vroeg moet ik boeken?</strong><br>Hoe eerder, hoe beter, zeker rond congresseizoen (september–november en voorjaar). Content Year geeft voorrang in de agenda.</p>
+<p><strong>Komt de fotograaf alleen of met een crew?</strong><br>Highlight: één fotograaf. Headline: twee personen crew. Heroes: drie personen crew voor foto en video parallel.</p>
+<p><strong>Hoe vroeg moet ik boeken?</strong><br>Hoe eerder, hoe beter, zeker rond congresseizoen (september–november en voorjaar). Bij meerdere events per jaar plannen we vooraf samen de agenda in.</p>
 <p><strong>Werken jullie ook voor eventbureaus die landelijk opereren?</strong><br>Ja. Eventbureaus en DMC's schakelen Eventshoot.nl in als vaste content-partner achter de schermen.</p>
 <p><strong>Wat als de locatie lastige lichtomstandigheden heeft?</strong><br>Daarvoor is de locatie-afstemming vooraf. Podiumlicht, achtergrond en interviewplek worden samen met techniek doorgenomen.</p>
 
