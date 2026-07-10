@@ -2,6 +2,7 @@ import { createClient } from '@sanity/client'
 import imageUrlBuilder from '@sanity/image-url'
 import type { TypedObject } from '@portabletext/types'
 import type { FaqPageKey } from '@/lib/faqPages'
+import { getFaqForPage } from '@/lib/siteFaq'
 
 export const client = createClient({
   projectId: import.meta.env.VITE_SANITY_PROJECT_ID || 'pn3eisnr',
@@ -59,18 +60,6 @@ export const postBySlugQuery = `*[_type == "blogPost" && slug.current == $slug][
   faq
 }`
 
-export const faqByPageQuery = `*[_type == "faqItem" && active == true && $page in showOn]
-  | order(sortOrder asc) {
-    _id,
-    "question": select($lang == "en" => questionEn, questionNl),
-    "answer": select($lang == "en" => answerEn, answerNl),
-    image {
-      asset,
-      "alt": select($lang == "en" => altEn, altNl)
-    }
-  }`
-
 export async function fetchFaqForPage(page: FaqPageKey, lang: string): Promise<SanitySiteFaqItem[]> {
-  if (!isSanityConfigured()) return []
-  return client.fetch(faqByPageQuery, { page, lang })
+  return getFaqForPage(page, lang)
 }
