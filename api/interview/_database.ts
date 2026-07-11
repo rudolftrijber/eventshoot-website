@@ -1,12 +1,17 @@
-import { neon } from '@neondatabase/serverless'
+import type { NeonQueryFunction } from '@neondatabase/serverless'
 import type { Gast, GastStatus, InterviewSettings, Productie, ProductieStatus } from './_types'
 
 let schemaReady: Promise<void> | null = null
+let sqlClient: NeonQueryFunction<false, false> | null = null
 
-export function getSql() {
-  const url = process.env.POSTGRES_URL
-  if (!url) throw new Error('POSTGRES_URL ontbreekt in environment variables')
-  return neon(url)
+export async function getSql() {
+  if (!sqlClient) {
+    const { neon } = await import('@neondatabase/serverless')
+    const url = process.env.POSTGRES_URL || process.env.POSTGRES_URL_NON_POOLING
+    if (!url) throw new Error('POSTGRES_URL ontbreekt in environment variables')
+    sqlClient = neon(url)
+  }
+  return sqlClient
 }
 
 export async function ensureSchema(): Promise<void> {
@@ -17,7 +22,7 @@ export async function ensureSchema(): Promise<void> {
 }
 
 async function initSchema(): Promise<void> {
-  const sql = getSql()
+  const sql = await getSql()
   await sql`
     CREATE TABLE IF NOT EXISTS interview_settings (
       id INTEGER PRIMARY KEY DEFAULT 1 CHECK (id = 1),
@@ -103,14 +108,14 @@ function rowToGast(row: Record<string, unknown>): Gast {
 }
 
 export async function fetchSettings(): Promise<InterviewSettings> {
-  const sql = getSql()
+  const sql = await getSql()
   const rows = await sql`SELECT max_chars FROM interview_settings WHERE id = 1`
   const row = rows[0] as { max_chars: number } | undefined
   return { maxChars: row?.max_chars ?? 40 }
 }
 
 export async function updateSettings(maxChars: number): Promise<InterviewSettings> {
-  const sql = getSql()
+  const sql = await getSql()
   await sql`
     UPDATE interview_settings
     SET max_chars = ${maxChars}, updated_at = NOW()
@@ -120,7 +125,7 @@ export async function updateSettings(maxChars: number): Promise<InterviewSetting
 }
 
 export async function fetchProducties(includeArchived = false): Promise<Productie[]> {
-  const sql = getSql()
+  const sql = await getSql()
   const rows = includeArchived
     ? await sql`SELECT * FROM interview_producties ORDER BY updated_at DESC`
     : await sql`SELECT * FROM interview_producties WHERE archived_at IS NULL ORDER BY updated_at DESC`
@@ -128,13 +133,13 @@ export async function fetchProducties(includeArchived = false): Promise<Producti
 }
 
 export async function fetchGuests(): Promise<Gast[]> {
-  const sql = getSql()
+  const sql = await getSql()
   const rows = await sql`SELECT * FROM interview_gasten ORDER BY created_at DESC`
   return rows.map((row) => rowToGast(row as Record<string, unknown>))
 }
 
 export async function createGuest(data: Omit<Gast, 'createdAt' | 'updatedAt'>): Promise<Gast> {
-  const sql = getSql()
+  const sql = await getSql()
   const rows = await sql`
     INSERT INTO interview_gasten (
       id, productie_naam, type, naam, functie, planning, gedeeld,
@@ -150,7 +155,7 @@ export async function createGuest(data: Omit<Gast, 'createdAt' | 'updatedAt'>): 
 }
 
 export async function updateGuest(id: string, patch: Partial<Gast>): Promise<Gast | null> {
-  const sql = getSql()
+  const sql = await getSql()
   const existing = await sql`SELECT * FROM interview_gasten WHERE id = ${id}`
   if (!existing.length) return null
   const current = rowToGast(existing[0] as Record<string, unknown>)
@@ -177,13 +182,13 @@ export async function updateGuest(id: string, patch: Partial<Gast>): Promise<Gas
 }
 
 export async function deleteGuest(id: string): Promise<boolean> {
-  const sql = getSql()
+  const sql = await getSql()
   const rows = await sql`DELETE FROM interview_gasten WHERE id = ${id} RETURNING id`
   return rows.length > 0
 }
 
 export async function createProductie(data: Omit<Productie, 'createdAt' | 'updatedAt' | 'archivedAt'>): Promise<Productie> {
-  const sql = getSql()
+  const sql = await getSql()
   const rows = await sql`
     INSERT INTO interview_producties (id, naam, datum, status, vragen)
     VALUES (
@@ -196,7 +201,7 @@ export async function createProductie(data: Omit<Productie, 'createdAt' | 'updat
 }
 
 export async function updateProductie(id: string, patch: Partial<Productie>): Promise<Productie | null> {
-  const sql = getSql()
+  const sql = await getSql()
   const existing = await sql`SELECT * FROM interview_producties WHERE id = ${id}`
   if (!existing.length) return null
   const current = rowToProductie(existing[0] as Record<string, unknown>)
@@ -217,7 +222,7 @@ export async function updateProductie(id: string, patch: Partial<Productie>): Pr
 }
 
 export async function deleteProductie(id: string): Promise<boolean> {
-  const sql = getSql()
+  const sql = await getSql()
   const rows = await sql`DELETE FROM interview_producties WHERE id = ${id} RETURNING id`
   return rows.length > 0
 }
@@ -231,7 +236,7 @@ export function nowTimeStr(): string {
 }
 
 export async function nextRegienummer(datum: string): Promise<string> {
-  const sql = getSql()
+  const sql = await getSql()
   const rows = await sql`
     SELECT regienummer FROM interview_gasten
     WHERE datum = ${datum}::date AND regienummer IS NOT NULL
