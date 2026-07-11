@@ -23,6 +23,7 @@ const router = createRouter({
     { path: '/voor/bedrijven', name: 'voor-bedrijven', component: () => import('../views/VoorBedrijvenView.vue') },
     { path: '/gallery', name: 'gallery', component: () => import('../views/GalleryView.vue') },
     { path: '/privacy', name: 'privacy', component: () => import('../views/PrivacyView.vue') },
+    { path: '/interview-app', name: 'interview-app', component: () => import('../views/InterviewAppView.vue'), meta: { hideLayout: true } },
     // Redirects voor oude URL's
     { path: '/portfolio', redirect: '/werk' },
     { path: '/blog', redirect: '/eventkennis' },

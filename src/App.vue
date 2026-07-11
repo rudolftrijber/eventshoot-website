@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { watch } from 'vue'
+import { computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import NavBar from '@/components/NavBar.vue'
 import RolfContact from '@/components/RolfContact.vue'
@@ -13,6 +13,7 @@ type ElfsightWindow = Window & {
 }
 
 const route = useRoute()
+const hideLayout = computed(() => Boolean(route.meta.hideLayout))
 
 watch(() => route.path, () => {
   setTimeout(() => {
@@ -27,17 +28,17 @@ watch(() => route.path, () => {
 </script>
 
 <template>
-  <div class="app-bg">
+  <div v-if="!hideLayout" class="app-bg">
     <BackgroundVideo
       video-class="app-bg__video"
       src="/images/es_bokey_bckgrnd_v1-1080p.mp4"
     />
   </div>
 
-  <NavBar />
+  <NavBar v-if="!hideLayout" />
   <RouterView />
-  <RolfContact />
-  <FooterSection />
+  <RolfContact v-if="!hideLayout" />
+  <FooterSection v-if="!hideLayout" />
 </template>
 
 <style>

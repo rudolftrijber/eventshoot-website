@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interview Intake &amp; Lowerthird</title>
+<style>
+  :root{
+    --bg:#0f1620; --panel:#182231; --panel2:#1f2c40; --line:#2c3b52;
+    --text:#eaf0f8; --muted:#93a3ba; --accent:#4fa3ff;
+    --st-ingevoerd:#3ecf8e; --st-gecontroleerd:#ffb020; --st-opgenomen:#ff5c5c;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text);}
+  header{padding:14px 20px;background:var(--panel);border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;}
+  header h1{font-size:17px;margin:0;font-weight:600;}
+  .tabs{display:flex;gap:8px;flex-wrap:wrap;}
+  .tab{padding:8px 14px;border-radius:8px;background:var(--panel2);border:1px solid var(--line);color:var(--text);cursor:pointer;font-size:14px;}
+  .tab.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .iconbtn{background:transparent;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:6px 8px;border-radius:8px;}
+  .iconbtn:hover{background:var(--panel2);color:var(--text);}
+  main{max-width:820px;margin:0 auto;padding:20px;}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:16px;}
+  label{display:block;font-size:13px;color:var(--muted);margin:12px 0 4px;}
+  input[type=text],input[type=number],select,textarea{
+    width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--line);
+    background:var(--panel2);color:var(--text);font-size:15px;
+  }
+  textarea{resize:vertical;min-height:44px;}
+  .row{display:flex;gap:12px;flex-wrap:wrap;}
+  .row > div{flex:1;min-width:160px;}
+  .row.small > div{max-width:260px;}
+  .charcount{font-size:12px;margin-top:4px;color:var(--muted);}
+  .charcount.warn{color:var(--st-opgenomen);font-weight:600;}
+  .btn{background:var(--accent);color:#fff;border:none;padding:10px 16px;border-radius:8px;font-size:14px;cursor:pointer;}
+  .btn.secondary{background:var(--panel2);border:1px solid var(--line);color:var(--text);}
+  .btn.small{padding:6px 10px;font-size:13px;}
+  .btn.big{font-size:18px;padding:16px 20px;width:100%;}
+  .btn.ok{background:var(--st-ingevoerd);color:#04231a;}
+  .question-row{display:flex;gap:8px;align-items:flex-start;margin-bottom:8px;}
+  .question-row textarea{flex:1;}
+  table{width:100%;border-collapse:collapse;font-size:14px;}
+  th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line);}
+  th{color:var(--muted);font-weight:500;font-size:12px;text-transform:uppercase;}
+  tr.dataRow:hover{background:var(--panel2);cursor:pointer;}
+  .pill{display:inline-block;padding:4px 10px;border-radius:999px;font-size:11px;border:1px solid;cursor:pointer;}
+  .pill.st-Ingevoerd{color:var(--st-ingevoerd);border-color:var(--st-ingevoerd);background:rgba(62,207,142,.12);}
+  .pill.st-Gecontroleerd{color:var(--st-gecontroleerd);border-color:var(--st-gecontroleerd);background:rgba(255,176,32,.12);}
+  .pill.st-Opgenomen{color:var(--st-opgenomen);border-color:var(--st-opgenomen);background:rgba(255,92,92,.12);}
+  .search{margin-bottom:12px;}
+  .cam-view{text-align:center;padding:30px 10px;}
+  .cam-number{font-size:150px;font-weight:800;line-height:1;margin:10px 0;}
+  .cam-sub{color:var(--muted);font-size:14px;}
+  .interviewer-head{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:16px;}
+  .interviewer-head .naam{font-size:20px;font-weight:600;}
+  .interviewer-head .functie{font-size:14px;color:var(--muted);}
+  .interviewer-head .nr{font-size:14px;color:var(--muted);}
+  .questions-list{margin-top:10px;padding-left:20px;}
+  .questions-list li{margin-bottom:14px;font-size:19px;line-height:1.4;}
+  .empty{color:var(--muted);font-style:italic;padding:20px;text-align:center;}
+  .actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;align-items:center;}
+  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--st-ingevoerd);color:#04231a;padding:10px 18px;border-radius:8px;font-size:14px;display:none;z-index:100;}
+  .settingsPanel{display:none;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:16px;max-width:820px;margin-left:auto;margin-right:auto;}
+  .settingsPanel.open{display:block;}
+  .settingsPanel label{margin-top:0;}
+  .settingsRow{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px;}
+  .settingsRow input[type=number]{width:80px;}
+  input[type=file]{display:none;}
+  .controle-view{text-align:center;padding:10px;}
+  .controle-view input{font-size:22px;text-align:center;padding:16px;}
+  .controle-view label{font-size:15px;text-align:center;}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Interview Intake</h1>
+  <div class="tabs">
+    <button class="tab active" data-tab="nieuw">Nieuw</button>
+    <button class="tab" data-tab="overzicht">Overzicht</button>
+    <button class="tab" data-tab="producties">Producties</button>
+    <button class="tab" data-tab="controle">Controle</button>
+    <button class="tab" data-tab="camera">Camera</button>
+    <button class="tab" data-tab="interviewer">Interviewer</button>
+  </div>
+  <button class="iconbtn" id="settingsToggle" title="Instellingen">⚙️</button>
+</header>
+
+<main>
+
+  <div class="settingsPanel" id="settingsPanel">
+    <div class="settingsRow">
+      <label style="margin:0;">Max. tekens naam &amp; functie</label>
+      <input type="number" id="maxCharsSetting" min="10" max="200" value="40">
+    </div>
+    <div class="settingsRow">
+      <button class="btn secondary small" id="exportBtn">Export JSON</button>
+      <button class="btn secondary small" id="exportCsvBtn">Export CSV</button>
+      <button class="btn secondary small" id="importJsonBtn">Import JSON</button>
+      <button class="btn secondary small" id="importCsvBtn">Import CSV (spreadsheet)</button>
+      <input type="file" id="importJsonFile" accept="application/json">
+      <input type="file" id="importCsvFile" accept=".csv,text/csv">
+    </div>
+    <div class="charcount">Export CSV geeft de kolommen en volgorde die bij Import CSV worden herkend: productienaam, naam, functie, vraag1 t/m vraag7, status, regienummer, datum, tijd.</div>
+  </div>
+
+  <!-- NIEUW -->
+  <section id="tab-nieuw" class="tabcontent">
+    <div class="card">
+      <div class="row small">
+        <div>
+          <label>Productie</label>
+          <input type="text" id="f_productie" list="productieList" placeholder="kies of typ productienaam">
+          <datalist id="productieList"></datalist>
+        </div>
+        <div>
+          <label>Type gast</label>
+          <select id="f_type">
+            <option value="">— optioneel —</option>
+            <option value="Keynote spreker">Keynote spreker</option>
+            <option value="Executive">Executive</option>
+            <option value="Deelnemer">Deelnemer</option>
+            <option value="Overig">Overig</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label>Naam gast</label>
+          <input type="text" id="f_naam" placeholder="Voor- en achternaam">
+          <div class="charcount" id="f_naam_count">0 / 40 tekens</div>
+        </div>
+        <div>
+          <label>Functie</label>
+          <input type="text" id="f_functie" placeholder="bijv. Directeur Innovatie">
+          <div class="charcount" id="f_functie_count">0 / 40 tekens</div>
+        </div>
+      </div>
+
+      <label>Planning / tijdvak (optioneel)</label>
+      <input type="text" id="f_planning" placeholder="bijv. interview voor de lunch">
+
+      <div class="actions" id="deelnemerPresetWrap" style="display:none;">
+        <button class="btn secondary small" id="usePresetBtn">Gebruik standaardvragen deelnemers</button>
+      </div>
+
+      <label>Interviewvragen (minimaal 4, maximaal 7)</label>
+      <div id="questionsWrap"></div>
+      <div class="actions">
+        <button class="btn secondary small" id="addQuestion">+ Vraag toevoegen</button>
+      </div>
+
+      <div class="actions" style="align-items:center;">
+        <input type="checkbox" id="f_gedeeld" style="width:auto;">
+        <label for="f_gedeeld" style="margin:0;">Vragen zijn vooraf gedeeld met de geïnterviewde</label>
+      </div>
+
+      <div class="actions">
+        <button class="btn" id="saveBtn">Opslaan</button>
+        <button class="iconbtn" id="clearBtn" title="Leegmaken">🗑️</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- OVERZICHT -->
+  <section id="tab-overzicht" class="tabcontent" style="display:none;">
+    <div class="card">
+      <input class="search" type="text" id="searchBox" placeholder="Zoek op naam, regienummer, productie...">
+      <table>
+        <thead>
+          <tr><th>Regie #</th><th>Gast</th><th>Functie</th><th>Status</th><th></th></tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+      <div id="emptyState" class="empty" style="display:none;">Nog geen gasten toegevoegd.</div>
+    </div>
+  </section>
+
+  <!-- PRODUCTIES: standaardvragen per productie, voor Deelnemers -->
+  <section id="tab-producties" class="tabcontent" style="display:none;">
+    <div class="card">
+      <label>Productienaam</label>
+      <input type="text" id="p_naam" list="productieList" placeholder="kies of typ productienaam">
+      <label>Productiedatum</label>
+      <input type="date" id="p_datum">
+      <label>Standaardvragen voor Deelnemers (minimaal 4, maximaal 7)</label>
+      <div id="p_questionsWrap"></div>
+      <div class="actions">
+        <button class="btn secondary small" id="p_addQuestion">+ Vraag toevoegen</button>
+      </div>
+      <div class="actions">
+        <button class="btn" id="p_saveBtn">Opslaan</button>
+        <button class="iconbtn" id="p_clearBtn" title="Leegmaken">🗑️</button>
+      </div>
+    </div>
+    <div class="card">
+      <label>Opgeslagen producties</label>
+      <table>
+        <thead><tr><th>Productie</th><th>Datum</th><th>Standaardvragen</th><th></th></tr></thead>
+        <tbody id="p_tableBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- CONTROLE: minimale info, voor de gast zelf -->
+  <section id="tab-controle" class="tabcontent" style="display:none;">
+    <div class="card controle-view">
+      <label>Zoek op naam</label>
+      <input type="text" id="controleSearch" placeholder="Typ de naam...">
+      <div id="controleResult"></div>
+    </div>
+  </section>
+
+  <!-- CAMERA (alleen groot nummer, voor de lens) -->
+  <section id="tab-camera" class="tabcontent" style="display:none;">
+    <div class="card">
+      <label>Zoek op regienummer</label>
+      <input type="text" id="camSearch" placeholder="Typ het regienummer...">
+      <div id="camResult"></div>
+    </div>
+  </section>
+
+  <!-- INTERVIEWER (naam/functie klein + vragen) -->
+  <section id="tab-interviewer" class="tabcontent" style="display:none;">
+    <div class="card">
+      <label>Zoek op regienummer</label>
+      <input type="text" id="intSearch" placeholder="Typ het regienummer...">
+      <div id="intResult"></div>
+    </div>
+  </section>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const STORAGE_KEY = "interview_intake_records_v2";
+const PROD_KEY = "interview_intake_producties_v1";
+let records = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+let producties = JSON.parse(localStorage.getItem(PROD_KEY) || "[]"); // [{naam, datum, vragen:[...]}]
+let editingId = null;
+let editingProductieNaam = null;
+let activeId = null;
+let maxChars = 40;
+
+function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(records)); }
+function saveProducties(){ localStorage.setItem(PROD_KEY, JSON.stringify(producties)); }
+function findProductie(naam){
+  const key = (naam||'').trim().toLowerCase();
+  return producties.find(p => p.naam.trim().toLowerCase() === key);
+}
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.style.display = 'block';
+  setTimeout(()=> t.style.display='none', 1800);
+}
+function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+function todayStr(){ return new Date().toISOString().slice(0,10); }
+
+// ---------- Settings panel ----------
+document.getElementById('settingsToggle').addEventListener('click', ()=>{
+  document.getElementById('settingsPanel').classList.toggle('open');
+});
+const maxCharsSetting = document.getElementById('maxCharsSetting');
+maxCharsSetting.addEventListener('input', ()=>{
+  maxChars = parseInt(maxCharsSetting.value || "40", 10);
+  updateNaamCount(); updateFunctieCount();
+});
+
+// ---------- Tabs ----------
+function goTab(name){
+  document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active', b.dataset.tab===name));
+  document.querySelectorAll('.tabcontent').forEach(s=>s.style.display = (s.id==='tab-'+name?'block':'none'));
+  if(name==='overzicht') renderTable();
+  if(name==='producties') renderProductiesTable();
+  window.scrollTo(0,0);
+}
+document.querySelectorAll('.tab').forEach(btn=>{
+  btn.addEventListener('click', ()=> goTab(btn.dataset.tab));
+});
+
+// ---------- Questions (generiek, wordt hergebruikt voor gast-vragen en productie-standaardvragen) ----------
+function addQuestionRow(wrapId, value=""){
+  const wrap = document.getElementById(wrapId);
+  if(wrap.children.length >= 7){ toast("Maximaal 7 vragen"); return; }
+  const row = document.createElement('div');
+  row.className = 'question-row';
+  row.innerHTML = `<textarea rows="1" placeholder="Vraag ${wrap.children.length+1}">${value}</textarea>
+    <button class="iconbtn removeQ" type="button" title="Verwijder">🗑️</button>`;
+  row.querySelector('.removeQ').addEventListener('click', ()=>{
+    if(wrap.children.length <= 4){ toast("Minimaal 4 vragen"); return; }
+    row.remove();
+  });
+  wrap.appendChild(row);
+}
+function getQuestions(wrapId){
+  return Array.from(document.querySelectorAll('#'+wrapId+' textarea')).map(t=>t.value.trim());
+}
+document.getElementById('addQuestion').addEventListener('click', ()=> addQuestionRow('questionsWrap'));
+function resetQuestions(list){
+  document.getElementById('questionsWrap').innerHTML = '';
+  const arr = (list && list.length) ? list : ["","","",""];
+  arr.forEach(q => addQuestionRow('questionsWrap', q));
+}
+
+document.getElementById('p_addQuestion').addEventListener('click', ()=> addQuestionRow('p_questionsWrap'));
+function resetProductieQuestions(list){
+  document.getElementById('p_questionsWrap').innerHTML = '';
+  const arr = (list && list.length) ? list : ["","","",""];
+  arr.forEach(q => addQuestionRow('p_questionsWrap', q));
+}
+
+// ---------- Character limits (naam + functie) ----------
+const naamInput = document.getElementById('f_naam');
+const naamCount = document.getElementById('f_naam_count');
+function updateNaamCount(){
+  const len = naamInput.value.length;
+  naamCount.textContent = `${len} / ${maxChars} tekens`;
+  naamCount.classList.toggle('warn', len > maxChars);
+}
+naamInput.addEventListener('input', updateNaamCount);
+
+const functieInput = document.getElementById('f_functie');
+const functieCount = document.getElementById('f_functie_count');
+function updateFunctieCount(){
+  const len = functieInput.value.length;
+  functieCount.textContent = `${len} / ${maxChars} tekens`;
+  functieCount.classList.toggle('warn', len > maxChars);
+}
+functieInput.addEventListener('input', updateFunctieCount);
+
+// ---------- Productie dropdown ----------
+function refreshProductieList(){
+  const dl = document.getElementById('productieList');
+  const names = Array.from(new Set([
+    ...records.map(r=>r.productie).filter(Boolean),
+    ...producties.map(p=>p.naam).filter(Boolean)
+  ]));
+  dl.innerHTML = names.map(n=>`<option value="${n}">`).join('');
+}
+
+// ---------- Producties: standaardvragen per productie voor Deelnemers ----------
+function clearProductieForm(){
+  editingProductieNaam = null;
+  document.getElementById('p_naam').value = '';
+  document.getElementById('p_datum').value = '';
+  resetProductieQuestions();
+}
+document.getElementById('p_clearBtn').addEventListener('click', clearProductieForm);
+document.getElementById('p_saveBtn').addEventListener('click', ()=>{
+  const naam = document.getElementById('p_naam').value.trim();
+  if(!naam){ toast("Vul een productienaam in"); return; }
+  const datum = document.getElementById('p_datum').value;
+  const vragen = getQuestions('p_questionsWrap');
+  const existing = findProductie(naam);
+  if(existing){ existing.datum = datum; existing.vragen = vragen; }
+  else { producties.push({ naam, datum, vragen }); }
+  saveProducties();
+  refreshProductieList();
+  toast("Productie-instellingen opgeslagen");
+  clearProductieForm();
+  renderProductiesTable();
+});
+function renderProductiesTable(){
+  const tbody = document.getElementById('p_tableBody');
+  tbody.innerHTML = '';
+  producties.forEach(p=>{
+    const tr = document.createElement('tr');
+    const vCount = (p.vragen||[]).filter(q=>q).length;
+    tr.innerHTML = `<td>${p.naam}</td><td>${p.datum||'—'}</td><td>${vCount} vragen</td>
+      <td><button class="iconbtn editP" title="Bewerk">✏️</button><button class="iconbtn delP" title="Verwijder">🗑️</button></td>`;
+    tr.querySelector('.editP').addEventListener('click', ()=>{
+      editingProductieNaam = p.naam;
+      document.getElementById('p_naam').value = p.naam;
+      document.getElementById('p_datum').value = p.datum||'';
+      resetProductieQuestions(p.vragen);
+    });
+    tr.querySelector('.delP').addEventListener('click', ()=>{
+      if(confirm(`Productie-instellingen voor ${p.naam} verwijderen?`)){
+        producties = producties.filter(x=>x!==p);
+        saveProducties();
+        renderProductiesTable();
+      }
+    });
+    tbody.appendChild(tr);
+  });
+}
+
+// ---------- Standaardvragen deelnemers gebruiken in Nieuw ----------
+function checkPresetAvailable(){
+  const type = document.getElementById('f_type').value;
+  const productie = document.getElementById('f_productie').value.trim();
+  const match = type === 'Deelnemer' ? findProductie(productie) : null;
+  const wrap = document.getElementById('deelnemerPresetWrap');
+  wrap.style.display = (match && (match.vragen||[]).some(q=>q)) ? 'flex' : 'none';
+}
+document.getElementById('f_type').addEventListener('change', checkPresetAvailable);
+document.getElementById('f_productie').addEventListener('input', checkPresetAvailable);
+document.getElementById('usePresetBtn').addEventListener('click', ()=>{
+  const productie = document.getElementById('f_productie').value.trim();
+  const match = findProductie(productie);
+  if(!match) return;
+  const hasContent = getQuestions('questionsWrap').some(q=>q);
+  if(hasContent && !confirm('Huidige vragen overschrijven met de standaardvragen?')) return;
+  resetQuestions(match.vragen);
+});
+
+// ---------- Regienummer: uniek en doorlopend per dag, pas definitief bij controle ----------
+function nextRegienummer(datum){
+  const d = datum || todayStr();
+  const nums = records.filter(r=>r.datum===d).map(r=>parseInt(r.regienummer,10)).filter(n=>!isNaN(n));
+  return nums.length ? String(Math.max(...nums)+1) : "1";
+}
+// Wordt eenmalig en idempotent aangeroepen zodra een record op "Gecontroleerd" gaat.
+function finalizeRecord(rec){
+  if(rec.tijd) return;
+  const now = new Date();
+  rec.datum = now.toISOString().slice(0,10);
+  rec.tijd = now.toTimeString().slice(0,5);
+  if(!rec.regienummer){ rec.regienummer = nextRegienummer(rec.datum); }
+}
+
+// ---------- Save (Nieuw) ----------
+document.getElementById('saveBtn').addEventListener('click', ()=>{
+  const naam = naamInput.value.trim();
+  const functie = functieInput.value.trim();
+  if(!naam){ toast("Vul een naam in"); return; }
+  const questions = getQuestions('questionsWrap');
+  const productie = document.getElementById('f_productie').value.trim();
+  const type = document.getElementById('f_type').value;
+  const planning = document.getElementById('f_planning').value.trim();
+  const gedeeld = document.getElementById('f_gedeeld').checked;
+  if(editingId){
+    const rec = records.find(r=>r.id===editingId);
+    rec.productie = productie; rec.naam = naam; rec.functie = functie; rec.questions = questions;
+    rec.type = type; rec.planning = planning; rec.gedeeld = gedeeld;
+  } else {
+    records.push({
+      id: uid(),
+      productie, naam, functie, questions, type, planning, gedeeld,
+      status: "Ingevoerd",
+      regienummer: "", datum: "", tijd: ""
+    });
+  }
+  save();
+  refreshProductieList();
+  toast("Opgeslagen");
+  clearForm();
+});
+
+function clearForm(){
+  editingId = null;
+  document.getElementById('f_productie').value = '';
+  document.getElementById('f_type').value = '';
+  document.getElementById('f_planning').value = '';
+  document.getElementById('f_gedeeld').checked = false;
+  naamInput.value = '';
+  functieInput.value = '';
+  resetQuestions();
+  updateNaamCount();
+  updateFunctieCount();
+  checkPresetAvailable();
+}
+document.getElementById('clearBtn').addEventListener('click', clearForm);
+
+function loadForEdit(id){
+  const r = records.find(x=>x.id===id);
+  if(!r) return;
+  editingId = id;
+  document.getElementById('f_productie').value = r.productie||'';
+  document.getElementById('f_type').value = r.type||'';
+  document.getElementById('f_planning').value = r.planning||'';
+  document.getElementById('f_gedeeld').checked = !!r.gedeeld;
+  naamInput.value = r.naam||'';
+  functieInput.value = r.functie||'';
+  resetQuestions(r.questions);
+  updateNaamCount(); updateFunctieCount();
+  checkPresetAvailable();
+  goTab('nieuw');
+}
+
+// ---------- Overzicht ----------
+function renderTable(filter=""){
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = '';
+  const f = filter.toLowerCase();
+  const filtered = records.filter(r =>
+    !f || [r.naam,r.functie,r.regienummer,r.productie].join(' ').toLowerCase().includes(f)
+  ).sort((a,b)=> (a.datum||'zzz').localeCompare(b.datum||'zzz') || ((parseInt(a.regienummer)||9999) - (parseInt(b.regienummer)||9999)));
+
+  document.getElementById('emptyState').style.display = filtered.length ? 'none' : 'block';
+
+  filtered.forEach(r=>{
+    const tr = document.createElement('tr');
+    tr.className = 'dataRow';
+    const planning = r.planning ? `<div style="font-size:11px;color:var(--muted);">${r.planning}</div>` : '';
+    tr.innerHTML = `<td>${r.regienummer || '—'}</td>
+      <td><div>${r.naam}</div>${planning}</td>
+      <td>${r.functie}</td>
+      <td><span class="pill st-${r.status}" data-id="${r.id}">${r.status}</span></td>
+      <td><button class="iconbtn editBtn" title="Bewerk">✏️</button><button class="iconbtn delBtn" title="Verwijder">🗑️</button></td>`;
+    tr.addEventListener('click', ()=>{
+      activeId = r.id;
+      if(r.status === 'Ingevoerd'){ goTab('controle'); renderControle(); }
+      else { goTab('camera'); renderCamera(); }
+    });
+    tr.querySelector('.pill').addEventListener('click', (e)=>{
+      e.stopPropagation();
+      const order = ['Ingevoerd','Gecontroleerd','Opgenomen'];
+      const idx = order.indexOf(r.status);
+      const next = order[(idx+1)%order.length];
+      if(next === 'Gecontroleerd') finalizeRecord(r);
+      r.status = next;
+      save();
+      renderTable(document.getElementById('searchBox').value);
+    });
+    tr.querySelector('.editBtn').addEventListener('click', (e)=>{ e.stopPropagation(); loadForEdit(r.id); });
+    tr.querySelector('.delBtn').addEventListener('click', (e)=>{
+      e.stopPropagation();
+      if(confirm(`Record van ${r.naam} verwijderen?`)){
+        records = records.filter(x=>x.id!==r.id);
+        save(); renderTable(document.getElementById('searchBox').value);
+      }
+    });
+    tbody.appendChild(tr);
+  });
+}
+document.getElementById('searchBox').addEventListener('input', (e)=> renderTable(e.target.value));
+
+// ---------- Controle: minimale info voor de gast ----------
+function renderControle(){
+  const result = document.getElementById('controleResult');
+  const r = records.find(x=>x.id===activeId);
+  if(!r){ result.innerHTML = ''; return; }
+  result.innerHTML = `
+    <label>Naam</label>
+    <input type="text" id="c_naam" value="${r.naam.replace(/"/g,'&quot;')}">
+    <label>Functie</label>
+    <input type="text" id="c_functie" value="${r.functie.replace(/"/g,'&quot;')}">
+    <div class="charcount" id="c_functie_count"></div>
+    <div class="actions" style="margin-top:20px;">
+      <button class="btn big ok" id="confirmBtn">✓ Gecontroleerd, dit klopt</button>
+    </div>`;
+  const cFunctie = document.getElementById('c_functie');
+  const cCount = document.getElementById('c_functie_count');
+  function updCount(){
+    const len = cFunctie.value.length;
+    cCount.textContent = `${len} / ${maxChars} tekens`;
+    cCount.classList.toggle('warn', len > maxChars);
+  }
+  cFunctie.addEventListener('input', updCount);
+  updCount();
+  document.getElementById('confirmBtn').addEventListener('click', ()=>{
+    r.naam = document.getElementById('c_naam').value.trim() || r.naam;
+    r.functie = cFunctie.value.trim();
+    finalizeRecord(r);
+    r.status = 'Gecontroleerd';
+    save();
+    toast(`Bevestigd, regienummer ${r.regienummer}`);
+    goTab('camera');
+    renderCamera();
+  });
+}
+document.getElementById('controleSearch').addEventListener('input', (e)=>{
+  const val = e.target.value.trim().toLowerCase();
+  if(!val){ document.getElementById('controleResult').innerHTML=''; return; }
+  const r = records.find(x=> x.naam.toLowerCase().includes(val));
+  if(r){ activeId = r.id; renderControle(); }
+  else { document.getElementById('controleResult').innerHTML = '<div class="empty">Geen gast gevonden met deze naam.</div>'; }
+});
+
+// ---------- Camera view (alleen groot nummer) ----------
+function renderCamera(){
+  const result = document.getElementById('camResult');
+  const r = records.find(x=>x.id===activeId);
+  if(!r || !r.regienummer){ result.innerHTML=''; return; }
+  document.getElementById('camSearch').value = r.regienummer;
+  result.innerHTML = `
+    <div class="cam-view">
+      <div class="cam-number">${r.regienummer}</div>
+      <div class="cam-sub">${r.productie||''}</div>
+      <div class="actions" style="justify-content:center;">
+        <button class="btn" id="goInterviewerBtn">Interviewvragen tonen →</button>
+      </div>
+    </div>`;
+  document.getElementById('goInterviewerBtn').addEventListener('click', ()=>{
+    goTab('interviewer');
+    renderInterviewer();
+  });
+}
+document.getElementById('camSearch').addEventListener('input', (e)=>{
+  const val = e.target.value.trim();
+  const r = records.find(x=> x.regienummer === val);
+  const result = document.getElementById('camResult');
+  if(!val){ result.innerHTML=''; return; }
+  if(!r){ result.innerHTML = '<div class="empty">Geen record gevonden met dit regienummer.</div>'; return; }
+  activeId = r.id;
+  renderCamera();
+});
+
+// ---------- Interviewer view ----------
+function renderInterviewer(){
+  const result = document.getElementById('intResult');
+  const r = records.find(x=>x.id===activeId);
+  if(!r){ result.innerHTML=''; return; }
+  document.getElementById('intSearch').value = r.regienummer||'';
+  const qList = (r.questions||[]).filter(q=>q).map(q=>`<li>${q}</li>`).join('');
+  const overLimiet = r.functie && r.functie.length > maxChars;
+  const gedeeldHtml = r.gedeeld
+    ? `<div class="charcount" style="color:var(--st-gecontroleerd);">Let op: deze vragen zijn vooraf gedeeld met de gast</div>`
+    : `<div class="charcount">Vragen zijn niet vooraf gedeeld</div>`;
+  result.innerHTML = `
+    <div class="interviewer-head">
+      <div>
+        <div class="naam">${r.naam}</div>
+        <div class="functie">${r.functie}${overLimiet ? ' ⚠️ te lang voor lowerthird' : ''}</div>
+      </div>
+      <div class="nr">Regie #${r.regienummer||'—'}</div>
+    </div>
+    ${gedeeldHtml}
+    <ol class="questions-list">${qList || '<li class="empty">Geen vragen ingevuld</li>'}</ol>
+    <div class="actions">
+      <button class="btn ok" id="doneBtn">✓ Opgenomen</button>
+    </div>`;
+  document.getElementById('doneBtn').addEventListener('click', ()=>{
+    r.status = 'Opgenomen';
+    save();
+    toast('Gemarkeerd als opgenomen');
+    renderTable();
+  });
+}
+document.getElementById('intSearch').addEventListener('input', (e)=>{
+  const val = e.target.value.trim();
+  const r = records.find(x=> x.regienummer === val);
+  const result = document.getElementById('intResult');
+  if(!val){ result.innerHTML=''; return; }
+  if(!r){ result.innerHTML = '<div class="empty">Geen record gevonden met dit regienummer.</div>'; return; }
+  activeId = r.id;
+  renderInterviewer();
+});
+
+// ---------- Export / Import JSON ----------
+document.getElementById('exportBtn').addEventListener('click', ()=>{
+  const blob = new Blob([JSON.stringify(records, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `interview-intake-${todayStr()}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+});
+document.getElementById('importJsonBtn').addEventListener('click', ()=> document.getElementById('importJsonFile').click());
+document.getElementById('importJsonFile').addEventListener('change', (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try{
+      const incoming = JSON.parse(reader.result);
+      const existingIds = new Set(records.map(r=>r.id));
+      let added = 0;
+      incoming.forEach(r=>{ if(!existingIds.has(r.id)){ records.push(r); added++; } });
+      save(); refreshProductieList(); renderTable();
+      toast(`${added} record(en) geimporteerd`);
+    }catch(err){ toast("Kon JSON bestand niet lezen"); }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+});
+
+// ---------- Export CSV (dubbelt als sjabloon voor Import CSV) ----------
+const CSV_HEADERS = ['productienaam','type','naam','functie','planning','gedeeld','vraag1','vraag2','vraag3','vraag4','vraag5','vraag6','vraag7','status','regienummer','datum','tijd'];
+function toCSVField(val){
+  val = (val==null) ? '' : String(val);
+  if(/[",\n]/.test(val)){ val = '"' + val.replace(/"/g,'""') + '"'; }
+  return val;
+}
+function recordsToCSV(list){
+  const lines = [CSV_HEADERS.join(',')];
+  const source = list.length ? list : [{
+    productie:'Voorbeeld Event 2026', type:'Deelnemer', naam:'Jan Jansen', functie:'Directeur Innovatie',
+    planning:'interview voor de lunch', gedeeld:false,
+    questions:['Wat merkte u vandaag het meest op?','Wat was het hoogtepunt?','Wat neemt u mee naar volgend jaar?','Heeft u nog een boodschap voor de kijker?'],
+    status:'Ingevoerd', regienummer:'', datum:'', tijd:''
+  }];
+  source.forEach(r=>{
+    const q = r.questions || [];
+    const row = [r.productie,r.type,r.naam,r.functie,r.planning,(r.gedeeld?'ja':'nee'),q[0],q[1],q[2],q[3],q[4],q[5],q[6],r.status,r.regienummer,r.datum,r.tijd].map(toCSVField);
+    lines.push(row.join(','));
+  });
+  return lines.join('\r\n');
+}
+document.getElementById('exportCsvBtn').addEventListener('click', ()=>{
+  const csv = recordsToCSV(records);
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `interview-intake-${todayStr()}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+// ---------- Import CSV ----------
+function splitCSVLine(line){
+  const result = []; let cur = ''; let inQuotes = false;
+  for(let i=0;i<line.length;i++){
+    const ch = line[i];
+    if(ch === '"'){ inQuotes = !inQuotes; continue; }
+    if(ch === ',' && !inQuotes){ result.push(cur); cur=''; continue; }
+    cur += ch;
+  }
+  result.push(cur);
+  return result;
+}
+function parseCSV(text){
+  const lines = text.split(/\r?\n/).filter(l=>l.trim().length);
+  if(!lines.length) return [];
+  const headers = splitCSVLine(lines[0]).map(h=>h.trim().toLowerCase());
+  return lines.slice(1).map(line=>{
+    const cols = splitCSVLine(line);
+    const obj = {};
+    headers.forEach((h,i)=> obj[h] = (cols[i]||'').trim());
+    return obj;
+  });
+}
+function csvRowToRecord(row){
+  const questions = [];
+  for(let i=1;i<=7;i++){ if(row['vraag'+i]) questions.push(row['vraag'+i]); }
+  if(questions.length===0 && row['vragen']){
+    row['vragen'].split(';').map(s=>s.trim()).filter(Boolean).forEach(q=>questions.push(q));
+  }
+  while(questions.length<4) questions.push('');
+  return {
+    id: uid(),
+    productie: row['productienaam'] || row['productie'] || '',
+    type: row['type'] || '',
+    naam: row['naam'] || '',
+    functie: row['functie'] || '',
+    planning: row['planning'] || '',
+    gedeeld: /^(ja|true|1)$/i.test(row['gedeeld']||''),
+    questions,
+    status: row['status'] || 'Ingevoerd',
+    regienummer: row['regienummer'] || '',
+    datum: row['datum'] || '',
+    tijd: row['tijd'] || ''
+  };
+}
+document.getElementById('importCsvBtn').addEventListener('click', ()=> document.getElementById('importCsvFile').click());
+document.getElementById('importCsvFile').addEventListener('change', (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try{
+      const rows = parseCSV(reader.result);
+      let added = 0;
+      rows.forEach(row=>{
+        const rec = csvRowToRecord(row);
+        if(rec.naam){ records.push(rec); added++; }
+      });
+      save(); refreshProductieList(); renderTable();
+      toast(`${added} record(en) uit spreadsheet geimporteerd`);
+    }catch(err){ toast("Kon CSV bestand niet lezen"); }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+});
+
+// ---------- init ----------
+resetQuestions();
+resetProductieQuestions();
+updateNaamCount();
+updateFunctieCount();
+refreshProductieList();
+checkPresetAvailable();
+renderTable();
+</script>
+</body>
+</html>
