@@ -1,5 +1,5 @@
 import { neon } from '@neondatabase/serverless'
-import type { Gast, GastStatus, InterviewSettings, Productie, ProductieStatus } from './types'
+import type { Gast, GastStatus, InterviewSettings, Productie, ProductieStatus } from './_types'
 
 let schemaReady: Promise<void> | null = null
 
