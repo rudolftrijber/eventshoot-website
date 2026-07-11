@@ -187,7 +187,7 @@ export default {
     buitenLink: 'Bekijk mijn persoonlijk gallery →',
     crewH2: 'De crew',
     crewMauriceName: 'Maurice Antenbrink',
-    crewMauriceP1: 'Maurice is onze vaste AV specialist en een betrouwbare kracht binnen Trijber Media. Al meer dan zes jaar werken we intensief samen, altijd met dezelfde constante: zijn integriteit, loyaliteit en focus op kwaliteit. Maurice denkt mee, schakelt snel en weet in 99% van de gevallen elk AV-probleem ter plekke op te lossen.',
+    crewMauriceP1: 'Maurice is onze vaste AV specialist en een betrouwbare kracht binnen Eventshoot.nl. Al meer dan zes jaar werken we intensief samen, altijd met dezelfde constante: zijn integriteit, loyaliteit en focus op kwaliteit. Maurice denkt mee, schakelt snel en weet in 99% van de gevallen elk AV-probleem ter plekke op te lossen.',
     crewMauriceP2: 'Een toegewijde professional die het beste voor onze klanten wil, en een collega op wie je altijd kunt bouwen.',
     crewRonName: 'Ron Gessel',
     crewRonP1: 'Ron is een van die zeldzame fotografen met wie de samenwerking vanzelfsprekend voelt. Al meer dan veertig jaar begrijpen we elkaar feilloos als het gaat om het creëren van sterke, tijdloze beelden. Zijn loyaliteit, vakmanschap en betrouwbaarheid zijn ongeëvenaard, en elke opdracht met hem is een plezier om te realiseren.',
