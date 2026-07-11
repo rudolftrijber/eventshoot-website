@@ -1,8 +1,8 @@
-import type { NeonQueryFunction } from '@neondatabase/serverless'
 import type { Gast, GastStatus, InterviewSettings, Productie, ProductieStatus } from './_types'
 
 let schemaReady: Promise<void> | null = null
-let sqlClient: NeonQueryFunction<false, false> | null = null
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let sqlClient: any = null
 
 export async function getSql() {
   if (!sqlClient) {

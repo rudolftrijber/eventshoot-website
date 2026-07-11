@@ -1,20 +1,21 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { requireAuth } from './_session'
-import {
-  ensureSchema,
-  fetchGuests,
-  fetchProducties,
-  fetchSettings,
-} from './_database'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'GET') {
     res.status(405).json({ error: 'Method not allowed' })
     return
   }
+
+  const { requireAuth } = await import('./_session')
   if (!requireAuth(req, res)) return
 
   try {
+    const {
+      ensureSchema,
+      fetchGuests,
+      fetchProducties,
+      fetchSettings,
+    } = await import('./_database')
     await ensureSchema()
     const [guests, productions, settings] = await Promise.all([
       fetchGuests(),
