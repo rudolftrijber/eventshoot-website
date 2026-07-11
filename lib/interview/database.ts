@@ -1,4 +1,4 @@
-import type { Gast, GastStatus, InterviewSettings, Productie, ProductieStatus } from './_types'
+import type { Gast, GastStatus, InterviewSettings, Productie, ProductieStatus } from './types'
 
 let schemaReady: Promise<void> | null = null
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

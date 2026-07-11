@@ -1,11 +1,11 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { requireAuth } from './_session'
+import { requireAuth } from '../../lib/interview/session'
 import {
   createGuest,
   ensureSchema,
   fetchGuests,
-} from './_database'
-import type { Gast } from './_types'
+} from '../../lib/interview/database'
+import type { Gast } from '../../lib/interview/types'
 
 function uid(): string {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 7)

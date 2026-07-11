@@ -9,4 +9,13 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  server: {
+    proxy: {
+      '/api': {
+        target: 'https://eventshoot.nl',
+        changeOrigin: true,
+        secure: true,
+      },
+    },
+  },
 })

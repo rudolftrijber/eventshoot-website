@@ -17,7 +17,11 @@ async function api<T>(url: string, options?: RequestInit): Promise<T> {
       const err = JSON.parse(text) as { error?: string }
       message = err.error || message
     } catch {
-      if (text && !text.includes('FUNCTION_INVOCATION_FAILED')) message = text.slice(0, 120)
+      if (text.includes('FUNCTION_INVOCATION_FAILED')) {
+        message = 'API-fout op de server. Deploy de nieuwste versie of gebruik vercel dev lokaal.'
+      } else if (text) {
+        message = text.slice(0, 120)
+      }
     }
     throw new Error(message)
   }

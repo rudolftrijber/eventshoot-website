@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:vercel": "vercel dev",
     "build": "vue-tsc -b && vite build && node scripts/prerender-klanten.mjs",
     "preview": "vite preview",
     "lint": "eslint . --ext .vue,.ts,.tsx --fix",

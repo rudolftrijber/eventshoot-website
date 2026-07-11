@@ -28,7 +28,7 @@ watch(() => route.path, () => {
 </script>
 
 <template>
-  <div v-if="!hideLayout" class="app-bg">
+  <div class="app-bg">
     <BackgroundVideo
       video-class="app-bg__video"
       src="/images/es_bokey_bckgrnd_v1-1080p.mp4"

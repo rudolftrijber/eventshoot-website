@@ -12,6 +12,19 @@ import {
   todayStr,
 } from '@/utils/interviewCsv'
 import '@/assets/interview-app.css'
+import {
+  ArchiveBoxIcon,
+  ArrowRightOnRectangleIcon,
+  CalendarDaysIcon,
+  ChartBarSquareIcon,
+  ClipboardDocumentCheckIcon,
+  Cog6ToothIcon,
+  MicrophoneIcon,
+  PlusCircleIcon,
+  QueueListIcon,
+  VideoCameraIcon,
+} from '@heroicons/vue/24/outline'
+import type { Component } from 'vue'
 
 const store = useInterviewStore()
 
@@ -53,18 +66,36 @@ const confirmOpgenomen = ref(false)
 
 let toastTimer: ReturnType<typeof setTimeout> | null = null
 
-const tabs: { id: TabId; label: string }[] = [
-  { id: 'nieuw', label: 'Nieuw' },
-  { id: 'overzicht', label: 'Overzicht' },
-  { id: 'producties', label: 'Producties' },
-  { id: 'controle', label: 'Controle' },
-  { id: 'camera', label: 'Camera' },
-  { id: 'interviewer', label: 'Interviewer' },
-  { id: 'dashboard', label: 'Dashboard' },
-  { id: 'archief', label: 'Archief' },
+const tabs: { id: TabId; label: string; icon: Component }[] = [
+  { id: 'nieuw', label: 'Nieuw', icon: PlusCircleIcon },
+  { id: 'overzicht', label: 'Overzicht', icon: QueueListIcon },
+  { id: 'producties', label: 'Producties', icon: CalendarDaysIcon },
+  { id: 'controle', label: 'Controle', icon: ClipboardDocumentCheckIcon },
+  { id: 'camera', label: 'Camera', icon: VideoCameraIcon },
+  { id: 'interviewer', label: 'Interviewer', icon: MicrophoneIcon },
+  { id: 'dashboard', label: 'Dashboard', icon: ChartBarSquareIcon },
+  { id: 'archief', label: 'Archief', icon: ArchiveBoxIcon },
 ]
 
+const sortedProductions = computed(() =>
+  [...store.activeProductions].sort((a, b) => a.naam.localeCompare(b.naam, 'nl')),
+)
+
+const fProductieCustom = ref(false)
+
 const maxChars = computed(() => store.settings.maxChars)
+
+function useProductieSelect() {
+  fProductieCustom.value = false
+  if (!sortedProductions.value.some((p) => p.naam === fProductie.value)) {
+    fProductie.value = ''
+  }
+}
+
+function useProductieCustom() {
+  fProductieCustom.value = true
+  fProductie.value = ''
+}
 
 const naamOverLimit = computed(() => fNaam.value.length > maxChars.value)
 const functieOverLimit = computed(() => fFunctie.value.length > maxChars.value)
@@ -146,6 +177,7 @@ function resetQuestions(list: { value: string[] }, values?: string[]) {
 function clearForm() {
   editingId.value = null
   fProductie.value = ''
+  fProductieCustom.value = false
   fType.value = ''
   fPlanning.value = ''
   fGedeeld.value = false
@@ -188,6 +220,7 @@ async function saveGuest() {
 function loadForEdit(g: Gast) {
   editingId.value = g.id
   fProductie.value = g.productieNaam
+  fProductieCustom.value = !sortedProductions.value.some((p) => p.naam === g.productieNaam)
   fType.value = g.type
   fPlanning.value = g.planning
   fGedeeld.value = g.gedeeld
@@ -391,55 +424,95 @@ watch(() => store.activeTab, (tab) => {
 
 <template>
   <div class="interview-app">
+    <div class="ia-topbar">
+      <img class="ia-topbar__logo" src="/images/logos/logo.svg" alt="Eventshoot.nl" />
+    </div>
+
     <!-- Login -->
-    <div v-if="!store.authenticated" class="ia-login">
-      <img class="ia-login__logo" src="/images/logos/logo.svg" alt="Eventshoot.nl" />
-      <div class="ia-login__card">
-        <h1>Interview App</h1>
-        <p>Log in met het crew-wachtwoord om gasten en interviews te beheren.</p>
-        <label class="ia-label" for="pw">Wachtwoord</label>
-        <input
-          id="pw"
-          v-model="password"
-          class="ia-input"
-          type="password"
-          autocomplete="current-password"
-          @keyup.enter="handleLogin"
+    <template v-if="!store.authenticated">
+      <div class="ia-hero">
+        <img
+          class="ia-hero__img"
+          src="/DATA_EVENTSHOOT/SITE_IMAGES/WERK/rolf_trijber_interview_5.jpg"
+          alt="Interview opname op locatie"
         />
-        <p v-if="loginError" class="ia-error">{{ loginError }}</p>
-        <div class="ia-actions">
-          <button class="ia-btn ia-btn--accent" type="button" @click="handleLogin">Inloggen</button>
+        <div class="ia-hero__overlay" />
+        <div class="ia-hero__content">
+          <h1>Interview App</h1>
         </div>
       </div>
-    </div>
+      <div class="ia-body">
+        <div class="ia-login">
+          <div class="ia-login__card">
+            <p>Log in met het crew-wachtwoord om gasten en interviews te beheren.</p>
+            <label class="ia-label" for="pw">Wachtwoord</label>
+            <input
+              id="pw"
+              v-model="password"
+              class="ia-input"
+              type="password"
+              autocomplete="current-password"
+              @keyup.enter="handleLogin"
+            />
+            <p v-if="loginError" class="ia-error">{{ loginError }}</p>
+            <div class="ia-actions">
+              <button class="ia-btn ia-btn--accent" type="button" @click="handleLogin">Inloggen</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </template>
 
     <!-- App -->
     <template v-else>
       <div class="ia-hero">
-        <div class="ia-hero__img">Interviewfoto volgt</div>
-        <h1>Interview App</h1>
+        <img
+          class="ia-hero__img"
+          src="/DATA_EVENTSHOOT/SITE_IMAGES/WERK/rolf_trijber_interview_5.jpg"
+          alt="Interview opname op locatie"
+        />
+        <div class="ia-hero__overlay" />
+        <div class="ia-hero__content">
+          <h1>Interview App</h1>
+        </div>
       </div>
 
-      <header class="ia-header">
-        <div class="ia-header__brand">
-          <img src="/images/logos/logo.svg" alt="Eventshoot.nl" />
-          <span>Interview App</span>
-        </div>
-        <div class="ia-tabs">
-          <button
-            v-for="t in tabs"
-            :key="t.id"
-            class="ia-tab"
-            :class="{ active: store.activeTab === t.id }"
-            type="button"
-            @click="store.setTab(t.id)"
-          >
-            {{ t.label }}
-          </button>
-          <button class="ia-tab ia-tab--logout" type="button" title="Instellingen" @click="settingsOpen = !settingsOpen">⚙️</button>
-          <button class="ia-tab ia-tab--logout" type="button" @click="store.logout()">Uit</button>
-        </div>
-      </header>
+      <div class="ia-body">
+        <div class="ia-shell">
+          <header class="ia-shell__nav">
+            <div class="ia-tabs-wrap">
+              <nav class="ia-tabs" aria-label="Interview app menu">
+                <button
+                  v-for="t in tabs"
+                  :key="t.id"
+                  class="ia-tab"
+                  :class="{ active: store.activeTab === t.id }"
+                  type="button"
+                  :title="t.label"
+                  @click="store.setTab(t.id)"
+                >
+                  <component :is="t.icon" class="ia-tab__icon" aria-hidden="true" />
+                  <span class="ia-tab__label">{{ t.label }}</span>
+                </button>
+              </nav>
+              <div class="ia-tabs-utils">
+                <button
+                  class="ia-tab ia-tab--util"
+                  :class="{ active: settingsOpen }"
+                  type="button"
+                  title="Instellingen"
+                  @click="settingsOpen = !settingsOpen"
+                >
+                  <Cog6ToothIcon class="ia-tab__icon" aria-hidden="true" />
+                  <span class="ia-tab__label">Instellingen</span>
+                </button>
+                <button class="ia-tab ia-tab--util ia-tab--logout" type="button" title="Uitloggen" @click="store.logout()">
+                  <ArrowRightOnRectangleIcon class="ia-tab__icon" aria-hidden="true" />
+                  <span class="ia-tab__label">Uit</span>
+                </button>
+              </div>
+            </div>
+          </header>
 
       <div v-if="settingsOpen" class="ia-settings">
         <div class="ia-row">
@@ -471,17 +544,31 @@ watch(() => store.activeTab, (tab) => {
         </div>
       </div>
 
-      <main class="ia-main">
+      <main class="ia-shell__main">
         <!-- NIEUW -->
         <section v-if="store.activeTab === 'nieuw'">
           <div class="ia-card">
             <div class="ia-row">
               <div>
                 <label class="ia-label">Productie</label>
-                <input v-model="fProductie" class="ia-input" list="productieList" placeholder="kies of typ productienaam" />
-                <datalist id="productieList">
-                  <option v-for="n in store.productieNames" :key="n" :value="n" />
-                </datalist>
+                <template v-if="sortedProductions.length && !fProductieCustom">
+                  <select v-model="fProductie" class="ia-select">
+                    <option value="" disabled>— kies productie —</option>
+                    <option v-for="p in sortedProductions" :key="p.id" :value="p.naam">{{ p.naam }}</option>
+                  </select>
+                  <button class="ia-link-btn" type="button" @click="useProductieCustom">Of typ een andere naam</button>
+                </template>
+                <template v-else-if="sortedProductions.length && fProductieCustom">
+                  <input v-model="fProductie" class="ia-input" placeholder="typ productienaam" />
+                  <button class="ia-link-btn" type="button" @click="useProductieSelect">← Kies uit lijst</button>
+                </template>
+                <template v-else>
+                  <input v-model="fProductie" class="ia-input" placeholder="typ productienaam" />
+                  <p class="ia-hint">
+                    Nog geen producties.
+                    <button class="ia-link-btn" type="button" @click="store.setTab('producties')">Maak er een aan onder Producties</button>
+                  </p>
+                </template>
               </div>
               <div>
                 <label class="ia-label">Type gast</label>
@@ -561,7 +648,7 @@ watch(() => store.activeTab, (tab) => {
         <section v-if="store.activeTab === 'producties'">
           <div class="ia-card">
             <label class="ia-label">Productienaam</label>
-            <input v-model="pNaam" class="ia-input" list="productieList" />
+            <input v-model="pNaam" class="ia-input" placeholder="naam van de productie" />
             <label class="ia-label">Productiedatum</label>
             <input v-model="pDatum" class="ia-input" type="date" />
             <label class="ia-label">Status</label>
@@ -716,7 +803,7 @@ watch(() => store.activeTab, (tab) => {
         <!-- DASHBOARD -->
         <section v-if="store.activeTab === 'dashboard'">
           <div class="ia-card">
-            <h2 style="color:var(--color-blue);margin-bottom:0.5rem">Opgenomen interviews</h2>
+            <h2 style="color:var(--color-accent);margin-bottom:0.5rem">Opgenomen interviews</h2>
             <p class="ia-dashboard-stat">{{ store.opgenomenGuests.length }}</p>
             <p style="color:var(--color-text-muted);margin-bottom:1rem">interviews vandaag afgerond</p>
             <table class="ia-table">
@@ -738,7 +825,7 @@ watch(() => store.activeTab, (tab) => {
         <!-- ARCHIEF -->
         <section v-if="store.activeTab === 'archief'">
           <div class="ia-card">
-            <h2 style="color:var(--color-blue);margin-bottom:1rem">Gearchiveerde producties</h2>
+            <h2 style="color:var(--color-accent);margin-bottom:1rem">Gearchiveerde producties</h2>
             <table class="ia-table">
               <thead><tr><th>Productie</th><th>Datum</th><th>Status</th><th></th></tr></thead>
               <tbody>
@@ -761,6 +848,8 @@ watch(() => store.activeTab, (tab) => {
           </div>
         </section>
       </main>
+        </div>
+      </div>
     </template>
 
     <div v-if="toast" class="ia-toast">{{ toast }}</div>

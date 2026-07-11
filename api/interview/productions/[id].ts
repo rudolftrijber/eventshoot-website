@@ -1,11 +1,11 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { requireAuth } from '../_session'
+import { requireAuth } from '../../../lib/interview/session'
 import {
   deleteProductie,
   ensureSchema,
   updateProductie,
-} from '../_database'
-import type { ProductieStatus } from '../_types'
+} from '../../../lib/interview/database'
+import type { ProductieStatus } from '../../../lib/interview/types'
 
 function parseBody(req: VercelRequest): Record<string, unknown> {
   return typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {})
