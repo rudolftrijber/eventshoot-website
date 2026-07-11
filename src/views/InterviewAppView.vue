@@ -489,10 +489,10 @@ watch(() => store.activeTab, (tab) => {
                   :class="{ active: store.activeTab === t.id }"
                   type="button"
                   :title="t.label"
+                  :aria-label="t.label"
                   @click="store.setTab(t.id)"
                 >
                   <component :is="t.icon" class="ia-tab__icon" aria-hidden="true" />
-                  <span class="ia-tab__label">{{ t.label }}</span>
                 </button>
               </nav>
               <div class="ia-tabs-utils">
@@ -501,14 +501,13 @@ watch(() => store.activeTab, (tab) => {
                   :class="{ active: settingsOpen }"
                   type="button"
                   title="Instellingen"
+                  aria-label="Instellingen"
                   @click="settingsOpen = !settingsOpen"
                 >
                   <Cog6ToothIcon class="ia-tab__icon" aria-hidden="true" />
-                  <span class="ia-tab__label">Instellingen</span>
                 </button>
-                <button class="ia-tab ia-tab--util ia-tab--logout" type="button" title="Uitloggen" @click="store.logout()">
+                <button class="ia-tab ia-tab--util ia-tab--logout" type="button" title="Uitloggen" aria-label="Uitloggen" @click="store.logout()">
                   <ArrowRightOnRectangleIcon class="ia-tab__icon" aria-hidden="true" />
-                  <span class="ia-tab__label">Uit</span>
                 </button>
               </div>
             </div>
