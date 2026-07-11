@@ -110,7 +110,7 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
 
     res.status(400).json({ error: 'Onbekende actie' })
   } catch (err) {
-    console.error('interview auth error:', err)
+    console.error('interview login error:', err)
     res.status(500).json({ error: 'Login mislukt' })
   }
 }
