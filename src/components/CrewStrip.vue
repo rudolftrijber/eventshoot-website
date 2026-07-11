@@ -29,12 +29,14 @@ const members = computed(() => [
       <h2 class="crew__title">{{ t('overRolf.crewH2') }}</h2>
       <div class="crew__grid">
         <article v-for="member in members" :key="member.name" class="crew__card">
-          <img
-            :src="member.photo"
-            :alt="member.name"
-            class="crew__photo"
-            loading="lazy"
-          />
+          <div class="crew__photo-wrap">
+            <img
+              :src="member.photo"
+              :alt="member.name"
+              class="crew__photo"
+              loading="lazy"
+            />
+          </div>
           <h3 class="crew__name">{{ member.name }}</h3>
           <p v-for="(paragraph, i) in member.paragraphs" :key="i" class="crew__text">
             {{ paragraph }}
@@ -63,21 +65,29 @@ const members = computed(() => [
   text-align: center;
 }
 
-.crew__photo {
-  width: 160px;
-  height: 160px;
+.crew__photo-wrap {
+  width: 220px;
+  height: 220px;
   border-radius: 50%;
+  overflow: hidden;
+  margin: 0 auto 1.5rem;
+  flex-shrink: 0;
+}
+
+.crew__photo {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  object-position: center top;
-  margin: 0 auto 1.25rem;
+  object-position: center center;
+  transform: scale(1.22);
   display: block;
-  border: 3px solid rgba(255, 255, 255, 0.25);
+  border: none;
 }
 
 .crew__name {
-  font-size: 1.1rem;
+  font-size: clamp(1.2rem, 2vw, 1.45rem);
   font-weight: 700;
-  color: #fff;
+  color: var(--color-accent);
   margin-bottom: 1rem;
 }
 
@@ -101,9 +111,9 @@ const members = computed(() => [
     margin: 0 auto;
   }
 
-  .crew__photo {
-    width: 140px;
-    height: 140px;
+  .crew__photo-wrap {
+    width: 200px;
+    height: 200px;
   }
 }
 </style>
