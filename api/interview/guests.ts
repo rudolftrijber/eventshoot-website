@@ -1,10 +1,10 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { requireAuth } from '../../lib/interview/auth'
+import { requireAuth } from '../../lib/interview/session'
 import {
   createGuest,
   ensureSchema,
   fetchGuests,
-} from '../../lib/interview/db'
+} from '../../lib/interview/database'
 import type { Gast } from '../../lib/interview/types'
 
 function uid(): string {

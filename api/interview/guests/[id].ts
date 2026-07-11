@@ -1,12 +1,12 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { requireAuth } from '../../../lib/interview/auth'
+import { requireAuth } from '../../../lib/interview/session'
 import {
   deleteGuest,
   ensureSchema,
   finalizeGuest,
   fetchGuests,
   updateGuest,
-} from '../../../lib/interview/db'
+} from '../../../lib/interview/database'
 import type { GastStatus } from '../../../lib/interview/types'
 
 function parseBody(req: VercelRequest): Record<string, unknown> {

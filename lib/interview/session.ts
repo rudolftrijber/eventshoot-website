@@ -43,6 +43,7 @@ export function isAuthenticated(req: VercelRequest): boolean {
 export function verifyPassword(password: string): boolean {
   const expected = process.env.INTERVIEW_APP_PASSWORD || ''
   if (!expected || !password) return false
+  if (password.length !== expected.length) return false
   try {
     return timingSafeEqual(Buffer.from(password), Buffer.from(expected))
   } catch {

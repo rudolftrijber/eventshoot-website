@@ -1,10 +1,10 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { requireAuth } from '../../lib/interview/auth'
+import { requireAuth } from '../../lib/interview/session'
 import {
   createProductie,
   ensureSchema,
   fetchProducties,
-} from '../../lib/interview/db'
+} from '../../lib/interview/database'
 import type { Productie } from '../../lib/interview/types'
 
 function uid(): string {
