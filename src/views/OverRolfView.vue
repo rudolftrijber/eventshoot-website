@@ -3,6 +3,7 @@ import { RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { usePageSeo } from '@/composables/usePageSeo'
 import FaqBlock from '@/components/FaqBlock.vue'
+import CrewStrip from '@/components/CrewStrip.vue'
 import OptimizedImage from '@/components/OptimizedImage.vue'
 
 const { t } = useI18n()
@@ -84,6 +85,8 @@ usePageSeo('overRolf', { url: 'https://eventshoot.nl/over-rolf' })
         </p>
       </div>
     </section>
+
+    <CrewStrip />
 
     <!-- Actie kaarten -->
     <section class="actie section">
