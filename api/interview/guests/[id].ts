@@ -1,12 +1,13 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { requireAuth } from '../../_lib/interview/auth'
+import { requireAuth } from '../../../lib/interview/auth'
 import {
   deleteGuest,
   ensureSchema,
   finalizeGuest,
+  fetchGuests,
   updateGuest,
-} from '../../_lib/interview/db'
-import type { GastStatus } from '../../_lib/interview/types'
+} from '../../../lib/interview/db'
+import type { GastStatus } from '../../../lib/interview/types'
 
 function parseBody(req: VercelRequest): Record<string, unknown> {
   return typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {})
@@ -41,7 +42,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (body.tijd !== undefined) patch.tijd = String(body.tijd)
 
       if (body.action === 'finalize') {
-        const { fetchGuests } = await import('../../_lib/interview/db')
         const guests = await fetchGuests()
         const guest = guests.find((g) => g.id === id)
         if (!guest) {

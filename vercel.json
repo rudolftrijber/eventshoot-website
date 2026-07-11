@@ -1,6 +1,11 @@
 {
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
+  "functions": {
+    "api/**/*.ts": {
+      "maxDuration": 30
+    }
+  },
   "redirects": [
     { "source": "/portfolio", "destination": "/werk", "permanent": true },
     { "source": "/contact", "destination": "/kennismaken", "permanent": true },

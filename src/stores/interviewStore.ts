@@ -11,8 +11,15 @@ async function api<T>(url: string, options?: RequestInit): Promise<T> {
     ...options,
   })
   if (!res.ok) {
-    const err = await res.json().catch(() => ({ error: res.statusText }))
-    throw new Error(err.error || 'Request mislukt')
+    const text = await res.text()
+    let message = 'Request mislukt'
+    try {
+      const err = JSON.parse(text) as { error?: string }
+      message = err.error || message
+    } catch {
+      if (text && !text.includes('FUNCTION_INVOCATION_FAILED')) message = text.slice(0, 120)
+    }
+    throw new Error(message)
   }
   return res.json() as Promise<T>
 }

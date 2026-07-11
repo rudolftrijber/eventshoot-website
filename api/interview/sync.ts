@@ -1,11 +1,11 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { requireAuth } from '../_lib/interview/auth'
+import { requireAuth } from '../../lib/interview/auth'
 import {
   ensureSchema,
   fetchGuests,
   fetchProducties,
   fetchSettings,
-} from '../_lib/interview/db'
+} from '../../lib/interview/db'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'GET') {
