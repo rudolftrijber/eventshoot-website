@@ -48,14 +48,14 @@ export const useInterviewStore = defineStore('interview', () => {
   })
 
   async function checkAuth() {
-    const data = await api<{ authenticated: boolean }>('/api/interview/login')
+    const data = await api<{ authenticated: boolean }>('/api/interview-login')
     authenticated.value = data.authenticated
     return data.authenticated
   }
 
   async function login(password: string) {
     error.value = ''
-    await api('/api/interview/login', {
+    await api('/api/interview-login', {
       method: 'POST',
       body: JSON.stringify({ action: 'login', password }),
     })
@@ -65,7 +65,7 @@ export const useInterviewStore = defineStore('interview', () => {
   }
 
   async function logout() {
-    await api('/api/interview/login', {
+    await api('/api/interview-login', {
       method: 'POST',
       body: JSON.stringify({ action: 'logout' }),
     })
