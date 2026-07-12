@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { fetchGuests, fetchProducties, fetchSettings, ensureSchema } from './database'
-import { seedDemoData } from './demoSeed'
-import { requireAuth } from './session'
+import { fetchGuests, fetchProducties, fetchSettings, ensureSchema } from './database.js'
+import { seedDemoData } from './demoSeed.js'
+import { requireAuth } from './session.js'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'GET') {

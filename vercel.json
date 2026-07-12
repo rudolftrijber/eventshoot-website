@@ -1,6 +1,17 @@
 {
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
+  "functions": {
+    "api/interview-login.ts": {
+      "includeFiles": "api/interview/**"
+    },
+    "api/interview/*.ts": {
+      "includeFiles": "api/interview/**"
+    },
+    "api/interview/**/*.ts": {
+      "includeFiles": "api/interview/**"
+    }
+  },
   "redirects": [
     { "source": "/portfolio", "destination": "/werk", "permanent": true },
     { "source": "/contact", "destination": "/kennismaken", "permanent": true },

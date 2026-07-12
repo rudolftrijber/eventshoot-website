@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { requireAuth } from './session'
-import { ensureSchema, fetchSettings, updateSettings } from './database'
+import { requireAuth } from './session.js'
+import { ensureSchema, fetchSettings, updateSettings } from './database.js'
 
 function parseBody(req: VercelRequest): Record<string, unknown> {
   return typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {})

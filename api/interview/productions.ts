@@ -1,11 +1,11 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { requireAuth } from './session'
+import { requireAuth } from './session.js'
 import {
   createProductie,
   ensureSchema,
   fetchProducties,
-} from './database'
-import type { Productie } from './types'
+} from './database.js'
+import type { Productie } from './types.js'
 
 function uid(): string {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 7)
