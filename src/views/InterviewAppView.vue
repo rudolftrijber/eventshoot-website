@@ -31,7 +31,7 @@ import type { Component } from 'vue'
 
 const store = useInterviewStore()
 
-const devBuildStamp = '12 jul 07:02'
+const devBuildStamp = import.meta.env.DEV ? '12 jul 07:02' : ''
 const password = ref('')
 const showPassword = ref(false)
 const loginError = ref('')
@@ -493,7 +493,7 @@ watch(() => store.activeTab, (tab) => {
       <div class="ia-body">
         <div class="ia-login">
           <div class="ia-login__card">
-            <p class="ia-dev-badge">Lokaal · build {{ devBuildStamp }}</p>
+            <p v-if="devBuildStamp" class="ia-dev-badge">Lokaal · build {{ devBuildStamp }}</p>
             <p class="ia-login__intro">Log in met het crew-wachtwoord om gasten en interviews te beheren.</p>
             <p v-if="apiConfigHint" class="ia-error ia-error--block ia-error--pre">{{ apiConfigHint }}</p>
             <label class="ia-label" for="pw">Wachtwoord</label>
