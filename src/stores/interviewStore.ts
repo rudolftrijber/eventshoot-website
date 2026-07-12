@@ -202,6 +202,13 @@ export const useInterviewStore = defineStore('interview', () => {
     await sync()
   }
 
+  async function seedDemo() {
+    return api<{ ok: boolean; message: string; created: boolean }>('/api/interview/seed-demo', {
+      method: 'POST',
+      body: JSON.stringify({}),
+    })
+  }
+
   function setTab(tab: TabId) {
     activeTab.value = tab
     window.scrollTo(0, 0)
@@ -241,6 +248,7 @@ export const useInterviewStore = defineStore('interview', () => {
     restoreProduction,
     deleteProduction,
     updateMaxChars,
+    seedDemo,
     setTab,
     selectGuest,
   }

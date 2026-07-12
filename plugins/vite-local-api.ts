@@ -12,6 +12,7 @@ function matchApiRoute(pathname: string): RouteMatch | null {
   const routes: Array<{ re: RegExp; modulePath: string; params?: string[] }> = [
     { re: /^\/api\/interview-login$/, modulePath: '/api/interview-login.ts' },
     { re: /^\/api\/interview\/sync$/, modulePath: '/api/interview/sync.ts' },
+    { re: /^\/api\/interview\/seed-demo$/, modulePath: '/api/interview/seed-demo.ts' },
     { re: /^\/api\/interview\/settings$/, modulePath: '/api/interview/settings.ts' },
     { re: /^\/api\/interview\/guests$/, modulePath: '/api/interview/guests.ts' },
     { re: /^\/api\/interview\/guests\/([^/]+)$/, modulePath: '/api/interview/guests/[id].ts', params: ['id'] },

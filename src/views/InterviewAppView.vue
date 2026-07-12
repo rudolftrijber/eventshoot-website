@@ -409,6 +409,16 @@ async function saveMaxChars() {
   showToast('Instelling opgeslagen')
 }
 
+async function loadDemoData() {
+  try {
+    const result = await store.seedDemo()
+    await store.sync()
+    showToast(result.message)
+  } catch (e) {
+    showToast(e instanceof Error ? e.message : 'Demo-data laden mislukt')
+  }
+}
+
 onMounted(async () => {
   document.title = 'Interview App — Eventshoot.nl'
   const meta = document.querySelector('meta[name="robots"]') || document.createElement('meta')
@@ -469,7 +479,9 @@ watch(() => store.activeTab, (tab) => {
       </div>
       <img
         class="ia-hero__mic"
-        src="/DATA_EVENTSHOOT/SITE_IMAGES/WERK/microphones.png"
+        src="/opt/DATA_EVENTSHOOT/SITE_IMAGES/WERK/microphones.w800.webp"
+        srcset="/opt/DATA_EVENTSHOOT/SITE_IMAGES/WERK/microphones.w400.webp 400w, /opt/DATA_EVENTSHOOT/SITE_IMAGES/WERK/microphones.w800.webp 800w, /opt/DATA_EVENTSHOOT/SITE_IMAGES/WERK/microphones.w1200.webp 1200w"
+        sizes="min(720px, 88vw)"
         alt=""
         aria-hidden="true"
         style="width: min(720px, 88vw); max-width: min(720px, 88vw); max-height: clamp(160px, 30vh, 320px); height: auto; object-fit: contain; margin-top: 0.5rem; display: block;"
@@ -572,6 +584,7 @@ watch(() => store.activeTab, (tab) => {
           <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="saveMaxChars">Opslaan</button>
         </div>
         <div class="ia-actions">
+          <button class="ia-btn ia-btn--small ia-btn--accent" type="button" @click="loadDemoData">Laad demo-data</button>
           <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="exportJson">Export JSON</button>
           <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="exportCsv">Export CSV</button>
           <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="exportTemplate">Sjabloon CSV</button>

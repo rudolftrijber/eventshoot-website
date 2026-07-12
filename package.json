@@ -12,6 +12,7 @@
     "lint": "eslint . --ext .vue,.ts,.tsx --fix",
     "type-check": "vue-tsc --noEmit",
     "seed:faq": "node scripts/seed-faq-kennismaken.mjs",
+    "seed:interview": "node scripts/seed-interview-demo.mjs",
     "import:faq": "node scripts/import-faq-from-csv.mjs",
     "optimize:images": "node scripts/optimize-site-images.mjs",
     "generate:sitemap": "node scripts/generate-sitemap.mjs",
