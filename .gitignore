@@ -29,3 +29,5 @@ public/DATA_EVENTSHOOT/VIDEOS/
 *.njsproj
 *.sln
 *.sw?
+.vercel
+.env*.local

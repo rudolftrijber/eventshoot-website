@@ -91,9 +91,13 @@ function createVercelRequest(
 
 function checkInterviewEnv(): string[] {
   const missing: string[] = []
+  if (!process.env.POSTGRES_URL && !process.env.POSTGRES_URL_NON_POOLING) {
+    missing.push('POSTGRES_URL')
+  }
+  const skip = process.env.INTERVIEW_SKIP_AUTH === '1' || process.env.INTERVIEW_SKIP_AUTH === 'true'
+  if (skip) return missing
   if (!process.env.INTERVIEW_APP_PASSWORD) missing.push('INTERVIEW_APP_PASSWORD')
   if (!process.env.INTERVIEW_SESSION_SECRET) missing.push('INTERVIEW_SESSION_SECRET')
-  if (!process.env.POSTGRES_URL && !process.env.POSTGRES_URL_NON_POOLING) missing.push('POSTGRES_URL')
   return missing
 }
 
@@ -112,7 +116,7 @@ async function handleApi(
       res.statusCode = 500
       res.setHeader('Content-Type', 'application/json; charset=utf-8')
       res.end(JSON.stringify({
-        error: `Lokaal .env.local ontbreekt: ${missing.join(', ')}. Kopieer .env.example naar .env.local en vul de waarden in.`,
+        error: `POSTGRES_URL ontbreekt in .env.local. Vercel-dashboard → Settings → Environment Variables → POSTGRES_URL → kopieer waarde → plak in .env.local → herstart npm run dev.`,
       }))
       return true
     }
@@ -140,7 +144,9 @@ export function localApiPlugin(): Plugin {
       if (missing.length) {
         console.warn(
           `\n⚠️  Interview App API: mist ${missing.join(', ')} in .env of .env.local.\n` +
-          '   Login werkt lokaal pas na invullen. Zie .env.example of: vercel env pull .env.local\n',
+          (missing.includes('POSTGRES_URL')
+            ? '   Kopieer POSTGRES_URL eenmalig uit Vercel → Settings → Environment Variables.\n'
+            : '   Zie .env.example of: vercel env pull .env.local\n'),
         )
       } else {
         console.log('\n✓ Interview App API: lokaal actief via Vite (geen proxy naar productie).\n')

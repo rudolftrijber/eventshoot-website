@@ -1,5 +1,5 @@
 import type { Gast } from '@/types/interview'
-import { CSV_HEADERS } from '@/types/interview'
+import { CLIENT_CSV_HEADERS, CSV_HEADERS } from '@/types/interview'
 
 function toCSVField(val: unknown): string {
   let str = val == null ? '' : String(val)
@@ -48,6 +48,52 @@ export function guestsToCSV(list: Gast[]): string {
   return lines.join('\r\n')
 }
 
+const CLIENT_TEMPLATE_EXAMPLE = {
+  productieNaam: 'Jaarcongres Branchevereniging 2026',
+  type: 'Keynote spreker',
+  naam: 'Jan Jansen',
+  functie: 'Directeur Innovatie',
+  planning: 'interview na de keynote, ca. 12:30',
+  gedeeld: true,
+  questions: [
+    'Wat was voor u het belangrijkste inzicht van vandaag?',
+    'Wat neemt u mee naar uw organisatie?',
+    'Wat was het hoogtepunt van het congres?',
+    'Heeft u een boodschap voor de deelnemers?',
+  ],
+}
+
+function clientExampleRow(): string[] {
+  const q = CLIENT_TEMPLATE_EXAMPLE.questions
+  return [
+    CLIENT_TEMPLATE_EXAMPLE.productieNaam,
+    CLIENT_TEMPLATE_EXAMPLE.type,
+    CLIENT_TEMPLATE_EXAMPLE.naam,
+    CLIENT_TEMPLATE_EXAMPLE.functie,
+    CLIENT_TEMPLATE_EXAMPLE.planning,
+    CLIENT_TEMPLATE_EXAMPLE.gedeeld ? 'ja' : 'nee',
+    q[0], q[1], q[2], q[3], q[4], q[5], q[6],
+  ].map(toCSVField)
+}
+
+function blankClientRow(): string {
+  return CLIENT_CSV_HEADERS.map(() => '').join(',')
+}
+
+/** Leeg sjabloon voor opdrachtgevers: 1 voorbeeldregel + 5 lege regels */
+export function clientTemplateCSV(): string {
+  const lines = [
+    CLIENT_CSV_HEADERS.join(','),
+    clientExampleRow().join(','),
+    blankClientRow(),
+    blankClientRow(),
+    blankClientRow(),
+    blankClientRow(),
+    blankClientRow(),
+  ]
+  return lines.join('\r\n')
+}
+
 export function lowerthirdCSV(list: Gast[]): string {
   const headers = ['regienummer', 'datum', 'tijd', 'naam', 'functie', 'productie', 'status']
   const lines = [headers.join(',')]
@@ -65,9 +111,25 @@ function splitCSVLine(line: string): string[] {
   let inQuotes = false
   for (let i = 0; i < line.length; i++) {
     const ch = line[i]
-    if (ch === '"') { inQuotes = !inQuotes; continue }
-    if (ch === ',' && !inQuotes) { result.push(cur); cur = ''; continue }
-    cur += ch
+    if (inQuotes) {
+      if (ch === '"') {
+        if (line[i + 1] === '"') {
+          cur += '"'
+          i++
+        } else {
+          inQuotes = false
+        }
+      } else {
+        cur += ch
+      }
+    } else if (ch === '"') {
+      inQuotes = true
+    } else if (ch === ',') {
+      result.push(cur)
+      cur = ''
+    } else {
+      cur += ch
+    }
   }
   result.push(cur)
   return result
@@ -118,4 +180,10 @@ export function downloadText(filename: string, content: string, mime: string) {
 
 export function todayStr(): string {
   return new Date().toISOString().slice(0, 10)
+}
+
+export function formatDisplayDate(iso: string): string {
+  if (!iso || !/^\d{4}-\d{2}-\d{2}/.test(iso)) return iso || todayStr()
+  const d = new Date(`${iso.slice(0, 10)}T12:00:00`)
+  return d.toLocaleDateString('nl-NL', { weekday: 'short', day: 'numeric', month: 'short' })
 }

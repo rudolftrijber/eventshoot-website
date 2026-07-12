@@ -4,6 +4,11 @@ import type { VercelRequest, VercelResponse } from '@vercel/node'
 const COOKIE_NAME = 'interview_session'
 const MAX_AGE_SEC = 60 * 60 * 24 * 7
 
+export function skipAuth(): boolean {
+  const v = process.env.INTERVIEW_SKIP_AUTH || ''
+  return v === '1' || v === 'true'
+}
+
 function getSecret(): string {
   return process.env.INTERVIEW_SESSION_SECRET || ''
 }
@@ -37,6 +42,7 @@ export function verifySessionToken(token: string | null): boolean {
 }
 
 export function isAuthenticated(req: VercelRequest): boolean {
+  if (skipAuth()) return true
   return verifySessionToken(getSessionToken(req))
 }
 
@@ -68,6 +74,7 @@ export function clearSessionCookie(res: VercelResponse): void {
 }
 
 export function requireAuth(req: VercelRequest, res: VercelResponse): boolean {
+  if (skipAuth()) return true
   if (!isAuthenticated(req)) {
     res.status(401).json({ error: 'Niet ingelogd' })
     return false

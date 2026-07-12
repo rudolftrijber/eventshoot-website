@@ -61,10 +61,11 @@ export const useInterviewStore = defineStore('interview', () => {
   async function checkAuth() {
     const data = await api<{
       authenticated: boolean
+      skipAuth?: boolean
       configured?: boolean
       missing?: string[]
     }>('/api/interview-login')
-    authenticated.value = data.authenticated
+    authenticated.value = Boolean(data.skipAuth || data.authenticated)
     return data
   }
 

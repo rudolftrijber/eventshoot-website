@@ -52,3 +52,9 @@ export const CSV_HEADERS = [
   'vraag1', 'vraag2', 'vraag3', 'vraag4', 'vraag5', 'vraag6', 'vraag7',
   'status', 'regienummer', 'datum', 'tijd',
 ] as const
+
+/** Kolommen voor opdrachtgevers — zonder crew-velden (status, regienummer, datum, tijd) */
+export const CLIENT_CSV_HEADERS = [
+  'productienaam', 'type', 'naam', 'functie', 'planning', 'gedeeld',
+  'vraag1', 'vraag2', 'vraag3', 'vraag4', 'vraag5', 'vraag6', 'vraag7',
+] as const

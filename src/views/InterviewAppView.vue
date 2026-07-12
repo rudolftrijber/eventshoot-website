@@ -5,12 +5,14 @@ import { useInterviewStore } from '@/stores/interviewStore'
 import type { Gast, Productie, TabId } from '@/types/interview'
 import { GAST_TYPES, PRODUCTIE_STATUSES } from '@/types/interview'
 import {
+  clientTemplateCSV,
   csvRowToGuestPayload,
   downloadText,
   guestsToCSV,
   lowerthirdCSV,
   parseCSV,
   todayStr,
+  formatDisplayDate,
 } from '@/utils/interviewCsv'
 import '@/assets/interview-app.css'
 import {
@@ -32,6 +34,7 @@ import type { Component } from 'vue'
 const store = useInterviewStore()
 
 const devBuildStamp = import.meta.env.DEV ? '12 jul 07:02' : ''
+const skipAuthMode = ref(false)
 const password = ref('')
 const showPassword = ref(false)
 const loginError = ref('')
@@ -93,6 +96,8 @@ const maxChars = computed(() => store.settings.maxChars)
 const naamOverLimit = computed(() => fNaam.value.length > maxChars.value)
 const functieOverLimit = computed(() => fFunctie.value.length > maxChars.value)
 const controleFunctieOver = computed(() => controleFunctie.value.length > maxChars.value)
+const controleNaamOver = computed(() => controleNaam.value.length > maxChars.value)
+const controleOverLimit = computed(() => controleNaamOver.value || controleFunctieOver.value)
 
 const deelnemerPreset = computed(() => {
   if (fType.value !== 'Deelnemer') return null
@@ -128,8 +133,14 @@ const intGuest = computed(() => {
   ) || null
 })
 
-const camHeaderDate = computed(() => camGuest.value?.datum || todayStr())
+const camHeaderDate = computed(() => formatDisplayDate(camGuest.value?.datum || todayStr()))
 const camHeaderTime = computed(() => camGuest.value?.tijd || new Date().toTimeString().slice(0, 5))
+
+const crewFocusMode = computed(() => {
+  if (store.activeTab === 'camera' && Boolean(camGuest.value?.regienummer)) return true
+  if (store.activeTab === 'interviewer' && Boolean(intGuest.value)) return true
+  return false
+})
 
 const addFQ = () => addQuestion(fQuestions)
 const removeFQ = (i: number) => removeQuestion(fQuestions, i)
@@ -225,11 +236,10 @@ function loadForEdit(g: Gast) {
   store.setTab('nieuw')
 }
 
-function usePreset() {
+function applyDeelnemerPreset() {
+  if (fType.value !== 'Deelnemer' || !fProductie.value.trim()) return
   const preset = deelnemerPreset.value
-  if (!preset?.vragen?.some((q) => q)) return
-  const hasContent = fQuestions.value.some((q) => q.trim())
-  if (hasContent && !confirm('Huidige vragen overschrijven met standaardvragen?')) return
+  if (!preset?.vragen?.some((q) => q.trim())) return
   resetQuestions(fQuestions, preset.vragen)
 }
 
@@ -276,8 +286,8 @@ function openControle(g: Gast) {
 
 async function confirmControle() {
   if (!store.activeGuest) return
-  if (controleFunctie.value.length > maxChars.value) {
-    showToast(`Functie max. ${maxChars.value} tekens, kort in`)
+  if (controleNaam.value.length > maxChars.value || controleFunctie.value.length > maxChars.value) {
+    showToast(`Naam en functie max. ${maxChars.value} tekens`)
     return
   }
   try {
@@ -311,6 +321,10 @@ async function markOpgenomen() {
   try {
     await store.updateGuest(intGuest.value.id, { status: 'Opgenomen' })
     confirmOpgenomen.value = false
+    store.selectGuest(null)
+    intSearch.value = ''
+    camSearch.value = ''
+    store.setTab('nieuw')
     showToast('Gemarkeerd als opgenomen')
   } catch (e) {
     showToast(e instanceof Error ? e.message : 'Mislukt')
@@ -347,7 +361,7 @@ function exportCsv() {
 }
 
 function exportTemplate() {
-  downloadText(`interview-sjabloon-${todayStr()}.csv`, guestsToCSV([]), 'text/csv;charset=utf-8')
+  downloadText(`interview-intake-sjabloon-${todayStr()}.csv`, clientTemplateCSV(), 'text/csv;charset=utf-8')
 }
 
 function exportLowerthird() {
@@ -412,14 +426,20 @@ onMounted(async () => {
 
   try {
     const status = await store.checkAuth()
+    skipAuthMode.value = Boolean(status.skipAuth)
     if (status.configured === false && status.missing?.length) {
-      apiConfigHint.value = [
-        'Login werkt lokaal nog niet. Maak .env.local aan met:',
-        status.missing.join(', '),
-        'In je terminal: vercel login → vercel link → vercel env pull .env.local → npm run dev',
-      ].join('\n')
+      apiConfigHint.value = status.skipAuth
+        ? [
+            'Database ontbreekt lokaal. Vul POSTGRES_URL in .env.local:',
+            'Vercel-dashboard → Project → Settings → Environment Variables → POSTGRES_URL → kopieer waarde',
+          ].join('\n')
+        : [
+            'Login werkt lokaal nog niet. Maak .env.local aan met:',
+            status.missing.join(', '),
+            'Of zet INTERVIEW_SKIP_AUTH=true en vul alleen POSTGRES_URL in.',
+          ].join('\n')
     }
-    if (status.authenticated) {
+    if (store.authenticated) {
       await store.sync()
       store.startPolling()
     }
@@ -436,41 +456,21 @@ watch(() => store.activeTab, (tab) => {
   if (tab === 'controle') controleThanks.value = false
   if (tab === 'camera') showCamQuestions.value = false
 })
+
+watch([fType, fProductie], () => {
+  applyDeelnemerPreset()
+})
 </script>
 
 <template>
-  <div class="interview-app">
-    <div class="ia-topbar">
-      <RouterLink to="/" class="ia-topbar__logo-link" title="Terug naar Eventshoot.nl">
-        <img
-          class="ia-topbar__logo"
-          src="/images/logos/logo.svg"
-          alt="Eventshoot.nl"
-          style="height: 72px; width: auto; display: block;"
-        />
-      </RouterLink>
-    </div>
-
-    <div
-      class="ia-hero"
-      style="background: transparent; display: flex; flex-direction: column; align-items: center; gap: 0.75rem; padding: 1rem 0 0; min-height: auto;"
-    >
-      <div class="ia-hero__content">
-        <h1
-          class="ia-hero__title"
-          style="font-size: clamp(2.25rem, 6vw, 3.5rem); font-weight: 300; text-shadow: none; margin-top: 1.5rem;"
-        >Eventshoot Interview App</h1>
-      </div>
+  <div class="interview-app" :class="{ 'interview-app--crew-focus': crewFocusMode }">
+    <header v-if="!crewFocusMode" class="ia-header">
       <img
-        class="ia-hero__mic"
-        src="/opt/DATA_EVENTSHOOT/SITE_IMAGES/WERK/microphones.w800.webp"
-        srcset="/opt/DATA_EVENTSHOOT/SITE_IMAGES/WERK/microphones.w400.webp 400w, /opt/DATA_EVENTSHOOT/SITE_IMAGES/WERK/microphones.w800.webp 800w, /opt/DATA_EVENTSHOOT/SITE_IMAGES/WERK/microphones.w1200.webp 1200w"
-        sizes="min(720px, 88vw)"
-        alt=""
-        aria-hidden="true"
-        style="width: min(720px, 88vw); max-width: min(720px, 88vw); max-height: clamp(160px, 30vh, 320px); height: auto; object-fit: contain; margin-top: 0.5rem; display: block;"
+        class="ia-header__image"
+        src="/DATA_EVENTSHOOT/SITE_IMAGES/WERK/microphones.png"
+        alt="Eventshoot Interview App"
       />
-    </div>
+    </header>
 
     <!-- Login -->
     <template v-if="!store.authenticated">
@@ -546,12 +546,21 @@ watch(() => store.activeTab, (tab) => {
                 >
                   <Cog6ToothIcon class="ia-tab__icon" aria-hidden="true" />
                 </button>
-                <button class="ia-tab ia-tab--util ia-tab--logout" type="button" title="Uitloggen" aria-label="Uitloggen" @click="store.logout()">
+                <button
+                  v-if="!skipAuthMode"
+                  class="ia-tab ia-tab--util ia-tab--logout"
+                  type="button"
+                  title="Uitloggen"
+                  aria-label="Uitloggen"
+                  @click="store.logout()"
+                >
                   <ArrowRightOnRectangleIcon class="ia-tab__icon" aria-hidden="true" />
                 </button>
               </div>
             </div>
           </header>
+
+      <p v-if="skipAuthMode && !crewFocusMode" class="ia-skip-auth-banner">Finetune-modus: wachtwoord staat uit. Alleen lokaal of bewust op Vercel gezet.</p>
 
       <div v-if="settingsOpen" class="ia-settings">
         <div class="ia-row">
@@ -618,9 +627,6 @@ watch(() => store.activeTab, (tab) => {
             </div>
             <label class="ia-label">Planning / tijdvak (optioneel)</label>
             <input v-model="fPlanning" class="ia-input" placeholder="bijv. interview voor de lunch" />
-            <div v-if="deelnemerPreset?.vragen?.some(q => q)" class="ia-actions">
-              <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="usePreset">Gebruik standaardvragen deelnemers</button>
-            </div>
             <label class="ia-label">Interviewvragen (min. 4, max. 7)</label>
             <div v-for="(q, i) in fQuestions" :key="i" class="ia-question-row">
               <textarea v-model="fQuestions[i]" class="ia-textarea" rows="1" :placeholder="`Vraag ${i + 1}`" />
@@ -723,15 +729,19 @@ watch(() => store.activeTab, (tab) => {
           <div v-else-if="store.activeGuest && store.activeGuest.status === 'Ingevoerd'" class="ia-card">
             <p class="ia-controle-intro">
               Controleer je naam en functie voor de lowerthird in de video.
-              De functietitel mag maximaal {{ maxChars }} tekens bevatten.
+            </p>
+            <p v-if="controleOverLimit" class="ia-controle-limit ia-controle-limit--alert">
+              Te lang — naam en functie mogen elk maximaal {{ maxChars }} tekens zijn.
+              Kort in, anders is de tekst op iPhone en kleinere schermen niet meer leesbaar.
             </p>
             <label class="ia-label">Naam</label>
             <input v-model="controleNaam" class="ia-input ia-controle-input" />
+            <div class="ia-charcount" :class="{ warn: controleNaamOver }">{{ controleNaam.length }} / {{ maxChars }} tekens</div>
             <label class="ia-label">Functie</label>
             <input v-model="controleFunctie" class="ia-input ia-controle-input" />
             <div class="ia-charcount" :class="{ warn: controleFunctieOver }">{{ controleFunctie.length }} / {{ maxChars }} tekens</div>
             <div class="ia-actions" style="margin-top:1.5rem">
-              <button class="ia-btn ia-btn--big ia-btn--ok" type="button" :disabled="controleFunctieOver" @click="confirmControle">
+              <button class="ia-btn ia-btn--big ia-btn--ok" type="button" :disabled="controleOverLimit" @click="confirmControle">
                 ✓ Gecontroleerd, dit klopt
               </button>
             </div>
@@ -760,6 +770,10 @@ watch(() => store.activeTab, (tab) => {
             <div class="ia-cam-full__header">
               {{ camGuest.productieNaam }} · {{ camHeaderDate }} · {{ camHeaderTime }}
             </div>
+            <div class="ia-cam-full__guest">
+              <div class="ia-cam-full__naam">{{ camGuest.naam }}</div>
+              <div class="ia-cam-full__functie">{{ camGuest.functie }}</div>
+            </div>
             <div class="ia-cam-full__number">{{ camGuest.regienummer }}</div>
             <div class="ia-actions" style="justify-content:center">
               <button class="ia-btn ia-btn--accent" type="button" @click="goToInterviewer">Interviewvragen tonen →</button>
@@ -776,25 +790,16 @@ watch(() => store.activeTab, (tab) => {
         <section v-if="store.activeTab === 'interviewer'">
           <div v-if="intGuest" class="ia-card ia-int-full">
             <div class="ia-int-full__head">
-              <div>
-                <div class="ia-int-full__naam">{{ intGuest.naam }}</div>
-                <div class="ia-int-full__functie">
-                  {{ intGuest.functie }}
-                  <span v-if="intGuest.functie.length > maxChars"> ⚠️ te lang voor lowerthird</span>
-                </div>
+              <div class="ia-int-full__regie">Regie #{{ intGuest.regienummer || '—' }}</div>
+              <div class="ia-int-full__naam">{{ intGuest.naam }}</div>
+              <div class="ia-int-full__functie">
+                {{ intGuest.functie }}
+                <span v-if="intGuest.functie.length > maxChars"> ⚠️ te lang voor lowerthird</span>
               </div>
-              <div class="ia-int-full__functie">Regie #{{ intGuest.regienummer || '—' }}</div>
             </div>
 
             <div v-if="intGuest.gedeeld" class="ia-int-full__warn">
               Let op: deze vragen zijn vooraf gedeeld met de gast
-            </div>
-
-            <div class="ia-lowerthird-wrap">
-              <div class="ia-lowerthird" :key="intGuest.id + intGuest.functie">
-                <div class="ia-lowerthird__naam">{{ intGuest.naam }}</div>
-                <div class="ia-lowerthird__functie">{{ intGuest.functie }}</div>
-              </div>
             </div>
 
             <ol class="ia-questions">
@@ -803,10 +808,10 @@ watch(() => store.activeTab, (tab) => {
             <p v-if="!intGuest.questions.some(q => q)" class="ia-empty">Geen vragen ingevuld</p>
 
             <div class="ia-actions">
-              <button v-if="!confirmOpgenomen" class="ia-btn ia-btn--ok" type="button" @click="confirmOpgenomen = true">✓ Opgenomen</button>
+              <button v-if="!confirmOpgenomen" class="ia-btn ia-btn--big ia-btn--ok" type="button" @click="confirmOpgenomen = true">✓ Opgenomen</button>
               <template v-else>
                 <span>Interview afgerond?</span>
-                <button class="ia-btn ia-btn--ok" type="button" @click="markOpgenomen">Ja, opgenomen</button>
+                <button class="ia-btn ia-btn--big ia-btn--ok" type="button" @click="markOpgenomen">Ja, opgenomen</button>
                 <button class="ia-btn ia-btn--secondary" type="button" @click="confirmOpgenomen = false">Annuleren</button>
               </template>
               <button
@@ -881,49 +886,3 @@ watch(() => store.activeTab, (tab) => {
     <div v-if="toast" class="ia-toast">{{ toast }}</div>
   </div>
 </template>
-
-<style scoped>
-.ia-topbar__logo-link {
-  display: inline-block;
-  line-height: 0;
-}
-
-.ia-topbar__logo {
-  height: 72px !important;
-  width: auto !important;
-}
-
-.ia-hero {
-  background: transparent !important;
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  gap: 0.75rem !important;
-  justify-content: flex-start !important;
-  min-height: auto !important;
-  max-height: none !important;
-  padding: 1rem 0 0 !important;
-}
-
-.ia-hero__content {
-  padding-top: 2.5rem;
-  flex: 0 0 auto !important;
-}
-
-.ia-hero__title {
-  font-size: clamp(2.25rem, 6vw, 3.5rem) !important;
-  font-weight: 300 !important;
-  text-shadow: none !important;
-  margin-top: 1.5rem !important;
-}
-
-.ia-hero__mic {
-  width: min(720px, 88vw) !important;
-  max-width: min(720px, 88vw) !important;
-  max-height: clamp(160px, 30vh, 320px) !important;
-  height: auto !important;
-  object-fit: contain !important;
-  margin-top: 0.5rem !important;
-  flex-shrink: 0 !important;
-}
-</style>

@@ -75,11 +75,26 @@ async function initSchema(): Promise<void> {
   await sql`CREATE INDEX IF NOT EXISTS interview_gasten_productie_idx ON interview_gasten (productie_naam)`
 }
 
+function formatDateValue(value: unknown): string {
+  if (!value) return ''
+  if (value instanceof Date) return value.toISOString().slice(0, 10)
+  const s = String(value).trim()
+  if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0, 10)
+  const parsed = new Date(s)
+  if (!Number.isNaN(parsed.getTime())) return parsed.toISOString().slice(0, 10)
+  return ''
+}
+
+function toDateParam(datum: string): string | null {
+  const formatted = formatDateValue(datum)
+  return formatted || null
+}
+
 function rowToProductie(row: Record<string, unknown>): Productie {
   return {
     id: String(row.id),
     naam: String(row.naam),
-    datum: row.datum ? String(row.datum).slice(0, 10) : '',
+    datum: formatDateValue(row.datum),
     status: String(row.status) as ProductieStatus,
     vragen: Array.isArray(row.vragen) ? row.vragen.map(String) : [],
     archivedAt: row.archived_at ? String(row.archived_at) : null,
@@ -100,7 +115,7 @@ function rowToGast(row: Record<string, unknown>): Gast {
     questions: Array.isArray(row.questions) ? row.questions.map(String) : [],
     status: String(row.status) as GastStatus,
     regienummer: row.regienummer ? String(row.regienummer) : '',
-    datum: row.datum ? String(row.datum).slice(0, 10) : '',
+    datum: formatDateValue(row.datum),
     tijd: row.tijd ? String(row.tijd) : '',
     createdAt: String(row.created_at),
     updatedAt: String(row.updated_at),
@@ -147,7 +162,7 @@ export async function createGuest(data: Omit<Gast, 'createdAt' | 'updatedAt'>): 
     ) VALUES (
       ${data.id}, ${data.productieNaam}, ${data.type}, ${data.naam}, ${data.functie},
       ${data.planning}, ${data.gedeeld}, ${JSON.stringify(data.questions)}::jsonb,
-      ${data.status}, ${data.regienummer || null}, ${data.datum || null}, ${data.tijd || null}
+      ${data.status}, ${data.regienummer || null}, ${toDateParam(data.datum)}, ${data.tijd || null}
     )
     RETURNING *
   `
@@ -172,7 +187,7 @@ export async function updateGuest(id: string, patch: Partial<Gast>): Promise<Gas
       questions = ${JSON.stringify(next.questions)}::jsonb,
       status = ${next.status},
       regienummer = ${next.regienummer || null},
-      datum = ${next.datum || null},
+      datum = ${toDateParam(next.datum)},
       tijd = ${next.tijd || null},
       updated_at = NOW()
     WHERE id = ${id}
@@ -192,7 +207,7 @@ export async function createProductie(data: Omit<Productie, 'createdAt' | 'updat
   const rows = await sql`
     INSERT INTO interview_producties (id, naam, datum, status, vragen)
     VALUES (
-      ${data.id}, ${data.naam}, ${data.datum || null}, ${data.status},
+      ${data.id}, ${data.naam}, ${toDateParam(data.datum)}, ${data.status},
       ${JSON.stringify(data.vragen)}::jsonb
     )
     RETURNING *
@@ -210,7 +225,7 @@ export async function updateProductie(id: string, patch: Partial<Productie>): Pr
   const rows = await sql`
     UPDATE interview_producties SET
       naam = ${next.naam},
-      datum = ${next.datum || null},
+      datum = ${toDateParam(next.datum)},
       status = ${next.status},
       vragen = ${JSON.stringify(next.vragen)}::jsonb,
       archived_at = ${next.archivedAt},
