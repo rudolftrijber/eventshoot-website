@@ -282,6 +282,23 @@
   flex-wrap: wrap;
 }
 
+.ia-row--fields {
+  align-items: flex-end;
+}
+
+.ia-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.ia-field .ia-label {
+  margin-top: 0;
+}
+
+.ia-field .ia-select {
+  min-height: 44px;
+}
+
 .ia-row > * {
   flex: 1;
   min-width: 140px;

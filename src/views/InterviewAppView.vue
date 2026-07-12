@@ -88,21 +88,7 @@ const sortedProductions = computed(() =>
   [...store.activeProductions].sort((a, b) => a.naam.localeCompare(b.naam, 'nl')),
 )
 
-const fProductieCustom = ref(false)
-
 const maxChars = computed(() => store.settings.maxChars)
-
-function useProductieSelect() {
-  fProductieCustom.value = false
-  if (!sortedProductions.value.some((p) => p.naam === fProductie.value)) {
-    fProductie.value = ''
-  }
-}
-
-function useProductieCustom() {
-  fProductieCustom.value = true
-  fProductie.value = ''
-}
 
 const naamOverLimit = computed(() => fNaam.value.length > maxChars.value)
 const functieOverLimit = computed(() => fFunctie.value.length > maxChars.value)
@@ -188,7 +174,6 @@ function resetQuestions(list: { value: string[] }, values?: string[]) {
 function clearForm() {
   editingId.value = null
   fProductie.value = ''
-  fProductieCustom.value = false
   fType.value = ''
   fPlanning.value = ''
   fGedeeld.value = false
@@ -230,8 +215,7 @@ async function saveGuest() {
 
 function loadForEdit(g: Gast) {
   editingId.value = g.id
-  fProductie.value = g.productieNaam
-  fProductieCustom.value = !sortedProductions.value.some((p) => p.naam === g.productieNaam)
+  fProductie.value = sortedProductions.value.some((p) => p.naam === g.productieNaam) ? g.productieNaam : ''
   fType.value = g.type
   fPlanning.value = g.planning
   fGedeeld.value = g.gedeeld
@@ -604,30 +588,16 @@ watch(() => store.activeTab, (tab) => {
         <!-- NIEUW -->
         <section v-if="store.activeTab === 'nieuw'">
           <div class="ia-card">
-            <div class="ia-row">
-              <div>
-                <label class="ia-label">Productie</label>
-                <template v-if="sortedProductions.length && !fProductieCustom">
-                  <select v-model="fProductie" class="ia-select">
-                    <option value="" disabled>— kies productie —</option>
-                    <option v-for="p in sortedProductions" :key="p.id" :value="p.naam">{{ p.naam }}</option>
-                  </select>
-                  <button class="ia-link-btn" type="button" @click="useProductieCustom">Of typ een andere naam</button>
-                </template>
-                <template v-else-if="sortedProductions.length && fProductieCustom">
-                  <input v-model="fProductie" class="ia-input" placeholder="typ productienaam" />
-                  <button class="ia-link-btn" type="button" @click="useProductieSelect">← Kies uit lijst</button>
-                </template>
-                <template v-else>
-                  <input v-model="fProductie" class="ia-input" placeholder="typ productienaam" />
-                  <p class="ia-hint">
-                    Nog geen producties.
-                    <button class="ia-link-btn" type="button" @click="store.setTab('producties')">Maak er een aan onder Producties</button>
-                  </p>
-                </template>
+            <div class="ia-row ia-row--fields">
+              <div class="ia-field">
+                <label class="ia-label">Selecteer productie</label>
+                <select v-model="fProductie" class="ia-select">
+                  <option value="" disabled>— selecteer —</option>
+                  <option v-for="p in sortedProductions" :key="p.id" :value="p.naam">{{ p.naam }}</option>
+                </select>
               </div>
-              <div>
-                <label class="ia-label">Type gast</label>
+              <div class="ia-field">
+                <label class="ia-label">Selecteer type gast</label>
                 <select v-model="fType" class="ia-select">
                   <option value="">— optioneel —</option>
                   <option v-for="t in GAST_TYPES" :key="t" :value="t">{{ t }}</option>
