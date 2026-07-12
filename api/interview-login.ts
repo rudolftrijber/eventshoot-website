@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { isAuthenticated, skipAuth, verifyPassword, createSessionToken, setSessionCookie, clearSessionCookie } from './interview/_session'
+import { isAuthenticated, skipAuth, verifyPassword, createSessionToken, setSessionCookie, clearSessionCookie } from './interview/session'
 
 export default function handler(req: VercelRequest, res: VercelResponse) {
   try {

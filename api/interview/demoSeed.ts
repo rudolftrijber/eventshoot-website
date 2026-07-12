@@ -1,5 +1,5 @@
-import { createGuest, createProductie, ensureSchema, fetchProducties } from './_database'
-import type { Gast, Productie } from './_types'
+import { createGuest, createProductie, ensureSchema, fetchProducties } from './database'
+import type { Gast, Productie } from './types'
 
 export const DEMO_PRODUCTIE_ID = 'prod-dsr-2026'
 

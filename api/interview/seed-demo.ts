@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { requireAuth } from './_session'
-import { seedDemoData } from './_demoSeed'
+import { requireAuth } from './session'
+import { seedDemoData } from './demoSeed'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (!requireAuth(req, res)) return
