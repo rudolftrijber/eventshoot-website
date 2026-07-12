@@ -46,13 +46,14 @@ async function readBody(req: IncomingMessage): Promise<unknown> {
 
 function createVercelResponse(res: ServerResponse): VercelResponse {
   const vercelRes = res as VercelResponse
+  const nativeSetHeader = res.setHeader.bind(res)
   vercelRes.status = (code: number) => {
     res.statusCode = code
     return vercelRes
   }
   vercelRes.json = (body: unknown) => {
     if (!res.headersSent) {
-      res.setHeader('Content-Type', 'application/json; charset=utf-8')
+      nativeSetHeader('Content-Type', 'application/json; charset=utf-8')
     }
     res.end(JSON.stringify(body))
     return vercelRes
@@ -62,7 +63,7 @@ function createVercelResponse(res: ServerResponse): VercelResponse {
     return vercelRes
   }
   vercelRes.setHeader = (name: string, value: string | string[]) => {
-    res.setHeader(name, value)
+    nativeSetHeader(name, value)
     return vercelRes
   }
   return vercelRes
@@ -105,7 +106,7 @@ async function handleApi(
   const match = matchApiRoute(pathname)
   if (!match) return false
 
-  if (pathname.startsWith('/api/interview')) {
+  if (pathname.startsWith('/api/interview/')) {
     const missing = checkInterviewEnv()
     if (missing.length) {
       res.statusCode = 500
