@@ -5,11 +5,18 @@ import type { Gast, GastStatus, InterviewSettings, Productie, TabId } from '@/ty
 const POLL_MS = 3000
 
 async function api<T>(url: string, options?: RequestInit): Promise<T> {
-  const res = await fetch(url, {
-    credentials: 'include',
-    headers: { 'Content-Type': 'application/json', ...(options?.headers || {}) },
-    ...options,
-  })
+  let res: Response
+  try {
+    res = await fetch(url, {
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json', ...(options?.headers || {}) },
+      ...options,
+    })
+  } catch {
+    throw new Error(
+      'API niet bereikbaar. Start npm run dev opnieuw. Zorg dat .env.local bestaat met INTERVIEW_APP_PASSWORD, INTERVIEW_SESSION_SECRET en POSTGRES_URL.',
+    )
+  }
   if (!res.ok) {
     const text = await res.text()
     let message = 'Request mislukt'
@@ -52,9 +59,13 @@ export const useInterviewStore = defineStore('interview', () => {
   })
 
   async function checkAuth() {
-    const data = await api<{ authenticated: boolean }>('/api/interview-login')
+    const data = await api<{
+      authenticated: boolean
+      configured?: boolean
+      missing?: string[]
+    }>('/api/interview-login')
     authenticated.value = data.authenticated
-    return data.authenticated
+    return data
   }
 
   async function login(password: string) {

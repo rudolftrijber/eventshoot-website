@@ -22,10 +22,9 @@ const videoEl = ref<HTMLVideoElement | null>(null)
 
 onMounted(() => {
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  const narrow = window.matchMedia('(max-width: 768px)').matches
   const saveData = 'connection' in navigator && (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData
 
-  if (reducedMotion || narrow || saveData) return
+  if (reducedMotion || saveData) return
 
   showVideo.value = true
   requestAnimationFrame(() => {
@@ -44,7 +43,7 @@ onMounted(() => {
     muted
     loop
     playsinline
-    preload="none"
+    preload="auto"
   />
   <OptimizedImage
     v-else-if="fallbackSrc"

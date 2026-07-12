@@ -70,7 +70,18 @@ function clearSessionCookie(res: VercelResponse): void {
 export default function handler(req: VercelRequest, res: VercelResponse) {
   try {
     if (req.method === 'GET') {
-      res.status(200).json({ authenticated: isAuthenticated(req) })
+      const hasSecret = Boolean(process.env.INTERVIEW_SESSION_SECRET)
+      const hasPassword = Boolean(process.env.INTERVIEW_APP_PASSWORD)
+      const hasDb = Boolean(process.env.POSTGRES_URL || process.env.POSTGRES_URL_NON_POOLING)
+      res.status(200).json({
+        authenticated: isAuthenticated(req),
+        configured: hasSecret && hasPassword && hasDb,
+        missing: [
+          !hasPassword && 'INTERVIEW_APP_PASSWORD',
+          !hasSecret && 'INTERVIEW_SESSION_SECRET',
+          !hasDb && 'POSTGRES_URL',
+        ].filter(Boolean),
+      })
       return
     }
 

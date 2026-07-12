@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { RouterLink } from 'vue-router'
 import { useInterviewStore } from '@/stores/interviewStore'
 import type { Gast, Productie, TabId } from '@/types/interview'
 import { GAST_TYPES, PRODUCTIE_STATUSES } from '@/types/interview'
@@ -13,6 +14,8 @@ import {
 } from '@/utils/interviewCsv'
 import '@/assets/interview-app.css'
 import {
+  EyeIcon,
+  EyeSlashIcon,
   ArchiveBoxIcon,
   ArrowRightOnRectangleIcon,
   CalendarDaysIcon,
@@ -28,8 +31,12 @@ import type { Component } from 'vue'
 
 const store = useInterviewStore()
 
+const devBuildStamp = '12 jul 07:02'
 const password = ref('')
+const showPassword = ref(false)
 const loginError = ref('')
+const apiConfigHint = ref('')
+const apiConfigured = computed(() => !apiConfigHint.value)
 const toast = ref('')
 const settingsOpen = ref(false)
 const searchBox = ref('')
@@ -150,12 +157,16 @@ function showToast(msg: string) {
 }
 
 async function handleLogin() {
+  if (!apiConfigured.value) return
   loginError.value = ''
   try {
     await store.login(password.value)
     password.value = ''
   } catch (e) {
-    loginError.value = e instanceof Error ? e.message : 'Inloggen mislukt'
+    const msg = e instanceof Error ? e.message : 'Inloggen mislukt'
+    if (!msg.includes('.env.local') && !msg.includes('INTERVIEW_') && !msg.includes('POSTGRES_URL')) {
+      loginError.value = msg
+    }
   }
 }
 
@@ -405,10 +416,21 @@ onMounted(async () => {
   meta.setAttribute('content', 'noindex, nofollow')
   if (!meta.parentElement) document.head.appendChild(meta)
 
-  const ok = await store.checkAuth()
-  if (ok) {
-    await store.sync()
-    store.startPolling()
+  try {
+    const status = await store.checkAuth()
+    if (status.configured === false && status.missing?.length) {
+      apiConfigHint.value = [
+        'Login werkt lokaal nog niet. Maak .env.local aan met:',
+        status.missing.join(', '),
+        'In je terminal: vercel login → vercel link → vercel env pull .env.local → npm run dev',
+      ].join('\n')
+    }
+    if (status.authenticated) {
+      await store.sync()
+      store.startPolling()
+    }
+  } catch (e) {
+    apiConfigHint.value = e instanceof Error ? e.message : 'API niet bereikbaar'
   }
 })
 
@@ -425,38 +447,72 @@ watch(() => store.activeTab, (tab) => {
 <template>
   <div class="interview-app">
     <div class="ia-topbar">
-      <img class="ia-topbar__logo" src="/images/logos/logo.svg" alt="Eventshoot.nl" />
+      <RouterLink to="/" class="ia-topbar__logo-link" title="Terug naar Eventshoot.nl">
+        <img
+          class="ia-topbar__logo"
+          src="/images/logos/logo.svg"
+          alt="Eventshoot.nl"
+          style="height: 72px; width: auto; display: block;"
+        />
+      </RouterLink>
+    </div>
+
+    <div
+      class="ia-hero"
+      style="background: transparent; display: flex; flex-direction: column; align-items: center; gap: 0.75rem; padding: 1rem 0 0; min-height: auto;"
+    >
+      <div class="ia-hero__content">
+        <h1
+          class="ia-hero__title"
+          style="font-size: clamp(2.25rem, 6vw, 3.5rem); font-weight: 300; text-shadow: none; margin-top: 1.5rem;"
+        >Eventshoot Interview App</h1>
+      </div>
+      <img
+        class="ia-hero__mic"
+        src="/DATA_EVENTSHOOT/SITE_IMAGES/WERK/microphones.png"
+        alt=""
+        aria-hidden="true"
+        style="width: min(720px, 88vw); max-width: min(720px, 88vw); max-height: clamp(160px, 30vh, 320px); height: auto; object-fit: contain; margin-top: 0.5rem; display: block;"
+      />
     </div>
 
     <!-- Login -->
     <template v-if="!store.authenticated">
-      <div class="ia-hero">
-        <img
-          class="ia-hero__img"
-          src="/DATA_EVENTSHOOT/SITE_IMAGES/WERK/rolf_trijber_interview_5.jpg"
-          alt="Interview opname op locatie"
-        />
-        <div class="ia-hero__overlay" />
-        <div class="ia-hero__content">
-          <h1>Interview App</h1>
-        </div>
-      </div>
       <div class="ia-body">
         <div class="ia-login">
           <div class="ia-login__card">
-            <p>Log in met het crew-wachtwoord om gasten en interviews te beheren.</p>
+            <p class="ia-dev-badge">Lokaal · build {{ devBuildStamp }}</p>
+            <p class="ia-login__intro">Log in met het crew-wachtwoord om gasten en interviews te beheren.</p>
+            <p v-if="apiConfigHint" class="ia-error ia-error--block ia-error--pre">{{ apiConfigHint }}</p>
             <label class="ia-label" for="pw">Wachtwoord</label>
-            <input
-              id="pw"
-              v-model="password"
-              class="ia-input"
-              type="password"
-              autocomplete="current-password"
-              @keyup.enter="handleLogin"
-            />
+            <div class="ia-password-wrap">
+              <input
+                id="pw"
+                v-model="password"
+                class="ia-input ia-password-wrap__input"
+                :type="showPassword ? 'text' : 'password'"
+                autocomplete="current-password"
+                @keyup.enter="handleLogin"
+              />
+              <button
+                class="ia-password-wrap__toggle"
+                type="button"
+                :title="showPassword ? 'Wachtwoord verbergen' : 'Wachtwoord tonen'"
+                :aria-label="showPassword ? 'Wachtwoord verbergen' : 'Wachtwoord tonen'"
+                @click="showPassword = !showPassword"
+              >
+                <EyeSlashIcon v-if="showPassword" class="ia-password-wrap__icon" />
+                <EyeIcon v-else class="ia-password-wrap__icon" />
+              </button>
+            </div>
             <p v-if="loginError" class="ia-error">{{ loginError }}</p>
             <div class="ia-actions">
-              <button class="ia-btn ia-btn--accent" type="button" @click="handleLogin">Inloggen</button>
+              <button
+                class="ia-btn ia-btn--accent"
+                type="button"
+                :disabled="!apiConfigured"
+                @click="handleLogin"
+              >Inloggen</button>
             </div>
           </div>
         </div>
@@ -465,18 +521,6 @@ watch(() => store.activeTab, (tab) => {
 
     <!-- App -->
     <template v-else>
-      <div class="ia-hero">
-        <img
-          class="ia-hero__img"
-          src="/DATA_EVENTSHOOT/SITE_IMAGES/WERK/rolf_trijber_interview_5.jpg"
-          alt="Interview opname op locatie"
-        />
-        <div class="ia-hero__overlay" />
-        <div class="ia-hero__content">
-          <h1>Interview App</h1>
-        </div>
-      </div>
-
       <div class="ia-body">
         <div class="ia-shell">
           <header class="ia-shell__nav">
@@ -854,3 +898,49 @@ watch(() => store.activeTab, (tab) => {
     <div v-if="toast" class="ia-toast">{{ toast }}</div>
   </div>
 </template>
+
+<style scoped>
+.ia-topbar__logo-link {
+  display: inline-block;
+  line-height: 0;
+}
+
+.ia-topbar__logo {
+  height: 72px !important;
+  width: auto !important;
+}
+
+.ia-hero {
+  background: transparent !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 0.75rem !important;
+  justify-content: flex-start !important;
+  min-height: auto !important;
+  max-height: none !important;
+  padding: 1rem 0 0 !important;
+}
+
+.ia-hero__content {
+  padding-top: 2.5rem;
+  flex: 0 0 auto !important;
+}
+
+.ia-hero__title {
+  font-size: clamp(2.25rem, 6vw, 3.5rem) !important;
+  font-weight: 300 !important;
+  text-shadow: none !important;
+  margin-top: 1.5rem !important;
+}
+
+.ia-hero__mic {
+  width: min(720px, 88vw) !important;
+  max-width: min(720px, 88vw) !important;
+  max-height: clamp(160px, 30vh, 320px) !important;
+  height: auto !important;
+  object-fit: contain !important;
+  margin-top: 0.5rem !important;
+  flex-shrink: 0 !important;
+}
+</style>

@@ -4,8 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --force",
     "dev:vercel": "vercel dev",
+    "setup:env": "test -f .env.local || cp .env.example .env.local; echo '→ Bewerk .env.local: INTERVIEW_APP_PASSWORD, INTERVIEW_SESSION_SECRET, POSTGRES_URL (of: vercel env pull .env.local)'",
     "build": "vue-tsc -b && vite build && node scripts/prerender-klanten.mjs",
     "preview": "vite preview",
     "lint": "eslint . --ext .vue,.ts,.tsx --fix",

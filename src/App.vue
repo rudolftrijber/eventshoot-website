@@ -48,6 +48,7 @@ watch(() => route.path, () => {
   inset: 0;
   z-index: -1;
   overflow: hidden;
+  background: #0a1628;
 }
 
 .app-bg__video {

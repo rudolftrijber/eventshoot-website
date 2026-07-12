@@ -1,21 +1,17 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import path from 'path'
+import { localApiPlugin } from './plugins/vite-local-api'
 
 export default defineConfig({
-  plugins: [vue()],
+  plugins: [vue(), localApiPlugin()],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
     },
   },
   server: {
-    proxy: {
-      '/api': {
-        target: 'https://eventshoot.nl',
-        changeOrigin: true,
-        secure: true,
-      },
-    },
+    port: 5173,
+    strictPort: true,
   },
 })
