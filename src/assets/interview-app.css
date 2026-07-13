@@ -944,6 +944,18 @@
   flex: 1;
 }
 
+.ia-question-row .ia-iconbtn--delete {
+  flex-shrink: 0;
+  min-width: 2.5rem;
+  min-height: 2.5rem;
+  align-self: flex-start;
+}
+
+.ia-iconbtn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
 .ia-error {
   color: #ff5c5c;
   font-size: 0.85rem;

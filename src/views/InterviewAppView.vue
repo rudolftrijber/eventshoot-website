@@ -267,7 +267,10 @@ function addQuestion(list: { value: string[] }) {
 }
 
 function removeQuestion(list: { value: string[] }, idx: number) {
-  if (list.value.length <= 4) { showToast('Minimum 4 questions'); return }
+  if (list.value.length <= 1) {
+    showToast('At least one question row is required')
+    return
+  }
   list.value.splice(idx, 1)
 }
 
@@ -391,7 +394,11 @@ async function saveGuest() {
     showToast(`Name and role max. ${maxChars.value} characters`)
     return
   }
-  const questions = fQuestions.value.map((q) => q.trim())
+  const questions = fQuestions.value.map((q) => q.trim()).filter(Boolean)
+  if (questions.length < 4) {
+    showToast('Enter at least 4 interview questions')
+    return
+  }
   const payload = {
     productieNaam: fProductie.value.trim(),
     type: fType.value,
@@ -431,6 +438,7 @@ function loadForEdit(g: Gast) {
 }
 
 function applyDeelnemerPreset() {
+  if (editingId.value) return
   if (fType.value !== 'Participant' || !fProductie.value.trim()) return
   const preset = deelnemerPreset.value
   if (!preset?.vragen?.some((q) => q.trim())) return
@@ -440,6 +448,11 @@ function applyDeelnemerPreset() {
 async function saveProductie() {
   const naam = pNaam.value.trim()
   if (!naam) { showToast('Enter a production name'); return }
+  const vragen = pQuestions.value.map((q) => q.trim()).filter(Boolean)
+  if (vragen.length < 4) {
+    showToast('Enter at least 4 default questions for Participants')
+    return
+  }
   const datum = pDatum.value
   try {
     await store.saveProduction({
@@ -447,7 +460,7 @@ async function saveProductie() {
       naam,
       datum,
       status: pStatus.value,
-      vragen: pQuestions.value.map((q) => q.trim()),
+      vragen,
     })
     const saved = store.activeProductions.find(
       (p) =>
@@ -918,9 +931,15 @@ watch(workingProduction, (prod) => {
                   </button>
                 </div>
               </div>
-              <div v-for="(q, i) in fQuestions" :key="i" class="ia-question-row">
+              <div v-for="(q, i) in fQuestions" :key="`guest-q-${i}-${fQuestions.length}`" class="ia-question-row">
                 <textarea v-model="fQuestions[i]" class="ia-textarea" rows="1" :placeholder="`Question ${i + 1}`" />
-                <button class="ia-iconbtn" type="button" title="Remove" @click="removeFQ(i)">🗑️</button>
+                <button
+                  class="ia-iconbtn ia-iconbtn--delete"
+                  type="button"
+                  title="Remove question"
+                  :disabled="fQuestions.length <= 1"
+                  @click.stop="removeFQ(i)"
+                >🗑️</button>
               </div>
               <div class="ia-actions">
                 <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="addFQ">+ Question</button>
@@ -1123,9 +1142,15 @@ watch(workingProduction, (prod) => {
                 </button>
               </div>
             </div>
-            <div v-for="(q, i) in pQuestions" :key="i" class="ia-question-row">
+            <div v-for="(q, i) in pQuestions" :key="`prod-q-${i}-${pQuestions.length}`" class="ia-question-row">
               <textarea v-model="pQuestions[i]" class="ia-textarea" rows="1" />
-              <button class="ia-iconbtn" type="button" @click="removePQ(i)">🗑️</button>
+              <button
+                class="ia-iconbtn ia-iconbtn--delete"
+                type="button"
+                title="Remove question"
+                :disabled="pQuestions.length <= 1"
+                @click.stop="removePQ(i)"
+              >🗑️</button>
             </div>
             <div class="ia-actions">
               <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="addPQ">+ Question</button>
