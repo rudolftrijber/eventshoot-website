@@ -147,6 +147,23 @@ function fallbackQuestions(input: SuggestQuestionsInput): string[] {
   ]
 }
 
+function parseAnthropicError(status: number, text: string): string {
+  try {
+    const data = JSON.parse(text) as { error?: { message?: string; type?: string } }
+    const message = data.error?.message || ''
+    if (/credit balance is too low/i.test(message)) {
+      return 'Anthropic credits are empty. Go to console.anthropic.com → Plans & Billing to add credits.'
+    }
+    if (/invalid x-api-key|authentication/i.test(message)) {
+      return 'Invalid Anthropic API key. Check ANTHROPIC_API_KEY in Vercel.'
+    }
+    if (message) return message
+  } catch {
+    // fall through
+  }
+  return `AI request failed (${status})`
+}
+
 export async function suggestInterviewQuestions(
   input: SuggestQuestionsInput,
 ): Promise<SuggestQuestionsResult> {
@@ -188,7 +205,7 @@ export async function suggestInterviewQuestions(
 
   if (!response.ok) {
     const text = await response.text()
-    throw new Error(`AI request failed (${response.status}): ${text.slice(0, 160)}`)
+    throw new Error(parseAnthropicError(response.status, text))
   }
 
   const data = await response.json() as {
@@ -204,8 +221,8 @@ export async function suggestInterviewQuestions(
     throw new Error('AI response could not be parsed')
   }
 
-  if (questions.length < 4) {
-    throw new Error('AI returned fewer than 4 questions')
+  if (questions.length < 1) {
+    throw new Error('AI returned no questions')
   }
 
   return { questions }
