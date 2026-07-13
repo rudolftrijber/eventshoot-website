@@ -395,10 +395,6 @@ async function saveGuest() {
     return
   }
   const questions = fQuestions.value.map((q) => q.trim()).filter(Boolean)
-  if (questions.length < 4) {
-    showToast('Enter at least 4 interview questions')
-    return
-  }
   const payload = {
     productieNaam: fProductie.value.trim(),
     type: fType.value,
@@ -449,10 +445,6 @@ async function saveProductie() {
   const naam = pNaam.value.trim()
   if (!naam) { showToast('Enter a production name'); return }
   const vragen = pQuestions.value.map((q) => q.trim()).filter(Boolean)
-  if (vragen.length < 4) {
-    showToast('Enter at least 4 default questions for Participants')
-    return
-  }
   const datum = pDatum.value
   try {
     await store.saveProduction({
@@ -900,7 +892,7 @@ watch(workingProduction, (prod) => {
                 placeholder="e.g. SaaS user conference, focus on product launch"
               />
               <div class="ia-question-head">
-                <label class="ia-label ia-label--inline">Interview questions (min. 4, max. 7)</label>
+                <label class="ia-label ia-label--inline">Interview questions (max. 7)</label>
                 <button
                   class="ia-btn ia-btn--small ia-btn--secondary ia-btn--ai"
                   type="button"
@@ -1116,7 +1108,7 @@ watch(workingProduction, (prod) => {
               placeholder="e.g. industry congress, sustainability theme"
             />
             <div class="ia-question-head">
-              <label class="ia-label ia-label--inline">Default questions for Participants (min. 4, max. 7)</label>
+              <label class="ia-label ia-label--inline">Default questions for Participants (max. 7)</label>
               <button
                 class="ia-btn ia-btn--small ia-btn--secondary ia-btn--ai"
                 type="button"
