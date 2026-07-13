@@ -80,10 +80,15 @@ type AiPrepAnswers = { sector: string; specialism: string; timeliness: string }
 type AiStep = 'idle' | 'prep' | 'preview'
 
 const AI_PREP_FIELDS: Array<{ key: keyof AiPrepAnswers; label: string; placeholder: string }> = [
-  { key: 'sector', label: '1. Sector / branche', placeholder: 'bijv. maritiem, zorg, IT' },
+  { key: 'sector', label: '1. Sector / branche', placeholder: 'bijv. zorg, IT, overheid' },
   { key: 'specialism', label: '2. Specialisme of invalshoek', placeholder: 'bijv. techniek, beleid, dagelijkse praktijk' },
   { key: 'timeliness', label: '3. Actualiteit', placeholder: 'bijv. wat speelt nu in de sector of op dit event' },
 ]
+
+const aiGuestLanguage = ref<'nl' | 'en'>('nl')
+const aiGuestAddress = ref<'u' | 'jij'>('u')
+const aiProdLanguage = ref<'nl' | 'en'>('nl')
+const aiProdAddress = ref<'u' | 'jij'>('u')
 
 const emptyAiPrep = (): AiPrepAnswers => ({ sector: '', specialism: '', timeliness: '' })
 
@@ -365,7 +370,8 @@ async function generateGuestAiProposal() {
         specialism: aiGuestPrep.value.specialism.trim(),
         timeliness: aiGuestPrep.value.timeliness.trim(),
       },
-      language: 'nl',
+      language: aiGuestLanguage.value,
+      addressForm: aiGuestAddress.value,
     })
     aiGuestPreview.value = result.questions.slice(0, 4)
     aiGuestSelected.value = aiGuestPreview.value.map(() => true)
@@ -423,7 +429,8 @@ async function generateProdAiProposal() {
         specialism: aiProdPrep.value.specialism.trim(),
         timeliness: aiProdPrep.value.timeliness.trim(),
       },
-      language: 'nl',
+      language: aiProdLanguage.value,
+      addressForm: aiProdAddress.value,
     })
     aiProdPreview.value = result.questions.slice(0, 4)
     aiProdSelected.value = aiProdPreview.value.map(() => true)
@@ -980,6 +987,38 @@ watch(workingProduction, (prod) => {
               </p>
               <div v-if="aiGuestStep === 'prep'" class="ia-ai-preview ia-ai-preview--prep">
                 <p class="ia-ai-preview__title">Briefing for AI — answer these 3 questions first</p>
+                <div class="ia-ai-options">
+                  <div class="ia-ai-options__group">
+                    <span class="ia-ai-options__label">Language</span>
+                    <button
+                      class="ia-ai-toggle"
+                      :class="{ 'ia-ai-toggle--active': aiGuestLanguage === 'nl' }"
+                      type="button"
+                      @click="aiGuestLanguage = 'nl'"
+                    >NL</button>
+                    <button
+                      class="ia-ai-toggle"
+                      :class="{ 'ia-ai-toggle--active': aiGuestLanguage === 'en' }"
+                      type="button"
+                      @click="aiGuestLanguage = 'en'"
+                    >ENG</button>
+                  </div>
+                  <div v-if="aiGuestLanguage === 'nl'" class="ia-ai-options__group">
+                    <span class="ia-ai-options__label">Address</span>
+                    <button
+                      class="ia-ai-toggle"
+                      :class="{ 'ia-ai-toggle--active': aiGuestAddress === 'u' }"
+                      type="button"
+                      @click="aiGuestAddress = 'u'"
+                    >u</button>
+                    <button
+                      class="ia-ai-toggle"
+                      :class="{ 'ia-ai-toggle--active': aiGuestAddress === 'jij' }"
+                      type="button"
+                      @click="aiGuestAddress = 'jij'"
+                    >jij</button>
+                  </div>
+                </div>
                 <div v-for="field in AI_PREP_FIELDS" :key="field.key" class="ia-ai-prep-field">
                   <label class="ia-label">{{ field.label }}</label>
                   <input
@@ -1214,6 +1253,38 @@ watch(workingProduction, (prod) => {
             <p class="ia-hint">These defaults apply to Participants only. Other guest types get their own questions.</p>
             <div v-if="aiProdStep === 'prep'" class="ia-ai-preview ia-ai-preview--prep">
               <p class="ia-ai-preview__title">Briefing for AI — answer these 3 questions first</p>
+              <div class="ia-ai-options">
+                <div class="ia-ai-options__group">
+                  <span class="ia-ai-options__label">Language</span>
+                  <button
+                    class="ia-ai-toggle"
+                    :class="{ 'ia-ai-toggle--active': aiProdLanguage === 'nl' }"
+                    type="button"
+                    @click="aiProdLanguage = 'nl'"
+                  >NL</button>
+                  <button
+                    class="ia-ai-toggle"
+                    :class="{ 'ia-ai-toggle--active': aiProdLanguage === 'en' }"
+                    type="button"
+                    @click="aiProdLanguage = 'en'"
+                  >ENG</button>
+                </div>
+                <div v-if="aiProdLanguage === 'nl'" class="ia-ai-options__group">
+                  <span class="ia-ai-options__label">Address</span>
+                  <button
+                    class="ia-ai-toggle"
+                    :class="{ 'ia-ai-toggle--active': aiProdAddress === 'u' }"
+                    type="button"
+                    @click="aiProdAddress = 'u'"
+                  >u</button>
+                  <button
+                    class="ia-ai-toggle"
+                    :class="{ 'ia-ai-toggle--active': aiProdAddress === 'jij' }"
+                    type="button"
+                    @click="aiProdAddress = 'jij'"
+                  >jij</button>
+                </div>
+              </div>
               <div v-for="field in AI_PREP_FIELDS" :key="field.key" class="ia-ai-prep-field">
                 <label class="ia-label">{{ field.label }}</label>
                 <input

@@ -222,6 +222,7 @@ export const useInterviewStore = defineStore('interview', () => {
     productionDefaults?: string[]
     prepAnswers: { sector: string; specialism: string; timeliness: string }
     language?: 'nl' | 'en'
+    addressForm?: 'u' | 'jij'
   }) {
     return api<{ questions: string[] }>('/api/interview/suggest-questions', {
       method: 'POST',

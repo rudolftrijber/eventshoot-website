@@ -55,6 +55,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       productionDefaults: asStringArray(body.productionDefaults),
       prepAnswers,
       language: body.language === 'en' ? 'en' : 'nl',
+      addressForm: body.addressForm === 'jij' ? 'jij' : 'u',
     }
 
     if (scope === 'guest' && !String(body.name || '').trim()) {

@@ -16,6 +16,7 @@ export interface SuggestQuestionsInput {
   productionDefaults?: string[]
   prepAnswers?: AiPrepAnswers
   language?: 'nl' | 'en'
+  addressForm?: 'u' | 'jij'
 }
 
 export interface SuggestQuestionsResult {
@@ -48,14 +49,25 @@ function normalizeGuestType(value: string | undefined): string {
 function buildUserPrompt(input: SuggestQuestionsInput): string {
   const guestType = normalizeGuestType(input.guestType)
   const language = input.language === 'en' ? 'English' : 'Dutch'
+  const addressForm = input.language === 'en'
+    ? 'natural professional English'
+    : input.addressForm === 'jij' ? 'jij (informal)' : 'u (formal)'
   const defaults = (input.productionDefaults || []).map((q) => q.trim()).filter(Boolean)
   const isParticipant = guestType === 'Participant'
   const isProductionScope = input.scope === 'production'
 
   const lines = [
     `Language: ${language}`,
+    `Address form: ${addressForm}`,
     `Scope: ${isProductionScope ? 'production defaults for Participants' : 'single guest'}`,
     `Production: ${input.productionName || 'Unknown event'}`,
+    '',
+    'STRICT RULES:',
+    '- Use ONLY facts from the crew briefing below for sector, theme and timeliness.',
+    '- Do NOT infer or invent industries, sectors, regulations or topics from job titles or roles.',
+    '- Example: role "putjesschepper op zee" does NOT justify maritime or cybersecurity questions unless the briefing says so.',
+    '- Name and role may only help tailor wording, not introduce new subject matter.',
+    '- In Dutch, use the requested address form (u or jij) consistently in every question.',
   ]
 
   if (input.productionDate) lines.push(`Production date: ${input.productionDate}`)
@@ -72,6 +84,7 @@ function buildUserPrompt(input: SuggestQuestionsInput): string {
   }
 
   if (!isProductionScope) {
+    lines.push('Guest context (wording only, do not invent topics from this):')
     lines.push(`Guest type: ${guestType}`)
     if (input.name?.trim()) lines.push(`Name: ${input.name.trim()}`)
     if (input.role?.trim()) lines.push(`Role: ${input.role.trim()}`)
@@ -199,7 +212,8 @@ export async function suggestInterviewQuestions(
     'You write concise on-camera interview questions for business events.',
     'Output JSON only with key "questions" (array of exactly 4 strings, never more).',
     'Questions must be speakable, non-leading, and not yes/no.',
-    'Use the crew briefing (sector, specialism, timeliness) to shape the angle.',
+    'Use ONLY the crew briefing for sector, specialism and timeliness. Never invent topics.',
+    'Do not infer industry or themes from job titles or roles.',
     'Production default questions apply only to Participant guests.',
   ].join(' ')
 
@@ -213,7 +227,7 @@ export async function suggestInterviewQuestions(
     body: JSON.stringify({
       model,
       max_tokens: 1024,
-      temperature: 0.7,
+      temperature: 0.4,
       system: systemPrompt,
       messages: [
         { role: 'user', content: buildUserPrompt(input) },
