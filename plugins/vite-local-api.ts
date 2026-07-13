@@ -89,15 +89,22 @@ function createVercelRequest(
   return vercelReq
 }
 
+function envValue(key: string): string {
+  const raw = process.env[key] || ''
+  const trimmed = raw.trim()
+  if (trimmed === '""' || trimmed === "''") return ''
+  return trimmed
+}
+
 function checkInterviewEnv(): string[] {
   const missing: string[] = []
-  if (!process.env.POSTGRES_URL && !process.env.POSTGRES_URL_NON_POOLING) {
+  if (!envValue('POSTGRES_URL') && !envValue('POSTGRES_URL_NON_POOLING')) {
     missing.push('POSTGRES_URL')
   }
   const skip = process.env.INTERVIEW_SKIP_AUTH === '1' || process.env.INTERVIEW_SKIP_AUTH === 'true'
   if (skip) return missing
-  if (!process.env.INTERVIEW_APP_PASSWORD) missing.push('INTERVIEW_APP_PASSWORD')
-  if (!process.env.INTERVIEW_SESSION_SECRET) missing.push('INTERVIEW_SESSION_SECRET')
+  if (!envValue('INTERVIEW_APP_PASSWORD')) missing.push('INTERVIEW_APP_PASSWORD')
+  if (!envValue('INTERVIEW_SESSION_SECRET')) missing.push('INTERVIEW_SESSION_SECRET')
   return missing
 }
 

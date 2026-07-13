@@ -33,15 +33,9 @@ export interface Gast {
   updatedAt: string
 }
 
-export type TabId =
-  | 'nieuw'
-  | 'overzicht'
-  | 'producties'
-  | 'controle'
-  | 'camera'
-  | 'interviewer'
-  | 'dashboard'
-  | 'archief'
+export type TabId = 'kandidaten' | 'producties'
+
+export type GuestView = 'form' | 'controle' | 'camera' | 'interviewer' | null
 
 export const GAST_TYPES = ['Keynote spreker', 'Executive', 'Deelnemer', 'Overig'] as const
 export const GAST_STATUS_ORDER: GastStatus[] = ['Ingevoerd', 'Gecontroleerd', 'Opgenomen']

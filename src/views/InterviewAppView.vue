@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
-import { RouterLink } from 'vue-router'
 import { useInterviewStore } from '@/stores/interviewStore'
-import type { Gast, Productie, TabId } from '@/types/interview'
+import type { Gast, GuestView, Productie, TabId } from '@/types/interview'
 import { GAST_TYPES, PRODUCTIE_STATUSES } from '@/types/interview'
 import {
   clientTemplateCSV,
@@ -15,25 +14,21 @@ import {
   formatDisplayDate,
 } from '@/utils/interviewCsv'
 import '@/assets/interview-app.css'
+import '@/assets/interview-app-buttons.css'
 import {
   EyeIcon,
   EyeSlashIcon,
-  ArchiveBoxIcon,
   ArrowRightOnRectangleIcon,
   CalendarDaysIcon,
-  ChartBarSquareIcon,
-  ClipboardDocumentCheckIcon,
   Cog6ToothIcon,
-  MicrophoneIcon,
-  PlusCircleIcon,
   QueueListIcon,
-  VideoCameraIcon,
+  ArrowLeftIcon,
 } from '@heroicons/vue/24/outline'
 import type { Component } from 'vue'
 
 const store = useInterviewStore()
 
-const devBuildStamp = import.meta.env.DEV ? '12 jul 07:02' : ''
+const devBuildStamp = import.meta.env.DEV ? '13 jul 09:50 · compact buttons' : ''
 const skipAuthMode = ref(false)
 const password = ref('')
 const showPassword = ref(false)
@@ -43,6 +38,11 @@ const apiConfigured = computed(() => !apiConfigHint.value)
 const toast = ref('')
 const settingsOpen = ref(false)
 const searchBox = ref('')
+const guestView = ref<GuestView>(null)
+const showProdForm = ref(false)
+const manualProductieId = ref<string | null>(null)
+const pickProductieId = ref('')
+const PICK_NEW_PRODUCTION = '__new__'
 
 // Nieuw form
 const editingId = ref<string | null>(null)
@@ -77,15 +77,41 @@ const confirmOpgenomen = ref(false)
 let toastTimer: ReturnType<typeof setTimeout> | null = null
 
 const tabs: { id: TabId; label: string; icon: Component }[] = [
-  { id: 'nieuw', label: 'Nieuw', icon: PlusCircleIcon },
-  { id: 'overzicht', label: 'Overzicht', icon: QueueListIcon },
+  { id: 'kandidaten', label: 'Kandidaten', icon: QueueListIcon },
   { id: 'producties', label: 'Producties', icon: CalendarDaysIcon },
-  { id: 'controle', label: 'Controle', icon: ClipboardDocumentCheckIcon },
-  { id: 'camera', label: 'Camera', icon: VideoCameraIcon },
-  { id: 'interviewer', label: 'Interviewer', icon: MicrophoneIcon },
-  { id: 'dashboard', label: 'Dashboard', icon: ChartBarSquareIcon },
-  { id: 'archief', label: 'Archief', icon: ArchiveBoxIcon },
 ]
+
+const todayIso = computed(() => todayStr())
+
+const workingProduction = computed(() => {
+  const todayProd = store.activeProductions.find(
+    (p) => (p.datum || '').slice(0, 10) === todayIso.value,
+  )
+  if (todayProd) return todayProd
+  if (manualProductieId.value) {
+    return store.activeProductions.find((p) => p.id === manualProductieId.value) || null
+  }
+  return null
+})
+
+const needsProductiePick = computed(() =>
+  store.activeTab === 'kandidaten'
+  && !workingProduction.value
+  && guestView.value === null,
+)
+
+const dayGuests = computed(() => {
+  const prod = workingProduction.value
+  if (!prod) return []
+  const q = searchBox.value.toLowerCase()
+  return [...store.guests]
+    .filter((g) => g.productieNaam === prod.naam)
+    .filter((g) => !q || [g.naam, g.functie, g.regienummer, g.type].join(' ').toLowerCase().includes(q))
+    .sort((a, b) =>
+      (parseInt(a.regienummer) || 9999) - (parseInt(b.regienummer) || 9999)
+      || a.naam.localeCompare(b.naam, 'nl'),
+    )
+})
 
 const sortedProductions = computed(() =>
   [...store.activeProductions].sort((a, b) => a.naam.localeCompare(b.naam, 'nl')),
@@ -106,16 +132,10 @@ const deelnemerPreset = computed(() => {
   )
 })
 
-const filteredGuests = computed(() => {
-  const q = searchBox.value.toLowerCase()
-  return [...store.guests]
-    .filter((g) => !q || [g.naam, g.functie, g.regienummer, g.productieNaam].join(' ').toLowerCase().includes(q))
-    .sort((a, b) => (a.datum || 'zzz').localeCompare(b.datum || 'zzz')
-      || ((parseInt(a.regienummer) || 9999) - (parseInt(b.regienummer) || 9999)))
-})
+const filteredGuests = dayGuests
 
 const controleCandidates = computed(() =>
-  store.guests.filter((g) => g.status === 'Ingevoerd'),
+  dayGuests.value.filter((g) => g.status === 'Ingevoerd'),
 )
 
 const camGuest = computed(() => {
@@ -125,7 +145,7 @@ const camGuest = computed(() => {
 })
 
 const intGuest = computed(() => {
-  if (store.activeGuest && store.activeTab === 'interviewer') return store.activeGuest
+  if (store.activeGuest && guestView.value === 'interviewer') return store.activeGuest
   const q = intSearch.value.trim()
   if (!q) return store.activeGuest
   return store.guests.find((g) =>
@@ -137,10 +157,43 @@ const camHeaderDate = computed(() => formatDisplayDate(camGuest.value?.datum || 
 const camHeaderTime = computed(() => camGuest.value?.tijd || new Date().toTimeString().slice(0, 5))
 
 const crewFocusMode = computed(() => {
-  if (store.activeTab === 'camera' && Boolean(camGuest.value?.regienummer)) return true
-  if (store.activeTab === 'interviewer' && Boolean(intGuest.value)) return true
+  if (guestView.value === 'camera' && Boolean(camGuest.value?.regienummer)) return true
+  if (guestView.value === 'interviewer' && Boolean(intGuest.value)) return true
   return false
 })
+
+function backToKandidaten() {
+  guestView.value = null
+  store.selectGuest(null)
+  controleThanks.value = false
+  confirmOpgenomen.value = false
+  camSearch.value = ''
+  intSearch.value = ''
+}
+
+function openNewGuest() {
+  clearForm()
+  if (workingProduction.value) fProductie.value = workingProduction.value.naam
+  guestView.value = 'form'
+}
+
+function openNewProductie() {
+  clearProductieForm()
+  pDatum.value = todayIso.value
+  pStatus.value = 'Gaande'
+  showProdForm.value = true
+}
+
+function onProductiePickChange() {
+  const val = pickProductieId.value
+  if (val === PICK_NEW_PRODUCTION) {
+    pickProductieId.value = ''
+    store.setTab('producties')
+    openNewProductie()
+    return
+  }
+  if (val) manualProductieId.value = val
+}
 
 const addFQ = () => addQuestion(fQuestions)
 const removeFQ = (i: number) => removeQuestion(fQuestions, i)
@@ -219,6 +272,7 @@ async function saveGuest() {
     }
     showToast('Opgeslagen')
     clearForm()
+    backToKandidaten()
   } catch (e) {
     showToast(e instanceof Error ? e.message : 'Opslaan mislukt')
   }
@@ -233,7 +287,8 @@ function loadForEdit(g: Gast) {
   fNaam.value = g.naam
   fFunctie.value = g.functie
   resetQuestions(fQuestions, g.questions)
-  store.setTab('nieuw')
+  store.selectGuest(g.id)
+  guestView.value = 'form'
 }
 
 function applyDeelnemerPreset() {
@@ -246,16 +301,27 @@ function applyDeelnemerPreset() {
 async function saveProductie() {
   const naam = pNaam.value.trim()
   if (!naam) { showToast('Vul een productienaam in'); return }
+  const datum = pDatum.value
   try {
     await store.saveProduction({
       id: editingProdId.value || undefined,
       naam,
-      datum: pDatum.value,
+      datum,
       status: pStatus.value,
       vragen: pQuestions.value.map((q) => q.trim()),
     })
+    const saved = store.activeProductions.find(
+      (p) =>
+        p.naam === naam
+        && (p.datum || '').slice(0, 10) === (datum || '').slice(0, 10),
+    )
     showToast('Productie opgeslagen')
     clearProductieForm()
+    showProdForm.value = false
+    if (saved && (saved.datum || '').slice(0, 10) === todayIso.value) {
+      manualProductieId.value = saved.id
+      store.setTab('kandidaten')
+    }
   } catch (e) {
     showToast(e instanceof Error ? e.message : 'Opslaan mislukt')
   }
@@ -302,7 +368,12 @@ async function confirmControle() {
 function goToCameraAfterThanks() {
   controleThanks.value = false
   showCamQuestions.value = false
-  store.setTab('camera')
+  guestView.value = 'camera'
+}
+
+function goToInterviewer() {
+  showCamQuestions.value = true
+  guestView.value = 'interviewer'
 }
 
 async function deleteArchivedProduction(p: Productie) {
@@ -311,20 +382,12 @@ async function deleteArchivedProduction(p: Productie) {
   showToast('Productie verwijderd')
 }
 
-function goToInterviewer() {
-  showCamQuestions.value = true
-  store.setTab('interviewer')
-}
-
 async function markOpgenomen() {
   if (!intGuest.value) return
   try {
     await store.updateGuest(intGuest.value.id, { status: 'Opgenomen' })
     confirmOpgenomen.value = false
-    store.selectGuest(null)
-    intSearch.value = ''
-    camSearch.value = ''
-    store.setTab('nieuw')
+    backToKandidaten()
     showToast('Gemarkeerd als opgenomen')
   } catch (e) {
     showToast(e instanceof Error ? e.message : 'Mislukt')
@@ -345,11 +408,29 @@ function handleRowClick(g: Gast) {
   store.selectGuest(g.id)
   if (g.status === 'Ingevoerd') {
     openControle(g)
-    store.setTab('controle')
-  } else {
+    guestView.value = 'controle'
+  } else if (g.status === 'Gecontroleerd') {
     camSearch.value = g.regienummer
-    store.setTab('camera')
+    guestView.value = 'camera'
+  } else {
+    guestView.value = 'interviewer'
   }
+}
+
+function openGuestControle(g: Gast) {
+  openControle(g)
+  guestView.value = 'controle'
+}
+
+function openGuestCamera(g: Gast) {
+  store.selectGuest(g.id)
+  camSearch.value = g.regienummer
+  guestView.value = 'camera'
+}
+
+function openGuestInterviewer(g: Gast) {
+  store.selectGuest(g.id)
+  guestView.value = 'interviewer'
 }
 
 function pillClass(status: Gast['status']) {
@@ -376,10 +457,14 @@ function exportJson() {
 async function importCsv(file: File) {
   const text = await file.text()
   const rows = parseCSV(text)
+  const defaultProductie = workingProduction.value?.naam || ''
   let added = 0
   for (const row of rows) {
     const payload = csvRowToGuestPayload(row)
     if (payload.naam) {
+      if (!payload.productieNaam && defaultProductie) {
+        payload.productieNaam = defaultProductie
+      }
       await store.createGuest({
         ...payload,
         status: payload.status as Gast['status'],
@@ -387,7 +472,7 @@ async function importCsv(file: File) {
       added++
     }
   }
-  showToast(`${added} gast(en) geïmporteerd`)
+  showToast(`${added} kandidaat/kandidaten geïmporteerd`)
 }
 
 async function importJson(file: File) {
@@ -452,9 +537,15 @@ onUnmounted(() => {
   store.stopPolling()
 })
 
-watch(() => store.activeTab, (tab) => {
-  if (tab === 'controle') controleThanks.value = false
-  if (tab === 'camera') showCamQuestions.value = false
+watch(() => store.activeTab, () => {
+  guestView.value = null
+  store.selectGuest(null)
+  showProdForm.value = false
+})
+
+watch(guestView, (view) => {
+  if (view === 'controle') controleThanks.value = false
+  if (view === 'camera') showCamQuestions.value = false
 })
 
 watch([fType, fProductie], () => {
@@ -525,14 +616,14 @@ watch([fType, fProductie], () => {
                 <button
                   v-for="t in tabs"
                   :key="t.id"
-                  class="ia-tab"
+                  class="ia-tab ia-tab--labeled"
                   :class="{ active: store.activeTab === t.id }"
                   type="button"
                   :title="t.label"
-                  :aria-label="t.label"
                   @click="store.setTab(t.id)"
                 >
                   <component :is="t.icon" class="ia-tab__icon" aria-hidden="true" />
+                  <span class="ia-tab__label">{{ t.label }}</span>
                 </button>
               </nav>
               <div class="ia-tabs-utils">
@@ -594,91 +685,214 @@ watch([fType, fProductie], () => {
       </div>
 
       <main class="ia-shell__main">
-        <!-- NIEUW -->
-        <section v-if="store.activeTab === 'nieuw'">
-          <div class="ia-card">
-            <div class="ia-row ia-row--fields">
-              <div class="ia-field">
-                <label class="ia-label">Selecteer productie</label>
-                <select v-model="fProductie" class="ia-select">
-                  <option value="" disabled>— selecteer —</option>
-                  <option v-for="p in sortedProductions" :key="p.id" :value="p.naam">{{ p.naam }}</option>
-                </select>
-              </div>
-              <div class="ia-field">
-                <label class="ia-label">Selecteer type gast</label>
-                <select v-model="fType" class="ia-select">
-                  <option value="">— optioneel —</option>
-                  <option v-for="t in GAST_TYPES" :key="t" :value="t">{{ t }}</option>
-                </select>
-              </div>
-            </div>
-            <div class="ia-row">
-              <div>
-                <label class="ia-label">Naam gast</label>
-                <input v-model="fNaam" class="ia-input" placeholder="Voor- en achternaam" />
-                <div class="ia-charcount" :class="{ warn: naamOverLimit }">{{ fNaam.length }} / {{ maxChars }} tekens</div>
-              </div>
-              <div>
-                <label class="ia-label">Functie</label>
-                <input v-model="fFunctie" class="ia-input" placeholder="bijv. Directeur Innovatie" />
-                <div class="ia-charcount" :class="{ warn: functieOverLimit }">{{ fFunctie.length }} / {{ maxChars }} tekens</div>
-              </div>
-            </div>
-            <label class="ia-label">Planning / tijdvak (optioneel)</label>
-            <input v-model="fPlanning" class="ia-input" placeholder="bijv. interview voor de lunch" />
-            <label class="ia-label">Interviewvragen (min. 4, max. 7)</label>
-            <div v-for="(q, i) in fQuestions" :key="i" class="ia-question-row">
-              <textarea v-model="fQuestions[i]" class="ia-textarea" rows="1" :placeholder="`Vraag ${i + 1}`" />
-              <button class="ia-iconbtn" type="button" title="Verwijder" @click="removeFQ(i)">🗑️</button>
-            </div>
-            <div class="ia-actions">
-              <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="addFQ">+ Vraag</button>
-            </div>
-            <div class="ia-actions">
-              <input id="fGedeeld" v-model="fGedeeld" type="checkbox" />
-              <label for="fGedeeld" style="margin:0">Vragen zijn vooraf gedeeld met de geïnterviewde</label>
-            </div>
-            <div class="ia-actions">
-              <button class="ia-btn" type="button" @click="saveGuest">Opslaan</button>
-              <button class="ia-iconbtn" type="button" title="Leegmaken" @click="clearForm">🗑️</button>
-            </div>
+        <!-- KANDIDATEN -->
+        <section v-if="store.activeTab === 'kandidaten'">
+          <div v-if="needsProductiePick" class="ia-card ia-day-empty">
+            <h2 class="ia-day-empty__title">Geen productie voor vandaag</h2>
+            <p class="ia-day-empty__text">
+              Kies de productie waarvoor je vandaag kandidaten beheert.
+            </p>
+            <label class="ia-label" for="pick-productie">Productie</label>
+            <select
+              id="pick-productie"
+              v-model="pickProductieId"
+              class="ia-select"
+              @change="onProductiePickChange"
+            >
+              <option value="" disabled>— selecteer productie —</option>
+              <option v-for="p in sortedProductions" :key="p.id" :value="p.id">
+                {{ p.naam }} ({{ p.datum || 'geen datum' }})
+              </option>
+              <option :value="PICK_NEW_PRODUCTION">+ Nieuwe productie aanmaken</option>
+            </select>
           </div>
-        </section>
 
-        <!-- OVERZICHT -->
-        <section v-if="store.activeTab === 'overzicht'">
-          <div class="ia-card">
-            <input v-model="searchBox" class="ia-input search" placeholder="Zoek op naam, regienummer, productie..." />
-            <table class="ia-table">
-              <thead>
-                <tr><th>Regie #</th><th>Gast</th><th>Functie</th><th>Status</th><th></th></tr>
-              </thead>
-              <tbody>
-                <tr v-for="g in filteredGuests" :key="g.id" class="data-row" @click="handleRowClick(g)">
-                  <td>{{ g.regienummer || '—' }}</td>
-                  <td>
-                    <div>{{ g.naam }}</div>
-                    <small v-if="g.planning" style="color:var(--color-text-muted)">{{ g.planning }}</small>
-                  </td>
-                  <td>{{ g.functie }}</td>
-                  <td>
-                    <span :class="pillClass(g.status)" @click.stop="store.cycleGuestStatus(g)">{{ g.status }}</span>
-                  </td>
-                  <td>
-                    <button class="ia-iconbtn" type="button" @click.stop="loadForEdit(g)">✏️</button>
-                    <button class="ia-iconbtn" type="button" @click.stop="store.deleteGuest(g.id)">🗑️</button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-            <p v-if="!filteredGuests.length" class="ia-empty">Nog geen gasten toegevoegd.</p>
-          </div>
+          <template v-else-if="guestView === 'form'">
+            <button class="ia-back" type="button" @click="backToKandidaten">
+              <ArrowLeftIcon class="ia-back__icon" aria-hidden="true" /> Terug naar lijst
+            </button>
+            <div class="ia-card">
+              <h2 class="ia-section-title">{{ editingId ? 'Kandidaat bewerken' : 'Nieuwe kandidaat' }}</h2>
+              <div class="ia-row ia-row--fields">
+                <div class="ia-field">
+                  <label class="ia-label">Productie</label>
+                  <select v-model="fProductie" class="ia-select">
+                    <option value="" disabled>— selecteer —</option>
+                    <option v-for="p in sortedProductions" :key="p.id" :value="p.naam">{{ p.naam }}</option>
+                  </select>
+                </div>
+                <div class="ia-field">
+                  <label class="ia-label">Type gast</label>
+                  <select v-model="fType" class="ia-select">
+                    <option value="">— optioneel —</option>
+                    <option v-for="t in GAST_TYPES" :key="t" :value="t">{{ t }}</option>
+                  </select>
+                </div>
+              </div>
+              <div class="ia-row">
+                <div>
+                  <label class="ia-label">Naam</label>
+                  <input v-model="fNaam" class="ia-input" placeholder="Voor- en achternaam" />
+                  <div class="ia-charcount" :class="{ warn: naamOverLimit }">{{ fNaam.length }} / {{ maxChars }} tekens</div>
+                </div>
+                <div>
+                  <label class="ia-label">Functie</label>
+                  <input v-model="fFunctie" class="ia-input" placeholder="bijv. Directeur Innovatie" />
+                  <div class="ia-charcount" :class="{ warn: functieOverLimit }">{{ fFunctie.length }} / {{ maxChars }} tekens</div>
+                </div>
+              </div>
+              <label class="ia-label">Planning / tijdvak (optioneel)</label>
+              <input v-model="fPlanning" class="ia-input" placeholder="bijv. interview na de keynote" />
+              <label class="ia-label">Interviewvragen (min. 4, max. 7)</label>
+              <div v-for="(q, i) in fQuestions" :key="i" class="ia-question-row">
+                <textarea v-model="fQuestions[i]" class="ia-textarea" rows="1" :placeholder="`Vraag ${i + 1}`" />
+                <button class="ia-iconbtn" type="button" title="Verwijder" @click="removeFQ(i)">🗑️</button>
+              </div>
+              <div class="ia-actions">
+                <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="addFQ">+ Vraag</button>
+              </div>
+              <div class="ia-actions">
+                <input id="fGedeeld" v-model="fGedeeld" type="checkbox" />
+                <label for="fGedeeld" style="margin:0">Vragen zijn vooraf gedeeld met de geïnterviewde</label>
+              </div>
+              <div class="ia-actions">
+                <button class="ia-btn" type="button" @click="saveGuest">Opslaan</button>
+                <button class="ia-iconbtn" type="button" title="Leegmaken" @click="clearForm">🗑️</button>
+              </div>
+            </div>
+          </template>
+
+          <template v-else-if="guestView === 'controle'">
+            <button class="ia-back" type="button" @click="backToKandidaten">
+              <ArrowLeftIcon class="ia-back__icon" aria-hidden="true" /> Terug naar lijst
+            </button>
+            <div v-if="controleThanks && store.activeGuest" class="ia-card ia-thanks">
+              <h2>Bedankt!</h2>
+              <p>Je gegevens zijn bevestigd.</p>
+              <div class="ia-thanks__nr">Regie #{{ store.activeGuest.regienummer }}</div>
+              <p>Geef de iPad door aan de interviewer.</p>
+              <div class="ia-actions">
+                <button class="ia-btn ia-btn--ok" type="button" @click="goToCameraAfterThanks">Door naar camera →</button>
+              </div>
+            </div>
+            <div v-else-if="store.activeGuest && store.activeGuest.status === 'Ingevoerd'" class="ia-card">
+              <p class="ia-controle-intro">Controleer naam en functie voor de lowerthird in de video.</p>
+              <p v-if="controleOverLimit" class="ia-controle-limit ia-controle-limit--alert">
+                Te lang — naam en functie mogen elk maximaal {{ maxChars }} tekens zijn.
+              </p>
+              <label class="ia-label">Naam</label>
+              <input v-model="controleNaam" class="ia-input ia-controle-input" />
+              <div class="ia-charcount" :class="{ warn: controleNaamOver }">{{ controleNaam.length }} / {{ maxChars }} tekens</div>
+              <label class="ia-label">Functie</label>
+              <input v-model="controleFunctie" class="ia-input ia-controle-input" />
+              <div class="ia-charcount" :class="{ warn: controleFunctieOver }">{{ controleFunctie.length }} / {{ maxChars }} tekens</div>
+              <div class="ia-actions" style="margin-top:1.5rem">
+                <button class="ia-btn ia-btn--ok" type="button" :disabled="controleOverLimit" @click="confirmControle">
+                  ✓ Gecontroleerd, dit klopt
+                </button>
+              </div>
+            </div>
+          </template>
+
+          <template v-else-if="guestView === 'camera'">
+            <button v-if="!crewFocusMode" class="ia-back" type="button" @click="backToKandidaten">
+              <ArrowLeftIcon class="ia-back__icon" aria-hidden="true" /> Terug naar lijst
+            </button>
+            <div v-if="camGuest?.regienummer" class="ia-card ia-cam-full">
+              <div class="ia-cam-full__header">
+                {{ camGuest.productieNaam }} · {{ camHeaderDate }} · {{ camHeaderTime }}
+              </div>
+              <div class="ia-cam-full__guest">
+                <div class="ia-cam-full__naam">{{ camGuest.naam }}</div>
+                <div class="ia-cam-full__functie">{{ camGuest.functie }}</div>
+              </div>
+              <div class="ia-cam-full__number">{{ camGuest.regienummer }}</div>
+              <div class="ia-actions">
+                <button class="ia-btn ia-btn--accent" type="button" @click="goToInterviewer">Interviewvragen tonen →</button>
+              </div>
+            </div>
+          </template>
+
+          <template v-else-if="guestView === 'interviewer'">
+            <button v-if="!crewFocusMode" class="ia-back" type="button" @click="backToKandidaten">
+              <ArrowLeftIcon class="ia-back__icon" aria-hidden="true" /> Terug naar lijst
+            </button>
+            <div v-if="intGuest" class="ia-card ia-int-full">
+              <div class="ia-int-full__head">
+                <div class="ia-int-full__regie">Regie #{{ intGuest.regienummer || '—' }}</div>
+                <div class="ia-int-full__naam">{{ intGuest.naam }}</div>
+                <div class="ia-int-full__functie">{{ intGuest.functie }}</div>
+              </div>
+              <div v-if="intGuest.gedeeld" class="ia-int-full__warn">
+                Let op: deze vragen zijn vooraf gedeeld met de gast
+              </div>
+              <ol class="ia-questions">
+                <li v-for="(q, i) in intGuest.questions.filter(q => q)" :key="i">{{ q }}</li>
+              </ol>
+              <div class="ia-actions">
+                <button v-if="!confirmOpgenomen" class="ia-btn ia-btn--ok" type="button" @click="confirmOpgenomen = true">✓ Opgenomen</button>
+                <template v-else>
+                  <span>Interview afgerond?</span>
+                  <button class="ia-btn ia-btn--ok" type="button" @click="markOpgenomen">Ja, opgenomen</button>
+                  <button class="ia-btn ia-btn--secondary" type="button" @click="confirmOpgenomen = false">Annuleren</button>
+                </template>
+              </div>
+            </div>
+          </template>
+
+          <template v-else>
+            <div class="ia-card">
+              <h2 class="ia-section-title">Interview kandidaten</h2>
+              <p v-if="workingProduction" class="ia-list-header__sub ia-list-header__sub--tight">
+                {{ workingProduction.naam }} · {{ formatDisplayDate(workingProduction.datum || todayIso) }}
+              </p>
+              <div class="ia-actions ia-actions--tight">
+                <button class="ia-btn ia-btn--small ia-btn--accent" type="button" @click="openNewGuest">
+                  + Nieuwe kandidaat
+                </button>
+                <label class="ia-btn ia-btn--small ia-btn--secondary" style="cursor:pointer;margin:0">
+                  Import CSV
+                  <input type="file" accept=".csv,text/csv" hidden @change="(e) => { const f=(e.target as HTMLInputElement).files?.[0]; if(f) importCsv(f) }" />
+                </label>
+              </div>
+              <input
+                v-model="searchBox"
+                class="ia-input ia-search"
+                type="search"
+                placeholder="Zoek op naam..."
+              />
+              <table class="ia-table">
+                <thead>
+                  <tr><th>Regie #</th><th>Naam</th><th>Functie</th><th>Status</th><th></th></tr>
+                </thead>
+                <tbody>
+                  <tr v-for="g in filteredGuests" :key="g.id" class="data-row" @click="handleRowClick(g)">
+                    <td>{{ g.regienummer || '—' }}</td>
+                    <td>
+                      <div>{{ g.naam }}</div>
+                      <small v-if="g.planning" style="color:var(--color-text-muted)">{{ g.planning }}</small>
+                    </td>
+                    <td>{{ g.functie }}</td>
+                    <td><span :class="pillClass(g.status)">{{ g.status }}</span></td>
+                    <td class="ia-row-actions" @click.stop>
+                      <button v-if="g.status === 'Ingevoerd'" class="ia-iconbtn" type="button" title="Controle" @click="openGuestControle(g)">✓</button>
+                      <button v-if="g.regienummer" class="ia-iconbtn" type="button" title="Camera" @click="openGuestCamera(g)">📷</button>
+                      <button class="ia-iconbtn" type="button" title="Interviewer" @click="openGuestInterviewer(g)">🎤</button>
+                      <button class="ia-iconbtn" type="button" title="Bewerken" @click="loadForEdit(g)">✏️</button>
+                      <button class="ia-iconbtn" type="button" title="Verwijderen" @click="store.deleteGuest(g.id)">🗑️</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <p v-if="!filteredGuests.length" class="ia-empty">Nog geen kandidaten voor deze productie. Klik op + Nieuwe kandidaat of importeer een CSV-lijst.</p>
+            </div>
+          </template>
         </section>
 
         <!-- PRODUCTIES -->
         <section v-if="store.activeTab === 'producties'">
-          <div class="ia-card">
+          <div v-if="showProdForm" class="ia-card ia-prod-form">
+            <h2 class="ia-section-title">{{ editingProdId ? 'Productie bewerken' : 'Nieuwe productie' }}</h2>
             <label class="ia-label">Productienaam</label>
             <input v-model="pNaam" class="ia-input" placeholder="naam van de productie" />
             <label class="ia-label">Productiedatum</label>
@@ -695,187 +909,50 @@ watch([fType, fProductie], () => {
             <div class="ia-actions">
               <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="addPQ">+ Vraag</button>
               <button class="ia-btn" type="button" @click="saveProductie">Opslaan</button>
-              <button class="ia-iconbtn" type="button" @click="clearProductieForm">🗑️</button>
+              <button class="ia-btn ia-btn--secondary" type="button" @click="showProdForm = false">Annuleren</button>
             </div>
           </div>
           <div class="ia-card">
+            <h2 class="ia-section-title">Actieve producties</h2>
+            <div class="ia-actions ia-actions--tight">
+              <button class="ia-btn ia-btn--small ia-btn--accent" type="button" @click="openNewProductie">
+                + Nieuwe productie
+              </button>
+            </div>
             <table class="ia-table">
-              <thead><tr><th>Productie</th><th>Datum</th><th>Status</th><th>Vragen</th><th></th></tr></thead>
+              <thead><tr><th>Productie</th><th>Datum</th><th>Status</th><th>Kandidaten</th><th></th></tr></thead>
               <tbody>
                 <tr v-for="p in store.activeProductions" :key="p.id">
                   <td>{{ p.naam }}</td>
-                  <td>{{ p.datum || '—' }}</td>
+                  <td>{{ p.datum ? formatDisplayDate(p.datum) : '—' }}</td>
                   <td>{{ p.status }}</td>
-                  <td>{{ p.vragen.filter(q => q).length }}</td>
+                  <td>{{ store.guests.filter(g => g.productieNaam === p.naam).length }}</td>
                   <td>
-                    <button class="ia-iconbtn" type="button" @click="editProductie(p)">✏️</button>
-                    <button class="ia-iconbtn" type="button" @click="store.archiveProduction(p.id)">📦</button>
+                    <button class="ia-iconbtn" type="button" title="Bewerken" @click="editProductie(p); showProdForm = true">✏️</button>
+                    <button class="ia-iconbtn" type="button" title="Archiveren" @click="store.archiveProduction(p.id)">📦</button>
                   </td>
                 </tr>
               </tbody>
             </table>
+            <p v-if="!store.activeProductions.length" class="ia-empty">Nog geen producties. Klik op + Nieuwe productie om te beginnen.</p>
           </div>
-        </section>
-
-        <!-- CONTROLE -->
-        <section v-if="store.activeTab === 'controle'">
-          <div v-if="controleThanks && store.activeGuest" class="ia-card ia-thanks">
-            <h2>Bedankt!</h2>
-            <p>Je gegevens zijn bevestigd.</p>
-            <div class="ia-thanks__nr">Regie #{{ store.activeGuest.regienummer }}</div>
-            <p>Geef de iPad door aan de interviewer.</p>
-            <button class="ia-btn ia-btn--big ia-btn--ok" type="button" @click="goToCameraAfterThanks">Door naar camera →</button>
-          </div>
-          <div v-else-if="store.activeGuest && store.activeGuest.status === 'Ingevoerd'" class="ia-card">
-            <p class="ia-controle-intro">
-              Controleer je naam en functie voor de lowerthird in de video.
-            </p>
-            <p v-if="controleOverLimit" class="ia-controle-limit ia-controle-limit--alert">
-              Te lang — naam en functie mogen elk maximaal {{ maxChars }} tekens zijn.
-              Kort in, anders is de tekst op iPhone en kleinere schermen niet meer leesbaar.
-            </p>
-            <label class="ia-label">Naam</label>
-            <input v-model="controleNaam" class="ia-input ia-controle-input" />
-            <div class="ia-charcount" :class="{ warn: controleNaamOver }">{{ controleNaam.length }} / {{ maxChars }} tekens</div>
-            <label class="ia-label">Functie</label>
-            <input v-model="controleFunctie" class="ia-input ia-controle-input" />
-            <div class="ia-charcount" :class="{ warn: controleFunctieOver }">{{ controleFunctie.length }} / {{ maxChars }} tekens</div>
-            <div class="ia-actions" style="margin-top:1.5rem">
-              <button class="ia-btn ia-btn--big ia-btn--ok" type="button" :disabled="controleOverLimit" @click="confirmControle">
-                ✓ Gecontroleerd, dit klopt
-              </button>
-            </div>
-          </div>
-          <div v-else class="ia-card">
-            <p class="ia-controle-intro">Crew: kies een gast om de iPad aan hem of haar te geven.</p>
-            <div class="ia-guest-picker">
-              <button
-                v-for="g in controleCandidates"
-                :key="g.id"
-                class="ia-guest-pick"
-                type="button"
-                @click="openControle(g)"
-              >
-                {{ g.naam }}
-                <small>{{ g.functie || 'Geen functie' }} · {{ g.productieNaam }}</small>
-              </button>
-            </div>
-            <p v-if="!controleCandidates.length" class="ia-empty">Geen gasten met status Ingevoerd.</p>
-          </div>
-        </section>
-
-        <!-- CAMERA -->
-        <section v-if="store.activeTab === 'camera'">
-          <div v-if="camGuest?.regienummer" class="ia-card ia-cam-full">
-            <div class="ia-cam-full__header">
-              {{ camGuest.productieNaam }} · {{ camHeaderDate }} · {{ camHeaderTime }}
-            </div>
-            <div class="ia-cam-full__guest">
-              <div class="ia-cam-full__naam">{{ camGuest.naam }}</div>
-              <div class="ia-cam-full__functie">{{ camGuest.functie }}</div>
-            </div>
-            <div class="ia-cam-full__number">{{ camGuest.regienummer }}</div>
-            <div class="ia-actions" style="justify-content:center">
-              <button class="ia-btn ia-btn--accent" type="button" @click="goToInterviewer">Interviewvragen tonen →</button>
-            </div>
-          </div>
-          <div v-else class="ia-card">
-            <label class="ia-label">Zoek op regienummer</label>
-            <input v-model="camSearch" class="ia-input" placeholder="Typ het regienummer..." />
-            <p v-if="camSearch && !camGuest" class="ia-empty">Geen record met dit regienummer.</p>
-          </div>
-        </section>
-
-        <!-- INTERVIEWER -->
-        <section v-if="store.activeTab === 'interviewer'">
-          <div v-if="intGuest" class="ia-card ia-int-full">
-            <div class="ia-int-full__head">
-              <div class="ia-int-full__regie">Regie #{{ intGuest.regienummer || '—' }}</div>
-              <div class="ia-int-full__naam">{{ intGuest.naam }}</div>
-              <div class="ia-int-full__functie">
-                {{ intGuest.functie }}
-                <span v-if="intGuest.functie.length > maxChars"> ⚠️ te lang voor lowerthird</span>
-              </div>
-            </div>
-
-            <div v-if="intGuest.gedeeld" class="ia-int-full__warn">
-              Let op: deze vragen zijn vooraf gedeeld met de gast
-            </div>
-
-            <ol class="ia-questions">
-              <li v-for="(q, i) in intGuest.questions.filter(q => q)" :key="i">{{ q }}</li>
-            </ol>
-            <p v-if="!intGuest.questions.some(q => q)" class="ia-empty">Geen vragen ingevuld</p>
-
-            <div class="ia-actions">
-              <button v-if="!confirmOpgenomen" class="ia-btn ia-btn--big ia-btn--ok" type="button" @click="confirmOpgenomen = true">✓ Opgenomen</button>
-              <template v-else>
-                <span>Interview afgerond?</span>
-                <button class="ia-btn ia-btn--big ia-btn--ok" type="button" @click="markOpgenomen">Ja, opgenomen</button>
-                <button class="ia-btn ia-btn--secondary" type="button" @click="confirmOpgenomen = false">Annuleren</button>
-              </template>
-              <button
-                v-if="intGuest.status === 'Opgenomen'"
-                class="ia-btn ia-btn--small ia-btn--secondary"
-                type="button"
-                @click="resetGuestStatus(intGuest)"
-              >
-                Status terugzetten
-              </button>
-            </div>
-          </div>
-          <div v-else class="ia-card">
-            <label class="ia-label">Zoek op regienummer of naam</label>
-            <input v-model="intSearch" class="ia-input" placeholder="Typ regienummer of naam..." />
-            <p v-if="intSearch && !intGuest" class="ia-empty">Geen gast gevonden.</p>
-          </div>
-        </section>
-
-        <!-- DASHBOARD -->
-        <section v-if="store.activeTab === 'dashboard'">
-          <div class="ia-card">
-            <h2 style="color:var(--color-accent);margin-bottom:0.5rem">Opgenomen interviews</h2>
-            <p class="ia-dashboard-stat">{{ store.opgenomenGuests.length }}</p>
-            <p style="color:var(--color-text-muted);margin-bottom:1rem">interviews vandaag afgerond</p>
-            <table class="ia-table">
-              <thead><tr><th>Regie #</th><th>Naam</th><th>Functie</th><th>Tijd</th><th>Productie</th></tr></thead>
-              <tbody>
-                <tr v-for="g in store.opgenomenGuests" :key="g.id">
-                  <td>{{ g.regienummer }}</td>
-                  <td>{{ g.naam }}</td>
-                  <td>{{ g.functie }}</td>
-                  <td>{{ g.tijd || '—' }}</td>
-                  <td>{{ g.productieNaam }}</td>
-                </tr>
-              </tbody>
-            </table>
-            <p v-if="!store.opgenomenGuests.length" class="ia-empty">Nog geen opgenomen interviews.</p>
-          </div>
-        </section>
-
-        <!-- ARCHIEF -->
-        <section v-if="store.activeTab === 'archief'">
-          <div class="ia-card">
-            <h2 style="color:var(--color-accent);margin-bottom:1rem">Gearchiveerde producties</h2>
+          <div v-if="store.archivedProductions.length" class="ia-card">
+            <h2 class="ia-section-title">Archief</h2>
+            <p class="ia-list-header__sub">Gearchiveerde producties en bijbehorende kandidaten.</p>
             <table class="ia-table">
               <thead><tr><th>Productie</th><th>Datum</th><th>Status</th><th></th></tr></thead>
               <tbody>
                 <tr v-for="p in store.archivedProductions" :key="p.id">
                   <td>{{ p.naam }}</td>
-                  <td>{{ p.datum || '—' }}</td>
+                  <td>{{ p.datum ? formatDisplayDate(p.datum) : '—' }}</td>
                   <td>{{ p.status }}</td>
                   <td>
-                    <button class="ia-iconbtn" type="button" @click="store.restoreProduction(p.id)">↩️</button>
-                    <button
-                      class="ia-iconbtn"
-                      type="button"
-                      @click="deleteArchivedProduction(p)"
-                    >🗑️</button>
+                    <button class="ia-iconbtn" type="button" title="Herstellen" @click="store.restoreProduction(p.id)">↩️</button>
+                    <button class="ia-iconbtn" type="button" title="Definitief verwijderen" @click="deleteArchivedProduction(p)">🗑️</button>
                   </td>
                 </tr>
               </tbody>
             </table>
-            <p v-if="!store.archivedProductions.length" class="ia-empty">Archief is leeg.</p>
           </div>
         </section>
       </main>
