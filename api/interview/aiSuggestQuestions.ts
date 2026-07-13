@@ -1,3 +1,9 @@
+export interface AiPrepAnswers {
+  sector: string
+  specialism: string
+  timeliness: string
+}
+
 export interface SuggestQuestionsInput {
   scope: 'guest' | 'production'
   productionName: string
@@ -8,6 +14,7 @@ export interface SuggestQuestionsInput {
   role?: string
   planning?: string
   productionDefaults?: string[]
+  prepAnswers?: AiPrepAnswers
   language?: 'nl' | 'en'
 }
 
@@ -23,12 +30,12 @@ const GUEST_TYPES = new Set([
   'Other',
 ])
 
-function trimQuestions(list: unknown): string[] {
+function trimQuestions(list: unknown, max = 4): string[] {
   if (!Array.isArray(list)) return []
   return list
     .map((q) => String(q || '').trim())
     .filter(Boolean)
-    .slice(0, 7)
+    .slice(0, max)
 }
 
 function normalizeGuestType(value: string | undefined): string {
@@ -52,7 +59,17 @@ function buildUserPrompt(input: SuggestQuestionsInput): string {
   ]
 
   if (input.productionDate) lines.push(`Production date: ${input.productionDate}`)
-  if (input.productionContext?.trim()) lines.push(`Event context: ${input.productionContext.trim()}`)
+  if (input.productionContext?.trim()) lines.push(`Extra context: ${input.productionContext.trim()}`)
+
+  const prep = input.prepAnswers
+  if (prep && (prep.sector.trim() || prep.specialism.trim() || prep.timeliness.trim())) {
+    lines.push(
+      'Crew briefing:',
+      `1. Sector / branche: ${prep.sector.trim()}`,
+      `2. Specialisme of invalshoek: ${prep.specialism.trim()}`,
+      `3. Actualiteit: ${prep.timeliness.trim()}`,
+    )
+  }
 
   if (!isProductionScope) {
     lines.push(`Guest type: ${guestType}`)
@@ -73,20 +90,20 @@ function buildUserPrompt(input: SuggestQuestionsInput): string {
   }
 
   if (isProductionScope) {
-    lines.push('Write 4 default interview questions for Participants at this event.')
+    lines.push('Write exactly 4 default interview questions for Participants at this event.')
   } else if (isParticipant) {
-    lines.push('Write 4 to 7 interview questions tailored to this participant.')
+    lines.push('Write exactly 4 interview questions tailored to this participant.')
   } else if (guestType === 'Sponsor') {
-    lines.push('Write 4 to 7 interview questions about the sponsorship, brand fit and value for the audience.')
+    lines.push('Write exactly 4 interview questions about the sponsorship, brand fit and value for the audience.')
   } else if (guestType === 'Keynote speaker') {
-    lines.push('Write 4 to 7 interview questions about the keynote theme, vision and sector relevance.')
+    lines.push('Write exactly 4 interview questions about the keynote theme, vision and sector relevance.')
   } else if (guestType === 'Executive') {
-    lines.push('Write 4 to 7 interview questions about leadership, strategy and event significance.')
+    lines.push('Write exactly 4 interview questions about leadership, strategy and event significance.')
   } else {
-    lines.push('Write 4 to 7 balanced on-camera interview questions for this guest.')
+    lines.push('Write exactly 4 balanced on-camera interview questions for this guest.')
   }
 
-  lines.push('Return JSON only: {"questions":["..."]}')
+  lines.push('Return JSON only: {"questions":["..."]} with at most 4 questions.')
   return lines.join('\n')
 }
 
@@ -103,7 +120,7 @@ function fallbackQuestions(input: SuggestQuestionsInput): string[] {
   const defaults = (input.productionDefaults || []).map((q) => q.trim()).filter(Boolean)
 
   if (input.scope === 'production' || guestType === 'Participant') {
-    if (defaults.length >= 4) return defaults.slice(0, 7)
+    if (defaults.length >= 4) return defaults.slice(0, 4)
     return [
       'What stood out most for you at this event?',
       'What was the highlight of your day?',
@@ -180,8 +197,9 @@ export async function suggestInterviewQuestions(
 
   const systemPrompt = [
     'You write concise on-camera interview questions for business events.',
-    'Output JSON only with key "questions" (array of 4-7 strings).',
+    'Output JSON only with key "questions" (array of exactly 4 strings, never more).',
     'Questions must be speakable, non-leading, and not yes/no.',
+    'Use the crew briefing (sector, specialism, timeliness) to shape the angle.',
     'Production default questions apply only to Participant guests.',
   ].join(' ')
 

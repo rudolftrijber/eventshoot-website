@@ -339,6 +339,37 @@
   margin-top: 0.35rem;
 }
 
+.ia-ai-preview--prep .ia-ai-prep-field + .ia-ai-prep-field {
+  margin-top: 0.65rem;
+}
+
+.ia-ai-preview__pick {
+  list-style: none;
+  margin: 0 0 0.75rem;
+  padding: 0;
+}
+
+.ia-ai-preview__pick li + li {
+  margin-top: 0.5rem;
+}
+
+.ia-ai-pick {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.ia-ai-pick input {
+  margin-top: 0.2rem;
+  flex-shrink: 0;
+}
+
+.ia-ai-pick span {
+  line-height: 1.45;
+}
+
 .ia-day-empty__title {
   margin: 0 0 0.5rem;
   font-size: 1.15rem;

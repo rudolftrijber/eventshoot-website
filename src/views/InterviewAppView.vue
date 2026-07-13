@@ -76,12 +76,28 @@ const showCamQuestions = ref(false)
 const confirmOpgenomen = ref(false)
 
 // AI question assistant
-const fEventContext = ref('')
-const pEventContext = ref('')
+type AiPrepAnswers = { sector: string; specialism: string; timeliness: string }
+type AiStep = 'idle' | 'prep' | 'preview'
+
+const AI_PREP_FIELDS: Array<{ key: keyof AiPrepAnswers; label: string; placeholder: string }> = [
+  { key: 'sector', label: '1. Sector / branche', placeholder: 'bijv. maritiem, zorg, IT' },
+  { key: 'specialism', label: '2. Specialisme of invalshoek', placeholder: 'bijv. techniek, beleid, dagelijkse praktijk' },
+  { key: 'timeliness', label: '3. Actualiteit', placeholder: 'bijv. wat speelt nu in de sector of op dit event' },
+]
+
+const emptyAiPrep = (): AiPrepAnswers => ({ sector: '', specialism: '', timeliness: '' })
+
+const aiGuestStep = ref<AiStep>('idle')
+const aiGuestPrep = ref<AiPrepAnswers>(emptyAiPrep())
 const aiGuestLoading = ref(false)
 const aiGuestPreview = ref<string[] | null>(null)
+const aiGuestSelected = ref<boolean[]>([])
+
+const aiProdStep = ref<AiStep>('idle')
+const aiProdPrep = ref<AiPrepAnswers>(emptyAiPrep())
 const aiProdLoading = ref(false)
 const aiProdPreview = ref<string[] | null>(null)
+const aiProdSelected = ref<boolean[]>([])
 
 let toastTimer: ReturnType<typeof setTimeout> | null = null
 
@@ -291,7 +307,25 @@ function participantDefaultsForForm() {
   return prod.vragen.map((q) => q.trim()).filter(Boolean)
 }
 
-async function suggestGuestQuestions() {
+function resetGuestAi() {
+  aiGuestStep.value = 'idle'
+  aiGuestPrep.value = emptyAiPrep()
+  aiGuestPreview.value = null
+  aiGuestSelected.value = []
+}
+
+function resetProdAi() {
+  aiProdStep.value = 'idle'
+  aiProdPrep.value = emptyAiPrep()
+  aiProdPreview.value = null
+  aiProdSelected.value = []
+}
+
+function prepIsComplete(prep: AiPrepAnswers) {
+  return Boolean(prep.sector.trim() && prep.specialism.trim() && prep.timeliness.trim())
+}
+
+function openGuestAiPrep() {
   const productionName = fProductie.value.trim()
   if (!productionName) {
     showToast('Select a production first')
@@ -301,7 +335,18 @@ async function suggestGuestQuestions() {
     showToast('Enter a name first')
     return
   }
+  aiGuestPreview.value = null
+  aiGuestSelected.value = []
+  aiGuestStep.value = 'prep'
+}
 
+async function generateGuestAiProposal() {
+  if (!prepIsComplete(aiGuestPrep.value)) {
+    showToast('Answer all 3 briefing questions first')
+    return
+  }
+
+  const productionName = fProductie.value.trim()
   const prod = productionByName(productionName)
   aiGuestLoading.value = true
   aiGuestPreview.value = null
@@ -310,15 +355,21 @@ async function suggestGuestQuestions() {
       scope: 'guest',
       productionName,
       productionDate: prod?.datum,
-      productionContext: fEventContext.value.trim() || undefined,
       guestType: fType.value || 'Other',
       name: fNaam.value.trim(),
       role: fFunctie.value.trim(),
       planning: fPlanning.value.trim(),
       productionDefaults: participantDefaultsForForm(),
+      prepAnswers: {
+        sector: aiGuestPrep.value.sector.trim(),
+        specialism: aiGuestPrep.value.specialism.trim(),
+        timeliness: aiGuestPrep.value.timeliness.trim(),
+      },
       language: 'nl',
     })
-    aiGuestPreview.value = result.questions
+    aiGuestPreview.value = result.questions.slice(0, 4)
+    aiGuestSelected.value = aiGuestPreview.value.map(() => true)
+    aiGuestStep.value = 'preview'
   } catch (e) {
     showToast(e instanceof Error ? e.message : 'AI suggestion failed')
   } finally {
@@ -328,22 +379,38 @@ async function suggestGuestQuestions() {
 
 function applyGuestAiPreview() {
   if (!aiGuestPreview.value?.length) return
-  resetQuestions(fQuestions, aiGuestPreview.value)
-  aiGuestPreview.value = null
-  showToast('Questions applied — review before saving')
+  const picked = aiGuestPreview.value.filter((_, i) => aiGuestSelected.value[i])
+  if (!picked.length) {
+    showToast('Select at least one question')
+    return
+  }
+  resetQuestions(fQuestions, picked)
+  resetGuestAi()
+  showToast('Selected questions applied — review before saving')
 }
 
-function dismissGuestAiPreview() {
-  aiGuestPreview.value = null
+function dismissGuestAi() {
+  resetGuestAi()
 }
 
-async function suggestProductionQuestions() {
+function openProdAiPrep() {
   const productionName = pNaam.value.trim()
   if (!productionName) {
     showToast('Enter a production name first')
     return
   }
+  aiProdPreview.value = null
+  aiProdSelected.value = []
+  aiProdStep.value = 'prep'
+}
 
+async function generateProdAiProposal() {
+  if (!prepIsComplete(aiProdPrep.value)) {
+    showToast('Answer all 3 briefing questions first')
+    return
+  }
+
+  const productionName = pNaam.value.trim()
   aiProdLoading.value = true
   aiProdPreview.value = null
   try {
@@ -351,10 +418,16 @@ async function suggestProductionQuestions() {
       scope: 'production',
       productionName,
       productionDate: pDatum.value || undefined,
-      productionContext: pEventContext.value.trim() || undefined,
+      prepAnswers: {
+        sector: aiProdPrep.value.sector.trim(),
+        specialism: aiProdPrep.value.specialism.trim(),
+        timeliness: aiProdPrep.value.timeliness.trim(),
+      },
       language: 'nl',
     })
-    aiProdPreview.value = result.questions
+    aiProdPreview.value = result.questions.slice(0, 4)
+    aiProdSelected.value = aiProdPreview.value.map(() => true)
+    aiProdStep.value = 'preview'
   } catch (e) {
     showToast(e instanceof Error ? e.message : 'AI suggestion failed')
   } finally {
@@ -364,13 +437,18 @@ async function suggestProductionQuestions() {
 
 function applyProductionAiPreview() {
   if (!aiProdPreview.value?.length) return
-  resetQuestions(pQuestions, aiProdPreview.value)
-  aiProdPreview.value = null
-  showToast('Default questions applied — review before saving')
+  const picked = aiProdPreview.value.filter((_, i) => aiProdSelected.value[i])
+  if (!picked.length) {
+    showToast('Select at least one question')
+    return
+  }
+  resetQuestions(pQuestions, picked)
+  resetProdAi()
+  showToast('Selected questions applied — review before saving')
 }
 
 function dismissProductionAiPreview() {
-  aiProdPreview.value = null
+  resetProdAi()
 }
 
 function clearForm() {
@@ -381,9 +459,8 @@ function clearForm() {
   fGedeeld.value = false
   fNaam.value = ''
   fFunctie.value = ''
-  fEventContext.value = ''
   resetQuestions(fQuestions)
-  aiGuestPreview.value = null
+  resetGuestAi()
 }
 
 async function saveGuest() {
@@ -426,9 +503,8 @@ function loadForEdit(g: Gast) {
   fGedeeld.value = g.gedeeld
   fNaam.value = g.naam
   fFunctie.value = g.functie
-  fEventContext.value = ''
   resetQuestions(fQuestions, g.questions)
-  aiGuestPreview.value = null
+  resetGuestAi()
   store.selectGuest(g.id)
   guestView.value = 'form'
 }
@@ -476,9 +552,8 @@ function clearProductieForm() {
   pNaam.value = ''
   pDatum.value = ''
   pStatus.value = 'Planned'
-  pEventContext.value = ''
   resetQuestions(pQuestions)
-  aiProdPreview.value = null
+  resetProdAi()
 }
 
 function editProductie(p: Productie) {
@@ -885,22 +960,16 @@ watch(workingProduction, (prod) => {
               </div>
               <label class="ia-label">Schedule / time slot (optional)</label>
               <input v-model="fPlanning" class="ia-input" placeholder="e.g. interview after the keynote" />
-              <label class="ia-label">Event context for AI (optional)</label>
-              <input
-                v-model="fEventContext"
-                class="ia-input"
-                placeholder="e.g. SaaS user conference, focus on product launch"
-              />
               <div class="ia-question-head">
                 <label class="ia-label ia-label--inline">Interview questions (max. 7)</label>
                 <button
+                  v-if="aiGuestStep === 'idle'"
                   class="ia-btn ia-btn--small ia-btn--secondary ia-btn--ai"
                   type="button"
-                  :disabled="aiGuestLoading"
-                  @click="suggestGuestQuestions"
+                  @click="openGuestAiPrep"
                 >
                   <SparklesIcon class="ia-btn__icon" aria-hidden="true" />
-                  {{ aiGuestLoading ? 'Suggesting…' : 'Suggest questions' }}
+                  Suggest questions
                 </button>
               </div>
               <p v-if="fType === 'Participant'" class="ia-hint">
@@ -909,16 +978,45 @@ watch(workingProduction, (prod) => {
               <p v-else-if="fType" class="ia-hint">
                 {{ fType }} questions are generated separately from production defaults.
               </p>
-              <div v-if="aiGuestPreview" class="ia-ai-preview">
-                <p class="ia-ai-preview__title">AI suggestion — review before applying</p>
-                <ol class="ia-ai-preview__list">
-                  <li v-for="(q, i) in aiGuestPreview" :key="i">{{ q }}</li>
-                </ol>
+              <div v-if="aiGuestStep === 'prep'" class="ia-ai-preview ia-ai-preview--prep">
+                <p class="ia-ai-preview__title">Briefing for AI — answer these 3 questions first</p>
+                <div v-for="field in AI_PREP_FIELDS" :key="field.key" class="ia-ai-prep-field">
+                  <label class="ia-label">{{ field.label }}</label>
+                  <input
+                    v-model="aiGuestPrep[field.key]"
+                    class="ia-input"
+                    :placeholder="field.placeholder"
+                  />
+                </div>
+                <div class="ia-actions ia-actions--tight">
+                  <button
+                    class="ia-btn ia-btn--small ia-btn--accent"
+                    type="button"
+                    :disabled="aiGuestLoading || !prepIsComplete(aiGuestPrep)"
+                    @click="generateGuestAiProposal"
+                  >
+                    {{ aiGuestLoading ? 'Generating…' : 'Generate proposal (max. 4)' }}
+                  </button>
+                  <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="dismissGuestAi">
+                    Cancel
+                  </button>
+                </div>
+              </div>
+              <div v-else-if="aiGuestStep === 'preview' && aiGuestPreview" class="ia-ai-preview">
+                <p class="ia-ai-preview__title">AI proposal — select questions to use (max. 4)</p>
+                <ul class="ia-ai-preview__pick">
+                  <li v-for="(q, i) in aiGuestPreview" :key="i">
+                    <label class="ia-ai-pick">
+                      <input v-model="aiGuestSelected[i]" type="checkbox" />
+                      <span>{{ q }}</span>
+                    </label>
+                  </li>
+                </ul>
                 <div class="ia-actions ia-actions--tight">
                   <button class="ia-btn ia-btn--small ia-btn--accent" type="button" @click="applyGuestAiPreview">
-                    Use these questions
+                    Use selected questions
                   </button>
-                  <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="dismissGuestAiPreview">
+                  <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="dismissGuestAi">
                     Dismiss
                   </button>
                 </div>
@@ -1101,33 +1199,56 @@ watch(workingProduction, (prod) => {
             <select v-model="pStatus" class="ia-select">
               <option v-for="s in PRODUCTIE_STATUSES" :key="s" :value="s">{{ s }}</option>
             </select>
-            <label class="ia-label">Event context for AI (optional)</label>
-            <input
-              v-model="pEventContext"
-              class="ia-input"
-              placeholder="e.g. industry congress, sustainability theme"
-            />
             <div class="ia-question-head">
               <label class="ia-label ia-label--inline">Default questions for Participants (max. 7)</label>
               <button
+                v-if="aiProdStep === 'idle'"
                 class="ia-btn ia-btn--small ia-btn--secondary ia-btn--ai"
                 type="button"
-                :disabled="aiProdLoading"
-                @click="suggestProductionQuestions"
+                @click="openProdAiPrep"
               >
                 <SparklesIcon class="ia-btn__icon" aria-hidden="true" />
-                {{ aiProdLoading ? 'Suggesting…' : 'Suggest defaults' }}
+                Suggest defaults
               </button>
             </div>
             <p class="ia-hint">These defaults apply to Participants only. Other guest types get their own questions.</p>
-            <div v-if="aiProdPreview" class="ia-ai-preview">
-              <p class="ia-ai-preview__title">AI suggestion — review before applying</p>
-              <ol class="ia-ai-preview__list">
-                <li v-for="(q, i) in aiProdPreview" :key="i">{{ q }}</li>
-              </ol>
+            <div v-if="aiProdStep === 'prep'" class="ia-ai-preview ia-ai-preview--prep">
+              <p class="ia-ai-preview__title">Briefing for AI — answer these 3 questions first</p>
+              <div v-for="field in AI_PREP_FIELDS" :key="field.key" class="ia-ai-prep-field">
+                <label class="ia-label">{{ field.label }}</label>
+                <input
+                  v-model="aiProdPrep[field.key]"
+                  class="ia-input"
+                  :placeholder="field.placeholder"
+                />
+              </div>
+              <div class="ia-actions ia-actions--tight">
+                <button
+                  class="ia-btn ia-btn--small ia-btn--accent"
+                  type="button"
+                  :disabled="aiProdLoading || !prepIsComplete(aiProdPrep)"
+                  @click="generateProdAiProposal"
+                >
+                  {{ aiProdLoading ? 'Generating…' : 'Generate proposal (max. 4)' }}
+                </button>
+                <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="dismissProductionAiPreview">
+                  Cancel
+                </button>
+              </div>
+            </div>
+            <div v-else-if="aiProdStep === 'preview' && aiProdPreview" class="ia-ai-preview">
+              <p class="ia-ai-preview__title">AI proposal — select questions to use (max. 4)</p>
+              <ul class="ia-ai-preview__pick">
+                <li v-for="(q, i) in aiProdPreview" :key="i">
+                  <label class="ia-ai-pick">
+                    <input v-model="aiProdSelected[i]" type="checkbox" />
+                    <span>{{ q }}</span>
+                  </label>
+                </li>
+              </ul>
               <div class="ia-actions ia-actions--tight">
                 <button class="ia-btn ia-btn--small ia-btn--accent" type="button" @click="applyProductionAiPreview">
-                  Use these questions
+                  Use selected questions
                 </button>
                 <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="dismissProductionAiPreview">
                   Dismiss

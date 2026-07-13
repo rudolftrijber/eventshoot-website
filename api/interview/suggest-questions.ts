@@ -29,6 +29,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return
     }
 
+    const prepRaw = body.prepAnswers
+    const prepAnswers = prepRaw && typeof prepRaw === 'object'
+      ? {
+          sector: String((prepRaw as Record<string, unknown>).sector || '').trim(),
+          specialism: String((prepRaw as Record<string, unknown>).specialism || '').trim(),
+          timeliness: String((prepRaw as Record<string, unknown>).timeliness || '').trim(),
+        }
+      : undefined
+
+    if (!prepAnswers?.sector || !prepAnswers.specialism || !prepAnswers.timeliness) {
+      res.status(400).json({ error: 'Answer all 3 briefing questions before generating proposals' })
+      return
+    }
+
     const input: SuggestQuestionsInput = {
       scope,
       productionName,
@@ -39,6 +53,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       role: String(body.role || '').trim() || undefined,
       planning: String(body.planning || '').trim() || undefined,
       productionDefaults: asStringArray(body.productionDefaults),
+      prepAnswers,
       language: body.language === 'en' ? 'en' : 'nl',
     }
 
