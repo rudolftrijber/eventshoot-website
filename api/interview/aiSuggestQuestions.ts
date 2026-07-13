@@ -68,6 +68,8 @@ function buildUserPrompt(input: SuggestQuestionsInput): string {
     '- Example: role "putjesschepper op zee" does NOT justify maritime or cybersecurity questions unless the briefing says so.',
     '- Name and role may only help tailor wording, not introduce new subject matter.',
     '- In Dutch, use the requested address form (u or jij) consistently in every question.',
+    '- Keep each question short and speakable on camera (max. ~15 words).',
+    '- One question per sentence only. Never combine two questions in one sentence.',
   ]
 
   if (input.productionDate) lines.push(`Production date: ${input.productionDate}`)
@@ -211,7 +213,8 @@ export async function suggestInterviewQuestions(
   const systemPrompt = [
     'You write concise on-camera interview questions for business events.',
     'Output JSON only with key "questions" (array of exactly 4 strings, never more).',
-    'Questions must be speakable, non-leading, and not yes/no.',
+    'Each question must be short, speakable, non-leading, and not yes/no.',
+    'Exactly one question per item. Never put two questions in one sentence.',
     'Use ONLY the crew briefing for sector, specialism and timeliness. Never invent topics.',
     'Do not infer industry or themes from job titles or roles.',
     'Production default questions apply only to Participant guests.',
