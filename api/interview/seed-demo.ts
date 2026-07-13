@@ -27,6 +27,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     })
   } catch (err) {
     console.error('interview seed-demo error:', err)
-    res.status(500).json({ error: 'Demo-data laden mislukt' })
+    res.status(500).json({ error: 'Failed to load demo data' })
   }
 }

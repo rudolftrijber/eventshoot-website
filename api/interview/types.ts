@@ -1,6 +1,6 @@
-export type GastStatus = 'Ingevoerd' | 'Gecontroleerd' | 'Opgenomen'
-export type ProductieStatus = 'Gepland' | 'Gaande' | 'Afgerond'
-export type GastType = 'Keynote spreker' | 'Executive' | 'Deelnemer' | 'Overig' | ''
+export type GastStatus = 'Entered' | 'Checked' | 'Recorded'
+export type ProductieStatus = 'Planned' | 'Active' | 'Completed'
+export type GastType = 'Keynote speaker' | 'Executive' | 'Participant' | 'Sponsor' | 'Other' | ''
 
 export interface InterviewSettings {
   maxChars: number
@@ -39,4 +39,30 @@ export interface SyncPayload {
   productions: Productie[]
   settings: InterviewSettings
   serverTime: string
+}
+
+const LEGACY_GAST_STATUS: Record<string, GastStatus> = {
+  Ingevoerd: 'Entered',
+  Gecontroleerd: 'Checked',
+  Opgenomen: 'Recorded',
+  Entered: 'Entered',
+  Checked: 'Checked',
+  Recorded: 'Recorded',
+}
+
+const LEGACY_PRODUCTIE_STATUS: Record<string, ProductieStatus> = {
+  Gepland: 'Planned',
+  Gaande: 'Active',
+  Afgerond: 'Completed',
+  Planned: 'Planned',
+  Active: 'Active',
+  Completed: 'Completed',
+}
+
+export function normalizeGastStatus(value: string): GastStatus {
+  return LEGACY_GAST_STATUS[value] || 'Entered'
+}
+
+export function normalizeProductieStatus(value: string): ProductieStatus {
+  return LEGACY_PRODUCTIE_STATUS[value] || 'Planned'
 }

@@ -33,6 +33,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     res.status(405).json({ error: 'Method not allowed' })
   } catch (err) {
     console.error('interview settings error:', err)
-    res.status(500).json({ error: 'Actie mislukt' })
+    res.status(500).json({ error: 'Action failed' })
   }
 }

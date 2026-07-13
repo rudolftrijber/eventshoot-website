@@ -41,7 +41,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       const updated = await updateProductie(id, patch)
       if (!updated) {
-        res.status(404).json({ error: 'Productie niet gevonden' })
+        res.status(404).json({ error: 'Production not found' })
         return
       }
       res.status(200).json({ production: updated })
@@ -51,7 +51,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (req.method === 'DELETE') {
       const ok = await deleteProductie(id)
       if (!ok) {
-        res.status(404).json({ error: 'Productie niet gevonden' })
+        res.status(404).json({ error: 'Production not found' })
         return
       }
       res.status(200).json({ ok: true })
@@ -61,6 +61,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     res.status(405).json({ error: 'Method not allowed' })
   } catch (err) {
     console.error('interview production id error:', err)
-    res.status(500).json({ error: 'Actie mislukt' })
+    res.status(500).json({ error: 'Action failed' })
   }
 }

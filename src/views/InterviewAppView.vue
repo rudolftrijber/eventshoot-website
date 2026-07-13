@@ -13,7 +13,7 @@ import {
   todayStr,
   formatDisplayDate,
 } from '@/utils/interviewCsv'
-import '@/assets/interview-app.css'
+import '@/assets/interview-app.css?v=nav-top-gap'
 import '@/assets/interview-app-buttons.css'
 import {
   EyeIcon,
@@ -23,6 +23,7 @@ import {
   Cog6ToothIcon,
   QueueListIcon,
   ArrowLeftIcon,
+  SparklesIcon,
 } from '@heroicons/vue/24/outline'
 import type { Component } from 'vue'
 
@@ -58,7 +59,7 @@ const fQuestions = ref<string[]>(['', '', '', ''])
 const editingProdId = ref<string | null>(null)
 const pNaam = ref('')
 const pDatum = ref('')
-const pStatus = ref<Productie['status']>('Gepland')
+const pStatus = ref<Productie['status']>('Planned')
 const pQuestions = ref<string[]>(['', '', '', ''])
 
 // Controle
@@ -74,24 +75,31 @@ const showCamQuestions = ref(false)
 // Confirm dialogs
 const confirmOpgenomen = ref(false)
 
+// AI question assistant
+const fEventContext = ref('')
+const pEventContext = ref('')
+const aiGuestLoading = ref(false)
+const aiGuestPreview = ref<string[] | null>(null)
+const aiProdLoading = ref(false)
+const aiProdPreview = ref<string[] | null>(null)
+
 let toastTimer: ReturnType<typeof setTimeout> | null = null
 
 const tabs: { id: TabId; label: string; icon: Component }[] = [
-  { id: 'kandidaten', label: 'Kandidaten', icon: QueueListIcon },
-  { id: 'producties', label: 'Producties', icon: CalendarDaysIcon },
+  { id: 'kandidaten', label: 'Candidates', icon: QueueListIcon },
+  { id: 'producties', label: 'Productions', icon: CalendarDaysIcon },
 ]
 
 const todayIso = computed(() => todayStr())
 
 const workingProduction = computed(() => {
-  const todayProd = store.activeProductions.find(
-    (p) => (p.datum || '').slice(0, 10) === todayIso.value,
-  )
-  if (todayProd) return todayProd
   if (manualProductieId.value) {
     return store.activeProductions.find((p) => p.id === manualProductieId.value) || null
   }
-  return null
+  const todayProd = store.activeProductions.find(
+    (p) => (p.datum || '').slice(0, 10) === todayIso.value,
+  )
+  return todayProd || null
 })
 
 const needsProductiePick = computed(() =>
@@ -126,7 +134,7 @@ const controleNaamOver = computed(() => controleNaam.value.length > maxChars.val
 const controleOverLimit = computed(() => controleNaamOver.value || controleFunctieOver.value)
 
 const deelnemerPreset = computed(() => {
-  if (fType.value !== 'Deelnemer') return null
+  if (fType.value !== 'Participant') return null
   return store.activeProductions.find(
     (p) => p.naam.trim().toLowerCase() === fProductie.value.trim().toLowerCase(),
   )
@@ -134,8 +142,27 @@ const deelnemerPreset = computed(() => {
 
 const filteredGuests = dayGuests
 
+function productionGuests(p: Productie) {
+  return store.guests.filter((g) => g.productieNaam === p.naam)
+}
+
+function productionCounts(p: Productie) {
+  const list = productionGuests(p)
+  return {
+    total: list.length,
+    entered: list.filter((g) => g.status === 'Entered').length,
+    checked: list.filter((g) => g.status === 'Checked').length,
+    recorded: list.filter((g) => g.status === 'Recorded').length,
+  }
+}
+
+const workingProductionCounts = computed(() => {
+  if (!workingProduction.value) return null
+  return productionCounts(workingProduction.value)
+})
+
 const controleCandidates = computed(() =>
-  dayGuests.value.filter((g) => g.status === 'Ingevoerd'),
+  dayGuests.value.filter((g) => g.status === 'Entered'),
 )
 
 const camGuest = computed(() => {
@@ -180,19 +207,33 @@ function openNewGuest() {
 function openNewProductie() {
   clearProductieForm()
   pDatum.value = todayIso.value
-  pStatus.value = 'Gaande'
+  pStatus.value = 'Active'
   showProdForm.value = true
 }
 
 function onProductiePickChange() {
   const val = pickProductieId.value
   if (val === PICK_NEW_PRODUCTION) {
-    pickProductieId.value = ''
+    pickProductieId.value = workingProduction.value?.id || ''
     store.setTab('producties')
     openNewProductie()
     return
   }
   if (val) manualProductieId.value = val
+}
+
+function onListProductieChange() {
+  onProductiePickChange()
+  searchBox.value = ''
+  backToKandidaten()
+}
+
+function openProductionOverview(p: Productie) {
+  manualProductieId.value = p.id
+  pickProductieId.value = p.id
+  searchBox.value = ''
+  backToKandidaten()
+  store.setTab('kandidaten')
 }
 
 const addFQ = () => addQuestion(fQuestions)
@@ -213,7 +254,7 @@ async function handleLogin() {
     await store.login(password.value)
     password.value = ''
   } catch (e) {
-    const msg = e instanceof Error ? e.message : 'Inloggen mislukt'
+    const msg = e instanceof Error ? e.message : 'Login failed'
     if (!msg.includes('.env.local') && !msg.includes('INTERVIEW_') && !msg.includes('POSTGRES_URL')) {
       loginError.value = msg
     }
@@ -221,18 +262,112 @@ async function handleLogin() {
 }
 
 function addQuestion(list: { value: string[] }) {
-  if (list.value.length >= 7) { showToast('Maximaal 7 vragen'); return }
+  if (list.value.length >= 7) { showToast('Maximum 7 questions'); return }
   list.value.push('')
 }
 
 function removeQuestion(list: { value: string[] }, idx: number) {
-  if (list.value.length <= 4) { showToast('Minimaal 4 vragen'); return }
+  if (list.value.length <= 4) { showToast('Minimum 4 questions'); return }
   list.value.splice(idx, 1)
 }
 
 function resetQuestions(list: { value: string[] }, values?: string[]) {
   list.value = values?.length ? [...values] : ['', '', '', '']
   while (list.value.length < 4) list.value.push('')
+}
+
+function productionByName(name: string) {
+  const trimmed = name.trim().toLowerCase()
+  if (!trimmed) return null
+  return store.activeProductions.find((p) => p.naam.trim().toLowerCase() === trimmed) || null
+}
+
+function participantDefaultsForForm() {
+  const prod = productionByName(fProductie.value)
+  if (fType.value !== 'Participant' || !prod) return []
+  return prod.vragen.map((q) => q.trim()).filter(Boolean)
+}
+
+async function suggestGuestQuestions() {
+  const productionName = fProductie.value.trim()
+  if (!productionName) {
+    showToast('Select a production first')
+    return
+  }
+  if (!fNaam.value.trim()) {
+    showToast('Enter a name first')
+    return
+  }
+
+  const prod = productionByName(productionName)
+  aiGuestLoading.value = true
+  aiGuestPreview.value = null
+  try {
+    const result = await store.suggestQuestions({
+      scope: 'guest',
+      productionName,
+      productionDate: prod?.datum,
+      productionContext: fEventContext.value.trim() || undefined,
+      guestType: fType.value || 'Other',
+      name: fNaam.value.trim(),
+      role: fFunctie.value.trim(),
+      planning: fPlanning.value.trim(),
+      productionDefaults: participantDefaultsForForm(),
+      language: 'nl',
+    })
+    aiGuestPreview.value = result.questions
+  } catch (e) {
+    showToast(e instanceof Error ? e.message : 'AI suggestion failed')
+  } finally {
+    aiGuestLoading.value = false
+  }
+}
+
+function applyGuestAiPreview() {
+  if (!aiGuestPreview.value?.length) return
+  resetQuestions(fQuestions, aiGuestPreview.value)
+  aiGuestPreview.value = null
+  showToast('Questions applied — review before saving')
+}
+
+function dismissGuestAiPreview() {
+  aiGuestPreview.value = null
+}
+
+async function suggestProductionQuestions() {
+  const productionName = pNaam.value.trim()
+  if (!productionName) {
+    showToast('Enter a production name first')
+    return
+  }
+
+  aiProdLoading.value = true
+  aiProdPreview.value = null
+  try {
+    const result = await store.suggestQuestions({
+      scope: 'production',
+      productionName,
+      productionDate: pDatum.value || undefined,
+      productionContext: pEventContext.value.trim() || undefined,
+      language: 'nl',
+    })
+    aiProdPreview.value = result.questions
+  } catch (e) {
+    showToast(e instanceof Error ? e.message : 'AI suggestion failed')
+  } finally {
+    aiProdLoading.value = false
+  }
+}
+
+function applyProductionAiPreview() {
+  if (!aiProdPreview.value?.length) return
+  resetQuestions(pQuestions, aiProdPreview.value)
+  aiProdPreview.value = null
+  showToast('Default questions applied — review before saving')
+}
+
+function dismissProductionAiPreview() {
+  aiProdPreview.value = null
 }
 
 function clearForm() {
@@ -243,15 +378,17 @@ function clearForm() {
   fGedeeld.value = false
   fNaam.value = ''
   fFunctie.value = ''
+  fEventContext.value = ''
   resetQuestions(fQuestions)
+  aiGuestPreview.value = null
 }
 
 async function saveGuest() {
   const naam = fNaam.value.trim()
   const functie = fFunctie.value.trim()
-  if (!naam) { showToast('Vul een naam in'); return }
+  if (!naam) { showToast('Enter a name'); return }
   if (naam.length > maxChars.value || functie.length > maxChars.value) {
-    showToast(`Naam en functie max. ${maxChars.value} tekens`)
+    showToast(`Name and role max. ${maxChars.value} characters`)
     return
   }
   const questions = fQuestions.value.map((q) => q.trim())
@@ -270,11 +407,11 @@ async function saveGuest() {
     } else {
       await store.createGuest(payload)
     }
-    showToast('Opgeslagen')
+    showToast('Saved')
     clearForm()
     backToKandidaten()
   } catch (e) {
-    showToast(e instanceof Error ? e.message : 'Opslaan mislukt')
+    showToast(e instanceof Error ? e.message : 'Save failed')
   }
 }
 
@@ -286,13 +423,15 @@ function loadForEdit(g: Gast) {
   fGedeeld.value = g.gedeeld
   fNaam.value = g.naam
   fFunctie.value = g.functie
+  fEventContext.value = ''
   resetQuestions(fQuestions, g.questions)
+  aiGuestPreview.value = null
   store.selectGuest(g.id)
   guestView.value = 'form'
 }
 
 function applyDeelnemerPreset() {
-  if (fType.value !== 'Deelnemer' || !fProductie.value.trim()) return
+  if (fType.value !== 'Participant' || !fProductie.value.trim()) return
   const preset = deelnemerPreset.value
   if (!preset?.vragen?.some((q) => q.trim())) return
   resetQuestions(fQuestions, preset.vragen)
@@ -300,7 +439,7 @@ function applyDeelnemerPreset() {
 
 async function saveProductie() {
   const naam = pNaam.value.trim()
-  if (!naam) { showToast('Vul een productienaam in'); return }
+  if (!naam) { showToast('Enter a production name'); return }
   const datum = pDatum.value
   try {
     await store.saveProduction({
@@ -315,7 +454,7 @@ async function saveProductie() {
         p.naam === naam
         && (p.datum || '').slice(0, 10) === (datum || '').slice(0, 10),
     )
-    showToast('Productie opgeslagen')
+    showToast('Production saved')
     clearProductieForm()
     showProdForm.value = false
     if (saved && (saved.datum || '').slice(0, 10) === todayIso.value) {
@@ -323,7 +462,7 @@ async function saveProductie() {
       store.setTab('kandidaten')
     }
   } catch (e) {
-    showToast(e instanceof Error ? e.message : 'Opslaan mislukt')
+    showToast(e instanceof Error ? e.message : 'Save failed')
   }
 }
 
@@ -331,8 +470,10 @@ function clearProductieForm() {
   editingProdId.value = null
   pNaam.value = ''
   pDatum.value = ''
-  pStatus.value = 'Gepland'
+  pStatus.value = 'Planned'
+  pEventContext.value = ''
   resetQuestions(pQuestions)
+  aiProdPreview.value = null
 }
 
 function editProductie(p: Productie) {
@@ -353,15 +494,15 @@ function openControle(g: Gast) {
 async function confirmControle() {
   if (!store.activeGuest) return
   if (controleNaam.value.length > maxChars.value || controleFunctie.value.length > maxChars.value) {
-    showToast(`Naam en functie max. ${maxChars.value} tekens`)
+    showToast(`Name and role max. ${maxChars.value} characters`)
     return
   }
   try {
     await store.finalizeGuest(store.activeGuest.id, controleNaam.value.trim(), controleFunctie.value.trim())
     controleThanks.value = true
-    showToast('Bevestigd')
+    showToast('Confirmed')
   } catch (e) {
-    showToast(e instanceof Error ? e.message : 'Bevestigen mislukt')
+    showToast(e instanceof Error ? e.message : 'Confirmation failed')
   }
 }
 
@@ -377,44 +518,31 @@ function goToInterviewer() {
 }
 
 async function deleteArchivedProduction(p: Productie) {
-  if (!confirm(`Weet je zeker dat je productie "${p.naam}" definitief wilt verwijderen?`)) return
+  if (!confirm(`Are you sure you want to permanently delete production "${p.naam}"?`)) return
   await store.deleteProduction(p.id)
-  showToast('Productie verwijderd')
+  showToast('Production deleted')
 }
 
 async function markOpgenomen() {
   if (!intGuest.value) return
   try {
-    await store.updateGuest(intGuest.value.id, { status: 'Opgenomen' })
+    await store.updateGuest(intGuest.value.id, { status: 'Recorded' })
     confirmOpgenomen.value = false
     backToKandidaten()
-    showToast('Gemarkeerd als opgenomen')
+    showToast('Marked as recorded')
   } catch (e) {
-    showToast(e instanceof Error ? e.message : 'Mislukt')
+    showToast(e instanceof Error ? e.message : 'Failed')
   }
 }
 
 async function resetGuestStatus(g: Gast) {
   const prev: Record<Gast['status'], Gast['status']> = {
-    Opgenomen: 'Gecontroleerd',
-    Gecontroleerd: 'Ingevoerd',
-    Ingevoerd: 'Ingevoerd',
+    Recorded: 'Checked',
+    Checked: 'Entered',
+    Entered: 'Entered',
   }
   await store.updateGuest(g.id, { status: prev[g.status] })
-  showToast('Status teruggezet')
-}
-
-function handleRowClick(g: Gast) {
-  store.selectGuest(g.id)
-  if (g.status === 'Ingevoerd') {
-    openControle(g)
-    guestView.value = 'controle'
-  } else if (g.status === 'Gecontroleerd') {
-    camSearch.value = g.regienummer
-    guestView.value = 'camera'
-  } else {
-    guestView.value = 'interviewer'
-  }
+  showToast('Status reverted')
 }
 
 function openGuestControle(g: Gast) {
@@ -434,7 +562,12 @@ function openGuestInterviewer(g: Gast) {
 }
 
 function pillClass(status: Gast['status']) {
-  return `ia-pill ia-pill--${status.toLowerCase()}`
+  const slug: Record<Gast['status'], string> = {
+    Entered: 'entered',
+    Checked: 'checked',
+    Recorded: 'recorded',
+  }
+  return `ia-pill ia-pill--${slug[status]}`
 }
 
 function exportCsv() {
@@ -442,7 +575,7 @@ function exportCsv() {
 }
 
 function exportTemplate() {
-  downloadText(`interview-intake-sjabloon-${todayStr()}.csv`, clientTemplateCSV(), 'text/csv;charset=utf-8')
+  downloadText(`interview-intake-template-${todayStr()}.csv`, clientTemplateCSV(), 'text/csv;charset=utf-8')
 }
 
 function exportLowerthird() {
@@ -472,7 +605,7 @@ async function importCsv(file: File) {
       added++
     }
   }
-  showToast(`${added} kandidaat/kandidaten geïmporteerd`)
+  showToast(`${added} candidate(s) imported`)
 }
 
 async function importJson(file: File) {
@@ -484,12 +617,12 @@ async function importJson(file: File) {
       added++
     }
   }
-  showToast(`${added} gast(en) geïmporteerd`)
+  showToast(`${added} guest(s) imported`)
 }
 
 async function saveMaxChars() {
   await store.updateMaxChars(maxChars.value)
-  showToast('Instelling opgeslagen')
+  showToast('Setting saved')
 }
 
 async function loadDemoData() {
@@ -498,7 +631,7 @@ async function loadDemoData() {
     await store.sync()
     showToast(result.message)
   } catch (e) {
-    showToast(e instanceof Error ? e.message : 'Demo-data laden mislukt')
+    showToast(e instanceof Error ? e.message : 'Failed to load demo data')
   }
 }
 
@@ -515,13 +648,13 @@ onMounted(async () => {
     if (status.configured === false && status.missing?.length) {
       apiConfigHint.value = status.skipAuth
         ? [
-            'Database ontbreekt lokaal. Vul POSTGRES_URL in .env.local:',
-            'Vercel-dashboard → Project → Settings → Environment Variables → POSTGRES_URL → kopieer waarde',
+            'Database missing locally. Add POSTGRES_URL to .env.local:',
+            'Vercel dashboard → Project → Settings → Environment Variables → POSTGRES_URL → copy value',
           ].join('\n')
         : [
-            'Login werkt lokaal nog niet. Maak .env.local aan met:',
+            'Login does not work locally yet. Create .env.local with:',
             status.missing.join(', '),
-            'Of zet INTERVIEW_SKIP_AUTH=true en vul alleen POSTGRES_URL in.',
+            'Or set INTERVIEW_SKIP_AUTH=true and add POSTGRES_URL only.',
           ].join('\n')
     }
     if (store.authenticated) {
@@ -529,7 +662,7 @@ onMounted(async () => {
       store.startPolling()
     }
   } catch (e) {
-    apiConfigHint.value = e instanceof Error ? e.message : 'API niet bereikbaar'
+    apiConfigHint.value = e instanceof Error ? e.message : 'API unreachable'
   }
 })
 
@@ -551,6 +684,10 @@ watch(guestView, (view) => {
 watch([fType, fProductie], () => {
   applyDeelnemerPreset()
 })
+
+watch(workingProduction, (prod) => {
+  pickProductieId.value = prod?.id || ''
+}, { immediate: true })
 </script>
 
 <template>
@@ -568,10 +705,10 @@ watch([fType, fProductie], () => {
       <div class="ia-body">
         <div class="ia-login">
           <div class="ia-login__card">
-            <p v-if="devBuildStamp" class="ia-dev-badge">Lokaal · build {{ devBuildStamp }}</p>
-            <p class="ia-login__intro">Log in met het crew-wachtwoord om gasten en interviews te beheren.</p>
+            <p v-if="devBuildStamp" class="ia-dev-badge">Local · build {{ devBuildStamp }}</p>
+            <p class="ia-login__intro">Log in with the crew password to manage guests and interviews.</p>
             <p v-if="apiConfigHint" class="ia-error ia-error--block ia-error--pre">{{ apiConfigHint }}</p>
-            <label class="ia-label" for="pw">Wachtwoord</label>
+            <label class="ia-label" for="pw">Password</label>
             <div class="ia-password-wrap">
               <input
                 id="pw"
@@ -584,8 +721,8 @@ watch([fType, fProductie], () => {
               <button
                 class="ia-password-wrap__toggle"
                 type="button"
-                :title="showPassword ? 'Wachtwoord verbergen' : 'Wachtwoord tonen'"
-                :aria-label="showPassword ? 'Wachtwoord verbergen' : 'Wachtwoord tonen'"
+                :title="showPassword ? 'Hide password' : 'Show password'"
+                :aria-label="showPassword ? 'Hide password' : 'Show password'"
                 @click="showPassword = !showPassword"
               >
                 <EyeSlashIcon v-if="showPassword" class="ia-password-wrap__icon" />
@@ -599,7 +736,7 @@ watch([fType, fProductie], () => {
                 type="button"
                 :disabled="!apiConfigured"
                 @click="handleLogin"
-              >Inloggen</button>
+              >Log in</button>
             </div>
           </div>
         </div>
@@ -631,8 +768,8 @@ watch([fType, fProductie], () => {
                   class="ia-tab ia-tab--util"
                   :class="{ active: settingsOpen }"
                   type="button"
-                  title="Instellingen"
-                  aria-label="Instellingen"
+                  title="Settings"
+                  aria-label="Settings"
                   @click="settingsOpen = !settingsOpen"
                 >
                   <Cog6ToothIcon class="ia-tab__icon" aria-hidden="true" />
@@ -641,8 +778,8 @@ watch([fType, fProductie], () => {
                   v-if="!skipAuthMode"
                   class="ia-tab ia-tab--util ia-tab--logout"
                   type="button"
-                  title="Uitloggen"
-                  aria-label="Uitloggen"
+                  title="Log out"
+                  aria-label="Log out"
                   @click="store.logout()"
                 >
                   <ArrowRightOnRectangleIcon class="ia-tab__icon" aria-hidden="true" />
@@ -651,11 +788,11 @@ watch([fType, fProductie], () => {
             </div>
           </header>
 
-      <p v-if="skipAuthMode && !crewFocusMode" class="ia-skip-auth-banner">Finetune-modus: wachtwoord staat uit. Alleen lokaal of bewust op Vercel gezet.</p>
+      <p v-if="skipAuthMode && !crewFocusMode" class="ia-skip-auth-banner">Finetune mode: password is off. Local only or set intentionally on Vercel.</p>
 
       <div v-if="settingsOpen" class="ia-settings">
         <div class="ia-row">
-          <label class="ia-label" style="margin:0">Max. tekens naam &amp; functie</label>
+          <label class="ia-label" style="margin:0">Max. characters for name &amp; role</label>
           <input
             class="ia-input"
             type="number"
@@ -665,13 +802,13 @@ watch([fType, fProductie], () => {
             style="max-width:100px"
             @change="(e) => store.settings.maxChars = parseInt((e.target as HTMLInputElement).value, 10)"
           />
-          <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="saveMaxChars">Opslaan</button>
+          <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="saveMaxChars">Save</button>
         </div>
         <div class="ia-actions">
-          <button class="ia-btn ia-btn--small ia-btn--accent" type="button" @click="loadDemoData">Laad demo-data</button>
+          <button class="ia-btn ia-btn--small ia-btn--accent" type="button" @click="loadDemoData">Load demo data</button>
           <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="exportJson">Export JSON</button>
           <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="exportCsv">Export CSV</button>
-          <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="exportTemplate">Sjabloon CSV</button>
+          <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="exportTemplate">Template CSV</button>
           <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="exportLowerthird">Lowerthird CSV</button>
           <label class="ia-btn ia-btn--small ia-btn--secondary" style="cursor:pointer">
             Import CSV
@@ -688,107 +825,144 @@ watch([fType, fProductie], () => {
         <!-- KANDIDATEN -->
         <section v-if="store.activeTab === 'kandidaten'">
           <div v-if="needsProductiePick" class="ia-card ia-day-empty">
-            <h2 class="ia-day-empty__title">Geen productie voor vandaag</h2>
+            <h2 class="ia-day-empty__title">No production for today</h2>
             <p class="ia-day-empty__text">
-              Kies de productie waarvoor je vandaag kandidaten beheert.
+              Select the production you are managing candidates for today.
             </p>
-            <label class="ia-label" for="pick-productie">Productie</label>
+            <label class="ia-label" for="pick-productie">Production</label>
             <select
               id="pick-productie"
               v-model="pickProductieId"
               class="ia-select"
               @change="onProductiePickChange"
             >
-              <option value="" disabled>— selecteer productie —</option>
+              <option value="" disabled>— select production —</option>
               <option v-for="p in sortedProductions" :key="p.id" :value="p.id">
-                {{ p.naam }} ({{ p.datum || 'geen datum' }})
+                {{ p.naam }} ({{ p.datum || 'no date' }})
               </option>
-              <option :value="PICK_NEW_PRODUCTION">+ Nieuwe productie aanmaken</option>
+              <option :value="PICK_NEW_PRODUCTION">+ Create new production</option>
             </select>
           </div>
 
           <template v-else-if="guestView === 'form'">
             <button class="ia-back" type="button" @click="backToKandidaten">
-              <ArrowLeftIcon class="ia-back__icon" aria-hidden="true" /> Terug naar lijst
+              <ArrowLeftIcon class="ia-back__icon" aria-hidden="true" /> Back to list
             </button>
             <div class="ia-card">
-              <h2 class="ia-section-title">{{ editingId ? 'Kandidaat bewerken' : 'Nieuwe kandidaat' }}</h2>
+              <h2 class="ia-section-title">{{ editingId ? 'Edit candidate' : 'New candidate' }}</h2>
               <div class="ia-row ia-row--fields">
                 <div class="ia-field">
-                  <label class="ia-label">Productie</label>
+                  <label class="ia-label">Production</label>
                   <select v-model="fProductie" class="ia-select">
-                    <option value="" disabled>— selecteer —</option>
+                    <option value="" disabled>— select —</option>
                     <option v-for="p in sortedProductions" :key="p.id" :value="p.naam">{{ p.naam }}</option>
                   </select>
                 </div>
                 <div class="ia-field">
-                  <label class="ia-label">Type gast</label>
+                  <label class="ia-label">Guest type</label>
                   <select v-model="fType" class="ia-select">
-                    <option value="">— optioneel —</option>
+                    <option value="">— optional —</option>
                     <option v-for="t in GAST_TYPES" :key="t" :value="t">{{ t }}</option>
                   </select>
                 </div>
               </div>
               <div class="ia-row">
                 <div>
-                  <label class="ia-label">Naam</label>
-                  <input v-model="fNaam" class="ia-input" placeholder="Voor- en achternaam" />
-                  <div class="ia-charcount" :class="{ warn: naamOverLimit }">{{ fNaam.length }} / {{ maxChars }} tekens</div>
+                  <label class="ia-label">Name</label>
+                  <input v-model="fNaam" class="ia-input" placeholder="First and last name" />
+                  <div class="ia-charcount" :class="{ warn: naamOverLimit }">{{ fNaam.length }} / {{ maxChars }} characters</div>
                 </div>
                 <div>
-                  <label class="ia-label">Functie</label>
-                  <input v-model="fFunctie" class="ia-input" placeholder="bijv. Directeur Innovatie" />
-                  <div class="ia-charcount" :class="{ warn: functieOverLimit }">{{ fFunctie.length }} / {{ maxChars }} tekens</div>
+                  <label class="ia-label">Role</label>
+                  <input v-model="fFunctie" class="ia-input" placeholder="e.g. Director of Innovation" />
+                  <div class="ia-charcount" :class="{ warn: functieOverLimit }">{{ fFunctie.length }} / {{ maxChars }} characters</div>
                 </div>
               </div>
-              <label class="ia-label">Planning / tijdvak (optioneel)</label>
-              <input v-model="fPlanning" class="ia-input" placeholder="bijv. interview na de keynote" />
-              <label class="ia-label">Interviewvragen (min. 4, max. 7)</label>
+              <label class="ia-label">Schedule / time slot (optional)</label>
+              <input v-model="fPlanning" class="ia-input" placeholder="e.g. interview after the keynote" />
+              <label class="ia-label">Event context for AI (optional)</label>
+              <input
+                v-model="fEventContext"
+                class="ia-input"
+                placeholder="e.g. SaaS user conference, focus on product launch"
+              />
+              <div class="ia-question-head">
+                <label class="ia-label ia-label--inline">Interview questions (min. 4, max. 7)</label>
+                <button
+                  class="ia-btn ia-btn--small ia-btn--secondary ia-btn--ai"
+                  type="button"
+                  :disabled="aiGuestLoading"
+                  @click="suggestGuestQuestions"
+                >
+                  <SparklesIcon class="ia-btn__icon" aria-hidden="true" />
+                  {{ aiGuestLoading ? 'Suggesting…' : 'Suggest questions' }}
+                </button>
+              </div>
+              <p v-if="fType === 'Participant'" class="ia-hint">
+                Production default questions are used as a basis for Participants only.
+              </p>
+              <p v-else-if="fType" class="ia-hint">
+                {{ fType }} questions are generated separately from production defaults.
+              </p>
+              <div v-if="aiGuestPreview" class="ia-ai-preview">
+                <p class="ia-ai-preview__title">AI suggestion — review before applying</p>
+                <ol class="ia-ai-preview__list">
+                  <li v-for="(q, i) in aiGuestPreview" :key="i">{{ q }}</li>
+                </ol>
+                <div class="ia-actions ia-actions--tight">
+                  <button class="ia-btn ia-btn--small ia-btn--accent" type="button" @click="applyGuestAiPreview">
+                    Use these questions
+                  </button>
+                  <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="dismissGuestAiPreview">
+                    Dismiss
+                  </button>
+                </div>
+              </div>
               <div v-for="(q, i) in fQuestions" :key="i" class="ia-question-row">
-                <textarea v-model="fQuestions[i]" class="ia-textarea" rows="1" :placeholder="`Vraag ${i + 1}`" />
-                <button class="ia-iconbtn" type="button" title="Verwijder" @click="removeFQ(i)">🗑️</button>
+                <textarea v-model="fQuestions[i]" class="ia-textarea" rows="1" :placeholder="`Question ${i + 1}`" />
+                <button class="ia-iconbtn" type="button" title="Remove" @click="removeFQ(i)">🗑️</button>
               </div>
               <div class="ia-actions">
-                <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="addFQ">+ Vraag</button>
+                <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="addFQ">+ Question</button>
               </div>
               <div class="ia-actions">
                 <input id="fGedeeld" v-model="fGedeeld" type="checkbox" />
-                <label for="fGedeeld" style="margin:0">Vragen zijn vooraf gedeeld met de geïnterviewde</label>
+                <label for="fGedeeld" style="margin:0">Questions were shared with the interviewee in advance</label>
               </div>
               <div class="ia-actions">
-                <button class="ia-btn" type="button" @click="saveGuest">Opslaan</button>
-                <button class="ia-iconbtn" type="button" title="Leegmaken" @click="clearForm">🗑️</button>
+                <button class="ia-btn" type="button" @click="saveGuest">Save</button>
+                <button class="ia-iconbtn" type="button" title="Clear" @click="clearForm">🗑️</button>
               </div>
             </div>
           </template>
 
           <template v-else-if="guestView === 'controle'">
             <button class="ia-back" type="button" @click="backToKandidaten">
-              <ArrowLeftIcon class="ia-back__icon" aria-hidden="true" /> Terug naar lijst
+              <ArrowLeftIcon class="ia-back__icon" aria-hidden="true" /> Back to list
             </button>
             <div v-if="controleThanks && store.activeGuest" class="ia-card ia-thanks">
-              <h2>Bedankt!</h2>
-              <p>Je gegevens zijn bevestigd.</p>
-              <div class="ia-thanks__nr">Regie #{{ store.activeGuest.regienummer }}</div>
-              <p>Geef de iPad door aan de interviewer.</p>
+              <h2>Thank you!</h2>
+              <p>Your details have been confirmed.</p>
+              <div class="ia-thanks__nr">Crew #{{ store.activeGuest.regienummer }}</div>
+              <p>Hand the iPad to the interviewer.</p>
               <div class="ia-actions">
-                <button class="ia-btn ia-btn--ok" type="button" @click="goToCameraAfterThanks">Door naar camera →</button>
+                <button class="ia-btn ia-btn--ok" type="button" @click="goToCameraAfterThanks">Continue to camera →</button>
               </div>
             </div>
-            <div v-else-if="store.activeGuest && store.activeGuest.status === 'Ingevoerd'" class="ia-card">
-              <p class="ia-controle-intro">Controleer naam en functie voor de lowerthird in de video.</p>
+            <div v-else-if="store.activeGuest && store.activeGuest.status === 'Entered'" class="ia-card">
+              <p class="ia-controle-intro">Check name and role for the lower third in the video.</p>
               <p v-if="controleOverLimit" class="ia-controle-limit ia-controle-limit--alert">
-                Te lang — naam en functie mogen elk maximaal {{ maxChars }} tekens zijn.
+                Too long — name and role may each be at most {{ maxChars }} characters.
               </p>
-              <label class="ia-label">Naam</label>
+              <label class="ia-label">Name</label>
               <input v-model="controleNaam" class="ia-input ia-controle-input" />
-              <div class="ia-charcount" :class="{ warn: controleNaamOver }">{{ controleNaam.length }} / {{ maxChars }} tekens</div>
-              <label class="ia-label">Functie</label>
+              <div class="ia-charcount" :class="{ warn: controleNaamOver }">{{ controleNaam.length }} / {{ maxChars }} characters</div>
+              <label class="ia-label">Role</label>
               <input v-model="controleFunctie" class="ia-input ia-controle-input" />
-              <div class="ia-charcount" :class="{ warn: controleFunctieOver }">{{ controleFunctie.length }} / {{ maxChars }} tekens</div>
+              <div class="ia-charcount" :class="{ warn: controleFunctieOver }">{{ controleFunctie.length }} / {{ maxChars }} characters</div>
               <div class="ia-actions" style="margin-top:1.5rem">
                 <button class="ia-btn ia-btn--ok" type="button" :disabled="controleOverLimit" @click="confirmControle">
-                  ✓ Gecontroleerd, dit klopt
+                  ✓ Checked, looks good
                 </button>
               </div>
             </div>
@@ -796,7 +970,7 @@ watch([fType, fProductie], () => {
 
           <template v-else-if="guestView === 'camera'">
             <button v-if="!crewFocusMode" class="ia-back" type="button" @click="backToKandidaten">
-              <ArrowLeftIcon class="ia-back__icon" aria-hidden="true" /> Terug naar lijst
+              <ArrowLeftIcon class="ia-back__icon" aria-hidden="true" /> Back to list
             </button>
             <div v-if="camGuest?.regienummer" class="ia-card ia-cam-full">
               <div class="ia-cam-full__header">
@@ -808,33 +982,33 @@ watch([fType, fProductie], () => {
               </div>
               <div class="ia-cam-full__number">{{ camGuest.regienummer }}</div>
               <div class="ia-actions">
-                <button class="ia-btn ia-btn--accent" type="button" @click="goToInterviewer">Interviewvragen tonen →</button>
+                <button class="ia-btn ia-btn--accent" type="button" @click="goToInterviewer">Show interview questions →</button>
               </div>
             </div>
           </template>
 
           <template v-else-if="guestView === 'interviewer'">
             <button v-if="!crewFocusMode" class="ia-back" type="button" @click="backToKandidaten">
-              <ArrowLeftIcon class="ia-back__icon" aria-hidden="true" /> Terug naar lijst
+              <ArrowLeftIcon class="ia-back__icon" aria-hidden="true" /> Back to list
             </button>
             <div v-if="intGuest" class="ia-card ia-int-full">
               <div class="ia-int-full__head">
-                <div class="ia-int-full__regie">Regie #{{ intGuest.regienummer || '—' }}</div>
+                <div class="ia-int-full__regie">Crew #{{ intGuest.regienummer || '—' }}</div>
                 <div class="ia-int-full__naam">{{ intGuest.naam }}</div>
                 <div class="ia-int-full__functie">{{ intGuest.functie }}</div>
               </div>
               <div v-if="intGuest.gedeeld" class="ia-int-full__warn">
-                Let op: deze vragen zijn vooraf gedeeld met de gast
+                Note: these questions were shared with the guest in advance
               </div>
               <ol class="ia-questions">
                 <li v-for="(q, i) in intGuest.questions.filter(q => q)" :key="i">{{ q }}</li>
               </ol>
               <div class="ia-actions">
-                <button v-if="!confirmOpgenomen" class="ia-btn ia-btn--ok" type="button" @click="confirmOpgenomen = true">✓ Opgenomen</button>
+                <button v-if="!confirmOpgenomen" class="ia-btn ia-btn--ok" type="button" @click="confirmOpgenomen = true">✓ Recorded</button>
                 <template v-else>
-                  <span>Interview afgerond?</span>
-                  <button class="ia-btn ia-btn--ok" type="button" @click="markOpgenomen">Ja, opgenomen</button>
-                  <button class="ia-btn ia-btn--secondary" type="button" @click="confirmOpgenomen = false">Annuleren</button>
+                  <span>Interview complete?</span>
+                  <button class="ia-btn ia-btn--ok" type="button" @click="markOpgenomen">Yes, recorded</button>
+                  <button class="ia-btn ia-btn--secondary" type="button" @click="confirmOpgenomen = false">Cancel</button>
                 </template>
               </div>
             </div>
@@ -842,13 +1016,28 @@ watch([fType, fProductie], () => {
 
           <template v-else>
             <div class="ia-card">
-              <h2 class="ia-section-title">Interview kandidaten</h2>
-              <p v-if="workingProduction" class="ia-list-header__sub ia-list-header__sub--tight">
-                {{ workingProduction.naam }} · {{ formatDisplayDate(workingProduction.datum || todayIso) }}
-              </p>
+              <h2 class="ia-section-title">Interview candidates</h2>
+              <div v-if="workingProductionCounts" class="ia-progress-chips">
+                <span class="ia-progress-chip">Total {{ workingProductionCounts.total }}</span>
+                <span class="ia-progress-chip ia-progress-chip--entered">Entered {{ workingProductionCounts.entered }}</span>
+                <span class="ia-progress-chip ia-progress-chip--checked">Checked {{ workingProductionCounts.checked }}</span>
+                <span class="ia-progress-chip ia-progress-chip--recorded">Recorded {{ workingProductionCounts.recorded }}</span>
+              </div>
+              <label class="ia-label" for="list-productie">Production</label>
+              <select
+                id="list-productie"
+                v-model="pickProductieId"
+                class="ia-select ia-prod-switch"
+                @change="onListProductieChange"
+              >
+                <option v-for="p in sortedProductions" :key="p.id" :value="p.id">
+                  {{ p.naam }} ({{ p.datum ? formatDisplayDate(p.datum) : 'no date' }})
+                </option>
+                <option :value="PICK_NEW_PRODUCTION">+ Create new production</option>
+              </select>
               <div class="ia-actions ia-actions--tight">
                 <button class="ia-btn ia-btn--small ia-btn--accent" type="button" @click="openNewGuest">
-                  + Nieuwe kandidaat
+                  + New candidate
                 </button>
                 <label class="ia-btn ia-btn--small ia-btn--secondary" style="cursor:pointer;margin:0">
                   Import CSV
@@ -859,14 +1048,14 @@ watch([fType, fProductie], () => {
                 v-model="searchBox"
                 class="ia-input ia-search"
                 type="search"
-                placeholder="Zoek op naam..."
+                placeholder="Search by name..."
               />
               <table class="ia-table">
                 <thead>
-                  <tr><th>Regie #</th><th>Naam</th><th>Functie</th><th>Status</th><th></th></tr>
+                  <tr><th>Crew #</th><th>Name</th><th>Role</th><th>Status</th><th></th></tr>
                 </thead>
                 <tbody>
-                  <tr v-for="g in filteredGuests" :key="g.id" class="data-row" @click="handleRowClick(g)">
+                  <tr v-for="g in filteredGuests" :key="g.id" class="data-row" @click="loadForEdit(g)">
                     <td>{{ g.regienummer || '—' }}</td>
                     <td>
                       <div>{{ g.naam }}</div>
@@ -875,16 +1064,16 @@ watch([fType, fProductie], () => {
                     <td>{{ g.functie }}</td>
                     <td><span :class="pillClass(g.status)">{{ g.status }}</span></td>
                     <td class="ia-row-actions" @click.stop>
-                      <button v-if="g.status === 'Ingevoerd'" class="ia-iconbtn" type="button" title="Controle" @click="openGuestControle(g)">✓</button>
+                      <button v-if="g.status === 'Entered'" class="ia-iconbtn" type="button" title="Check" @click="openGuestControle(g)">✓</button>
                       <button v-if="g.regienummer" class="ia-iconbtn" type="button" title="Camera" @click="openGuestCamera(g)">📷</button>
                       <button class="ia-iconbtn" type="button" title="Interviewer" @click="openGuestInterviewer(g)">🎤</button>
-                      <button class="ia-iconbtn" type="button" title="Bewerken" @click="loadForEdit(g)">✏️</button>
-                      <button class="ia-iconbtn" type="button" title="Verwijderen" @click="store.deleteGuest(g.id)">🗑️</button>
+                      <button class="ia-iconbtn" type="button" title="Edit" @click="loadForEdit(g)">✏️</button>
+                      <button class="ia-iconbtn" type="button" title="Delete" @click="store.deleteGuest(g.id)">🗑️</button>
                     </td>
                   </tr>
                 </tbody>
               </table>
-              <p v-if="!filteredGuests.length" class="ia-empty">Nog geen kandidaten voor deze productie. Klik op + Nieuwe kandidaat of importeer een CSV-lijst.</p>
+              <p v-if="!filteredGuests.length" class="ia-empty">No candidates for this production yet. Click + New candidate or import a CSV list.</p>
             </div>
           </template>
         </section>
@@ -892,63 +1081,106 @@ watch([fType, fProductie], () => {
         <!-- PRODUCTIES -->
         <section v-if="store.activeTab === 'producties'">
           <div v-if="showProdForm" class="ia-card ia-prod-form">
-            <h2 class="ia-section-title">{{ editingProdId ? 'Productie bewerken' : 'Nieuwe productie' }}</h2>
-            <label class="ia-label">Productienaam</label>
-            <input v-model="pNaam" class="ia-input" placeholder="naam van de productie" />
-            <label class="ia-label">Productiedatum</label>
+            <h2 class="ia-section-title">{{ editingProdId ? 'Edit production' : 'New production' }}</h2>
+            <label class="ia-label">Production name</label>
+            <input v-model="pNaam" class="ia-input" placeholder="name of the production" />
+            <label class="ia-label">Production date</label>
             <input v-model="pDatum" class="ia-input" type="date" />
             <label class="ia-label">Status</label>
             <select v-model="pStatus" class="ia-select">
               <option v-for="s in PRODUCTIE_STATUSES" :key="s" :value="s">{{ s }}</option>
             </select>
-            <label class="ia-label">Standaardvragen voor Deelnemers (min. 4, max. 7)</label>
+            <label class="ia-label">Event context for AI (optional)</label>
+            <input
+              v-model="pEventContext"
+              class="ia-input"
+              placeholder="e.g. industry congress, sustainability theme"
+            />
+            <div class="ia-question-head">
+              <label class="ia-label ia-label--inline">Default questions for Participants (min. 4, max. 7)</label>
+              <button
+                class="ia-btn ia-btn--small ia-btn--secondary ia-btn--ai"
+                type="button"
+                :disabled="aiProdLoading"
+                @click="suggestProductionQuestions"
+              >
+                <SparklesIcon class="ia-btn__icon" aria-hidden="true" />
+                {{ aiProdLoading ? 'Suggesting…' : 'Suggest defaults' }}
+              </button>
+            </div>
+            <p class="ia-hint">These defaults apply to Participants only. Other guest types get their own questions.</p>
+            <div v-if="aiProdPreview" class="ia-ai-preview">
+              <p class="ia-ai-preview__title">AI suggestion — review before applying</p>
+              <ol class="ia-ai-preview__list">
+                <li v-for="(q, i) in aiProdPreview" :key="i">{{ q }}</li>
+              </ol>
+              <div class="ia-actions ia-actions--tight">
+                <button class="ia-btn ia-btn--small ia-btn--accent" type="button" @click="applyProductionAiPreview">
+                  Use these questions
+                </button>
+                <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="dismissProductionAiPreview">
+                  Dismiss
+                </button>
+              </div>
+            </div>
             <div v-for="(q, i) in pQuestions" :key="i" class="ia-question-row">
               <textarea v-model="pQuestions[i]" class="ia-textarea" rows="1" />
               <button class="ia-iconbtn" type="button" @click="removePQ(i)">🗑️</button>
             </div>
             <div class="ia-actions">
-              <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="addPQ">+ Vraag</button>
-              <button class="ia-btn" type="button" @click="saveProductie">Opslaan</button>
-              <button class="ia-btn ia-btn--secondary" type="button" @click="showProdForm = false">Annuleren</button>
+              <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="addPQ">+ Question</button>
+              <button class="ia-btn" type="button" @click="saveProductie">Save</button>
+              <button class="ia-btn ia-btn--secondary" type="button" @click="showProdForm = false">Cancel</button>
             </div>
           </div>
           <div class="ia-card">
-            <h2 class="ia-section-title">Actieve producties</h2>
+            <h2 class="ia-section-title">Active productions</h2>
             <div class="ia-actions ia-actions--tight">
               <button class="ia-btn ia-btn--small ia-btn--accent" type="button" @click="openNewProductie">
-                + Nieuwe productie
+                + New production
               </button>
             </div>
             <table class="ia-table">
-              <thead><tr><th>Productie</th><th>Datum</th><th>Status</th><th>Kandidaten</th><th></th></tr></thead>
+              <thead><tr><th>Production</th><th>Date</th><th>Status</th><th>Candidates</th><th></th></tr></thead>
               <tbody>
                 <tr v-for="p in store.activeProductions" :key="p.id">
-                  <td>{{ p.naam }}</td>
+                  <td>
+                    <button class="ia-linkbtn" type="button" @click="openProductionOverview(p)">
+                      {{ p.naam }}
+                    </button>
+                  </td>
                   <td>{{ p.datum ? formatDisplayDate(p.datum) : '—' }}</td>
                   <td>{{ p.status }}</td>
-                  <td>{{ store.guests.filter(g => g.productieNaam === p.naam).length }}</td>
                   <td>
-                    <button class="ia-iconbtn" type="button" title="Bewerken" @click="editProductie(p); showProdForm = true">✏️</button>
-                    <button class="ia-iconbtn" type="button" title="Archiveren" @click="store.archiveProduction(p.id)">📦</button>
+                    <div class="ia-progress-chips ia-progress-chips--inline">
+                      <span class="ia-progress-chip">Total {{ productionCounts(p).total }}</span>
+                      <span class="ia-progress-chip ia-progress-chip--entered">Entered {{ productionCounts(p).entered }}</span>
+                      <span class="ia-progress-chip ia-progress-chip--checked">Checked {{ productionCounts(p).checked }}</span>
+                      <span class="ia-progress-chip ia-progress-chip--recorded">Recorded {{ productionCounts(p).recorded }}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <button class="ia-iconbtn" type="button" title="Edit" @click="editProductie(p); showProdForm = true">✏️</button>
+                    <button class="ia-iconbtn" type="button" title="Archive" @click="store.archiveProduction(p.id)">📦</button>
                   </td>
                 </tr>
               </tbody>
             </table>
-            <p v-if="!store.activeProductions.length" class="ia-empty">Nog geen producties. Klik op + Nieuwe productie om te beginnen.</p>
+            <p v-if="!store.activeProductions.length" class="ia-empty">No productions yet. Click + New production to get started.</p>
           </div>
           <div v-if="store.archivedProductions.length" class="ia-card">
-            <h2 class="ia-section-title">Archief</h2>
-            <p class="ia-list-header__sub">Gearchiveerde producties en bijbehorende kandidaten.</p>
+            <h2 class="ia-section-title">Archive</h2>
+            <p class="ia-list-header__sub">Archived productions and their candidates.</p>
             <table class="ia-table">
-              <thead><tr><th>Productie</th><th>Datum</th><th>Status</th><th></th></tr></thead>
+              <thead><tr><th>Production</th><th>Date</th><th>Status</th><th></th></tr></thead>
               <tbody>
                 <tr v-for="p in store.archivedProductions" :key="p.id">
                   <td>{{ p.naam }}</td>
                   <td>{{ p.datum ? formatDisplayDate(p.datum) : '—' }}</td>
                   <td>{{ p.status }}</td>
                   <td>
-                    <button class="ia-iconbtn" type="button" title="Herstellen" @click="store.restoreProduction(p.id)">↩️</button>
-                    <button class="ia-iconbtn" type="button" title="Definitief verwijderen" @click="deleteArchivedProduction(p)">🗑️</button>
+                    <button class="ia-iconbtn" type="button" title="Restore" @click="store.restoreProduction(p.id)">↩️</button>
+                    <button class="ia-iconbtn" type="button" title="Delete permanently" @click="deleteArchivedProduction(p)">🗑️</button>
                   </td>
                 </tr>
               </tbody>

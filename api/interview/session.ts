@@ -76,7 +76,7 @@ export function clearSessionCookie(res: VercelResponse): void {
 export function requireAuth(req: VercelRequest, res: VercelResponse): boolean {
   if (skipAuth()) return true
   if (!isAuthenticated(req)) {
-    res.status(401).json({ error: 'Niet ingelogd' })
+    res.status(401).json({ error: 'Not logged in' })
     return false
   }
   return true

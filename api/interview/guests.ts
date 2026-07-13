@@ -39,13 +39,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         planning: String(body.planning || ''),
         gedeeld: Boolean(body.gedeeld),
         questions,
-        status: 'Ingevoerd',
+        status: 'Entered',
         regienummer: '',
         datum: '',
         tijd: '',
       }
       if (!guest.naam) {
-        res.status(400).json({ error: 'Naam is verplicht' })
+        res.status(400).json({ error: 'Name is required' })
         return
       }
       const created = await createGuest(guest)
@@ -56,6 +56,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     res.status(405).json({ error: 'Method not allowed' })
   } catch (err) {
     console.error('interview guests error:', err)
-    res.status(500).json({ error: 'Actie mislukt' })
+    res.status(500).json({ error: 'Action failed' })
   }
 }

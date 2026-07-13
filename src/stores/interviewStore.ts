@@ -14,18 +14,18 @@ async function api<T>(url: string, options?: RequestInit): Promise<T> {
     })
   } catch {
     throw new Error(
-      'API niet bereikbaar. Start npm run dev opnieuw. Zorg dat .env.local bestaat met INTERVIEW_APP_PASSWORD, INTERVIEW_SESSION_SECRET en POSTGRES_URL.',
+      'API unavailable. Restart npm run dev. Ensure .env.local exists with INTERVIEW_APP_PASSWORD, INTERVIEW_SESSION_SECRET and POSTGRES_URL.',
     )
   }
   if (!res.ok) {
     const text = await res.text()
-    let message = 'Request mislukt'
+    let message = 'Request failed'
     try {
       const err = JSON.parse(text) as { error?: string }
       message = err.error || message
     } catch {
       if (text.includes('FUNCTION_INVOCATION_FAILED')) {
-        message = 'API-fout op de server. Deploy de nieuwste versie of gebruik vercel dev lokaal.'
+        message = 'Server API error. Deploy the latest version or use vercel dev locally.'
       } else if (text) {
         message = text.slice(0, 120)
       }
@@ -48,7 +48,7 @@ export const useInterviewStore = defineStore('interview', () => {
 
   const activeProductions = computed(() => productions.value.filter((p) => !p.archivedAt))
   const archivedProductions = computed(() => productions.value.filter((p) => p.archivedAt))
-  const opgenomenGuests = computed(() => guests.value.filter((g) => g.status === 'Opgenomen'))
+  const recordedGuests = computed(() => guests.value.filter((g) => g.status === 'Recorded'))
   const activeGuest = computed(() => guests.value.find((g) => g.id === activeGuestId.value) || null)
 
   const productieNames = computed(() => {
@@ -102,8 +102,8 @@ export const useInterviewStore = defineStore('interview', () => {
       productions.value = data.productions
       settings.value = data.settings
     } catch (e) {
-      error.value = e instanceof Error ? e.message : 'Sync mislukt'
-      if (error.value === 'Niet ingelogd') authenticated.value = false
+      error.value = e instanceof Error ? e.message : 'Sync failed'
+      if (error.value === 'Not logged in') authenticated.value = false
     } finally {
       loading.value = false
     }
@@ -149,10 +149,10 @@ export const useInterviewStore = defineStore('interview', () => {
   }
 
   async function cycleGuestStatus(guest: Gast) {
-    const order: GastStatus[] = ['Ingevoerd', 'Gecontroleerd', 'Opgenomen']
+    const order: GastStatus[] = ['Entered', 'Checked', 'Recorded']
     const idx = order.indexOf(guest.status)
     const next = order[(idx + 1) % order.length]
-    if (next === 'Gecontroleerd') {
+    if (next === 'Checked') {
       await updateGuest(guest.id, { action: 'finalize', naam: guest.naam, functie: guest.functie })
     } else {
       await updateGuest(guest.id, { status: next })
@@ -210,6 +210,24 @@ export const useInterviewStore = defineStore('interview', () => {
     })
   }
 
+  async function suggestQuestions(payload: {
+    scope: 'guest' | 'production'
+    productionName: string
+    productionDate?: string
+    productionContext?: string
+    guestType?: string
+    name?: string
+    role?: string
+    planning?: string
+    productionDefaults?: string[]
+    language?: 'nl' | 'en'
+  }) {
+    return api<{ questions: string[] }>('/api/interview/suggest-questions', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    })
+  }
+
   function setTab(tab: TabId) {
     activeTab.value = tab
     window.scrollTo(0, 0)
@@ -230,7 +248,7 @@ export const useInterviewStore = defineStore('interview', () => {
     activeGuestId,
     activeProductions,
     archivedProductions,
-    opgenomenGuests,
+    recordedGuests,
     activeGuest,
     productieNames,
     checkAuth,
@@ -250,6 +268,7 @@ export const useInterviewStore = defineStore('interview', () => {
     deleteProduction,
     updateMaxChars,
     seedDemo,
+    suggestQuestions,
     setTab,
     selectGuest,
   }

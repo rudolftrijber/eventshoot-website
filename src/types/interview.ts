@@ -1,5 +1,5 @@
-export type GastStatus = 'Ingevoerd' | 'Gecontroleerd' | 'Opgenomen'
-export type ProductieStatus = 'Gepland' | 'Gaande' | 'Afgerond'
+export type GastStatus = 'Entered' | 'Checked' | 'Recorded'
+export type ProductieStatus = 'Planned' | 'Active' | 'Completed'
 
 export interface InterviewSettings {
   maxChars: number
@@ -37,18 +37,44 @@ export type TabId = 'kandidaten' | 'producties'
 
 export type GuestView = 'form' | 'controle' | 'camera' | 'interviewer' | null
 
-export const GAST_TYPES = ['Keynote spreker', 'Executive', 'Deelnemer', 'Overig'] as const
-export const GAST_STATUS_ORDER: GastStatus[] = ['Ingevoerd', 'Gecontroleerd', 'Opgenomen']
-export const PRODUCTIE_STATUSES: ProductieStatus[] = ['Gepland', 'Gaande', 'Afgerond']
+export const GAST_TYPES = ['Keynote speaker', 'Executive', 'Participant', 'Sponsor', 'Other'] as const
+export const GAST_STATUS_ORDER: GastStatus[] = ['Entered', 'Checked', 'Recorded']
+export const PRODUCTIE_STATUSES: ProductieStatus[] = ['Planned', 'Active', 'Completed']
+
+const LEGACY_GAST_STATUS: Record<string, GastStatus> = {
+  Ingevoerd: 'Entered',
+  Gecontroleerd: 'Checked',
+  Opgenomen: 'Recorded',
+  Entered: 'Entered',
+  Checked: 'Checked',
+  Recorded: 'Recorded',
+}
+
+const LEGACY_PRODUCTIE_STATUS: Record<string, ProductieStatus> = {
+  Gepland: 'Planned',
+  Gaande: 'Active',
+  Afgerond: 'Completed',
+  Planned: 'Planned',
+  Active: 'Active',
+  Completed: 'Completed',
+}
+
+export function normalizeGastStatus(value: string): GastStatus {
+  return LEGACY_GAST_STATUS[value] || 'Entered'
+}
+
+export function normalizeProductieStatus(value: string): ProductieStatus {
+  return LEGACY_PRODUCTIE_STATUS[value] || 'Planned'
+}
 
 export const CSV_HEADERS = [
-  'productienaam', 'type', 'naam', 'functie', 'planning', 'gedeeld',
-  'vraag1', 'vraag2', 'vraag3', 'vraag4', 'vraag5', 'vraag6', 'vraag7',
-  'status', 'regienummer', 'datum', 'tijd',
+  'production', 'type', 'name', 'role', 'planning', 'shared',
+  'question1', 'question2', 'question3', 'question4', 'question5', 'question6', 'question7',
+  'status', 'crew_number', 'date', 'time',
 ] as const
 
-/** Kolommen voor opdrachtgevers — zonder crew-velden (status, regienummer, datum, tijd) */
+/** Client template columns — without crew fields */
 export const CLIENT_CSV_HEADERS = [
-  'productienaam', 'type', 'naam', 'functie', 'planning', 'gedeeld',
-  'vraag1', 'vraag2', 'vraag3', 'vraag4', 'vraag5', 'vraag6', 'vraag7',
+  'production', 'type', 'name', 'role', 'planning', 'shared',
+  'question1', 'question2', 'question3', 'question4', 'question5', 'question6', 'question7',
 ] as const

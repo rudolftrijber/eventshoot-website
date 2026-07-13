@@ -33,6 +33,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     })
   } catch (err) {
     console.error('interview sync error:', err)
-    res.status(500).json({ error: 'Sync mislukt' })
+    res.status(500).json({ error: 'Sync failed' })
   }
 }

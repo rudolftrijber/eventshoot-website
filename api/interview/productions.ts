@@ -35,11 +35,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         id: String(body.id || uid()),
         naam: String(body.naam || '').trim(),
         datum: String(body.datum || ''),
-        status: (String(body.status || 'Gepland') as Productie['status']),
+        status: (String(body.status || 'Planned') as Productie['status']),
         vragen,
       }
       if (!productie.naam) {
-        res.status(400).json({ error: 'Productienaam is verplicht' })
+        res.status(400).json({ error: 'Production name is required' })
         return
       }
       const created = await createProductie(productie)
@@ -50,6 +50,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     res.status(405).json({ error: 'Method not allowed' })
   } catch (err) {
     console.error('interview productions error:', err)
-    res.status(500).json({ error: 'Actie mislukt' })
+    res.status(500).json({ error: 'Action failed' })
   }
 }

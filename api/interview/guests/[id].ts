@@ -45,7 +45,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const guests = await fetchGuests()
         const guest = guests.find((g) => g.id === id)
         if (!guest) {
-          res.status(404).json({ error: 'Gast niet gevonden' })
+          res.status(404).json({ error: 'Guest not found' })
           return
         }
         guest.naam = String(body.naam ?? guest.naam).trim()
@@ -57,7 +57,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       const updated = await updateGuest(id, patch)
       if (!updated) {
-        res.status(404).json({ error: 'Gast niet gevonden' })
+        res.status(404).json({ error: 'Guest not found' })
         return
       }
       res.status(200).json({ guest: updated })
@@ -67,7 +67,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (req.method === 'DELETE') {
       const ok = await deleteGuest(id)
       if (!ok) {
-        res.status(404).json({ error: 'Gast niet gevonden' })
+        res.status(404).json({ error: 'Guest not found' })
         return
       }
       res.status(200).json({ ok: true })
@@ -77,6 +77,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     res.status(405).json({ error: 'Method not allowed' })
   } catch (err) {
     console.error('interview guest id error:', err)
-    res.status(500).json({ error: 'Actie mislukt' })
+    res.status(500).json({ error: 'Action failed' })
   }
 }

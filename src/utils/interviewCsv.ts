@@ -1,5 +1,5 @@
 import type { Gast } from '@/types/interview'
-import { CLIENT_CSV_HEADERS, CSV_HEADERS } from '@/types/interview'
+import { CLIENT_CSV_HEADERS, CSV_HEADERS, normalizeGastStatus } from '@/types/interview'
 
 function toCSVField(val: unknown): string {
   let str = val == null ? '' : String(val)
@@ -7,22 +7,26 @@ function toCSVField(val: unknown): string {
   return str
 }
 
+function questionFromRow(row: Record<string, string>, i: number): string {
+  return row[`question${i}`] || row[`vraag${i}`] || ''
+}
+
 export function guestsToCSV(list: Gast[]): string {
   const lines = [CSV_HEADERS.join(',')]
   const source = list.length ? list : [{
-    productieNaam: 'Voorbeeld Event 2026',
-    type: 'Deelnemer',
-    naam: 'Jan Jansen',
-    functie: 'Directeur Innovatie',
-    planning: 'interview voor de lunch',
+    productieNaam: 'Example Event 2026',
+    type: 'Participant',
+    naam: 'Jane Smith',
+    functie: 'Director of Innovation',
+    planning: 'interview before lunch',
     gedeeld: false,
     questions: [
-      'Wat merkte u vandaag het meest op?',
-      'Wat was het hoogtepunt?',
-      'Wat neemt u mee naar volgend jaar?',
-      'Heeft u nog een boodschap voor de kijker?',
+      'What stood out to you most today?',
+      'What was the highlight?',
+      'What will you take away for next year?',
+      'Any message for viewers?',
     ],
-    status: 'Ingevoerd' as const,
+    status: 'Entered' as const,
     regienummer: '',
     datum: '',
     tijd: '',
@@ -36,7 +40,7 @@ export function guestsToCSV(list: Gast[]): string {
       r.naam,
       r.functie,
       'planning' in r ? r.planning : '',
-      ('gedeeld' in r && r.gedeeld) ? 'ja' : 'nee',
+      ('gedeeld' in r && r.gedeeld) ? 'yes' : 'no',
       q[0], q[1], q[2], q[3], q[4], q[5], q[6],
       r.status,
       r.regienummer || '',
@@ -49,17 +53,17 @@ export function guestsToCSV(list: Gast[]): string {
 }
 
 const CLIENT_TEMPLATE_EXAMPLE = {
-  productieNaam: 'Jaarcongres Branchevereniging 2026',
-  type: 'Keynote spreker',
-  naam: 'Jan Jansen',
-  functie: 'Directeur Innovatie',
-  planning: 'interview na de keynote, ca. 12:30',
+  productieNaam: 'Industry Congress 2026',
+  type: 'Keynote speaker',
+  naam: 'Jane Smith',
+  functie: 'Director of Innovation',
+  planning: 'interview after keynote, around 12:30',
   gedeeld: true,
   questions: [
-    'Wat was voor u het belangrijkste inzicht van vandaag?',
-    'Wat neemt u mee naar uw organisatie?',
-    'Wat was het hoogtepunt van het congres?',
-    'Heeft u een boodschap voor de deelnemers?',
+    'What was your most important insight from today?',
+    'What will you take back to your organisation?',
+    'What was the highlight of the congress?',
+    'Any message for participants?',
   ],
 }
 
@@ -71,7 +75,7 @@ function clientExampleRow(): string[] {
     CLIENT_TEMPLATE_EXAMPLE.naam,
     CLIENT_TEMPLATE_EXAMPLE.functie,
     CLIENT_TEMPLATE_EXAMPLE.planning,
-    CLIENT_TEMPLATE_EXAMPLE.gedeeld ? 'ja' : 'nee',
+    CLIENT_TEMPLATE_EXAMPLE.gedeeld ? 'yes' : 'no',
     q[0], q[1], q[2], q[3], q[4], q[5], q[6],
   ].map(toCSVField)
 }
@@ -80,7 +84,7 @@ function blankClientRow(): string {
   return CLIENT_CSV_HEADERS.map(() => '').join(',')
 }
 
-/** Leeg sjabloon voor opdrachtgevers: 1 voorbeeldregel + 5 lege regels */
+/** Empty client template: 1 example row + 5 blank rows */
 export function clientTemplateCSV(): string {
   const lines = [
     CLIENT_CSV_HEADERS.join(','),
@@ -95,7 +99,7 @@ export function clientTemplateCSV(): string {
 }
 
 export function lowerthirdCSV(list: Gast[]): string {
-  const headers = ['regienummer', 'datum', 'tijd', 'naam', 'functie', 'productie', 'status']
+  const headers = ['crew_number', 'date', 'time', 'name', 'role', 'production', 'status']
   const lines = [headers.join(',')]
   list.forEach((g) => {
     lines.push([
@@ -150,21 +154,23 @@ export function parseCSV(text: string): Record<string, string>[] {
 export function csvRowToGuestPayload(row: Record<string, string>) {
   const questions: string[] = []
   for (let i = 1; i <= 7; i++) {
-    if (row[`vraag${i}`]) questions.push(row[`vraag${i}`])
+    const q = questionFromRow(row, i)
+    if (q) questions.push(q)
   }
   while (questions.length < 4) questions.push('')
+  const sharedRaw = row.shared || row.gedeeld || ''
   return {
-    productieNaam: row.productienaam || row.productie || '',
+    productieNaam: row.production || row.productienaam || row.productie || '',
     type: row.type || '',
-    naam: row.naam || '',
-    functie: row.functie || '',
+    naam: row.name || row.naam || '',
+    functie: row.role || row.functie || '',
     planning: row.planning || '',
-    gedeeld: /^(ja|true|1)$/i.test(row.gedeeld || ''),
+    gedeeld: /^(yes|ja|true|1)$/i.test(sharedRaw),
     questions,
-    status: row.status || 'Ingevoerd',
-    regienummer: row.regienummer || '',
-    datum: row.datum || '',
-    tijd: row.tijd || '',
+    status: normalizeGastStatus(row.status || 'Entered'),
+    regienummer: row.crew_number || row.regienummer || '',
+    datum: row.date || row.datum || '',
+    tijd: row.time || row.tijd || '',
   }
 }
 
@@ -185,5 +191,5 @@ export function todayStr(): string {
 export function formatDisplayDate(iso: string): string {
   if (!iso || !/^\d{4}-\d{2}-\d{2}/.test(iso)) return iso || todayStr()
   const d = new Date(`${iso.slice(0, 10)}T12:00:00`)
-  return d.toLocaleDateString('nl-NL', { weekday: 'short', day: 'numeric', month: 'short' })
+  return d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })
 }

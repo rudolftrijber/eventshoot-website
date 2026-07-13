@@ -1,4 +1,5 @@
 import type { Gast, GastStatus, InterviewSettings, Productie, ProductieStatus } from './types.js'
+import { normalizeGastStatus, normalizeProductieStatus } from './types.js'
 
 let schemaReady: Promise<void> | null = null
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -40,7 +41,7 @@ async function initSchema(): Promise<void> {
       id TEXT PRIMARY KEY,
       naam TEXT NOT NULL,
       datum DATE,
-      status TEXT NOT NULL DEFAULT 'Gepland',
+      status TEXT NOT NULL DEFAULT 'Planned',
       vragen JSONB NOT NULL DEFAULT '[]',
       archived_at TIMESTAMPTZ,
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -62,7 +63,7 @@ async function initSchema(): Promise<void> {
       planning TEXT NOT NULL DEFAULT '',
       gedeeld BOOLEAN NOT NULL DEFAULT FALSE,
       questions JSONB NOT NULL DEFAULT '[]',
-      status TEXT NOT NULL DEFAULT 'Ingevoerd',
+      status TEXT NOT NULL DEFAULT 'Entered',
       regienummer TEXT,
       datum DATE,
       tijd TEXT,
@@ -95,7 +96,7 @@ function rowToProductie(row: Record<string, unknown>): Productie {
     id: String(row.id),
     naam: String(row.naam),
     datum: formatDateValue(row.datum),
-    status: String(row.status) as ProductieStatus,
+    status: normalizeProductieStatus(String(row.status)),
     vragen: Array.isArray(row.vragen) ? row.vragen.map(String) : [],
     archivedAt: row.archived_at ? String(row.archived_at) : null,
     createdAt: String(row.created_at),
@@ -113,7 +114,7 @@ function rowToGast(row: Record<string, unknown>): Gast {
     planning: String(row.planning || ''),
     gedeeld: Boolean(row.gedeeld),
     questions: Array.isArray(row.questions) ? row.questions.map(String) : [],
-    status: String(row.status) as GastStatus,
+    status: normalizeGastStatus(String(row.status)),
     regienummer: row.regienummer ? String(row.regienummer) : '',
     datum: formatDateValue(row.datum),
     tijd: row.tijd ? String(row.tijd) : '',
@@ -272,7 +273,7 @@ export async function finalizeGuest(guest: Gast): Promise<Gast> {
     datum,
     tijd,
     regienummer,
-    status: 'Gecontroleerd',
+    status: 'Checked',
   })
   return updated || guest
 }
