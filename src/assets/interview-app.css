@@ -589,9 +589,9 @@
 .ia-cam-full {
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-  align-items: flex-start;
-  text-align: left;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
   padding: 0;
   margin: 0;
   gap: 0.35rem;
@@ -633,7 +633,8 @@
 
 .ia-cam-full .ia-actions {
   flex-shrink: 0;
-  align-self: flex-start;
+  align-self: center;
+  justify-content: center;
   margin-top: 0.25rem;
   padding: 0 0 0.15rem;
 }

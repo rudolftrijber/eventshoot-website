@@ -55,14 +55,13 @@
 }
 
 .interview-app .ia-cam-full {
-  align-items: flex-start;
-  text-align: left;
+  align-items: center;
+  text-align: center;
 }
 
-.interview-app .ia-cam-full .ia-actions,
-.interview-app .ia-int-full .ia-actions {
-  align-self: flex-start;
-  justify-content: flex-start;
+.interview-app .ia-cam-full .ia-actions {
+  align-self: center;
+  justify-content: center;
 }
 
 .interview-app .ia-thanks {
