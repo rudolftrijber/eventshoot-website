@@ -226,13 +226,17 @@ export async function deleteGuest(id: string): Promise<boolean> {
   return rows.length > 0
 }
 
-export async function createProductie(data: Omit<Productie, 'createdAt' | 'updatedAt' | 'archivedAt'>): Promise<Productie> {
+export async function createProductie(
+  data: Omit<Productie, 'createdAt' | 'updatedAt' | 'archivedAt' | 'hasClientPassword'>,
+  clientPassword?: string,
+): Promise<Productie> {
   const sql = await getSql()
+  const hash = clientPassword?.trim() ? hashClientPassword(clientPassword.trim()) : null
   const rows = await sql`
-    INSERT INTO interview_producties (id, naam, datum, status, vragen)
+    INSERT INTO interview_producties (id, naam, datum, status, vragen, client_password_hash)
     VALUES (
       ${data.id}, ${data.naam}, ${toDateParam(data.datum)}, ${data.status},
-      ${JSON.stringify(data.vragen)}::jsonb
+      ${JSON.stringify(data.vragen)}::jsonb, ${hash}
     )
     RETURNING *
   `

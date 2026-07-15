@@ -560,12 +560,11 @@ async function saveProductie() {
     if (pClientPassword.value.trim()) {
       payload.clientPassword = pClientPassword.value.trim()
     }
-    await store.saveProduction(payload)
-    const saved = store.activeProductions.find(
-      (p) =>
-        p.naam === naam
-        && (p.datum || '').slice(0, 10) === (datum || '').slice(0, 10),
-    )
+    const saved = await store.saveProduction(payload)
+    if (!store.activeProductions.some((p) => p.id === saved.id)) {
+      showToast('Save failed — production not visible after save')
+      return
+    }
     showToast('Production saved')
     clearProductieForm()
     showProdForm.value = false

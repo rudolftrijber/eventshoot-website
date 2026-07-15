@@ -175,19 +175,38 @@ export const useInterviewStore = defineStore('interview', () => {
     }
   }
 
+  function upsertProduction(production: Productie) {
+    const idx = productions.value.findIndex((p) => p.id === production.id)
+    if (idx >= 0) {
+      productions.value[idx] = production
+    } else {
+      productions.value = [production, ...productions.value]
+    }
+  }
+
   async function saveProduction(payload: Partial<Productie> & { id?: string; clientPassword?: string }) {
+    let production: Productie
     if (payload.id) {
-      await api(`/api/interview/productions/${payload.id}`, {
+      const data = await api<{ production: Productie }>(`/api/interview/productions/${payload.id}`, {
         method: 'PATCH',
         body: JSON.stringify(payload),
       })
+      production = data.production
     } else {
-      await api('/api/interview/productions', {
+      const data = await api<{ production: Productie }>('/api/interview/productions', {
         method: 'POST',
         body: JSON.stringify(payload),
       })
+      production = data.production
     }
-    await sync()
+    upsertProduction(production)
+    try {
+      await sync()
+    } catch (e) {
+      error.value = e instanceof Error ? e.message : 'Sync failed'
+    }
+    upsertProduction(production)
+    return production
   }
 
   async function archiveProduction(id: string) {

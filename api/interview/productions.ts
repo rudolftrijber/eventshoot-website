@@ -31,7 +31,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (req.method === 'POST') {
       const body = parseBody(req)
       const vragen = Array.isArray(body.vragen) ? body.vragen.map(String) : []
-      const productie: Omit<Productie, 'createdAt' | 'updatedAt' | 'archivedAt'> = {
+      const productie: Omit<Productie, 'createdAt' | 'updatedAt' | 'archivedAt' | 'hasClientPassword'> = {
         id: String(body.id || uid()),
         naam: String(body.naam || '').trim(),
         datum: String(body.datum || ''),
@@ -42,7 +42,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         res.status(400).json({ error: 'Production name is required' })
         return
       }
-      const created = await createProductie(productie)
+      const clientPassword = String(body.clientPassword || '').trim()
+      const created = await createProductie(productie, clientPassword || undefined)
       res.status(201).json({ production: created })
       return
     }
@@ -50,6 +51,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     res.status(405).json({ error: 'Method not allowed' })
   } catch (err) {
     console.error('interview productions error:', err)
+    const message = err instanceof Error ? err.message : ''
+    if (message.includes('interview_producties_naam_active_idx') || message.toLowerCase().includes('duplicate key')) {
+      res.status(409).json({ error: 'A production with this name already exists' })
+      return
+    }
     res.status(500).json({ error: 'Action failed' })
   }
 }
