@@ -17,12 +17,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     await ensureSchema()
 
     let guests = await fetchGuests()
-    let productions = await fetchProductions(true)
+    let productions = await fetchProducties(true)
 
     if (isCrew(ctx) && guests.length === 0 && productions.length === 0) {
       await seedDemoData()
       guests = await fetchGuests()
-      productions = await fetchProductions(true)
+      productions = await fetchProducties(true)
     }
 
     productions = filterProductionsForAuth(ctx, productions)
