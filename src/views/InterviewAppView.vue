@@ -33,6 +33,7 @@ const devBuildStamp = import.meta.env.DEV ? '13 jul 09:50 · compact buttons' : 
 const skipAuthMode = ref(false)
 const password = ref('')
 const showPassword = ref(false)
+const showPClientPassword = ref(false)
 const loginError = ref('')
 const apiConfigHint = ref('')
 const apiConfigured = computed(() => !apiConfigHint.value)
@@ -583,6 +584,7 @@ function clearProductieForm() {
   pDatum.value = ''
   pStatus.value = 'Planned'
   pClientPassword.value = ''
+  showPClientPassword.value = false
   editingProdHasClientPassword.value = false
   resetQuestions(pQuestions)
   resetProdAi()
@@ -594,6 +596,7 @@ function editProductie(p: Productie) {
   pDatum.value = p.datum
   pStatus.value = p.status
   pClientPassword.value = ''
+  showPClientPassword.value = false
   editingProdHasClientPassword.value = Boolean(p.hasClientPassword)
   resetQuestions(pQuestions, p.vragen)
 }
@@ -604,6 +607,7 @@ async function removeClientAccess() {
     await store.saveProduction({ id: editingProdId.value, clientPassword: '' })
     editingProdHasClientPassword.value = false
     pClientPassword.value = ''
+    showPClientPassword.value = false
     showToast('Client access removed')
   } catch (e) {
     showToast(e instanceof Error ? e.message : 'Failed')
@@ -1305,12 +1309,24 @@ watch(() => store.role, (role) => {
               <option v-for="s in PRODUCTIE_STATUSES" :key="s" :value="s">{{ s }}</option>
             </select>
             <label class="ia-label">Client password (optional)</label>
-            <input
-              v-model="pClientPassword"
-              class="ia-input"
-              type="password"
-              :placeholder="editingProdHasClientPassword ? 'Leave empty to keep current password' : 'Set password for client login'"
-            />
+            <div class="ia-password-wrap">
+              <input
+                v-model="pClientPassword"
+                class="ia-input ia-password-wrap__input"
+                :type="showPClientPassword ? 'text' : 'password'"
+                :placeholder="editingProdHasClientPassword ? 'Leave empty to keep current password' : 'Set password for client login'"
+              />
+              <button
+                class="ia-password-wrap__toggle"
+                type="button"
+                :title="showPClientPassword ? 'Hide password' : 'Show password'"
+                :aria-label="showPClientPassword ? 'Hide password' : 'Show password'"
+                @click="showPClientPassword = !showPClientPassword"
+              >
+                <EyeSlashIcon v-if="showPClientPassword" class="ia-password-wrap__icon" />
+                <EyeIcon v-else class="ia-password-wrap__icon" />
+              </button>
+            </div>
             <p v-if="editingProdHasClientPassword" class="ia-hint">Client access is active for this production.</p>
             <div v-if="editingProdHasClientPassword" class="ia-actions ia-actions--tight">
               <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="removeClientAccess">
