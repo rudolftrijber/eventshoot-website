@@ -1,17 +1,16 @@
-import { createHmac, randomBytes, timingSafeEqual } from 'crypto'
 import type { VercelRequest, VercelResponse } from '@vercel/node'
+import {
+  createSessionToken,
+  getAuthContext,
+  parseSessionToken,
+  skipAuth,
+  verifyCrewPassword,
+} from './auth.js'
 
 const COOKIE_NAME = 'interview_session'
 const MAX_AGE_SEC = 60 * 60 * 24 * 7
 
-export function skipAuth(): boolean {
-  const v = process.env.INTERVIEW_SKIP_AUTH || ''
-  return v === '1' || v === 'true'
-}
-
-function getSecret(): string {
-  return process.env.INTERVIEW_SESSION_SECRET || ''
-}
+export { skipAuth, verifyCrewPassword as verifyPassword }
 
 export function getSessionToken(req: VercelRequest): string | null {
   const cookie = req.headers.cookie
@@ -20,41 +19,8 @@ export function getSessionToken(req: VercelRequest): string | null {
   return match?.[1] ? decodeURIComponent(match[1]) : null
 }
 
-export function createSessionToken(): string {
-  const payload = randomBytes(32).toString('hex')
-  const secret = getSecret()
-  const sig = createHmac('sha256', secret).update(payload).digest('hex')
-  return `${payload}.${sig}`
-}
-
-export function verifySessionToken(token: string | null): boolean {
-  if (!token) return false
-  const secret = getSecret()
-  if (!secret) return false
-  const [payload, sig] = token.split('.')
-  if (!payload || !sig) return false
-  const expected = createHmac('sha256', secret).update(payload).digest('hex')
-  try {
-    return timingSafeEqual(Buffer.from(sig), Buffer.from(expected))
-  } catch {
-    return false
-  }
-}
-
 export function isAuthenticated(req: VercelRequest): boolean {
-  if (skipAuth()) return true
-  return verifySessionToken(getSessionToken(req))
-}
-
-export function verifyPassword(password: string): boolean {
-  const expected = process.env.INTERVIEW_APP_PASSWORD || ''
-  if (!expected || !password) return false
-  if (password.length !== expected.length) return false
-  try {
-    return timingSafeEqual(Buffer.from(password), Buffer.from(expected))
-  } catch {
-    return false
-  }
+  return getAuthContext(req, getSessionToken(req)).authenticated
 }
 
 export function setSessionCookie(res: VercelResponse, token: string): void {
@@ -74,10 +40,13 @@ export function clearSessionCookie(res: VercelResponse): void {
 }
 
 export function requireAuth(req: VercelRequest, res: VercelResponse): boolean {
-  if (skipAuth()) return true
   if (!isAuthenticated(req)) {
     res.status(401).json({ error: 'Not logged in' })
     return false
   }
   return true
+}
+
+export function getSessionPayload(req: VercelRequest) {
+  return parseSessionToken(getSessionToken(req))
 }

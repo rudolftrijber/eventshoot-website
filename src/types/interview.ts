@@ -5,6 +5,8 @@ export interface InterviewSettings {
   maxChars: number
 }
 
+export type InterviewRole = 'crew' | 'client'
+
 export interface Productie {
   id: string
   naam: string
@@ -12,6 +14,7 @@ export interface Productie {
   status: ProductieStatus
   vragen: string[]
   archivedAt: string | null
+  hasClientPassword?: boolean
   createdAt: string
   updatedAt: string
 }
@@ -25,6 +28,7 @@ export interface Gast {
   planning: string
   gedeeld: boolean
   questions: string[]
+  intakeComplete: boolean
   status: GastStatus
   regienummer: string
   datum: string
@@ -38,6 +42,11 @@ export type TabId = 'kandidaten' | 'producties'
 export type GuestView = 'form' | 'controle' | 'camera' | 'interviewer' | null
 
 export const GAST_TYPES = ['Keynote speaker', 'Executive', 'Participant', 'Sponsor', 'Other'] as const
+export const INTAKE_LOCK_TYPES = ['Keynote speaker', 'Executive', 'Sponsor'] as const
+
+export function intakeLockApplies(type: string): boolean {
+  return (INTAKE_LOCK_TYPES as readonly string[]).includes(type)
+}
 export const GAST_STATUS_ORDER: GastStatus[] = ['Entered', 'Checked', 'Recorded']
 export const PRODUCTIE_STATUSES: ProductieStatus[] = ['Planned', 'Active', 'Completed']
 

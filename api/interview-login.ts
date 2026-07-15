@@ -1,87 +1,31 @@
-import { createHmac, randomBytes, timingSafeEqual } from 'crypto'
 import type { VercelRequest, VercelResponse } from '@vercel/node'
+import {
+  createSessionToken,
+  getAuthContext,
+  verifyClientPassword,
+  verifyCrewPassword,
+} from './interview/auth.js'
+import { ensureSchema, fetchProductiesByClientPassword } from './interview/database.js'
+import {
+  clearSessionCookie,
+  getSessionToken,
+  setSessionCookie,
+  skipAuth,
+} from './interview/session.js'
 
-const COOKIE_NAME = 'interview_session'
-const MAX_AGE_SEC = 60 * 60 * 24 * 7
-
-function skipAuth(): boolean {
-  const v = process.env.INTERVIEW_SKIP_AUTH || ''
-  return v === '1' || v === 'true'
-}
-
-function getSecret(): string {
-  return process.env.INTERVIEW_SESSION_SECRET || ''
-}
-
-function getSessionToken(req: VercelRequest): string | null {
-  const cookie = req.headers.cookie
-  if (!cookie) return null
-  const match = cookie.match(new RegExp(`(?:^|;\\s*)${COOKIE_NAME}=([^;]+)`))
-  return match?.[1] ? decodeURIComponent(match[1]) : null
-}
-
-function createSessionToken(): string {
-  const payload = randomBytes(32).toString('hex')
-  const secret = getSecret()
-  const sig = createHmac('sha256', secret).update(payload).digest('hex')
-  return `${payload}.${sig}`
-}
-
-function verifySessionToken(token: string | null): boolean {
-  if (!token) return false
-  const secret = getSecret()
-  if (!secret) return false
-  const [payload, sig] = token.split('.')
-  if (!payload || !sig) return false
-  const expected = createHmac('sha256', secret).update(payload).digest('hex')
-  try {
-    return timingSafeEqual(Buffer.from(sig), Buffer.from(expected))
-  } catch {
-    return false
-  }
-}
-
-function isAuthenticated(req: VercelRequest): boolean {
-  if (skipAuth()) return true
-  return verifySessionToken(getSessionToken(req))
-}
-
-function verifyPassword(password: string): boolean {
-  const expected = process.env.INTERVIEW_APP_PASSWORD || ''
-  if (!expected || !password) return false
-  if (password.length !== expected.length) return false
-  try {
-    return timingSafeEqual(Buffer.from(password), Buffer.from(expected))
-  } catch {
-    return false
-  }
-}
-
-function setSessionCookie(res: VercelResponse, token: string): void {
-  const secure = process.env.VERCEL_ENV === 'production' ? '; Secure' : ''
-  res.setHeader(
-    'Set-Cookie',
-    `${COOKIE_NAME}=${encodeURIComponent(token)}; HttpOnly; Path=/; Max-Age=${MAX_AGE_SEC}; SameSite=Lax${secure}`,
-  )
-}
-
-function clearSessionCookie(res: VercelResponse): void {
-  const secure = process.env.VERCEL_ENV === 'production' ? '; Secure' : ''
-  res.setHeader(
-    'Set-Cookie',
-    `${COOKIE_NAME}=; HttpOnly; Path=/; Max-Age=0; SameSite=Lax${secure}`,
-  )
-}
-
-export default function handler(req: VercelRequest, res: VercelResponse) {
+export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     if (req.method === 'GET') {
+      const token = getSessionToken(req)
+      const ctx = getAuthContext(req, token)
       const authSkipped = skipAuth()
       const hasSecret = Boolean(process.env.INTERVIEW_SESSION_SECRET)
       const hasPassword = Boolean(process.env.INTERVIEW_APP_PASSWORD)
       const hasDb = Boolean(process.env.POSTGRES_URL || process.env.POSTGRES_URL_NON_POOLING)
       res.status(200).json({
-        authenticated: isAuthenticated(req),
+        authenticated: ctx.authenticated,
+        role: ctx.role,
+        productionIds: ctx.productionIds,
         skipAuth: authSkipped,
         configured: authSkipped ? hasDb : hasSecret && hasPassword && hasDb,
         missing: authSkipped
@@ -111,27 +55,45 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
 
     if (action === 'login') {
       if (!process.env.INTERVIEW_SESSION_SECRET) {
-        res.status(500).json({ error: 'Server niet geconfigureerd (INTERVIEW_SESSION_SECRET)' })
-        return
-      }
-      if (!process.env.INTERVIEW_APP_PASSWORD) {
-        res.status(500).json({ error: 'Server niet geconfigureerd (INTERVIEW_APP_PASSWORD)' })
+        res.status(500).json({ error: 'Server not configured (INTERVIEW_SESSION_SECRET)' })
         return
       }
       const password = String(body?.password || '')
-      if (!verifyPassword(password)) {
-        res.status(401).json({ error: 'Onjuist wachtwoord' })
+      if (!password) {
+        res.status(401).json({ error: 'Incorrect password' })
         return
       }
-      const token = createSessionToken()
+
+      if (process.env.INTERVIEW_APP_PASSWORD && verifyCrewPassword(password)) {
+        const token = createSessionToken({ role: 'crew', productionIds: [] })
+        setSessionCookie(res, token)
+        res.status(200).json({ ok: true, role: 'crew' })
+        return
+      }
+
+      await ensureSchema()
+      const productions = await fetchProductiesByClientPassword(password)
+      if (!productions.length) {
+        res.status(401).json({ error: 'Incorrect password' })
+        return
+      }
+
+      const token = createSessionToken({
+        role: 'client',
+        productionIds: productions.map((p) => p.id),
+      })
       setSessionCookie(res, token)
-      res.status(200).json({ ok: true })
+      res.status(200).json({
+        ok: true,
+        role: 'client',
+        productionIds: productions.map((p) => p.id),
+      })
       return
     }
 
-    res.status(400).json({ error: 'Onbekende actie' })
+    res.status(400).json({ error: 'Unknown action' })
   } catch (err) {
     console.error('interview login error:', err)
-    res.status(500).json({ error: 'Login mislukt' })
+    res.status(500).json({ error: 'Login failed' })
   }
 }

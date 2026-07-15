@@ -1,51 +1,57 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { requireAuth } from '../session.js'
+import { isClient, isCrew } from './auth.js'
 import {
   deleteGuest,
   ensureSchema,
-  finalizeGuest,
   fetchGuests,
+  fetchProducties,
+  finalizeGuest,
   updateGuest,
-} from '../database.js'
-import type { GastStatus } from '../types.js'
+} from './database.js'
+import {
+  filterGuestsForAuth,
+  productionNameAllowed,
+  requireLogin,
+  sanitizeGuestPatchForClient,
+} from './permissions.js'
+import type { GastStatus } from './types.js'
 
 function parseBody(req: VercelRequest): Record<string, unknown> {
   return typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {})
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  if (!requireAuth(req, res)) return
+  const ctx = requireLogin(req, res)
+  if (!ctx) return
 
   const id = String(req.query.id || '')
   if (!id) {
-    res.status(400).json({ error: 'ID ontbreekt' })
+    res.status(400).json({ error: 'ID missing' })
     return
   }
 
   try {
     await ensureSchema()
+    const productions = await fetchProducties(true)
+    const guests = await fetchGuests()
+    const guest = guests.find((g) => g.id === id)
+    if (!guest) {
+      res.status(404).json({ error: 'Guest not found' })
+      return
+    }
+
+    const visible = filterGuestsForAuth(ctx, [guest], productions)
+    if (!visible.length) {
+      res.status(403).json({ error: 'Guest not allowed' })
+      return
+    }
 
     if (req.method === 'PATCH') {
       const body = parseBody(req)
-      const patch: Record<string, unknown> = {}
-
-      if (body.productieNaam !== undefined) patch.productieNaam = String(body.productieNaam)
-      if (body.type !== undefined) patch.type = String(body.type)
-      if (body.naam !== undefined) patch.naam = String(body.naam)
-      if (body.functie !== undefined) patch.functie = String(body.functie)
-      if (body.planning !== undefined) patch.planning = String(body.planning)
-      if (body.gedeeld !== undefined) patch.gedeeld = Boolean(body.gedeeld)
-      if (body.questions !== undefined) patch.questions = Array.isArray(body.questions) ? body.questions.map(String) : []
-      if (body.status !== undefined) patch.status = String(body.status) as GastStatus
-      if (body.regienummer !== undefined) patch.regienummer = String(body.regienummer)
-      if (body.datum !== undefined) patch.datum = String(body.datum)
-      if (body.tijd !== undefined) patch.tijd = String(body.tijd)
 
       if (body.action === 'finalize') {
-        const guests = await fetchGuests()
-        const guest = guests.find((g) => g.id === id)
-        if (!guest) {
-          res.status(404).json({ error: 'Guest not found' })
+        if (!isCrew(ctx)) {
+          res.status(403).json({ error: 'Crew access only' })
           return
         }
         guest.naam = String(body.naam ?? guest.naam).trim()
@@ -53,6 +59,35 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const finalized = await finalizeGuest(guest)
         res.status(200).json({ guest: finalized })
         return
+      }
+
+      const patch: Record<string, unknown> = {}
+      if (body.productieNaam !== undefined) patch.productieNaam = String(body.productieNaam)
+      if (body.type !== undefined) patch.type = String(body.type)
+      if (body.naam !== undefined) patch.naam = String(body.naam)
+      if (body.functie !== undefined) patch.functie = String(body.functie)
+      if (body.planning !== undefined) patch.planning = String(body.planning)
+      if (body.gedeeld !== undefined) patch.gedeeld = Boolean(body.gedeeld)
+      if (body.questions !== undefined) {
+        patch.questions = Array.isArray(body.questions) ? body.questions.map(String) : []
+      }
+      if (body.intakeComplete !== undefined) patch.intakeComplete = Boolean(body.intakeComplete)
+      if (body.status !== undefined) patch.status = String(body.status) as GastStatus
+      if (body.regienummer !== undefined) patch.regienummer = String(body.regienummer)
+      if (body.datum !== undefined) patch.datum = String(body.datum)
+      if (body.tijd !== undefined) patch.tijd = String(body.tijd)
+
+      if (isClient(ctx)) {
+        const sanitized = sanitizeGuestPatchForClient(guest, patch)
+        if (typeof sanitized === 'string') {
+          res.status(403).json({ error: sanitized })
+          return
+        }
+        if (patch.productieNaam !== undefined
+          && !productionNameAllowed(ctx, productions, String(patch.productieNaam))) {
+          res.status(403).json({ error: 'Production not allowed' })
+          return
+        }
       }
 
       const updated = await updateGuest(id, patch)
@@ -65,6 +100,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     if (req.method === 'DELETE') {
+      if (isClient(ctx)) {
+        if (guest.intakeComplete) {
+          res.status(403).json({ error: 'Unlock intake before deleting' })
+          return
+        }
+      }
       const ok = await deleteGuest(id)
       if (!ok) {
         res.status(404).json({ error: 'Guest not found' })

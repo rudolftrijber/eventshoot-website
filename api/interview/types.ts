@@ -13,6 +13,8 @@ export interface Productie {
   status: ProductieStatus
   vragen: string[]
   archivedAt: string | null
+  hasClientPassword?: boolean
+  clientPassword?: string
   createdAt: string
   updatedAt: string
 }
@@ -26,6 +28,7 @@ export interface Gast {
   planning: string
   gedeeld: boolean
   questions: string[]
+  intakeComplete: boolean
   status: GastStatus
   regienummer: string
   datum: string

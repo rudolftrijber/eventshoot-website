@@ -2,7 +2,7 @@
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useInterviewStore } from '@/stores/interviewStore'
 import type { Gast, GuestView, Productie, TabId } from '@/types/interview'
-import { GAST_TYPES, PRODUCTIE_STATUSES } from '@/types/interview'
+import { GAST_TYPES, intakeLockApplies, PRODUCTIE_STATUSES } from '@/types/interview'
 import {
   clientTemplateCSV,
   csvRowToGuestPayload,
@@ -53,6 +53,7 @@ const fNaam = ref('')
 const fFunctie = ref('')
 const fPlanning = ref('')
 const fGedeeld = ref(false)
+const fIntakeComplete = ref(false)
 const fQuestions = ref<string[]>(['', '', '', ''])
 
 // Productie form
@@ -60,6 +61,8 @@ const editingProdId = ref<string | null>(null)
 const pNaam = ref('')
 const pDatum = ref('')
 const pStatus = ref<Productie['status']>('Planned')
+const pClientPassword = ref('')
+const editingProdHasClientPassword = ref(false)
 const pQuestions = ref<string[]>(['', '', '', ''])
 
 // Controle
@@ -106,22 +109,35 @@ const aiProdSelected = ref<boolean[]>([])
 
 let toastTimer: ReturnType<typeof setTimeout> | null = null
 
-const tabs: { id: TabId; label: string; icon: Component }[] = [
-  { id: 'kandidaten', label: 'Candidates', icon: QueueListIcon },
-  { id: 'producties', label: 'Productions', icon: CalendarDaysIcon },
-]
+const visibleTabs = computed(() =>
+  store.isClient
+    ? [{ id: 'kandidaten' as TabId, label: 'Candidates', icon: QueueListIcon }]
+    : [
+        { id: 'kandidaten' as TabId, label: 'Candidates', icon: QueueListIcon },
+        { id: 'producties' as TabId, label: 'Productions', icon: CalendarDaysIcon },
+      ],
+)
 
 const todayIso = computed(() => todayStr())
 
 const workingProduction = computed(() => {
-  if (manualProductieId.value) {
-    return store.activeProductions.find((p) => p.id === manualProductieId.value) || null
+  const list = store.activeProductions
+  if (store.isClient) {
+    if (manualProductieId.value) {
+      return list.find((p) => p.id === manualProductieId.value) || list[0] || null
+    }
+    return list[0] || null
   }
-  const todayProd = store.activeProductions.find(
-    (p) => (p.datum || '').slice(0, 10) === todayIso.value,
-  )
+  if (manualProductieId.value) {
+    return list.find((p) => p.id === manualProductieId.value) || null
+  }
+  const todayProd = list.find((p) => (p.datum || '').slice(0, 10) === todayIso.value)
   return todayProd || null
 })
+
+const guestFormLocked = computed(() =>
+  store.isClient && fIntakeComplete.value && intakeLockApplies(fType.value),
+)
 
 const needsProductiePick = computed(() =>
   store.activeTab === 'kandidaten'
@@ -466,6 +482,7 @@ function clearForm() {
   fGedeeld.value = false
   fNaam.value = ''
   fFunctie.value = ''
+  fIntakeComplete.value = false
   resetQuestions(fQuestions)
   resetGuestAi()
 }
@@ -486,6 +503,7 @@ async function saveGuest() {
     functie,
     planning: fPlanning.value.trim(),
     gedeeld: fGedeeld.value,
+    intakeComplete: intakeLockApplies(fType.value) ? fIntakeComplete.value : false,
     questions,
   }
   try {
@@ -508,6 +526,7 @@ function loadForEdit(g: Gast) {
   fType.value = g.type
   fPlanning.value = g.planning
   fGedeeld.value = g.gedeeld
+  fIntakeComplete.value = g.intakeComplete
   fNaam.value = g.naam
   fFunctie.value = g.functie
   resetQuestions(fQuestions, g.questions)
@@ -530,13 +549,17 @@ async function saveProductie() {
   const vragen = pQuestions.value.map((q) => q.trim()).filter(Boolean)
   const datum = pDatum.value
   try {
-    await store.saveProduction({
+    const payload: Partial<Productie> & { id?: string; clientPassword?: string } = {
       id: editingProdId.value || undefined,
       naam,
       datum,
       status: pStatus.value,
       vragen,
-    })
+    }
+    if (pClientPassword.value.trim()) {
+      payload.clientPassword = pClientPassword.value.trim()
+    }
+    await store.saveProduction(payload)
     const saved = store.activeProductions.find(
       (p) =>
         p.naam === naam
@@ -559,6 +582,8 @@ function clearProductieForm() {
   pNaam.value = ''
   pDatum.value = ''
   pStatus.value = 'Planned'
+  pClientPassword.value = ''
+  editingProdHasClientPassword.value = false
   resetQuestions(pQuestions)
   resetProdAi()
 }
@@ -568,7 +593,21 @@ function editProductie(p: Productie) {
   pNaam.value = p.naam
   pDatum.value = p.datum
   pStatus.value = p.status
+  pClientPassword.value = ''
+  editingProdHasClientPassword.value = Boolean(p.hasClientPassword)
   resetQuestions(pQuestions, p.vragen)
+}
+
+async function removeClientAccess() {
+  if (!editingProdId.value) return
+  try {
+    await store.saveProduction({ id: editingProdId.value, clientPassword: '' })
+    editingProdHasClientPassword.value = false
+    pClientPassword.value = ''
+    showToast('Client access removed')
+  } catch (e) {
+    showToast(e instanceof Error ? e.message : 'Failed')
+  }
 }
 
 function openControle(g: Gast) {
@@ -775,6 +814,17 @@ watch([fType, fProductie], () => {
 watch(workingProduction, (prod) => {
   pickProductieId.value = prod?.id || ''
 }, { immediate: true })
+
+watch(() => store.role, (role) => {
+  if (role === 'client') {
+    store.setTab('kandidaten')
+    guestView.value = null
+    settingsOpen.value = false
+    if (!manualProductieId.value && store.activeProductions[0]) {
+      manualProductieId.value = store.activeProductions[0].id
+    }
+  }
+})
 </script>
 
 <template>
@@ -793,7 +843,7 @@ watch(workingProduction, (prod) => {
         <div class="ia-login">
           <div class="ia-login__card">
             <p v-if="devBuildStamp" class="ia-dev-badge">Local · build {{ devBuildStamp }}</p>
-            <p class="ia-login__intro">Log in with the crew password to manage guests and interviews.</p>
+            <p class="ia-login__intro">Log in with your crew or client password.</p>
             <p v-if="apiConfigHint" class="ia-error ia-error--block ia-error--pre">{{ apiConfigHint }}</p>
             <label class="ia-label" for="pw">Password</label>
             <div class="ia-password-wrap">
@@ -838,7 +888,7 @@ watch(workingProduction, (prod) => {
             <div class="ia-tabs-wrap">
               <nav class="ia-tabs" aria-label="Interview app menu">
                 <button
-                  v-for="t in tabs"
+                  v-for="t in visibleTabs"
                   :key="t.id"
                   class="ia-tab ia-tab--labeled"
                   :class="{ active: store.activeTab === t.id }"
@@ -852,6 +902,7 @@ watch(workingProduction, (prod) => {
               </nav>
               <div class="ia-tabs-utils">
                 <button
+                  v-if="store.isCrew"
                   class="ia-tab ia-tab--util"
                   :class="{ active: settingsOpen }"
                   type="button"
@@ -876,8 +927,9 @@ watch(workingProduction, (prod) => {
           </header>
 
       <p v-if="skipAuthMode && !crewFocusMode" class="ia-skip-auth-banner">Finetune mode: password is off. Local only or set intentionally on Vercel.</p>
+      <p v-else-if="store.isClient && !crewFocusMode" class="ia-client-banner">Client view — add candidates, use AI for questions, and mark intake complete. Crew handles recording on site.</p>
 
-      <div v-if="settingsOpen" class="ia-settings">
+      <div v-if="settingsOpen && store.isCrew" class="ia-settings">
         <div class="ia-row">
           <label class="ia-label" style="margin:0">Max. characters for name &amp; role</label>
           <input
@@ -927,7 +979,7 @@ watch(workingProduction, (prod) => {
               <option v-for="p in sortedProductions" :key="p.id" :value="p.id">
                 {{ p.naam }} ({{ p.datum || 'no date' }})
               </option>
-              <option :value="PICK_NEW_PRODUCTION">+ Create new production</option>
+              <option v-if="store.isCrew" :value="PICK_NEW_PRODUCTION">+ Create new production</option>
             </select>
           </div>
 
@@ -937,17 +989,18 @@ watch(workingProduction, (prod) => {
             </button>
             <div class="ia-card">
               <h2 class="ia-section-title">{{ editingId ? 'Edit candidate' : 'New candidate' }}</h2>
+              <p v-if="guestFormLocked" class="ia-hint ia-hint--warn">Intake complete — unlock below to edit fields.</p>
               <div class="ia-row ia-row--fields">
                 <div class="ia-field">
                   <label class="ia-label">Production</label>
-                  <select v-model="fProductie" class="ia-select">
+                  <select v-model="fProductie" class="ia-select" :disabled="guestFormLocked">
                     <option value="" disabled>— select —</option>
                     <option v-for="p in sortedProductions" :key="p.id" :value="p.naam">{{ p.naam }}</option>
                   </select>
                 </div>
                 <div class="ia-field">
                   <label class="ia-label">Guest type</label>
-                  <select v-model="fType" class="ia-select">
+                  <select v-model="fType" class="ia-select" :disabled="guestFormLocked">
                     <option value="">— optional —</option>
                     <option v-for="t in GAST_TYPES" :key="t" :value="t">{{ t }}</option>
                   </select>
@@ -956,21 +1009,21 @@ watch(workingProduction, (prod) => {
               <div class="ia-row">
                 <div>
                   <label class="ia-label">Name</label>
-                  <input v-model="fNaam" class="ia-input" placeholder="First and last name" />
+                  <input v-model="fNaam" class="ia-input" placeholder="First and last name" :disabled="guestFormLocked" />
                   <div class="ia-charcount" :class="{ warn: naamOverLimit }">{{ fNaam.length }} / {{ maxChars }} characters</div>
                 </div>
                 <div>
                   <label class="ia-label">Role</label>
-                  <input v-model="fFunctie" class="ia-input" placeholder="e.g. Director of Innovation" />
+                  <input v-model="fFunctie" class="ia-input" placeholder="e.g. Director of Innovation" :disabled="guestFormLocked" />
                   <div class="ia-charcount" :class="{ warn: functieOverLimit }">{{ fFunctie.length }} / {{ maxChars }} characters</div>
                 </div>
               </div>
               <label class="ia-label">Schedule / time slot (optional)</label>
-              <input v-model="fPlanning" class="ia-input" placeholder="e.g. interview after the keynote" />
+              <input v-model="fPlanning" class="ia-input" placeholder="e.g. interview after the keynote" :disabled="guestFormLocked" />
               <div class="ia-question-head">
                 <label class="ia-label ia-label--inline">Interview questions (max. 7)</label>
                 <button
-                  v-if="aiGuestStep === 'idle'"
+                  v-if="aiGuestStep === 'idle' && !guestFormLocked"
                   class="ia-btn ia-btn--small ia-btn--secondary ia-btn--ai"
                   type="button"
                   @click="openGuestAiPrep"
@@ -1031,7 +1084,7 @@ watch(workingProduction, (prod) => {
                   <button
                     class="ia-btn ia-btn--small ia-btn--accent"
                     type="button"
-                    :disabled="aiGuestLoading || !prepIsComplete(aiGuestPrep)"
+                    :disabled="guestFormLocked || aiGuestLoading || !prepIsComplete(aiGuestPrep)"
                     @click="generateGuestAiProposal"
                   >
                     {{ aiGuestLoading ? 'Generating…' : 'Generate proposal (max. 4)' }}
@@ -1052,7 +1105,7 @@ watch(workingProduction, (prod) => {
                   </li>
                 </ul>
                 <div class="ia-actions ia-actions--tight">
-                  <button class="ia-btn ia-btn--small ia-btn--accent" type="button" @click="applyGuestAiPreview">
+                  <button class="ia-btn ia-btn--small ia-btn--accent" type="button" :disabled="guestFormLocked" @click="applyGuestAiPreview">
                     Use selected questions
                   </button>
                   <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="dismissGuestAi">
@@ -1061,25 +1114,29 @@ watch(workingProduction, (prod) => {
                 </div>
               </div>
               <div v-for="(q, i) in fQuestions" :key="`guest-q-${i}-${fQuestions.length}`" class="ia-question-row">
-                <textarea v-model="fQuestions[i]" class="ia-textarea" rows="1" :placeholder="`Question ${i + 1}`" />
+                <textarea v-model="fQuestions[i]" class="ia-textarea" rows="1" :placeholder="`Question ${i + 1}`" :disabled="guestFormLocked" />
                 <button
                   class="ia-iconbtn ia-iconbtn--delete"
                   type="button"
                   title="Remove question"
-                  :disabled="fQuestions.length <= 1"
+                  :disabled="fQuestions.length <= 1 || guestFormLocked"
                   @click.stop="removeFQ(i)"
                 >🗑️</button>
               </div>
               <div class="ia-actions">
-                <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="addFQ">+ Question</button>
+                <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" :disabled="guestFormLocked" @click="addFQ">+ Question</button>
+              </div>
+              <div v-if="intakeLockApplies(fType)" class="ia-actions">
+                <input id="fIntakeComplete" v-model="fIntakeComplete" type="checkbox" />
+                <label for="fIntakeComplete" style="margin:0">Intake complete</label>
               </div>
               <div class="ia-actions">
-                <input id="fGedeeld" v-model="fGedeeld" type="checkbox" />
+                <input id="fGedeeld" v-model="fGedeeld" type="checkbox" :disabled="guestFormLocked" />
                 <label for="fGedeeld" style="margin:0">Questions were shared with the interviewee in advance</label>
               </div>
               <div class="ia-actions">
                 <button class="ia-btn" type="button" @click="saveGuest">Save</button>
-                <button class="ia-iconbtn" type="button" title="Clear" @click="clearForm">🗑️</button>
+                <button v-if="store.isCrew" class="ia-iconbtn" type="button" title="Clear" @click="clearForm">🗑️</button>
               </div>
             </div>
           </template>
@@ -1181,7 +1238,7 @@ watch(workingProduction, (prod) => {
                 <option v-for="p in sortedProductions" :key="p.id" :value="p.id">
                   {{ p.naam }} ({{ p.datum ? formatDisplayDate(p.datum) : 'no date' }})
                 </option>
-                <option :value="PICK_NEW_PRODUCTION">+ Create new production</option>
+                <option v-if="store.isCrew" :value="PICK_NEW_PRODUCTION">+ Create new production</option>
               </select>
               <div class="ia-actions ia-actions--tight">
                 <button class="ia-btn ia-btn--small ia-btn--accent" type="button" @click="openNewGuest">
@@ -1200,23 +1257,32 @@ watch(workingProduction, (prod) => {
               />
               <table class="ia-table">
                 <thead>
-                  <tr><th>Crew #</th><th>Name</th><th>Role</th><th>Status</th><th></th></tr>
+                  <tr><th v-if="store.isCrew">Crew #</th><th>Name</th><th>Role</th><th>Status</th><th></th></tr>
                 </thead>
                 <tbody>
                   <tr v-for="g in filteredGuests" :key="g.id" class="data-row" @click="loadForEdit(g)">
-                    <td>{{ g.regienummer || '—' }}</td>
+                    <td v-if="store.isCrew">{{ g.regienummer || '—' }}</td>
                     <td>
                       <div>{{ g.naam }}</div>
                       <small v-if="g.planning" style="color:var(--color-text-muted)">{{ g.planning }}</small>
+                      <small v-if="g.intakeComplete" class="ia-intake-badge">Intake complete</small>
                     </td>
                     <td>{{ g.functie }}</td>
                     <td><span :class="pillClass(g.status)">{{ g.status }}</span></td>
                     <td class="ia-row-actions" @click.stop>
-                      <button v-if="g.status === 'Entered'" class="ia-iconbtn" type="button" title="Check" @click="openGuestControle(g)">✓</button>
-                      <button v-if="g.regienummer" class="ia-iconbtn" type="button" title="Camera" @click="openGuestCamera(g)">📷</button>
-                      <button class="ia-iconbtn" type="button" title="Interviewer" @click="openGuestInterviewer(g)">🎤</button>
+                      <template v-if="store.isCrew">
+                        <button v-if="g.status === 'Entered'" class="ia-iconbtn" type="button" title="Check" @click="openGuestControle(g)">✓</button>
+                        <button v-if="g.regienummer" class="ia-iconbtn" type="button" title="Camera" @click="openGuestCamera(g)">📷</button>
+                        <button class="ia-iconbtn" type="button" title="Interviewer" @click="openGuestInterviewer(g)">🎤</button>
+                      </template>
                       <button class="ia-iconbtn" type="button" title="Edit" @click="loadForEdit(g)">✏️</button>
-                      <button class="ia-iconbtn" type="button" title="Delete" @click="store.deleteGuest(g.id)">🗑️</button>
+                      <button
+                        v-if="!g.intakeComplete || store.isCrew"
+                        class="ia-iconbtn"
+                        type="button"
+                        title="Delete"
+                        @click="store.deleteGuest(g.id)"
+                      >🗑️</button>
                     </td>
                   </tr>
                 </tbody>
@@ -1227,7 +1293,7 @@ watch(workingProduction, (prod) => {
         </section>
 
         <!-- PRODUCTIES -->
-        <section v-if="store.activeTab === 'producties'">
+        <section v-if="store.activeTab === 'producties' && store.isCrew">
           <div v-if="showProdForm" class="ia-card ia-prod-form">
             <h2 class="ia-section-title">{{ editingProdId ? 'Edit production' : 'New production' }}</h2>
             <label class="ia-label">Production name</label>
@@ -1238,6 +1304,19 @@ watch(workingProduction, (prod) => {
             <select v-model="pStatus" class="ia-select">
               <option v-for="s in PRODUCTIE_STATUSES" :key="s" :value="s">{{ s }}</option>
             </select>
+            <label class="ia-label">Client password (optional)</label>
+            <input
+              v-model="pClientPassword"
+              class="ia-input"
+              type="password"
+              :placeholder="editingProdHasClientPassword ? 'Leave empty to keep current password' : 'Set password for client login'"
+            />
+            <p v-if="editingProdHasClientPassword" class="ia-hint">Client access is active for this production.</p>
+            <div v-if="editingProdHasClientPassword" class="ia-actions ia-actions--tight">
+              <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="removeClientAccess">
+                Remove client access
+              </button>
+            </div>
             <div class="ia-question-head">
               <label class="ia-label ia-label--inline">Default questions for Participants (max. 7)</label>
               <button

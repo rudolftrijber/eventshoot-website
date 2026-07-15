@@ -1,5 +1,6 @@
 import type { Gast, GastStatus, InterviewSettings, Productie, ProductieStatus } from './types.js'
 import { normalizeGastStatus, normalizeProductieStatus } from './types.js'
+import { hashClientPassword, verifyClientPassword } from './auth.js'
 
 let schemaReady: Promise<void> | null = null
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -74,6 +75,8 @@ async function initSchema(): Promise<void> {
   await sql`CREATE INDEX IF NOT EXISTS interview_gasten_status_idx ON interview_gasten (status)`
   await sql`CREATE INDEX IF NOT EXISTS interview_gasten_datum_idx ON interview_gasten (datum)`
   await sql`CREATE INDEX IF NOT EXISTS interview_gasten_productie_idx ON interview_gasten (productie_naam)`
+  await sql`ALTER TABLE interview_producties ADD COLUMN IF NOT EXISTS client_password_hash TEXT`
+  await sql`ALTER TABLE interview_gasten ADD COLUMN IF NOT EXISTS intake_complete BOOLEAN NOT NULL DEFAULT FALSE`
 }
 
 function formatDateValue(value: unknown): string {
@@ -92,6 +95,7 @@ function toDateParam(datum: string): string | null {
 }
 
 function rowToProductie(row: Record<string, unknown>): Productie {
+  const hash = row.client_password_hash ? String(row.client_password_hash) : ''
   return {
     id: String(row.id),
     naam: String(row.naam),
@@ -99,6 +103,7 @@ function rowToProductie(row: Record<string, unknown>): Productie {
     status: normalizeProductieStatus(String(row.status)),
     vragen: Array.isArray(row.vragen) ? row.vragen.map(String) : [],
     archivedAt: row.archived_at ? String(row.archived_at) : null,
+    hasClientPassword: Boolean(hash),
     createdAt: String(row.created_at),
     updatedAt: String(row.updated_at),
   }
@@ -114,6 +119,7 @@ function rowToGast(row: Record<string, unknown>): Gast {
     planning: String(row.planning || ''),
     gedeeld: Boolean(row.gedeeld),
     questions: Array.isArray(row.questions) ? row.questions.map(String) : [],
+    intakeComplete: Boolean(row.intake_complete),
     status: normalizeGastStatus(String(row.status)),
     regienummer: row.regienummer ? String(row.regienummer) : '',
     datum: formatDateValue(row.datum),
@@ -140,6 +146,21 @@ export async function updateSettings(maxChars: number): Promise<InterviewSetting
   return { maxChars }
 }
 
+export async function fetchProductiesByClientPassword(password: string): Promise<Productie[]> {
+  const sql = await getSql()
+  const rows = await sql`
+    SELECT * FROM interview_producties
+    WHERE archived_at IS NULL AND client_password_hash IS NOT NULL
+  `
+  return rows
+    .map((row, i) => {
+      const hash = (rows[i] as { client_password_hash?: string }).client_password_hash
+      if (!hash || !verifyClientPassword(password, String(hash))) return null
+      return rowToProductie(row as Record<string, unknown>)
+    })
+    .filter((p): p is Productie => p !== null)
+}
+
 export async function fetchProducties(includeArchived = false): Promise<Productie[]> {
   const sql = await getSql()
   const rows = includeArchived
@@ -159,11 +180,12 @@ export async function createGuest(data: Omit<Gast, 'createdAt' | 'updatedAt'>): 
   const rows = await sql`
     INSERT INTO interview_gasten (
       id, productie_naam, type, naam, functie, planning, gedeeld,
-      questions, status, regienummer, datum, tijd
+      questions, intake_complete, status, regienummer, datum, tijd
     ) VALUES (
       ${data.id}, ${data.productieNaam}, ${data.type}, ${data.naam}, ${data.functie},
       ${data.planning}, ${data.gedeeld}, ${JSON.stringify(data.questions)}::jsonb,
-      ${data.status}, ${data.regienummer || null}, ${toDateParam(data.datum)}, ${data.tijd || null}
+      ${Boolean(data.intakeComplete)}, ${data.status}, ${data.regienummer || null},
+      ${toDateParam(data.datum)}, ${data.tijd || null}
     )
     RETURNING *
   `
@@ -186,6 +208,7 @@ export async function updateGuest(id: string, patch: Partial<Gast>): Promise<Gas
       planning = ${next.planning},
       gedeeld = ${next.gedeeld},
       questions = ${JSON.stringify(next.questions)}::jsonb,
+      intake_complete = ${Boolean(next.intakeComplete)},
       status = ${next.status},
       regienummer = ${next.regienummer || null},
       datum = ${toDateParam(next.datum)},
@@ -223,6 +246,14 @@ export async function updateProductie(id: string, patch: Partial<Productie>): Pr
   const current = rowToProductie(existing[0] as Record<string, unknown>)
   const next = { ...current, ...patch, id }
 
+  let clientPasswordHash: string | null | undefined
+  if ('clientPassword' in patch) {
+    const raw = String((patch as { clientPassword?: string }).clientPassword ?? '').trim()
+    clientPasswordHash = raw ? hashClientPassword(raw) : null
+  }
+  const currentHash = (existing[0] as { client_password_hash?: string | null }).client_password_hash || null
+  const nextHash = clientPasswordHash !== undefined ? clientPasswordHash : currentHash
+
   const rows = await sql`
     UPDATE interview_producties SET
       naam = ${next.naam},
@@ -230,6 +261,7 @@ export async function updateProductie(id: string, patch: Partial<Productie>): Pr
       status = ${next.status},
       vragen = ${JSON.stringify(next.vragen)}::jsonb,
       archived_at = ${next.archivedAt},
+      client_password_hash = ${nextHash},
       updated_at = NOW()
     WHERE id = ${id}
     RETURNING *

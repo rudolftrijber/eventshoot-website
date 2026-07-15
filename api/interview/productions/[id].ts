@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { requireAuth } from '../session.js'
+import { requireCrew } from '../permissions.js'
 import {
   deleteProductie,
   ensureSchema,
@@ -12,7 +12,7 @@ function parseBody(req: VercelRequest): Record<string, unknown> {
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  if (!requireAuth(req, res)) return
+  if (!requireCrew(req, res)) return
 
   const id = String(req.query.id || '')
   if (!id) {
@@ -31,6 +31,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (body.datum !== undefined) patch.datum = String(body.datum)
       if (body.status !== undefined) patch.status = String(body.status) as ProductieStatus
       if (body.vragen !== undefined) patch.vragen = Array.isArray(body.vragen) ? body.vragen.map(String) : []
+      if (body.clientPassword !== undefined) patch.clientPassword = String(body.clientPassword)
 
       if (body.action === 'archive') {
         patch.archivedAt = new Date().toISOString()

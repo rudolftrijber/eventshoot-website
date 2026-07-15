@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { requireAuth } from './session.js'
+import { requireCrew } from './permissions.js'
 import {
   createProductie,
   ensureSchema,
@@ -16,7 +16,7 @@ function parseBody(req: VercelRequest): Record<string, unknown> {
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  if (!requireAuth(req, res)) return
+  if (!requireCrew(req, res)) return
 
   try {
     await ensureSchema()

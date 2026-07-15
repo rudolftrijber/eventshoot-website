@@ -1,6 +1,8 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
+import { isClient } from './auth.js'
 import { suggestInterviewQuestions, type SuggestQuestionsInput } from './aiSuggestQuestions.js'
-import { requireAuth } from './session.js'
+import { ensureSchema, fetchProducties } from './database.js'
+import { productionNameAllowed, requireLogin } from './permissions.js'
 
 function parseBody(req: VercelRequest): Record<string, unknown> {
   return typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {})
@@ -12,7 +14,8 @@ function asStringArray(value: unknown): string[] {
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  if (!requireAuth(req, res)) return
+  const ctx = requireLogin(req, res)
+  if (!ctx) return
 
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'Method not allowed' })
@@ -27,6 +30,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (!productionName) {
       res.status(400).json({ error: 'Production name is required' })
       return
+    }
+
+    if (isClient(ctx)) {
+      if (scope === 'production') {
+        res.status(403).json({ error: 'Crew access only' })
+        return
+      }
+      await ensureSchema()
+      const productions = await fetchProducties(true)
+      if (!productionNameAllowed(ctx, productions, productionName)) {
+        res.status(403).json({ error: 'Production not allowed' })
+        return
+      }
     }
 
     const prepRaw = body.prepAnswers

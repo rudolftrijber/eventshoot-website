@@ -409,6 +409,30 @@
   color: #fff;
 }
 
+.ia-client-banner {
+  margin: 0 1.15rem 0.75rem;
+  padding: 0.55rem 0.85rem;
+  border-radius: var(--radius);
+  background: rgba(62, 207, 142, 0.15);
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 0.82rem;
+}
+
+.ia-hint--warn {
+  color: #ffb020;
+}
+
+.ia-intake-badge {
+  display: inline-block;
+  margin-top: 0.2rem;
+  padding: 0.12rem 0.45rem;
+  border-radius: 999px;
+  background: rgba(255, 176, 32, 0.2);
+  color: #ffb020;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
 .ia-day-empty__title {
   margin: 0 0 0.5rem;
   font-size: 1.15rem;

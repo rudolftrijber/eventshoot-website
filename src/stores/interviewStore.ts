@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
-import type { Gast, GastStatus, InterviewSettings, Productie, TabId } from '@/types/interview'
+import type { Gast, GastStatus, InterviewRole, InterviewSettings, Productie, TabId } from '@/types/interview'
 
 const POLL_MS = 3000
 
@@ -37,6 +37,8 @@ async function api<T>(url: string, options?: RequestInit): Promise<T> {
 
 export const useInterviewStore = defineStore('interview', () => {
   const authenticated = ref(false)
+  const role = ref<InterviewRole | null>(null)
+  const clientProductionIds = ref<string[]>([])
   const loading = ref(false)
   const error = ref('')
   const guests = ref<Gast[]>([])
@@ -50,6 +52,8 @@ export const useInterviewStore = defineStore('interview', () => {
   const archivedProductions = computed(() => productions.value.filter((p) => p.archivedAt))
   const recordedGuests = computed(() => guests.value.filter((g) => g.status === 'Recorded'))
   const activeGuest = computed(() => guests.value.find((g) => g.id === activeGuestId.value) || null)
+  const isCrew = computed(() => role.value === 'crew')
+  const isClient = computed(() => role.value === 'client')
 
   const productieNames = computed(() => {
     const names = new Set<string>()
@@ -61,21 +65,27 @@ export const useInterviewStore = defineStore('interview', () => {
   async function checkAuth() {
     const data = await api<{
       authenticated: boolean
+      role?: InterviewRole | null
+      productionIds?: string[]
       skipAuth?: boolean
       configured?: boolean
       missing?: string[]
     }>('/api/interview-login')
     authenticated.value = Boolean(data.skipAuth || data.authenticated)
+    role.value = data.skipAuth ? 'crew' : (data.role || null)
+    clientProductionIds.value = data.productionIds || []
     return data
   }
 
   async function login(password: string) {
     error.value = ''
-    await api('/api/interview-login', {
+    const data = await api<{ ok: boolean; role?: InterviewRole; productionIds?: string[] }>('/api/interview-login', {
       method: 'POST',
       body: JSON.stringify({ action: 'login', password }),
     })
     authenticated.value = true
+    role.value = data.role || 'crew'
+    clientProductionIds.value = data.productionIds || []
     await sync()
     startPolling()
   }
@@ -86,6 +96,8 @@ export const useInterviewStore = defineStore('interview', () => {
       body: JSON.stringify({ action: 'logout' }),
     })
     authenticated.value = false
+    role.value = null
+    clientProductionIds.value = []
     stopPolling()
   }
 
@@ -97,10 +109,14 @@ export const useInterviewStore = defineStore('interview', () => {
         guests: Gast[]
         productions: Productie[]
         settings: InterviewSettings
+        role?: InterviewRole | null
+        productionIds?: string[]
       }>('/api/interview/sync')
       guests.value = data.guests
       productions.value = data.productions
       settings.value = data.settings
+      if (data.role) role.value = data.role
+      if (data.productionIds) clientProductionIds.value = data.productionIds
     } catch (e) {
       error.value = e instanceof Error ? e.message : 'Sync failed'
       if (error.value === 'Not logged in') authenticated.value = false
@@ -159,7 +175,7 @@ export const useInterviewStore = defineStore('interview', () => {
     }
   }
 
-  async function saveProduction(payload: Partial<Productie> & { id?: string }) {
+  async function saveProduction(payload: Partial<Productie> & { id?: string; clientPassword?: string }) {
     if (payload.id) {
       await api(`/api/interview/productions/${payload.id}`, {
         method: 'PATCH',
@@ -241,6 +257,10 @@ export const useInterviewStore = defineStore('interview', () => {
 
   return {
     authenticated,
+    role,
+    clientProductionIds,
+    isCrew,
+    isClient,
     loading,
     error,
     guests,
