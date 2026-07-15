@@ -467,6 +467,15 @@
   max-width: 22rem;
 }
 
+.ia-prod-form .ia-password-wrap {
+  width: 100%;
+  max-width: 22rem;
+}
+
+.ia-prod-form .ia-password-wrap .ia-input {
+  max-width: none;
+}
+
 .ia-row-actions {
   white-space: nowrap;
 }
@@ -1086,6 +1095,7 @@
   right: 0.5rem;
   top: 50%;
   transform: translateY(-50%);
+  z-index: 2;
   display: inline-flex;
   align-items: center;
   justify-content: center;

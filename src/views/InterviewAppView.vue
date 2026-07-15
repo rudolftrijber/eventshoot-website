@@ -1314,6 +1314,7 @@ watch(() => store.role, (role) => {
                 v-model="pClientPassword"
                 class="ia-input ia-password-wrap__input"
                 :type="showPClientPassword ? 'text' : 'password'"
+                autocomplete="new-password"
                 :placeholder="editingProdHasClientPassword ? 'Leave empty to keep current password' : 'Set password for client login'"
               />
               <button
