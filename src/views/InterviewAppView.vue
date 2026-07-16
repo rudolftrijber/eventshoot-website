@@ -1405,7 +1405,7 @@ watch(() => store.role, (role) => {
               </div>
               <div class="ia-actions">
                 <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="addPQ">+ Question</button>
-                <button class="ia-btn" type="button" @click="saveClientDefaultQuestions">Save defaults</button>
+                <button class="ia-btn ia-btn--small ia-btn--accent" type="button" @click="saveClientDefaultQuestions">Save defaults</button>
               </div>
             </div>
 
