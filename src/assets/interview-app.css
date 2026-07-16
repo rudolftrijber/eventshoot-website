@@ -464,12 +464,26 @@
 .ia-day-empty .ia-select,
 .ia-prod-switch {
   width: auto;
-  max-width: 22rem;
+  max-width: 28rem;
   min-width: 14rem;
+  min-height: 2.5rem;
+  height: 2.5rem;
+  padding: 0.5rem 0.95rem;
+  font-size: 0.875rem;
+  line-height: 1.25;
+  box-sizing: border-box;
 }
 
 .ia-prod-switch {
   margin-bottom: 0.75rem;
+}
+
+.ia-prod-top .ia-label {
+  margin-top: 0;
+}
+
+.ia-prod-top .ia-progress-chips {
+  margin-top: 0.15rem;
 }
 
 .ia-search {

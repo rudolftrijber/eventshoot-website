@@ -1281,6 +1281,27 @@ watch(() => store.role, (role) => {
           </template>
 
           <template v-else>
+            <div class="ia-card ia-prod-top">
+              <label class="ia-label" for="list-productie">Production</label>
+              <select
+                id="list-productie"
+                v-model="pickProductieId"
+                class="ia-select ia-prod-switch"
+                @change="onListProductieChange"
+              >
+                <option v-for="p in sortedProductions" :key="p.id" :value="p.id">
+                  {{ p.naam }} ({{ p.datum ? formatDisplayDate(p.datum) : 'no date' }})
+                </option>
+                <option v-if="store.isCrew" :value="PICK_NEW_PRODUCTION">+ Create new production</option>
+              </select>
+              <div v-if="workingProductionCounts" class="ia-progress-chips">
+                <span class="ia-progress-chip">Total {{ workingProductionCounts.total }}</span>
+                <span class="ia-progress-chip ia-progress-chip--entered">Entered {{ workingProductionCounts.entered }}</span>
+                <span class="ia-progress-chip ia-progress-chip--checked">Checked {{ workingProductionCounts.checked }}</span>
+                <span class="ia-progress-chip ia-progress-chip--recorded">Recorded {{ workingProductionCounts.recorded }}</span>
+              </div>
+            </div>
+
             <div v-if="store.isClient && workingProduction" class="ia-card">
               <div class="ia-question-head">
                 <h2 class="ia-section-title ia-section-title--inline">Default questions for Participants</h2>
@@ -1390,24 +1411,6 @@ watch(() => store.role, (role) => {
 
             <div class="ia-card">
               <h2 class="ia-section-title">Interview candidates</h2>
-              <div v-if="workingProductionCounts" class="ia-progress-chips">
-                <span class="ia-progress-chip">Total {{ workingProductionCounts.total }}</span>
-                <span class="ia-progress-chip ia-progress-chip--entered">Entered {{ workingProductionCounts.entered }}</span>
-                <span class="ia-progress-chip ia-progress-chip--checked">Checked {{ workingProductionCounts.checked }}</span>
-                <span class="ia-progress-chip ia-progress-chip--recorded">Recorded {{ workingProductionCounts.recorded }}</span>
-              </div>
-              <label class="ia-label" for="list-productie">Production</label>
-              <select
-                id="list-productie"
-                v-model="pickProductieId"
-                class="ia-select ia-prod-switch"
-                @change="onListProductieChange"
-              >
-                <option v-for="p in sortedProductions" :key="p.id" :value="p.id">
-                  {{ p.naam }} ({{ p.datum ? formatDisplayDate(p.datum) : 'no date' }})
-                </option>
-                <option v-if="store.isCrew" :value="PICK_NEW_PRODUCTION">+ Create new production</option>
-              </select>
               <div class="ia-actions ia-actions--tight">
                 <button class="ia-btn ia-btn--small ia-btn--accent" type="button" @click="openNewGuest">
                   + New candidate
