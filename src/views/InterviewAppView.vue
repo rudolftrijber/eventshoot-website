@@ -84,9 +84,9 @@ type AiPrepAnswers = { sector: string; specialism: string; timeliness: string }
 type AiStep = 'idle' | 'prep' | 'preview'
 
 const AI_PREP_FIELDS: Array<{ key: keyof AiPrepAnswers; label: string; placeholder: string }> = [
-  { key: 'sector', label: '1. Sector / branche', placeholder: 'bijv. zorg, IT, overheid' },
-  { key: 'specialism', label: '2. Specialisme of invalshoek', placeholder: 'bijv. techniek, beleid, dagelijkse praktijk' },
-  { key: 'timeliness', label: '3. Actualiteit', placeholder: 'bijv. wat speelt nu in de sector of op dit event' },
+  { key: 'sector', label: '1. Sector / industry', placeholder: 'e.g. healthcare, IT, government' },
+  { key: 'specialism', label: '2. Specialism or angle', placeholder: 'e.g. technology, policy, day-to-day practice' },
+  { key: 'timeliness', label: '3. Current topics', placeholder: 'e.g. what is happening now in the sector or at this event' },
 ]
 
 const aiGuestLanguage = ref<'nl' | 'en'>('nl')
@@ -765,7 +765,7 @@ async function loadDemoData() {
 }
 
 onMounted(async () => {
-  document.title = 'Interview App — Eventshoot.nl'
+  document.title = 'Event Interview App — Eventshoot.nl'
   const meta = document.querySelector('meta[name="robots"]') || document.createElement('meta')
   meta.setAttribute('name', 'robots')
   meta.setAttribute('content', 'noindex, nofollow')
@@ -835,8 +835,8 @@ watch(() => store.role, (role) => {
     <header v-if="!crewFocusMode" class="ia-header">
       <img
         class="ia-header__image"
-        src="/DATA_EVENTSHOOT/SITE_IMAGES/WERK/microphones.png"
-        alt="Eventshoot Interview App"
+        src="/DATA_EVENTSHOOT/SITE_IMAGES/WERK/microphone.png"
+        alt="Event Interview App"
       />
     </header>
 

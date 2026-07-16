@@ -79,9 +79,9 @@ function buildUserPrompt(input: SuggestQuestionsInput): string {
   if (prep && (prep.sector.trim() || prep.specialism.trim() || prep.timeliness.trim())) {
     lines.push(
       'Crew briefing:',
-      `1. Sector / branche: ${prep.sector.trim()}`,
-      `2. Specialisme of invalshoek: ${prep.specialism.trim()}`,
-      `3. Actualiteit: ${prep.timeliness.trim()}`,
+      `1. Sector / industry: ${prep.sector.trim()}`,
+      `2. Specialism or angle: ${prep.specialism.trim()}`,
+      `3. Current topics: ${prep.timeliness.trim()}`,
     )
   }
 
