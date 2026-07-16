@@ -180,6 +180,15 @@
   padding: 0.45rem 0.85rem;
 }
 
+.ia-tab--back {
+  background: var(--color-accent);
+  color: #fff;
+}
+
+.ia-tab--back:hover {
+  background: var(--color-accent-hover);
+}
+
 .ia-tab__label {
   font-size: 0.875rem;
   font-weight: 600;

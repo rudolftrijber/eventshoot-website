@@ -227,6 +227,33 @@ const crewFocusMode = computed(() => {
   return false
 })
 
+const showNavBack = computed(() => {
+  if (crewFocusMode.value) return false
+  if (guestView.value) return true
+  if (store.activeTab === 'producties' && showProdForm.value) return true
+  return false
+})
+
+function handleNavBack() {
+  if (guestView.value) {
+    backToKandidaten()
+    return
+  }
+  if (showProdForm.value) {
+    showProdForm.value = false
+    clearProductieForm()
+  }
+}
+
+function onTabClick(id: TabId) {
+  if (guestView.value) backToKandidaten()
+  if (showProdForm.value) {
+    showProdForm.value = false
+    clearProductieForm()
+  }
+  store.setTab(id)
+}
+
 function backToKandidaten() {
   guestView.value = null
   store.selectGuest(null)
@@ -924,13 +951,23 @@ watch(() => store.role, (role) => {
             <div class="ia-tabs-wrap">
               <nav class="ia-tabs" aria-label="Interview app menu">
                 <button
+                  v-if="showNavBack"
+                  class="ia-tab ia-tab--labeled ia-tab--back"
+                  type="button"
+                  title="Back"
+                  @click="handleNavBack"
+                >
+                  <ArrowLeftIcon class="ia-tab__icon" aria-hidden="true" />
+                  <span class="ia-tab__label">Back</span>
+                </button>
+                <button
                   v-for="t in visibleTabs"
                   :key="t.id"
                   class="ia-tab ia-tab--labeled"
-                  :class="{ active: store.activeTab === t.id }"
+                  :class="{ active: store.activeTab === t.id && !showNavBack }"
                   type="button"
                   :title="t.label"
-                  @click="store.setTab(t.id)"
+                  @click="onTabClick(t.id)"
                 >
                   <component :is="t.icon" class="ia-tab__icon" aria-hidden="true" />
                   <span class="ia-tab__label">{{ t.label }}</span>
@@ -1020,9 +1057,6 @@ watch(() => store.role, (role) => {
           </div>
 
           <template v-else-if="guestView === 'form'">
-            <button class="ia-back" type="button" @click="backToKandidaten">
-              <ArrowLeftIcon class="ia-back__icon" aria-hidden="true" /> Back to list
-            </button>
             <div class="ia-card">
               <h2 class="ia-section-title">{{ editingId ? 'Edit candidate' : 'New candidate' }}</h2>
               <p v-if="guestFormLocked" class="ia-hint ia-hint--warn">Intake complete — unlock below to edit fields.</p>
@@ -1178,9 +1212,6 @@ watch(() => store.role, (role) => {
           </template>
 
           <template v-else-if="guestView === 'controle'">
-            <button class="ia-back" type="button" @click="backToKandidaten">
-              <ArrowLeftIcon class="ia-back__icon" aria-hidden="true" /> Back to list
-            </button>
             <div v-if="controleThanks && store.activeGuest" class="ia-card ia-thanks">
               <h2>Thank you!</h2>
               <p>Your details have been confirmed.</p>
@@ -1210,9 +1241,6 @@ watch(() => store.role, (role) => {
           </template>
 
           <template v-else-if="guestView === 'camera'">
-            <button v-if="!crewFocusMode" class="ia-back" type="button" @click="backToKandidaten">
-              <ArrowLeftIcon class="ia-back__icon" aria-hidden="true" /> Back to list
-            </button>
             <div v-if="camGuest?.regienummer" class="ia-card ia-cam-full">
               <div class="ia-cam-full__header">
                 {{ camGuest.productieNaam }} · {{ camHeaderDate }} · {{ camHeaderTime }}
@@ -1229,9 +1257,6 @@ watch(() => store.role, (role) => {
           </template>
 
           <template v-else-if="guestView === 'interviewer'">
-            <button v-if="!crewFocusMode" class="ia-back" type="button" @click="backToKandidaten">
-              <ArrowLeftIcon class="ia-back__icon" aria-hidden="true" /> Back to list
-            </button>
             <div v-if="intGuest" class="ia-card ia-int-full">
               <div class="ia-int-full__head">
                 <div class="ia-int-full__regie">Crew #{{ intGuest.regienummer || '—' }}</div>
