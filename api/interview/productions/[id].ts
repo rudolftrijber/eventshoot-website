@@ -1,10 +1,15 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { requireCrew } from '../permissions.js'
+import { isClient, isCrew } from '../auth.js'
 import {
   deleteProductie,
   ensureSchema,
   updateProductie,
 } from '../database.js'
+import {
+  requireCrew,
+  requireLogin,
+  sanitizeProductionPatchForClient,
+} from '../permissions.js'
 import type { ProductieStatus } from '../types.js'
 
 function parseBody(req: VercelRequest): Record<string, unknown> {
@@ -12,8 +17,6 @@ function parseBody(req: VercelRequest): Record<string, unknown> {
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  if (!requireCrew(req, res)) return
-
   const id = String(req.query.id || '')
   if (!id) {
     res.status(400).json({ error: 'ID ontbreekt' })
@@ -24,20 +27,42 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     await ensureSchema()
 
     if (req.method === 'PATCH') {
+      const ctx = requireLogin(req, res)
+      if (!ctx) return
+
       const body = parseBody(req)
-      const patch: Record<string, unknown> = {}
+      let patch: Record<string, unknown> = {}
 
-      if (body.naam !== undefined) patch.naam = String(body.naam)
-      if (body.datum !== undefined) patch.datum = String(body.datum)
-      if (body.status !== undefined) patch.status = String(body.status) as ProductieStatus
-      if (body.vragen !== undefined) patch.vragen = Array.isArray(body.vragen) ? body.vragen.map(String) : []
-      if (body.clientPassword !== undefined) patch.clientPassword = String(body.clientPassword)
+      if (isClient(ctx)) {
+        if (body.action === 'archive' || body.action === 'restore') {
+          res.status(403).json({ error: 'Crew access only' })
+          return
+        }
+        if (body.vragen !== undefined) {
+          patch.vragen = Array.isArray(body.vragen) ? body.vragen.map(String) : []
+        }
+        const sanitized = sanitizeProductionPatchForClient(ctx, id, patch)
+        if (typeof sanitized === 'string') {
+          res.status(403).json({ error: sanitized })
+          return
+        }
+        patch = sanitized
+      } else if (isCrew(ctx)) {
+        if (body.naam !== undefined) patch.naam = String(body.naam)
+        if (body.datum !== undefined) patch.datum = String(body.datum)
+        if (body.status !== undefined) patch.status = String(body.status) as ProductieStatus
+        if (body.vragen !== undefined) patch.vragen = Array.isArray(body.vragen) ? body.vragen.map(String) : []
+        if (body.clientPassword !== undefined) patch.clientPassword = String(body.clientPassword)
 
-      if (body.action === 'archive') {
-        patch.archivedAt = new Date().toISOString()
-      }
-      if (body.action === 'restore') {
-        patch.archivedAt = null
+        if (body.action === 'archive') {
+          patch.archivedAt = new Date().toISOString()
+        }
+        if (body.action === 'restore') {
+          patch.archivedAt = null
+        }
+      } else {
+        res.status(403).json({ error: 'Not allowed' })
+        return
       }
 
       const updated = await updateProductie(id, patch)
@@ -50,6 +75,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     if (req.method === 'DELETE') {
+      if (!requireCrew(req, res)) return
       const ok = await deleteProductie(id)
       if (!ok) {
         res.status(404).json({ error: 'Production not found' })

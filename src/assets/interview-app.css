@@ -211,6 +211,10 @@
   color: var(--color-accent);
 }
 
+.ia-section-title--inline {
+  margin: 0;
+}
+
 .ia-list-header {
   display: flex;
   align-items: flex-start;
@@ -291,6 +295,10 @@
   flex-wrap: wrap;
   margin-top: 1rem;
   margin-bottom: 0.35rem;
+}
+
+.ia-card > .ia-question-head:first-child {
+  margin-top: 0;
 }
 
 .ia-label--inline {

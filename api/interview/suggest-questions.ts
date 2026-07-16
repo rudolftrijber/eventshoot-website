@@ -33,10 +33,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     if (isClient(ctx)) {
-      if (scope === 'production') {
-        res.status(403).json({ error: 'Crew access only' })
-        return
-      }
       await ensureSchema()
       const productions = await fetchProducties(true)
       if (!productionNameAllowed(ctx, productions, productionName)) {

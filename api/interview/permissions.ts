@@ -96,3 +96,20 @@ export function sanitizeGuestCreateForClient(
   }
   return payload
 }
+
+/** Clients may only update default Participant questions on their own production. */
+export function sanitizeProductionPatchForClient(
+  ctx: AuthContext,
+  productionId: string,
+  patch: Record<string, unknown>,
+): Record<string, unknown> | string {
+  if (!ctx.productionIds.includes(productionId)) {
+    return 'Production not allowed'
+  }
+  const keys = Object.keys(patch).filter((k) => patch[k] !== undefined)
+  if (!keys.length) return 'Nothing to update'
+  if (keys.some((k) => k !== 'vragen')) {
+    return 'Clients can only edit default Participant questions'
+  }
+  return { vragen: patch.vragen }
+}
