@@ -44,7 +44,7 @@ export const useInterviewStore = defineStore('interview', () => {
   const guests = ref<Gast[]>([])
   const productions = ref<Productie[]>([])
   const settings = ref<InterviewSettings>({ maxChars: 40 })
-  const activeTab = ref<TabId>('producties')
+  const activeTab = ref<TabId>('productions')
   const activeGuestId = ref<string | null>(null)
   const pollTimer = ref<ReturnType<typeof setInterval> | null>(null)
 

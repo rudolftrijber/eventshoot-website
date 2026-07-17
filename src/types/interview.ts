@@ -37,7 +37,7 @@ export interface Gast {
   updatedAt: string
 }
 
-export type TabId = 'kandidaten' | 'producties'
+export type TabId = 'productions' | 'production' | 'candidate'
 
 export type GuestView = 'form' | 'controle' | 'camera' | 'interviewer' | null
 
