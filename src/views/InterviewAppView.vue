@@ -1019,8 +1019,8 @@ watch(() => store.role, (role) => {
               </nav>
               <img
                 class="ia-nav-logo"
-                src="/images/logos/ES_logo_NEG_DEF.svg"
-                alt="Eventshoot.nl"
+                src="/DATA_EVENTSHOOT/SITE_IMAGES/EIA_LOGO_NEG.svg"
+                alt="Event Interview App"
               />
               <div class="ia-tabs-utils">
                 <button
