@@ -1082,7 +1082,7 @@ watch(() => store.role, (role) => {
 
 <template>
   <div class="interview-app" :class="{ 'interview-app--crew-focus': crewFocusMode }">
-    <header v-if="!crewFocusMode" class="ia-brand">
+    <header v-if="store.authenticated && !crewFocusMode" class="ia-brand">
       <img
         class="ia-brand__logo"
         src="/DATA_EVENTSHOOT/SITE_IMAGES/EIA_LOGO_NEG.svg"
@@ -1092,8 +1092,20 @@ watch(() => store.role, (role) => {
 
     <!-- Login -->
     <template v-if="!store.authenticated">
-      <div class="ia-body">
+      <div class="ia-body ia-body--login">
         <div class="ia-login">
+          <div class="ia-login__hero">
+            <img
+              class="ia-login__logo"
+              src="/DATA_EVENTSHOOT/SITE_IMAGES/EIA_LOGO_NEG.svg"
+              alt="Event Interview App"
+            />
+            <img
+              class="ia-login__mic"
+              src="/DATA_EVENTSHOOT/SITE_IMAGES/WERK/microphone.png?v=20260717"
+              alt=""
+            />
+          </div>
           <div class="ia-login__card">
             <p v-if="devBuildStamp" class="ia-dev-badge">Local · build {{ devBuildStamp }}</p>
             <p class="ia-login__intro">Log in with your crew or client password.</p>
@@ -1557,7 +1569,6 @@ watch(() => store.role, (role) => {
                   </p>
                 </div>
                 <button
-                  v-if="store.isCrew"
                   class="ia-editbtn"
                   :class="{ 'ia-editbtn--active': editingQuestions }"
                   type="button"
@@ -1611,7 +1622,7 @@ watch(() => store.role, (role) => {
                   </p>
                 </div>
                 <button
-                  v-if="store.isCrew && !isNewProduction"
+                  v-if="!isNewProduction"
                   class="ia-editbtn"
                   :class="{ 'ia-editbtn--active': editingCandidates }"
                   type="button"
@@ -1629,7 +1640,7 @@ watch(() => store.role, (role) => {
                 <p class="ia-empty">Candidates become available after you save this production.</p>
               </template>
               <template v-else>
-                <div v-if="editingCandidates || !store.isCrew" class="ia-actions ia-actions--tight">
+                <div v-if="editingCandidates" class="ia-actions ia-actions--tight">
                   <button class="ia-btn ia-btn--small ia-btn--accent" type="button" @click="openNewGuest">
                     + New candidate
                   </button>
@@ -1671,8 +1682,8 @@ watch(() => store.role, (role) => {
                       v-for="g in filteredGuests"
                       :key="g.id"
                       class="data-row"
-                      :class="{ 'data-row--clickable': editingCandidates || !store.isCrew }"
-                      @click="(editingCandidates || !store.isCrew) && loadForEdit(g)"
+                      :class="{ 'data-row--clickable': editingCandidates || store.isClient }"
+                      @click="(editingCandidates || store.isClient) && loadForEdit(g)"
                     >
                       <td v-if="store.isCrew">{{ g.regienummer || '—' }}</td>
                       <td>
@@ -1693,7 +1704,7 @@ watch(() => store.role, (role) => {
                       </td>
                       <td class="ia-row-actions" @click.stop>
                         <!-- Edit mode: candidate detail + delete -->
-                        <template v-if="editingCandidates || !store.isCrew">
+                        <template v-if="editingCandidates">
                           <button class="ia-iconbtn" type="button" title="Edit" @click="loadForEdit(g)">✏️</button>
                           <button
                             v-if="!g.intakeComplete || store.isCrew"
@@ -1703,7 +1714,7 @@ watch(() => store.role, (role) => {
                             @click="store.deleteGuest(g.id)"
                           >🗑️</button>
                         </template>
-                        <!-- Production mode: phase actions only -->
+                        <!-- Production mode (crew): phase actions only -->
                         <template v-else-if="store.isCrew">
                           <button
                             v-if="g.status === 'Entered'"
@@ -1733,7 +1744,7 @@ watch(() => store.role, (role) => {
                     </tr>
                   </tbody>
                 </table>
-                <p v-if="!filteredGuests.length" class="ia-empty">No candidates for this production yet.{{ (editingCandidates || !store.isCrew) ? ' Click + New candidate or import a CSV list.' : ' Tap the pencil to manage candidates.' }}</p>
+                <p v-if="!filteredGuests.length" class="ia-empty">No candidates for this production yet.{{ editingCandidates ? ' Click + New candidate or import a CSV list.' : ' Tap the pencil to manage candidates.' }}</p>
               </template>
             </div>
         </section>
