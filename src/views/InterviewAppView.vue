@@ -1447,7 +1447,12 @@ watch(() => store.role, (role) => {
                     <tr><th v-if="store.isCrew">Crew #</th><th>Name</th><th>Role</th><th>Status</th></tr>
                   </thead>
                   <tbody>
-                    <tr v-for="g in filteredGuests" :key="`view-${g.id}`">
+                    <tr
+                      v-for="g in filteredGuests"
+                      :key="`view-${g.id}`"
+                      class="data-row"
+                      @click="loadForEdit(g)"
+                    >
                       <td v-if="store.isCrew">{{ g.regienummer || '—' }}</td>
                       <td>
                         <div>{{ g.naam }}</div>
