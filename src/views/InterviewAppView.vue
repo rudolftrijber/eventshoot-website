@@ -116,10 +116,7 @@ const workingProduction = computed(() => {
   return list.find((p) => p.id === manualProductieId.value) || null
 })
 
-const navTitle = computed(() => {
-  if (store.activeTab === 'productions') return 'Production(s)'
-  return ''
-})
+const navTitle = computed(() => '')
 
 const navBackLabel = computed(() => {
   if (store.activeTab === 'candidate') return 'Production'
@@ -1563,7 +1560,7 @@ watch(() => store.role, (role) => {
             </div>
           </div>
           <div class="ia-card">
-            <h2 class="ia-section-title">Active productions</h2>
+            <h2 class="ia-section-title">Active Production(s)</h2>
             <p class="ia-hint">Click a production to open its details, default questions and candidates.</p>
             <div v-if="store.isCrew" class="ia-actions ia-actions--tight">
               <button class="ia-btn ia-btn--small ia-btn--accent" type="button" @click="openNewProductie">
