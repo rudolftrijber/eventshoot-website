@@ -13,7 +13,7 @@ import {
   todayStr,
   formatDisplayDate,
 } from '@/utils/interviewCsv'
-import '@/assets/interview-app.css?v=same-header'
+import '@/assets/interview-app.css?v=login-space'
 import '@/assets/interview-app-buttons.css'
 import {
   EyeIcon,
