@@ -812,6 +812,30 @@
   cursor: pointer;
 }
 
+.ia-table tr.is-selected {
+  background: rgba(27, 156, 252, 0.18);
+  box-shadow: inset 3px 0 0 var(--color-accent);
+}
+
+.ia-table tr.is-selected:hover {
+  background: rgba(27, 156, 252, 0.26);
+}
+
+.ia-prod-name {
+  display: block;
+  font-weight: 600;
+}
+
+.ia-selected-badge {
+  display: inline-block;
+  margin-top: 0.15rem;
+  color: var(--color-accent);
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
 .ia-empty {
   color: rgba(255, 255, 255, 0.8);
   font-style: italic;

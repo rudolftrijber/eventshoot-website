@@ -288,10 +288,15 @@ function onListProductieChange() {
   backToKandidaten()
 }
 
-function openProductionOverview(p: Productie) {
+function selectProduction(p: Productie) {
   manualProductieId.value = p.id
   pickProductieId.value = p.id
   searchBox.value = ''
+  loadDefaultQuestions(p)
+}
+
+function openProductionCandidates(p: Productie) {
+  selectProduction(p)
   backToKandidaten()
   store.setTab('kandidaten')
 }
@@ -1554,8 +1559,8 @@ watch(() => store.role, (role) => {
           />
           <div class="ia-card">
             <h2 class="ia-section-title">Active productions</h2>
-            <p v-if="store.isClient" class="ia-hint">
-              Choose a production to manage its candidates.
+            <p class="ia-hint">
+              Selected production is highlighted. Open Candidates to manage guests for that production.
             </p>
             <div v-if="store.isCrew" class="ia-actions ia-actions--tight">
               <button class="ia-btn ia-btn--small ia-btn--accent" type="button" @click="openNewProductie">
@@ -1569,15 +1574,20 @@ watch(() => store.role, (role) => {
                   <th>Date</th>
                   <th>Status</th>
                   <th>Candidates</th>
-                  <th v-if="store.isCrew"></th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="p in store.activeProductions" :key="p.id">
+                <tr
+                  v-for="p in store.activeProductions"
+                  :key="p.id"
+                  class="data-row"
+                  :class="{ 'is-selected': workingProduction?.id === p.id }"
+                  @click="selectProduction(p)"
+                >
                   <td>
-                    <button class="ia-linkbtn" type="button" @click="openProductionOverview(p)">
-                      {{ p.naam }}
-                    </button>
+                    <span class="ia-prod-name">{{ p.naam }}</span>
+                    <small v-if="workingProduction?.id === p.id" class="ia-selected-badge">Selected</small>
                   </td>
                   <td>{{ p.datum ? formatDisplayDate(p.datum) : '—' }}</td>
                   <td>{{ p.status }}</td>
@@ -1589,9 +1599,19 @@ watch(() => store.role, (role) => {
                       <span class="ia-progress-chip ia-progress-chip--recorded">Recorded {{ productionCounts(p).recorded }}</span>
                     </div>
                   </td>
-                  <td v-if="store.isCrew">
-                    <button class="ia-iconbtn" type="button" title="Edit" @click="editProductie(p); showProdForm = true">✏️</button>
-                    <button class="ia-iconbtn" type="button" title="Archive" @click="store.archiveProduction(p.id)">📦</button>
+                  <td class="ia-row-actions" @click.stop>
+                    <button
+                      class="ia-btn ia-btn--small ia-btn--secondary"
+                      type="button"
+                      title="Open candidates"
+                      @click="openProductionCandidates(p)"
+                    >
+                      Candidates
+                    </button>
+                    <template v-if="store.isCrew">
+                      <button class="ia-iconbtn" type="button" title="Edit" @click="editProductie(p); showProdForm = true">✏️</button>
+                      <button class="ia-iconbtn" type="button" title="Archive" @click="store.archiveProduction(p.id)">📦</button>
+                    </template>
                   </td>
                 </tr>
               </tbody>
