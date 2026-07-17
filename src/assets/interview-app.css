@@ -864,6 +864,33 @@
   margin-bottom: 0.75rem;
 }
 
+.ia-editbtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  cursor: pointer;
+  transition: background var(--transition), border-color var(--transition);
+}
+
+.ia-editbtn:hover {
+  background: rgba(255, 255, 255, 0.22);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.ia-editbtn__icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+
 
 .ia-selected-badge {
   display: inline-block;

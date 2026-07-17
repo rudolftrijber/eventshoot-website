@@ -22,6 +22,7 @@ import {
   Cog6ToothIcon,
   ArrowLeftIcon,
   SparklesIcon,
+  PencilSquareIcon,
 } from '@heroicons/vue/24/outline'
 import ParticipantDefaultsCard from '@/components/interview/ParticipantDefaultsCard.vue'
 
@@ -1322,11 +1323,13 @@ watch(() => store.role, (role) => {
                 </div>
                 <button
                   v-if="store.isCrew"
-                  class="ia-btn ia-btn--small ia-btn--secondary"
+                  class="ia-editbtn"
                   type="button"
+                  title="Edit production"
+                  aria-label="Edit production"
                   @click="editProductie(workingProduction); showProdForm = true"
                 >
-                  Edit production
+                  <PencilSquareIcon class="ia-editbtn__icon" aria-hidden="true" />
                 </button>
               </div>
               <div v-if="workingProductionCounts" class="ia-progress-chips">
@@ -1388,11 +1391,13 @@ watch(() => store.role, (role) => {
                   </p>
                 </div>
                 <button
-                  class="ia-btn ia-btn--small ia-btn--secondary"
+                  class="ia-editbtn"
                   type="button"
+                  title="Edit questions"
+                  aria-label="Edit questions"
                   @click="editingQuestions = true"
                 >
-                  Edit questions
+                  <PencilSquareIcon class="ia-editbtn__icon" aria-hidden="true" />
                 </button>
               </div>
               <ol v-if="pQuestions.some((q) => q.trim())" class="ia-questions ia-questions--preview">
@@ -1401,7 +1406,7 @@ watch(() => store.role, (role) => {
                   <span class="ia-questions__text">{{ q }}</span>
                 </li>
               </ol>
-              <p v-else class="ia-empty">No default questions yet. Click Edit questions to add some.</p>
+              <p v-else class="ia-empty">No default questions yet. Tap the pencil to add some.</p>
             </div>
             <ParticipantDefaultsCard
               v-else-if="workingProduction && !showProdForm && editingQuestions"
@@ -1427,12 +1432,13 @@ watch(() => store.role, (role) => {
               <div class="ia-prod-detail-head">
                 <h2 class="ia-section-title" style="margin:0">Interview candidates</h2>
                 <button
-                  v-if="!editingCandidates"
-                  class="ia-btn ia-btn--small ia-btn--secondary"
+                  class="ia-editbtn"
                   type="button"
+                  title="Edit candidates"
+                  aria-label="Edit candidates"
                   @click="editingCandidates = true"
                 >
-                  Edit candidates
+                  <PencilSquareIcon class="ia-editbtn__icon" aria-hidden="true" />
                 </button>
               </div>
               <template v-if="!editingCandidates">
