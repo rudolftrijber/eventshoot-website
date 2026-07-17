@@ -1475,12 +1475,6 @@ watch(() => store.role, (role) => {
                 </button>
               </div>
               <template v-if="!editingCandidates">
-                <div v-if="workingProductionCounts" class="ia-progress-chips" style="margin-bottom:0.75rem">
-                  <span class="ia-progress-chip">Total {{ workingProductionCounts.total }}</span>
-                  <span class="ia-progress-chip ia-progress-chip--entered">Entered {{ workingProductionCounts.entered }}</span>
-                  <span class="ia-progress-chip ia-progress-chip--checked">Checked {{ workingProductionCounts.checked }}</span>
-                  <span class="ia-progress-chip ia-progress-chip--recorded">Recorded {{ workingProductionCounts.recorded }}</span>
-                </div>
                 <table class="ia-table">
                   <thead>
                     <tr><th v-if="store.isCrew">Crew #</th><th>Name</th><th>Role</th><th>Status</th></tr>
