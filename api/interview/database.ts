@@ -76,6 +76,8 @@ async function initSchema(): Promise<void> {
   await sql`CREATE INDEX IF NOT EXISTS interview_gasten_datum_idx ON interview_gasten (datum)`
   await sql`CREATE INDEX IF NOT EXISTS interview_gasten_productie_idx ON interview_gasten (productie_naam)`
   await sql`ALTER TABLE interview_producties ADD COLUMN IF NOT EXISTS client_password_hash TEXT`
+  await sql`ALTER TABLE interview_producties ADD COLUMN IF NOT EXISTS locatie TEXT NOT NULL DEFAULT ''`
+  await sql`ALTER TABLE interview_producties ADD COLUMN IF NOT EXISTS land TEXT NOT NULL DEFAULT ''`
   await sql`ALTER TABLE interview_gasten ADD COLUMN IF NOT EXISTS intake_complete BOOLEAN NOT NULL DEFAULT FALSE`
   await sql`
     CREATE TABLE IF NOT EXISTS interview_rate_limits (
@@ -108,6 +110,8 @@ function rowToProductie(row: Record<string, unknown>): Productie {
     naam: String(row.naam),
     datum: formatDateValue(row.datum),
     status: normalizeProductieStatus(String(row.status)),
+    locatie: String(row.locatie || ''),
+    land: String(row.land || ''),
     vragen: Array.isArray(row.vragen) ? row.vragen.map(String) : [],
     archivedAt: row.archived_at ? String(row.archived_at) : null,
     hasClientPassword: Boolean(hash),
@@ -261,9 +265,10 @@ export async function createProductie(
   const sql = await getSql()
   const hash = clientPassword?.trim() ? hashClientPassword(clientPassword.trim()) : null
   const rows = await sql`
-    INSERT INTO interview_producties (id, naam, datum, status, vragen, client_password_hash)
+    INSERT INTO interview_producties (id, naam, datum, status, locatie, land, vragen, client_password_hash)
     VALUES (
       ${data.id}, ${data.naam}, ${toDateParam(data.datum)}, ${data.status},
+      ${data.locatie || ''}, ${data.land || ''},
       ${JSON.stringify(data.vragen)}::jsonb, ${hash}
     )
     RETURNING *
@@ -291,6 +296,8 @@ export async function updateProductie(id: string, patch: Partial<Productie>): Pr
       naam = ${next.naam},
       datum = ${toDateParam(next.datum)},
       status = ${next.status},
+      locatie = ${next.locatie || ''},
+      land = ${next.land || ''},
       vragen = ${JSON.stringify(next.vragen)}::jsonb,
       archived_at = ${next.archivedAt},
       client_password_hash = ${nextHash},
@@ -328,9 +335,8 @@ export async function nextRegienummer(datum: string): Promise<string> {
 }
 
 export async function finalizeGuest(guest: Gast): Promise<Gast> {
-  if (guest.tijd) return guest
-  const datum = todayStr()
-  const tijd = nowTimeStr()
+  const datum = guest.datum || todayStr()
+  const tijd = guest.tijd || nowTimeStr()
   const regienummer = guest.regienummer || await nextRegienummer(datum)
   const updated = await updateGuest(guest.id, {
     ...guest,

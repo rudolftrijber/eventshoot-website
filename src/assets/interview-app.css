@@ -23,19 +23,6 @@
   overflow: auto;
 }
 
-.ia-header {
-  display: flex;
-  justify-content: center;
-  width: 100%;
-  padding: 0.35rem 1rem 0;
-}
-
-.ia-header__image {
-  width: min(720px, 88vw);
-  height: auto;
-  display: block;
-}
-
 .ia-login {
   display: flex;
   flex-direction: column;
@@ -95,18 +82,32 @@
   flex-direction: column;
 }
 
+.ia-brand {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  padding: 1.75rem 1rem 1.25rem;
+}
+
+.ia-brand__logo {
+  width: auto;
+  height: clamp(3.25rem, 9vw, 5rem);
+  max-width: min(78vw, 22rem);
+  object-fit: contain;
+  display: block;
+}
+
 .ia-shell__nav {
   flex-shrink: 0;
   width: 100%;
-  margin-top: 2.5rem;
+  margin-top: 0.35rem;
   padding: 0 0.85rem 0.6rem;
   background: transparent;
   border-bottom: 1px solid rgba(255, 255, 255, 0.18);
 }
 
 .ia-tabs-wrap {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  display: flex;
   align-items: center;
   gap: 0.5rem;
   width: 100%;
@@ -114,18 +115,11 @@
 
 .ia-tabs {
   display: flex;
+  flex: 1;
   gap: 0.35rem;
   min-width: 0;
   justify-content: flex-start;
   flex-wrap: wrap;
-}
-
-.ia-nav-logo {
-  width: auto;
-  height: 2.75rem;
-  max-width: min(56vw, 14rem);
-  object-fit: contain;
-  justify-self: center;
 }
 
 .ia-tabs-utils {
@@ -133,7 +127,7 @@
   align-items: center;
   gap: 0.35rem;
   flex-shrink: 0;
-  justify-self: end;
+  margin-left: auto;
   padding-left: 0.5rem;
   border-left: 1px solid rgba(255, 255, 255, 0.18);
 }
@@ -337,17 +331,39 @@
   border-left: 3px solid var(--color-accent);
 }
 
+.ia-tip__toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
 .ia-tip__title {
-  margin: 0 0 0.35rem;
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-transform: none;
   color: var(--color-accent);
 }
 
+.ia-tip__chevron {
+  flex: 0 0 auto;
+  color: var(--color-accent);
+  font-size: 0.75rem;
+  line-height: 1;
+}
+
 .ia-tip__text {
-  margin: 0;
+  margin: 0.5rem 0 0;
   color: rgba(255, 255, 255, 0.88);
   font-size: 0.84rem;
   line-height: 1.55;
@@ -826,6 +842,10 @@
 }
 
 .ia-table tr.data-row {
+  cursor: default;
+}
+
+.ia-table tr.data-row--clickable {
   cursor: pointer;
 }
 
@@ -864,6 +884,18 @@
   margin-bottom: 0.75rem;
 }
 
+.ia-prod-form--inline {
+  margin-top: 0.85rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.ia-table-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin: 0.35rem 0 0.65rem;
+}
+
 .ia-editbtn {
   display: inline-flex;
   align-items: center;
@@ -872,22 +904,37 @@
   width: 2.5rem;
   height: 2.5rem;
   padding: 0;
-  border: 1px solid rgba(255, 255, 255, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.45);
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.12);
   color: #fff;
   cursor: pointer;
-  transition: background var(--transition), border-color var(--transition);
+  transition: background var(--transition), border-color var(--transition), color var(--transition);
+}
+
+.ia-editbtn__icon {
+  width: 1.35rem;
+  height: 1.35rem;
+  display: block;
+  flex-shrink: 0;
 }
 
 .ia-editbtn:hover {
   background: rgba(255, 255, 255, 0.22);
-  border-color: rgba(255, 255, 255, 0.4);
+  border-color: rgba(255, 255, 255, 0.65);
 }
 
+/* View mode: open outline pen */
+.ia-editbtn:not(.ia-editbtn--active) {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+/* Edit mode: solid pen on orange */
 .ia-editbtn--active {
   background: var(--color-accent);
   border-color: var(--color-accent);
+  color: #fff;
+  box-shadow: 0 0 0 2px rgba(255, 140, 0, 0.25);
 }
 
 .ia-editbtn--active:hover {
@@ -1234,6 +1281,16 @@
 .ia-iconbtn:disabled {
   opacity: 0.35;
   cursor: not-allowed;
+}
+
+.ia-iconbtn--muted {
+  opacity: 0.35;
+  filter: grayscale(1);
+}
+
+.ia-iconbtn--muted:hover {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .ia-error {

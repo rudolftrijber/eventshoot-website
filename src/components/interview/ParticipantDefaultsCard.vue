@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { SparklesIcon } from '@heroicons/vue/24/outline'
+import ShortQuestionsTip from '@/components/interview/ShortQuestionsTip.vue'
 
-type AiPrepAnswers = { sector: string; specialism: string; timeliness: string }
+type AiPrepAnswers = { sector: string; specialism: string; timeliness: string; customPrompt: string }
 type AiStep = 'idle' | 'prep' | 'preview'
 
-const AI_PREP_FIELDS: Array<{ key: keyof AiPrepAnswers; label: string; placeholder: string }> = [
+const AI_PREP_FIELDS: Array<{ key: 'sector' | 'specialism' | 'timeliness'; label: string; placeholder: string }> = [
   { key: 'sector', label: 'Sector / industry', placeholder: 'e.g. circular IT, healthcare, finance' },
   { key: 'specialism', label: 'Event focus', placeholder: 'e.g. sustainability, leadership, innovation' },
   { key: 'timeliness', label: 'What is topical now?', placeholder: 'e.g. regulation, talent shortage' },
@@ -64,8 +65,9 @@ const emit = defineEmits<{
     <p v-if="!embedded" class="ia-hint">
       These defaults are used when you add a Participant. Use AI, then edit and save what you want.
     </p>
+    <ShortQuestionsTip />
     <div v-if="aiStep === 'prep'" class="ia-ai-preview ia-ai-preview--prep">
-      <p class="ia-ai-preview__title">Briefing for AI — answer these 3 questions first</p>
+      <p class="ia-ai-preview__title">Briefing for AI — fill the 3 fields, or write your own prompt</p>
       <div class="ia-ai-options">
         <div class="ia-ai-options__group">
           <span class="ia-ai-options__label">Language</span>
@@ -104,6 +106,15 @@ const emit = defineEmits<{
           v-model="aiPrep[field.key]"
           class="ia-input"
           :placeholder="field.placeholder"
+        />
+      </div>
+      <div class="ia-ai-prep-field">
+        <label class="ia-label">Prompt (optional)</label>
+        <textarea
+          v-model="aiPrep.customPrompt"
+          class="ia-textarea"
+          rows="3"
+          placeholder="Write your own prompt — e.g. focus on practical examples, avoid jargon…"
         />
       </div>
       <div class="ia-actions ia-actions--tight">

@@ -255,7 +255,7 @@ export const useInterviewStore = defineStore('interview', () => {
     role?: string
     planning?: string
     productionDefaults?: string[]
-    prepAnswers: { sector: string; specialism: string; timeliness: string }
+    prepAnswers: { sector: string; specialism: string; timeliness: string; customPrompt?: string }
     language?: 'nl' | 'en'
     addressForm?: 'u' | 'jij'
   }) {

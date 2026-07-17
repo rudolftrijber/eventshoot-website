@@ -24,7 +24,9 @@ import {
   SparklesIcon,
   PencilSquareIcon,
 } from '@heroicons/vue/24/outline'
+import { PencilSquareIcon as PencilSquareSolidIcon } from '@heroicons/vue/24/solid'
 import ParticipantDefaultsCard from '@/components/interview/ParticipantDefaultsCard.vue'
+import ShortQuestionsTip from '@/components/interview/ShortQuestionsTip.vue'
 
 const store = useInterviewStore()
 
@@ -37,6 +39,7 @@ const loginError = ref('')
 const apiConfigHint = ref('')
 const apiConfigured = computed(() => !apiConfigHint.value)
 const toast = ref('')
+const tipOpen = ref(false)
 const settingsOpen = ref(false)
 const searchBox = ref('')
 const guestView = ref<GuestView>(null)
@@ -61,12 +64,13 @@ const editingProdId = ref<string | null>(null)
 const pNaam = ref('')
 const pDatum = ref('')
 const pStatus = ref<Productie['status']>('Planned')
+const pLocatie = ref('')
+const pLand = ref('')
 const pClientPassword = ref('')
 const editingProdHasClientPassword = ref(false)
 const pQuestions = ref<string[]>(['', '', '', ''])
 
 // Controle
-const controleThanks = ref(false)
 const controleNaam = ref('')
 const controleFunctie = ref('')
 
@@ -79,10 +83,10 @@ const showCamQuestions = ref(false)
 const confirmOpgenomen = ref(false)
 
 // AI question assistant
-type AiPrepAnswers = { sector: string; specialism: string; timeliness: string }
+type AiPrepAnswers = { sector: string; specialism: string; timeliness: string; customPrompt: string }
 type AiStep = 'idle' | 'prep' | 'preview'
 
-const AI_PREP_FIELDS: Array<{ key: keyof AiPrepAnswers; label: string; placeholder: string }> = [
+const AI_PREP_FIELDS: Array<{ key: 'sector' | 'specialism' | 'timeliness'; label: string; placeholder: string }> = [
   { key: 'sector', label: '1. Sector / industry', placeholder: 'e.g. healthcare, IT, government' },
   { key: 'specialism', label: '2. Specialism or angle', placeholder: 'e.g. technology, policy, day-to-day practice' },
   { key: 'timeliness', label: '3. Current topics', placeholder: 'e.g. what is happening now in the sector or at this event' },
@@ -93,7 +97,7 @@ const aiGuestAddress = ref<'u' | 'jij'>('u')
 const aiProdLanguage = ref<'nl' | 'en'>('nl')
 const aiProdAddress = ref<'u' | 'jij'>('u')
 
-const emptyAiPrep = (): AiPrepAnswers => ({ sector: '', specialism: '', timeliness: '' })
+const emptyAiPrep = (): AiPrepAnswers => ({ sector: '', specialism: '', timeliness: '', customPrompt: '' })
 
 const aiGuestStep = ref<AiStep>('idle')
 const aiGuestPrep = ref<AiPrepAnswers>(emptyAiPrep())
@@ -117,24 +121,51 @@ const workingProduction = computed(() => {
   return list.find((p) => p.id === manualProductieId.value) || null
 })
 
-const navTitle = computed(() => {
-  if (store.activeTab === 'productions' && !showProdForm.value && !guestView.value) {
-    return 'Event Interview App'
-  }
-  return ''
-})
+const navTitle = computed(() => '')
 
 const navBackLabel = computed(() => {
   if (guestView.value === 'camera' || guestView.value === 'interviewer' || guestView.value === 'controle') {
     return 'Production'
   }
   if (store.activeTab === 'candidate') return 'Production'
-  if (editingQuestions.value) return 'Production'
+  if (editingQuestions.value || editingCandidates.value) return 'Production'
   if (showProdForm.value && store.activeTab === 'production') return 'Production'
+  if (isNewProduction.value) return 'Production(s)'
   return 'Production(s)'
 })
 
 const editingQuestions = ref(false)
+const editingCandidates = ref(false)
+const isNewProduction = ref(false)
+
+const productionScreenOpen = computed(() =>
+  store.activeTab === 'production'
+  && !guestView.value
+  && (Boolean(workingProduction.value) || isNewProduction.value),
+)
+
+const productionHeading = computed(() => {
+  if (isNewProduction.value) return pNaam.value.trim() || 'New production'
+  return workingProduction.value?.naam || 'Production'
+})
+
+const productionMeta = computed(() => {
+  const parts: string[] = []
+  if (isNewProduction.value) {
+    parts.push(pDatum.value ? formatDisplayDate(pDatum.value) : 'No date')
+    parts.push(pStatus.value)
+    if (pLocatie.value.trim()) parts.push(pLocatie.value.trim())
+    if (pLand.value.trim()) parts.push(pLand.value.trim())
+    return parts.join(' · ')
+  }
+  const prod = workingProduction.value
+  if (!prod) return ''
+  parts.push(prod.datum ? formatDisplayDate(prod.datum) : 'No date')
+  parts.push(prod.status)
+  if (prod.locatie?.trim()) parts.push(prod.locatie.trim())
+  if (prod.land?.trim()) parts.push(prod.land.trim())
+  return parts.join(' · ')
+})
 
 const guestFormLocked = computed(() =>
   store.isClient && fIntakeComplete.value && intakeLockApplies(fType.value),
@@ -225,7 +256,8 @@ const showNavBack = computed(() => {
   if (!store.authenticated) return false
   if (guestView.value) return true
   if (showProdForm.value) return true
-  if (editingQuestions.value) return true
+  if (editingQuestions.value || editingCandidates.value) return true
+  if (isNewProduction.value) return true
   return store.activeTab !== 'productions'
 })
 
@@ -235,14 +267,27 @@ function handleNavBack() {
     clearGuestOverlay()
     return
   }
+  if (isNewProduction.value && store.activeTab === 'production') {
+    isNewProduction.value = false
+    showProdForm.value = false
+    editingQuestions.value = false
+    editingCandidates.value = false
+    clearProductieForm()
+    store.setTab('productions')
+    return
+  }
   if (editingQuestions.value) {
     editingQuestions.value = false
     loadDefaultQuestions(workingProduction.value)
     return
   }
+  if (editingCandidates.value) {
+    editingCandidates.value = false
+    return
+  }
   if (showProdForm.value) {
     showProdForm.value = false
-    clearProductieForm()
+    if (workingProduction.value) editProductie(workingProduction.value)
     return
   }
   if (store.activeTab === 'candidate') {
@@ -253,7 +298,10 @@ function handleNavBack() {
   if (store.activeTab === 'production') {
     manualProductieId.value = null
     pickProductieId.value = ''
+    showProdForm.value = false
     editingQuestions.value = false
+    editingCandidates.value = false
+    clearProductieForm()
     store.setTab('productions')
   }
 }
@@ -261,7 +309,6 @@ function handleNavBack() {
 function clearGuestOverlay() {
   guestView.value = null
   store.selectGuest(null)
-  controleThanks.value = false
   confirmOpgenomen.value = false
   camSearch.value = ''
   intSearch.value = ''
@@ -282,16 +329,25 @@ function openNewGuest() {
 
 function openNewProductie() {
   clearProductieForm()
+  resetQuestions(pQuestions)
+  resetProdAi()
   pDatum.value = todayIso.value
   pStatus.value = 'Active'
+  isNewProduction.value = true
+  manualProductieId.value = null
+  pickProductieId.value = ''
+  searchBox.value = ''
   showProdForm.value = true
+  editingQuestions.value = false
+  editingCandidates.value = false
+  clearGuestOverlay()
+  store.setTab('production')
 }
 
 function onProductiePickChange() {
   const val = pickProductieId.value
   if (val === PICK_NEW_PRODUCTION) {
     pickProductieId.value = workingProduction.value?.id || ''
-    store.setTab('productions')
     openNewProductie()
     return
   }
@@ -309,31 +365,45 @@ function onListProductieChange() {
 }
 
 function toggleEditProduction() {
-  if (!workingProduction.value || !store.isCrew) return
+  if (!store.isCrew && !isNewProduction.value) return
   if (showProdForm.value) {
+    if (isNewProduction.value) {
+      showProdForm.value = false
+      return
+    }
     showProdForm.value = false
-    clearProductieForm()
+    if (workingProduction.value) {
+      editProductie(workingProduction.value)
+    }
     return
   }
-  editProductie(workingProduction.value)
+  if (!isNewProduction.value && workingProduction.value) {
+    editProductie(workingProduction.value)
+  }
   showProdForm.value = true
 }
 
 function toggleEditQuestions() {
   if (editingQuestions.value) {
     editingQuestions.value = false
-    loadDefaultQuestions(workingProduction.value)
+    if (!isNewProduction.value) loadDefaultQuestions(workingProduction.value)
     return
   }
   editingQuestions.value = true
 }
 
+function toggleEditCandidates() {
+  editingCandidates.value = !editingCandidates.value
+}
+
 function enterProduction(p: Productie) {
+  isNewProduction.value = false
   manualProductieId.value = p.id
   pickProductieId.value = p.id
   searchBox.value = ''
   showProdForm.value = false
   editingQuestions.value = false
+  editingCandidates.value = false
   clearGuestOverlay()
   loadDefaultQuestions(p)
   store.setTab('production')
@@ -409,7 +479,9 @@ function resetProdAi() {
 }
 
 function prepIsComplete(prep: AiPrepAnswers) {
-  return Boolean(prep.sector.trim() && prep.specialism.trim() && prep.timeliness.trim())
+  const structured = Boolean(prep.sector.trim() && prep.specialism.trim() && prep.timeliness.trim())
+  const ownPrompt = Boolean(prep.customPrompt.trim())
+  return structured || ownPrompt
 }
 
 function openGuestAiPrep() {
@@ -429,7 +501,7 @@ function openGuestAiPrep() {
 
 async function generateGuestAiProposal() {
   if (!prepIsComplete(aiGuestPrep.value)) {
-    showToast('Answer all 3 briefing questions first')
+    showToast('Fill the 3 briefing fields, or write your own prompt')
     return
   }
 
@@ -451,6 +523,7 @@ async function generateGuestAiProposal() {
         sector: aiGuestPrep.value.sector.trim(),
         specialism: aiGuestPrep.value.specialism.trim(),
         timeliness: aiGuestPrep.value.timeliness.trim(),
+        customPrompt: aiGuestPrep.value.customPrompt.trim(),
       },
       language: aiGuestLanguage.value,
       addressForm: aiGuestAddress.value,
@@ -481,13 +554,21 @@ function dismissGuestAi() {
   resetGuestAi()
 }
 
+function productionNameForAi() {
+  return (
+    workingProduction.value?.naam?.trim()
+    || pNaam.value.trim()
+    || ''
+  )
+}
+
+function productionDateForAi() {
+  return workingProduction.value?.datum || pDatum.value || undefined
+}
+
 function openProdAiPrep() {
-  const productionName = (store.isClient
-    ? workingProduction.value?.naam
-    : pNaam.value
-  )?.trim() || ''
-  if (!productionName) {
-    showToast(store.isClient ? 'Select a production first' : 'Enter a production name first')
+  if (!productionNameForAi()) {
+    showToast(isNewProduction.value ? 'Enter a production name first' : 'Select a production first')
     return
   }
   aiProdPreview.value = null
@@ -497,17 +578,16 @@ function openProdAiPrep() {
 
 async function generateProdAiProposal() {
   if (!prepIsComplete(aiProdPrep.value)) {
-    showToast('Answer all 3 briefing questions first')
+    showToast('Fill the 3 briefing fields, or write your own prompt')
     return
   }
 
-  const productionName = (store.isClient
-    ? workingProduction.value?.naam
-    : pNaam.value
-  )?.trim() || ''
-  const productionDate = store.isClient
-    ? (workingProduction.value?.datum || undefined)
-    : (pDatum.value || undefined)
+  const productionName = productionNameForAi()
+  if (!productionName) {
+    showToast(isNewProduction.value ? 'Enter a production name first' : 'Select a production first')
+    return
+  }
+  const productionDate = productionDateForAi()
   aiProdLoading.value = true
   aiProdPreview.value = null
   try {
@@ -519,6 +599,7 @@ async function generateProdAiProposal() {
         sector: aiProdPrep.value.sector.trim(),
         specialism: aiProdPrep.value.specialism.trim(),
         timeliness: aiProdPrep.value.timeliness.trim(),
+        customPrompt: aiProdPrep.value.customPrompt.trim(),
       },
       language: aiProdLanguage.value,
       addressForm: aiProdAddress.value,
@@ -631,6 +712,8 @@ async function saveProductie() {
       naam,
       datum,
       status: pStatus.value,
+      locatie: pLocatie.value.trim(),
+      land: pLand.value.trim(),
       vragen,
     }
     if (pClientPassword.value.trim()) {
@@ -642,8 +725,10 @@ async function saveProductie() {
       return
     }
     showToast('Production saved')
-    clearProductieForm()
+    isNewProduction.value = false
     showProdForm.value = false
+    editingQuestions.value = false
+    editingCandidates.value = false
     enterProduction(saved)
   } catch (e) {
     showToast(e instanceof Error ? e.message : 'Save failed')
@@ -655,6 +740,8 @@ function clearProductieForm() {
   pNaam.value = ''
   pDatum.value = ''
   pStatus.value = 'Planned'
+  pLocatie.value = ''
+  pLand.value = ''
   pClientPassword.value = ''
   showPClientPassword.value = false
   editingProdHasClientPassword.value = false
@@ -667,6 +754,8 @@ function editProductie(p: Productie) {
   pNaam.value = p.naam
   pDatum.value = p.datum
   pStatus.value = p.status
+  pLocatie.value = p.locatie || ''
+  pLand.value = p.land || ''
   pClientPassword.value = ''
   showPClientPassword.value = false
   editingProdHasClientPassword.value = Boolean(p.hasClientPassword)
@@ -687,6 +776,11 @@ async function removeClientAccess() {
 }
 
 async function saveClientDefaultQuestions() {
+  if (isNewProduction.value) {
+    editingQuestions.value = false
+    showToast('Questions ready — save production details to keep them')
+    return
+  }
   const prod = workingProduction.value
   if (!prod) {
     showToast('Select a production first')
@@ -703,6 +797,26 @@ async function saveClientDefaultQuestions() {
   }
 }
 
+function openProductionForEdit(p: Productie) {
+  enterProduction(p)
+  editProductie(p)
+  showProdForm.value = true
+}
+
+function cancelProductionEdit() {
+  if (isNewProduction.value) {
+    isNewProduction.value = false
+    showProdForm.value = false
+    editingQuestions.value = false
+    editingCandidates.value = false
+    clearProductieForm()
+    store.setTab('productions')
+    return
+  }
+  showProdForm.value = false
+  if (workingProduction.value) editProductie(workingProduction.value)
+}
+
 function loadDefaultQuestions(prod: Productie | null) {
   if (!prod) return
   resetQuestions(pQuestions, prod.vragen)
@@ -711,7 +825,6 @@ function loadDefaultQuestions(prod: Productie | null) {
 
 function openControle(g: Gast) {
   store.selectGuest(g.id)
-  controleThanks.value = false
   controleNaam.value = g.naam
   controleFunctie.value = g.functie
 }
@@ -723,18 +836,18 @@ async function confirmControle() {
     return
   }
   try {
-    await store.finalizeGuest(store.activeGuest.id, controleNaam.value.trim(), controleFunctie.value.trim())
-    controleThanks.value = true
-    showToast('Confirmed')
+    const id = store.activeGuest.id
+    await store.finalizeGuest(id, controleNaam.value.trim(), controleFunctie.value.trim())
+    const guest = store.guests.find((g) => g.id === id)
+    if (guest && guest.status !== 'Checked') {
+      await store.updateGuest(id, { status: 'Checked' })
+    }
+    window.alert('Please return the iPad to the crew member.')
+    backToKandidaten()
+    showToast('Status: Checked')
   } catch (e) {
     showToast(e instanceof Error ? e.message : 'Confirmation failed')
   }
-}
-
-function goToCameraAfterThanks() {
-  controleThanks.value = false
-  showCamQuestions.value = false
-  guestView.value = 'camera'
 }
 
 function goToInterviewer() {
@@ -770,18 +883,41 @@ async function resetGuestStatus(g: Gast) {
   showToast('Status reverted')
 }
 
+async function cycleGuestStatusFromList(g: Gast) {
+  if (!store.isCrew) return
+  try {
+    await store.cycleGuestStatus(g)
+    const updated = store.guests.find((x) => x.id === g.id)
+    showToast(`Status: ${updated?.status || 'updated'}`)
+  } catch (e) {
+    showToast(e instanceof Error ? e.message : 'Failed')
+  }
+}
+
 function openGuestControle(g: Gast) {
   openControle(g)
   guestView.value = 'controle'
 }
 
+function guestHasQuestions(g: Gast) {
+  return g.questions.some((q) => q.trim())
+}
+
 function openGuestCamera(g: Gast) {
+  if (!guestHasQuestions(g)) {
+    showToast('No interview questions yet')
+    return
+  }
   store.selectGuest(g.id)
   camSearch.value = g.regienummer
   guestView.value = 'camera'
 }
 
 function openGuestInterviewer(g: Gast) {
+  if (!guestHasQuestions(g)) {
+    showToast('No interview questions yet')
+    return
+  }
   store.selectGuest(g.id)
   guestView.value = 'interviewer'
 }
@@ -895,14 +1031,17 @@ onUnmounted(() => {
   store.stopPolling()
 })
 
-watch(() => store.activeTab, () => {
+watch(() => store.activeTab, (tab) => {
   guestView.value = null
   store.selectGuest(null)
-  showProdForm.value = false
+  if (tab !== 'production') {
+    showProdForm.value = false
+    editingQuestions.value = false
+    editingCandidates.value = false
+  }
 })
 
 watch(guestView, (view) => {
-  if (view === 'controle') controleThanks.value = false
   if (view === 'camera') showCamQuestions.value = false
 })
 
@@ -934,6 +1073,8 @@ watch(() => store.role, (role) => {
   settingsOpen.value = false
   showProdForm.value = false
   editingQuestions.value = false
+  editingCandidates.value = false
+  isNewProduction.value = false
   manualProductieId.value = null
   pickProductieId.value = ''
 })
@@ -941,10 +1082,10 @@ watch(() => store.role, (role) => {
 
 <template>
   <div class="interview-app" :class="{ 'interview-app--crew-focus': crewFocusMode }">
-    <header v-if="!store.authenticated" class="ia-header">
+    <header v-if="!crewFocusMode" class="ia-brand">
       <img
-        class="ia-header__image"
-        src="/DATA_EVENTSHOOT/SITE_IMAGES/WERK/microphone.png"
+        class="ia-brand__logo"
+        src="/DATA_EVENTSHOOT/SITE_IMAGES/EIA_LOGO_NEG.svg"
         alt="Event Interview App"
       />
     </header>
@@ -1017,11 +1158,6 @@ watch(() => store.role, (role) => {
                   {{ navTitle }}
                 </div>
               </nav>
-              <img
-                class="ia-nav-logo"
-                src="/DATA_EVENTSHOOT/SITE_IMAGES/EIA_LOGO_NEG.svg"
-                alt="Event Interview App"
-              />
               <div class="ia-tabs-utils">
                 <button
                   v-if="store.isCrew"
@@ -1132,6 +1268,7 @@ watch(() => store.role, (role) => {
                   Suggest questions
                 </button>
               </div>
+              <ShortQuestionsTip />
               <p v-if="fType === 'Participant'" class="ia-hint">
                 Production default questions are used as a basis for Participants only.
               </p>
@@ -1139,7 +1276,7 @@ watch(() => store.role, (role) => {
                 {{ fType }} questions are generated separately from production defaults.
               </p>
               <div v-if="aiGuestStep === 'prep'" class="ia-ai-preview ia-ai-preview--prep">
-                <p class="ia-ai-preview__title">Briefing for AI — answer these 3 questions first</p>
+                <p class="ia-ai-preview__title">Briefing for AI — fill the 3 fields, or write your own prompt</p>
                 <div class="ia-ai-options">
                   <div class="ia-ai-options__group">
                     <span class="ia-ai-options__label">Language</span>
@@ -1178,6 +1315,15 @@ watch(() => store.role, (role) => {
                     v-model="aiGuestPrep[field.key]"
                     class="ia-input"
                     :placeholder="field.placeholder"
+                  />
+                </div>
+                <div class="ia-ai-prep-field">
+                  <label class="ia-label">4. Prompt (optional)</label>
+                  <textarea
+                    v-model="aiGuestPrep.customPrompt"
+                    class="ia-textarea"
+                    rows="3"
+                    placeholder="Write your own prompt — e.g. focus on practical examples, avoid jargon…"
                   />
                 </div>
                 <div class="ia-actions ia-actions--tight">
@@ -1227,8 +1373,16 @@ watch(() => store.role, (role) => {
                 <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" :disabled="guestFormLocked" @click="addFQ">+ Question</button>
               </div>
               <div class="ia-tip">
-                <p class="ia-tip__title">Tip</p>
-                <p class="ia-tip__text">
+                <button
+                  class="ia-tip__toggle"
+                  type="button"
+                  :aria-expanded="tipOpen"
+                  @click="tipOpen = !tipOpen"
+                >
+                  <span class="ia-tip__title">Tip</span>
+                  <span class="ia-tip__chevron" aria-hidden="true">{{ tipOpen ? '▾' : '▸' }}</span>
+                </button>
+                <p v-if="tipOpen" class="ia-tip__text">
                   Prefer not to share (all) questions in advance. When someone is interviewed about their own field or expertise, they usually open up naturally, and that authenticity is what you want on camera. There should always be room to skip a question. An interview should mainly be enjoyable to watch, and sharing every question up front often makes answers rehearsed and flat, with less room for the interviewer to improvise. If a client still wants to share something, they can do that themselves by email. Eventshoot.nl only facilitates.
                 </p>
               </div>
@@ -1250,16 +1404,7 @@ watch(() => store.role, (role) => {
 
         <!-- CREW OVERLAYS -->
         <template v-if="guestView === 'controle'">
-            <div v-if="controleThanks && store.activeGuest" class="ia-card ia-thanks">
-              <h2>Thank you!</h2>
-              <p>Your details have been confirmed.</p>
-              <div class="ia-thanks__nr">Crew #{{ store.activeGuest.regienummer }}</div>
-              <p>Hand the iPad to the interviewer.</p>
-              <div class="ia-actions">
-                <button class="ia-btn ia-btn--ok" type="button" @click="goToCameraAfterThanks">Continue to camera →</button>
-              </div>
-            </div>
-            <div v-else-if="store.activeGuest && store.activeGuest.status === 'Entered'" class="ia-card">
+            <div v-if="store.activeGuest && store.activeGuest.status === 'Entered'" class="ia-card">
               <p class="ia-controle-intro">Check name and role for the lower third in the video.</p>
               <p v-if="controleOverLimit" class="ia-controle-limit ia-controle-limit--alert">
                 Too long — name and role may each be at most {{ maxChars }} characters.
@@ -1321,82 +1466,89 @@ watch(() => store.role, (role) => {
             </div>
           </template>
 
-        <!-- PRODUCTION DETAIL -->
-        <section v-if="store.activeTab === 'production' && workingProduction && !guestView">
+        <!-- PRODUCTION DETAIL (new + existing share the same 3 sections) -->
+        <section v-if="productionScreenOpen">
+            <!-- A: Production details -->
             <div class="ia-card ia-prod-top">
               <div class="ia-prod-detail-head">
                 <div>
-                  <p class="ia-hint" style="margin:0 0 0.25rem">Event Interviews</p>
-                  <h2 class="ia-section-title" style="margin:0">{{ workingProduction.naam }}</h2>
-                  <p class="ia-hint" style="margin:0.35rem 0 0">
-                    {{ workingProduction.datum ? formatDisplayDate(workingProduction.datum) : 'No date' }}
-                    · {{ workingProduction.status }}
-                  </p>
+                  <p v-if="!isNewProduction" class="ia-hint" style="margin:0 0 0.25rem">Event Interviews</p>
+                  <h2 class="ia-section-title" style="margin:0">{{ productionHeading }}</h2>
+                  <p v-if="!showProdForm" class="ia-hint" style="margin:0.35rem 0 0">{{ productionMeta }}</p>
                 </div>
                 <button
-                  v-if="store.isCrew"
+                  v-if="store.isCrew && !isNewProduction"
                   class="ia-editbtn"
                   :class="{ 'ia-editbtn--active': showProdForm }"
                   type="button"
-                  :title="showProdForm ? 'Close production edit' : 'Edit production'"
-                  :aria-label="showProdForm ? 'Close production edit' : 'Edit production'"
+                  :title="showProdForm ? 'Edit mode — tap to close' : 'View mode — tap to edit'"
+                  :aria-label="showProdForm ? 'Edit mode — tap to close' : 'View mode — tap to edit'"
                   :aria-pressed="showProdForm"
                   @click="toggleEditProduction"
                 >
-                  <PencilSquareIcon class="ia-editbtn__icon" aria-hidden="true" />
+                  <PencilSquareSolidIcon v-if="showProdForm" class="ia-editbtn__icon" aria-hidden="true" />
+                  <PencilSquareIcon v-else class="ia-editbtn__icon" aria-hidden="true" />
                 </button>
               </div>
-              <div v-if="workingProductionCounts" class="ia-progress-chips">
+              <div v-if="workingProductionCounts && !isNewProduction" class="ia-progress-chips">
                 <span class="ia-progress-chip">Total {{ workingProductionCounts.total }}</span>
                 <span class="ia-progress-chip ia-progress-chip--entered">Entered {{ workingProductionCounts.entered }}</span>
                 <span class="ia-progress-chip ia-progress-chip--checked">Checked {{ workingProductionCounts.checked }}</span>
                 <span class="ia-progress-chip ia-progress-chip--recorded">Recorded {{ workingProductionCounts.recorded }}</span>
               </div>
+
+              <div
+                v-if="showProdForm && store.isCrew"
+                class="ia-prod-form"
+                :class="{ 'ia-prod-form--inline': !isNewProduction }"
+              >
+                <label class="ia-label">Production name</label>
+                <input v-model="pNaam" class="ia-input" placeholder="name of the production" />
+                <label class="ia-label">Production date</label>
+                <input v-model="pDatum" class="ia-input" type="date" />
+                <label class="ia-label">Location</label>
+                <input v-model="pLocatie" class="ia-input" placeholder="venue or city" />
+                <label class="ia-label">Country</label>
+                <input v-model="pLand" class="ia-input" placeholder="e.g. Netherlands" />
+                <label class="ia-label">Status</label>
+                <select v-model="pStatus" class="ia-select">
+                  <option v-for="s in PRODUCTIE_STATUSES" :key="s" :value="s">{{ s }}</option>
+                </select>
+                <label class="ia-label">Client password (optional)</label>
+                <div class="ia-password-wrap">
+                  <input
+                    v-model="pClientPassword"
+                    class="ia-input ia-password-wrap__input"
+                    :type="showPClientPassword ? 'text' : 'password'"
+                    autocomplete="new-password"
+                    :placeholder="editingProdHasClientPassword ? 'Leave empty to keep current password' : 'Set password for client login'"
+                  />
+                  <button
+                    class="ia-password-wrap__toggle"
+                    type="button"
+                    :title="showPClientPassword ? 'Hide password' : 'Show password'"
+                    :aria-label="showPClientPassword ? 'Hide password' : 'Show password'"
+                    @click="showPClientPassword = !showPClientPassword"
+                  >
+                    <EyeSlashIcon v-if="showPClientPassword" class="ia-password-wrap__icon" />
+                    <EyeIcon v-else class="ia-password-wrap__icon" />
+                  </button>
+                </div>
+                <p v-if="editingProdHasClientPassword" class="ia-hint">Client access is active for this production.</p>
+                <div v-if="editingProdHasClientPassword" class="ia-actions ia-actions--tight">
+                  <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="removeClientAccess">
+                    Remove client access
+                  </button>
+                </div>
+                <div class="ia-actions">
+                  <button class="ia-btn" type="button" @click="saveProductie">Save</button>
+                  <button class="ia-btn ia-btn--secondary" type="button" @click="cancelProductionEdit">Cancel</button>
+                </div>
+              </div>
             </div>
 
-            <div v-if="showProdForm && store.isCrew" class="ia-card ia-prod-form">
-              <h2 class="ia-section-title">Edit production</h2>
-              <label class="ia-label">Production name</label>
-              <input v-model="pNaam" class="ia-input" placeholder="name of the production" />
-              <label class="ia-label">Production date</label>
-              <input v-model="pDatum" class="ia-input" type="date" />
-              <label class="ia-label">Status</label>
-              <select v-model="pStatus" class="ia-select">
-                <option v-for="s in PRODUCTIE_STATUSES" :key="s" :value="s">{{ s }}</option>
-              </select>
-              <label class="ia-label">Client password (optional)</label>
-              <div class="ia-password-wrap">
-                <input
-                  v-model="pClientPassword"
-                  class="ia-input ia-password-wrap__input"
-                  :type="showPClientPassword ? 'text' : 'password'"
-                  autocomplete="new-password"
-                  :placeholder="editingProdHasClientPassword ? 'Leave empty to keep current password' : 'Set password for client login'"
-                />
-                <button
-                  class="ia-password-wrap__toggle"
-                  type="button"
-                  :title="showPClientPassword ? 'Hide password' : 'Show password'"
-                  :aria-label="showPClientPassword ? 'Hide password' : 'Show password'"
-                  @click="showPClientPassword = !showPClientPassword"
-                >
-                  <EyeSlashIcon v-if="showPClientPassword" class="ia-password-wrap__icon" />
-                  <EyeIcon v-else class="ia-password-wrap__icon" />
-                </button>
-              </div>
-              <p v-if="editingProdHasClientPassword" class="ia-hint">Client access is active for this production.</p>
-              <div v-if="editingProdHasClientPassword" class="ia-actions ia-actions--tight">
-                <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="removeClientAccess">
-                  Remove client access
-                </button>
-              </div>
-              <div class="ia-actions">
-                <button class="ia-btn" type="button" @click="saveProductie">Save</button>
-                <button class="ia-btn ia-btn--secondary" type="button" @click="showProdForm = false; clearProductieForm()">Cancel</button>
-              </div>
-            </div>
-
-            <div v-if="workingProduction && !showProdForm" class="ia-card">
+            <!-- B: Default participant questions -->
+            <div class="ia-card">
               <div class="ia-prod-detail-head">
                 <div>
                   <h2 class="ia-section-title" style="margin:0">Default questions for Participants</h2>
@@ -1405,15 +1557,17 @@ watch(() => store.role, (role) => {
                   </p>
                 </div>
                 <button
+                  v-if="store.isCrew"
                   class="ia-editbtn"
                   :class="{ 'ia-editbtn--active': editingQuestions }"
                   type="button"
-                  :title="editingQuestions ? 'Close questions edit' : 'Edit questions'"
-                  :aria-label="editingQuestions ? 'Close questions edit' : 'Edit questions'"
+                  :title="editingQuestions ? 'Edit mode — tap to close' : 'View mode — tap to edit'"
+                  :aria-label="editingQuestions ? 'Edit mode — tap to close' : 'View mode — tap to edit'"
                   :aria-pressed="editingQuestions"
                   @click="toggleEditQuestions"
                 >
-                  <PencilSquareIcon class="ia-editbtn__icon" aria-hidden="true" />
+                  <PencilSquareSolidIcon v-if="editingQuestions" class="ia-editbtn__icon" aria-hidden="true" />
+                  <PencilSquareIcon v-else class="ia-editbtn__icon" aria-hidden="true" />
                 </button>
               </div>
               <template v-if="!editingQuestions">
@@ -1447,230 +1601,149 @@ watch(() => store.role, (role) => {
               />
             </div>
 
+            <!-- C: Interview candidates -->
             <div class="ia-card">
-              <h2 class="ia-section-title">Interview candidates</h2>
-              <div class="ia-actions ia-actions--tight">
-                <button class="ia-btn ia-btn--small ia-btn--accent" type="button" @click="openNewGuest">
-                  + New candidate
+              <div class="ia-prod-detail-head">
+                <div>
+                  <h2 class="ia-section-title" style="margin:0">Interview candidates</h2>
+                  <p v-if="isNewProduction" class="ia-hint" style="margin:0.35rem 0 0">
+                    Save production details first, then add candidates.
+                  </p>
+                </div>
+                <button
+                  v-if="store.isCrew && !isNewProduction"
+                  class="ia-editbtn"
+                  :class="{ 'ia-editbtn--active': editingCandidates }"
+                  type="button"
+                  :title="editingCandidates ? 'Edit mode — tap to close' : 'View mode — tap to edit'"
+                  :aria-label="editingCandidates ? 'Edit mode — tap to close' : 'View mode — tap to edit'"
+                  :aria-pressed="editingCandidates"
+                  @click="toggleEditCandidates"
+                >
+                  <PencilSquareSolidIcon v-if="editingCandidates" class="ia-editbtn__icon" aria-hidden="true" />
+                  <PencilSquareIcon v-else class="ia-editbtn__icon" aria-hidden="true" />
                 </button>
-                <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="exportTemplate">
-                  Download template
-                </button>
-                <label class="ia-btn ia-btn--small ia-btn--secondary" style="cursor:pointer;margin:0">
-                  Import CSV
-                  <input type="file" accept=".csv,text/csv" hidden @change="(e) => { const f=(e.target as HTMLInputElement).files?.[0]; if(f) importCsv(f) }" />
-                </label>
               </div>
-              <input
-                v-model="searchBox"
-                class="ia-input ia-search"
-                type="search"
-                placeholder="Search by name..."
-              />
-              <table class="ia-table">
-                <thead>
-                  <tr>
-                    <th v-if="store.isCrew">Crew #</th>
-                    <th>Name</th>
-                    <th>Role</th>
-                    <th>Status</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="g in filteredGuests" :key="g.id" class="data-row">
-                    <td v-if="store.isCrew">{{ g.regienummer || '—' }}</td>
-                    <td>
-                      <div>{{ g.naam }}</div>
-                      <small v-if="g.planning" style="color:var(--color-text-muted)">{{ g.planning }}</small>
-                      <small v-if="g.intakeComplete" class="ia-intake-badge">Intake complete</small>
-                    </td>
-                    <td>{{ g.functie }}</td>
-                    <td><span :class="pillClass(g.status)">{{ g.status }}</span></td>
-                    <td class="ia-row-actions">
-                      <button class="ia-iconbtn" type="button" title="Edit" @click="loadForEdit(g)">✏️</button>
-                      <button
-                        v-if="store.isCrew && g.status === 'Entered'"
-                        class="ia-iconbtn"
-                        type="button"
-                        title="Check"
-                        @click="openGuestControle(g)"
-                      >✓</button>
-                      <button
-                        v-if="store.isCrew && g.regienummer"
-                        class="ia-iconbtn"
-                        type="button"
-                        title="Camera"
-                        @click="openGuestCamera(g)"
-                      >📷</button>
-                      <button
-                        v-if="store.isCrew"
-                        class="ia-iconbtn"
-                        type="button"
-                        title="Interviewer"
-                        @click="openGuestInterviewer(g)"
-                      >🎤</button>
-                      <button
-                        v-if="!g.intakeComplete || store.isCrew"
-                        class="ia-iconbtn"
-                        type="button"
-                        title="Delete"
-                        @click="store.deleteGuest(g.id)"
-                      >🗑️</button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-              <p v-if="!filteredGuests.length" class="ia-empty">No candidates for this production yet. Click + New candidate or import a CSV list.</p>
+
+              <template v-if="isNewProduction">
+                <p class="ia-empty">Candidates become available after you save this production.</p>
+              </template>
+              <template v-else>
+                <div v-if="editingCandidates || !store.isCrew" class="ia-actions ia-actions--tight">
+                  <button class="ia-btn ia-btn--small ia-btn--accent" type="button" @click="openNewGuest">
+                    + New candidate
+                  </button>
+                  <button
+                    v-if="store.isCrew"
+                    class="ia-btn ia-btn--small ia-btn--secondary"
+                    type="button"
+                    @click="exportTemplate"
+                  >
+                    Download template
+                  </button>
+                  <label
+                    v-if="store.isCrew"
+                    class="ia-btn ia-btn--small ia-btn--secondary"
+                    style="cursor:pointer;margin:0"
+                  >
+                    Import CSV
+                    <input type="file" accept=".csv,text/csv" hidden @change="(e) => { const f=(e.target as HTMLInputElement).files?.[0]; if(f) importCsv(f) }" />
+                  </label>
+                </div>
+                <input
+                  v-model="searchBox"
+                  class="ia-input ia-search"
+                  type="search"
+                  placeholder="Search by name..."
+                />
+                <table class="ia-table">
+                  <thead>
+                    <tr>
+                      <th v-if="store.isCrew">Crew #</th>
+                      <th>Name</th>
+                      <th>Role</th>
+                      <th>Status</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr
+                      v-for="g in filteredGuests"
+                      :key="g.id"
+                      class="data-row"
+                      :class="{ 'data-row--clickable': editingCandidates || !store.isCrew }"
+                      @click="(editingCandidates || !store.isCrew) && loadForEdit(g)"
+                    >
+                      <td v-if="store.isCrew">{{ g.regienummer || '—' }}</td>
+                      <td>
+                        <div>{{ g.naam }}</div>
+                        <small v-if="g.planning" style="color:var(--color-text-muted)">{{ g.planning }}</small>
+                        <small v-if="g.intakeComplete" class="ia-intake-badge">Intake complete</small>
+                      </td>
+                      <td>{{ g.functie }}</td>
+                      <td @click.stop>
+                        <button
+                          v-if="store.isCrew"
+                          type="button"
+                          :class="pillClass(g.status)"
+                          :title="`Change status (now ${g.status})`"
+                          @click="cycleGuestStatusFromList(g)"
+                        >{{ g.status }}</button>
+                        <span v-else :class="pillClass(g.status)">{{ g.status }}</span>
+                      </td>
+                      <td class="ia-row-actions" @click.stop>
+                        <!-- Edit mode: candidate detail + delete -->
+                        <template v-if="editingCandidates || !store.isCrew">
+                          <button class="ia-iconbtn" type="button" title="Edit" @click="loadForEdit(g)">✏️</button>
+                          <button
+                            v-if="!g.intakeComplete || store.isCrew"
+                            class="ia-iconbtn"
+                            type="button"
+                            title="Delete"
+                            @click="store.deleteGuest(g.id)"
+                          >🗑️</button>
+                        </template>
+                        <!-- Production mode: phase actions only -->
+                        <template v-else-if="store.isCrew">
+                          <button
+                            v-if="g.status === 'Entered'"
+                            class="ia-iconbtn"
+                            type="button"
+                            title="Check"
+                            @click="openGuestControle(g)"
+                          >✓</button>
+                          <template v-else-if="g.status === 'Checked'">
+                            <button
+                              class="ia-iconbtn"
+                              :class="{ 'ia-iconbtn--muted': !guestHasQuestions(g) }"
+                              type="button"
+                              :title="guestHasQuestions(g) ? 'Camera' : 'No interview questions yet'"
+                              @click="openGuestCamera(g)"
+                            >📷</button>
+                            <button
+                              class="ia-iconbtn"
+                              :class="{ 'ia-iconbtn--muted': !guestHasQuestions(g) }"
+                              type="button"
+                              :title="guestHasQuestions(g) ? 'Interviewer' : 'No interview questions yet'"
+                              @click="openGuestInterviewer(g)"
+                            >🎤</button>
+                          </template>
+                        </template>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+                <p v-if="!filteredGuests.length" class="ia-empty">No candidates for this production yet.{{ (editingCandidates || !store.isCrew) ? ' Click + New candidate or import a CSV list.' : ' Tap the pencil to manage candidates.' }}</p>
+              </template>
             </div>
         </section>
 
         <!-- PRODUCTIONS LIST -->
-        <section v-if="(store.activeTab === 'productions' || (store.activeTab === 'production' && !workingProduction)) && !guestView">
-          <div v-if="showProdForm && store.isCrew" class="ia-card ia-prod-form">
-            <h2 class="ia-section-title">{{ editingProdId ? 'Edit production' : 'New production' }}</h2>
-            <label class="ia-label">Production name</label>
-            <input v-model="pNaam" class="ia-input" placeholder="name of the production" />
-            <label class="ia-label">Production date</label>
-            <input v-model="pDatum" class="ia-input" type="date" />
-            <label class="ia-label">Status</label>
-            <select v-model="pStatus" class="ia-select">
-              <option v-for="s in PRODUCTIE_STATUSES" :key="s" :value="s">{{ s }}</option>
-            </select>
-            <label class="ia-label">Client password (optional)</label>
-            <div class="ia-password-wrap">
-              <input
-                v-model="pClientPassword"
-                class="ia-input ia-password-wrap__input"
-                :type="showPClientPassword ? 'text' : 'password'"
-                autocomplete="new-password"
-                :placeholder="editingProdHasClientPassword ? 'Leave empty to keep current password' : 'Set password for client login'"
-              />
-              <button
-                class="ia-password-wrap__toggle"
-                type="button"
-                :title="showPClientPassword ? 'Hide password' : 'Show password'"
-                :aria-label="showPClientPassword ? 'Hide password' : 'Show password'"
-                @click="showPClientPassword = !showPClientPassword"
-              >
-                <EyeSlashIcon v-if="showPClientPassword" class="ia-password-wrap__icon" />
-                <EyeIcon v-else class="ia-password-wrap__icon" />
-              </button>
-            </div>
-            <p v-if="editingProdHasClientPassword" class="ia-hint">Client access is active for this production.</p>
-            <div v-if="editingProdHasClientPassword" class="ia-actions ia-actions--tight">
-              <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="removeClientAccess">
-                Remove client access
-              </button>
-            </div>
-            <div class="ia-question-head">
-              <label class="ia-label ia-label--inline">Default questions for Participants (max. 7)</label>
-              <button
-                v-if="aiProdStep === 'idle'"
-                class="ia-btn ia-btn--small ia-btn--secondary ia-btn--ai"
-                type="button"
-                @click="openProdAiPrep"
-              >
-                <SparklesIcon class="ia-btn__icon" aria-hidden="true" />
-                Suggest defaults
-              </button>
-            </div>
-            <p class="ia-hint">These defaults apply to Participants only. Other guest types get their own questions.</p>
-            <div v-if="aiProdStep === 'prep'" class="ia-ai-preview ia-ai-preview--prep">
-              <p class="ia-ai-preview__title">Briefing for AI — answer these 3 questions first</p>
-              <div class="ia-ai-options">
-                <div class="ia-ai-options__group">
-                  <span class="ia-ai-options__label">Language</span>
-                  <button
-                    class="ia-ai-toggle"
-                    :class="{ 'ia-ai-toggle--active': aiProdLanguage === 'nl' }"
-                    type="button"
-                    @click="aiProdLanguage = 'nl'"
-                  >NL</button>
-                  <button
-                    class="ia-ai-toggle"
-                    :class="{ 'ia-ai-toggle--active': aiProdLanguage === 'en' }"
-                    type="button"
-                    @click="aiProdLanguage = 'en'"
-                  >ENG</button>
-                </div>
-                <div v-if="aiProdLanguage === 'nl'" class="ia-ai-options__group">
-                  <span class="ia-ai-options__label">Address</span>
-                  <button
-                    class="ia-ai-toggle"
-                    :class="{ 'ia-ai-toggle--active': aiProdAddress === 'u' }"
-                    type="button"
-                    @click="aiProdAddress = 'u'"
-                  >u</button>
-                  <button
-                    class="ia-ai-toggle"
-                    :class="{ 'ia-ai-toggle--active': aiProdAddress === 'jij' }"
-                    type="button"
-                    @click="aiProdAddress = 'jij'"
-                  >jij</button>
-                </div>
-              </div>
-              <div v-for="field in AI_PREP_FIELDS" :key="field.key" class="ia-ai-prep-field">
-                <label class="ia-label">{{ field.label }}</label>
-                <input
-                  v-model="aiProdPrep[field.key]"
-                  class="ia-input"
-                  :placeholder="field.placeholder"
-                />
-              </div>
-              <div class="ia-actions ia-actions--tight">
-                <button
-                  class="ia-btn ia-btn--small ia-btn--accent"
-                  type="button"
-                  :disabled="aiProdLoading || !prepIsComplete(aiProdPrep)"
-                  @click="generateProdAiProposal"
-                >
-                  {{ aiProdLoading ? 'Generating…' : 'Generate proposal (max. 4)' }}
-                </button>
-                <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="dismissProductionAiPreview">
-                  Cancel
-                </button>
-              </div>
-            </div>
-            <div v-else-if="aiProdStep === 'preview' && aiProdPreview" class="ia-ai-preview">
-              <p class="ia-ai-preview__title">AI proposal — select questions to use (max. 4)</p>
-              <ul class="ia-ai-preview__pick">
-                <li v-for="(q, i) in aiProdPreview" :key="i">
-                  <label class="ia-ai-pick">
-                    <input v-model="aiProdSelected[i]" type="checkbox" />
-                    <span>{{ q }}</span>
-                  </label>
-                </li>
-              </ul>
-              <div class="ia-actions ia-actions--tight">
-                <button class="ia-btn ia-btn--small ia-btn--accent" type="button" @click="applyProductionAiPreview">
-                  Use selected questions
-                </button>
-                <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="dismissProductionAiPreview">
-                  Dismiss
-                </button>
-              </div>
-            </div>
-            <div v-for="(q, i) in pQuestions" :key="`prod-q-${i}-${pQuestions.length}`" class="ia-question-row">
-              <textarea v-model="pQuestions[i]" class="ia-textarea" rows="1" />
-              <button
-                class="ia-iconbtn ia-iconbtn--delete"
-                type="button"
-                title="Remove question"
-                :disabled="pQuestions.length <= 1"
-                @click.stop="removePQ(i)"
-              >🗑️</button>
-            </div>
-            <div class="ia-actions">
-              <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="addPQ">+ Question</button>
-              <button class="ia-btn" type="button" @click="saveProductie">Save</button>
-              <button class="ia-btn ia-btn--secondary" type="button" @click="showProdForm = false">Cancel</button>
-            </div>
-          </div>
+        <section v-if="store.activeTab === 'productions' && !guestView">
           <div class="ia-card">
             <h2 class="ia-section-title">Active Production(s)</h2>
             <p class="ia-hint">Click a production to open its details, default questions and candidates.</p>
-            <div v-if="store.isCrew" class="ia-actions ia-actions--tight">
+            <div v-if="store.isCrew" class="ia-table-toolbar">
               <button class="ia-btn ia-btn--small ia-btn--accent" type="button" @click="openNewProductie">
                 + New production
               </button>
@@ -1706,7 +1779,7 @@ watch(() => store.role, (role) => {
                     </div>
                   </td>
                   <td v-if="store.isCrew" class="ia-row-actions" @click.stop>
-                    <button class="ia-iconbtn" type="button" title="Edit" @click="editProductie(p); showProdForm = true">✏️</button>
+                    <button class="ia-iconbtn" type="button" title="Edit" @click="openProductionForEdit(p)">✏️</button>
                     <button class="ia-iconbtn" type="button" title="Archive" @click="store.archiveProduction(p.id)">📦</button>
                   </td>
                 </tr>

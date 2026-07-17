@@ -59,12 +59,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           sector: String((prepRaw as Record<string, unknown>).sector || '').trim(),
           specialism: String((prepRaw as Record<string, unknown>).specialism || '').trim(),
           timeliness: String((prepRaw as Record<string, unknown>).timeliness || '').trim(),
+          customPrompt: String((prepRaw as Record<string, unknown>).customPrompt || '').trim(),
         }
       : undefined
 
     if (!prepAnswers?.sector || !prepAnswers.specialism || !prepAnswers.timeliness) {
-      res.status(400).json({ error: 'Answer all 3 briefing questions before generating proposals' })
-      return
+      if (!prepAnswers?.customPrompt) {
+        res.status(400).json({ error: 'Fill the 3 briefing fields, or write your own prompt' })
+        return
+      }
     }
 
     const input: SuggestQuestionsInput = {

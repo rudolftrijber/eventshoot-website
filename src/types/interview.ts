@@ -12,6 +12,8 @@ export interface Productie {
   naam: string
   datum: string
   status: ProductieStatus
+  locatie: string
+  land: string
   vragen: string[]
   archivedAt: string | null
   hasClientPassword?: boolean

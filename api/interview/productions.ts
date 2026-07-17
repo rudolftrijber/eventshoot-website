@@ -36,6 +36,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         naam: String(body.naam || '').trim(),
         datum: String(body.datum || ''),
         status: (String(body.status || 'Planned') as Productie['status']),
+        locatie: String(body.locatie || '').trim(),
+        land: String(body.land || '').trim(),
         vragen,
       }
       if (!productie.naam) {

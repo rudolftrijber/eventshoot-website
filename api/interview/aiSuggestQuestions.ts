@@ -2,6 +2,8 @@ export interface AiPrepAnswers {
   sector: string
   specialism: string
   timeliness: string
+  /** Optional free-form instructions from crew */
+  customPrompt?: string
 }
 
 export interface SuggestQuestionsInput {
@@ -48,40 +50,76 @@ function normalizeGuestType(value: string | undefined): string {
 
 function buildUserPrompt(input: SuggestQuestionsInput): string {
   const guestType = normalizeGuestType(input.guestType)
-  const language = input.language === 'en' ? 'English' : 'Dutch'
-  const addressForm = input.language === 'en'
+  const isEnglish = input.language === 'en'
+  const language = isEnglish ? 'English' : 'Dutch'
+  const addressForm = isEnglish
     ? 'natural professional English'
     : input.addressForm === 'jij' ? 'jij (informal)' : 'u (formal)'
   const defaults = (input.productionDefaults || []).map((q) => q.trim()).filter(Boolean)
   const isParticipant = guestType === 'Participant'
   const isProductionScope = input.scope === 'production'
 
+  const prep = input.prepAnswers
+  const hasStructuredBriefing = Boolean(
+    prep && (prep.sector.trim() || prep.specialism.trim() || prep.timeliness.trim()),
+  )
+  const hasCustomPrompt = Boolean(prep?.customPrompt?.trim())
+
   const lines = [
-    `Language: ${language}`,
+    `OUTPUT LANGUAGE (mandatory): ${language}`,
+    `Write every question entirely in ${language}. Do not mix languages.`,
+    isEnglish
+      ? 'Do not write Dutch.'
+      : 'Schrijf alle vragen in het Nederlands. Geen Engels.',
     `Address form: ${addressForm}`,
     `Scope: ${isProductionScope ? 'production defaults for Participants' : 'single guest'}`,
     `Production: ${input.productionName || 'Unknown event'}`,
     '',
     'STRICT RULES:',
-    '- Use ONLY facts from the crew briefing below for sector, theme and timeliness.',
-    '- Do NOT infer or invent industries, sectors, regulations or topics from job titles or roles.',
-    '- Example: role "putjesschepper op zee" does NOT justify maritime or cybersecurity questions unless the briefing says so.',
+  ]
+
+  if (hasStructuredBriefing) {
+    lines.push(
+      '- Use ONLY facts from the crew briefing below for sector, theme and timeliness.',
+      '- Do NOT infer or invent industries, sectors, regulations or topics from job titles or roles.',
+      '- Example: role "putjesschepper op zee" does NOT justify maritime or cybersecurity questions unless the briefing says so.',
+    )
+  } else if (hasCustomPrompt) {
+    lines.push(
+      '- Follow the crew prompt below as the main brief for topics and angle.',
+      '- Do NOT invent extra industries or themes beyond that prompt and the production name.',
+      `- Even if the crew prompt is in another language, still write the questions in ${language}.`,
+    )
+  } else {
+    lines.push(
+      '- Do NOT invent industries, sectors or topics from job titles or roles.',
+    )
+  }
+
+  lines.push(
     '- Name and role may only help tailor wording, not introduce new subject matter.',
-    '- In Dutch, use the requested address form (u or jij) consistently in every question.',
+    isEnglish
+      ? '- Use natural professional English in every question.'
+      : '- Use the requested Dutch address form (u or jij) consistently in every question.',
     '- Keep each question short and speakable on camera (max. ~15 words).',
     '- One question per sentence only. Never combine two questions in one sentence.',
-  ]
+  )
 
   if (input.productionDate) lines.push(`Production date: ${input.productionDate}`)
   if (input.productionContext?.trim()) lines.push(`Extra context: ${input.productionContext.trim()}`)
 
-  const prep = input.prepAnswers
-  if (prep && (prep.sector.trim() || prep.specialism.trim() || prep.timeliness.trim())) {
+  if (hasStructuredBriefing && prep) {
     lines.push(
       'Crew briefing:',
       `1. Sector / industry: ${prep.sector.trim()}`,
       `2. Specialism or angle: ${prep.specialism.trim()}`,
       `3. Current topics: ${prep.timeliness.trim()}`,
+    )
+  }
+  if (hasCustomPrompt && prep) {
+    lines.push(
+      'Crew prompt (follow these extra instructions carefully):',
+      prep.customPrompt!.trim(),
     )
   }
 
@@ -95,7 +133,7 @@ function buildUserPrompt(input: SuggestQuestionsInput): string {
 
   if (isParticipant && defaults.length) {
     lines.push(
-      'Production default questions for Participants (use as foundation, adapt lightly):',
+      'Production default questions for Participants (use as foundation, adapt lightly, rewrite into the output language if needed):',
       ...defaults.map((q, i) => `${i + 1}. ${q}`),
     )
   } else if (!isParticipant && defaults.length) {
@@ -105,20 +143,35 @@ function buildUserPrompt(input: SuggestQuestionsInput): string {
   }
 
   if (isProductionScope) {
-    lines.push('Write exactly 4 default interview questions for Participants at this event.')
+    lines.push(isEnglish
+      ? 'Write exactly 4 default interview questions in English for Participants at this event.'
+      : 'Schrijf precies 4 standaard interviewvragen in het Nederlands voor Participants op dit event.')
   } else if (isParticipant) {
-    lines.push('Write exactly 4 interview questions tailored to this participant.')
+    lines.push(isEnglish
+      ? 'Write exactly 4 interview questions in English tailored to this participant.'
+      : 'Schrijf precies 4 interviewvragen in het Nederlands, toegesneden op deze participant.')
   } else if (guestType === 'Sponsor') {
-    lines.push('Write exactly 4 interview questions about the sponsorship, brand fit and value for the audience.')
+    lines.push(isEnglish
+      ? 'Write exactly 4 interview questions in English about the sponsorship, brand fit and value for the audience.'
+      : 'Schrijf precies 4 interviewvragen in het Nederlands over sponsorship, merkfit en waarde voor het publiek.')
   } else if (guestType === 'Keynote speaker') {
-    lines.push('Write exactly 4 interview questions about the keynote theme, vision and sector relevance.')
+    lines.push(isEnglish
+      ? 'Write exactly 4 interview questions in English about the keynote theme, vision and sector relevance.'
+      : 'Schrijf precies 4 interviewvragen in het Nederlands over het keynote-thema, visie en relevantie voor de sector.')
   } else if (guestType === 'Executive') {
-    lines.push('Write exactly 4 interview questions about leadership, strategy and event significance.')
+    lines.push(isEnglish
+      ? 'Write exactly 4 interview questions in English about leadership, strategy and event significance.'
+      : 'Schrijf precies 4 interviewvragen in het Nederlands over leiderschap, strategie en het belang van dit event.')
   } else {
-    lines.push('Write exactly 4 balanced on-camera interview questions for this guest.')
+    lines.push(isEnglish
+      ? 'Write exactly 4 balanced on-camera interview questions in English for this guest.'
+      : 'Schrijf precies 4 evenwichtige interviewvragen in het Nederlands voor deze gast.')
   }
 
-  lines.push('Return JSON only: {"questions":["..."]} with at most 4 questions.')
+  lines.push(
+    `Final check: every string in "questions" must be ${language}.`,
+    'Return JSON only: {"questions":["..."]} with at most 4 questions.',
+  )
   return lines.join('\n')
 }
 
@@ -133,50 +186,86 @@ function parseModelJson(content: string): string[] {
 function fallbackQuestions(input: SuggestQuestionsInput): string[] {
   const guestType = normalizeGuestType(input.guestType)
   const defaults = (input.productionDefaults || []).map((q) => q.trim()).filter(Boolean)
+  const nl = input.language !== 'en'
 
   if (input.scope === 'production' || guestType === 'Participant') {
     if (defaults.length >= 4) return defaults.slice(0, 4)
-    return [
-      'What stood out most for you at this event?',
-      'What was the highlight of your day?',
-      'What will you take back to your organisation?',
-      'Do you have a message for viewers who could not attend?',
-    ]
+    return nl
+      ? [
+          'Wat viel u vandaag het meest op?',
+          'Wat was het hoogtepunt van deze dag?',
+          'Wat neemt u mee terug naar uw organisatie?',
+          'Heeft u een boodschap voor wie er niet bij kon zijn?',
+        ]
+      : [
+          'What stood out most for you at this event?',
+          'What was the highlight of your day?',
+          'What will you take back to your organisation?',
+          'Do you have a message for viewers who could not attend?',
+        ]
   }
 
   if (guestType === 'Sponsor') {
-    return [
-      'Why did you choose to sponsor this event?',
-      'What connection do you see between your brand and this audience?',
-      'What do participants gain from your involvement?',
-      'What would you like people to remember about your partnership?',
-    ]
+    return nl
+      ? [
+          'Waarom sponsort u dit event?',
+          'Welke connectie ziet u tussen uw merk en dit publiek?',
+          'Wat hebben deelnemers aan uw betrokkenheid?',
+          'Wat wilt u dat men onthoudt van deze samenwerking?',
+        ]
+      : [
+          'Why did you choose to sponsor this event?',
+          'What connection do you see between your brand and this audience?',
+          'What do participants gain from your involvement?',
+          'What would you like people to remember about your partnership?',
+        ]
   }
 
   if (guestType === 'Keynote speaker') {
-    return [
-      'What is the core message of your keynote?',
-      'Why is this topic urgent for this audience now?',
-      'What should participants do differently after your session?',
-      'What surprised you most in preparing for this event?',
-    ]
+    return nl
+      ? [
+          'Wat is de kernboodschap van uw keynote?',
+          'Waarom is dit onderwerp nu urgent voor dit publiek?',
+          'Wat moeten deelnemers morgen anders doen?',
+          'Wat verraste u het meest bij de voorbereiding?',
+        ]
+      : [
+          'What is the core message of your keynote?',
+          'Why is this topic urgent for this audience now?',
+          'What should participants do differently after your session?',
+          'What surprised you most in preparing for this event?',
+        ]
   }
 
   if (guestType === 'Executive') {
-    return [
-      'Why is this event important for your organisation?',
-      'What strategic theme connects most to your work right now?',
-      'What did you want participants to take away today?',
-      'How will you follow up on what happened here?',
-    ]
+    return nl
+      ? [
+          'Waarom is dit event belangrijk voor uw organisatie?',
+          'Welk strategisch thema raakt uw werk nu het meest?',
+          'Wat wilde u dat deelnemers vandaag meenemen?',
+          'Hoe volgt u op wat hier gebeurde?',
+        ]
+      : [
+          'Why is this event important for your organisation?',
+          'What strategic theme connects most to your work right now?',
+          'What did you want participants to take away today?',
+          'How will you follow up on what happened here?',
+        ]
   }
 
-  return [
-    'What stood out most for you today?',
-    'What was most valuable about being here?',
-    'What will you apply after this event?',
-    'Do you have a final message for the audience?',
-  ]
+  return nl
+    ? [
+        'Wat viel u vandaag het meest op?',
+        'Wat was vandaag het meest waardevol?',
+        'Wat gaat u hierna toepassen?',
+        'Heeft u nog een slotboodschap voor het publiek?',
+      ]
+    : [
+        'What stood out most for you today?',
+        'What was most valuable about being here?',
+        'What will you apply after this event?',
+        'Do you have a final message for the audience?',
+      ]
 }
 
 function parseAnthropicError(status: number, text: string): string {
@@ -210,8 +299,14 @@ export async function suggestInterviewQuestions(
     return { questions }
   }
 
+  const isEnglish = input.language === 'en'
+  const language = isEnglish ? 'English' : 'Dutch'
   const systemPrompt = [
     'You write concise on-camera interview questions for business events.',
+    `CRITICAL: Write ALL questions in ${language} only. Never mix languages.`,
+    isEnglish
+      ? 'Do not output Dutch questions.'
+      : 'Schrijf uitsluitend Nederlandse vragen. Geen Engelse vragen.',
     'Output JSON only with key "questions" (array of exactly 4 strings, never more).',
     'Each question must be short, speakable, non-leading, and not yes/no.',
     'Exactly one question per item. Never put two questions in one sentence.',

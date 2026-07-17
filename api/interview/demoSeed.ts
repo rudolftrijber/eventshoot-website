@@ -9,6 +9,8 @@ const producties: Omit<Productie, 'createdAt' | 'updatedAt' | 'archivedAt'>[] = 
     naam: 'DSR Jaarcongres 2026',
     datum: '2026-03-18',
     status: 'Planned',
+    locatie: 'Jaarbeurs Utrecht',
+    land: 'Netherlands',
     vragen: [
       'Wat was voor u het hoogtepunt van dit congres?',
       'Welke trend ziet u de komende jaren in de sector?',
@@ -21,6 +23,8 @@ const producties: Omit<Productie, 'createdAt' | 'updatedAt' | 'archivedAt'>[] = 
     naam: 'Ledendag Branchevereniging 2026',
     datum: '2026-07-12',
     status: 'Active',
+    locatie: 'Van der Valk Hotel',
+    land: 'Netherlands',
     vragen: [
       'Wat haalt u uit deze ledendag?',
       'Welke sessie sprak u het meest aan?',
@@ -33,6 +37,8 @@ const producties: Omit<Productie, 'createdAt' | 'updatedAt' | 'archivedAt'>[] = 
     naam: 'TechCorp User Conference',
     datum: '2026-05-22',
     status: 'Planned',
+    locatie: 'RAI Amsterdam',
+    land: 'Netherlands',
     vragen: [
       'Wat maakt dit user conference uniek voor klanten?',
       'Welke productupdate vindt u het meest relevant?',
