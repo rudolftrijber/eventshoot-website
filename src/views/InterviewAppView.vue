@@ -1093,12 +1093,15 @@ watch(() => store.role, (role) => {
     <!-- Login -->
     <template v-if="!store.authenticated">
       <div class="ia-login-page">
-        <div class="ia-login__hero">
+        <header class="ia-login__header">
           <img
             class="ia-login__logo"
             src="/DATA_EVENTSHOOT/SITE_IMAGES/EIA_LOGO_NEG.svg"
             alt="Event Interview App"
           />
+        </header>
+
+        <div class="ia-login__hero">
           <div class="ia-login__mic-wrap">
             <img
               class="ia-login__mic"
@@ -1107,6 +1110,7 @@ watch(() => store.role, (role) => {
             />
           </div>
         </div>
+
         <div class="ia-body ia-body--login">
           <div class="ia-login">
             <div class="ia-login__card">
@@ -1146,7 +1150,10 @@ watch(() => store.role, (role) => {
             </div>
           </div>
         </div>
-        <p class="ia-login__motto">Your event is a goldmine of content</p>
+
+        <footer class="ia-login__footer">
+          <p class="ia-login__motto">Your event is a goldmine of content</p>
+        </footer>
       </div>
     </template>
 

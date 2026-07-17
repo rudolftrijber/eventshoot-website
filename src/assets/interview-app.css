@@ -30,6 +30,13 @@
   min-height: 100vh;
 }
 
+.ia-login__header {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  padding: 1.25rem 1rem 0.5rem;
+}
+
 .ia-login {
   display: flex;
   flex-direction: column;
@@ -46,10 +53,9 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.25rem;
   width: 100%;
   max-width: min(96vw, 880px);
-  padding: 0.85rem 0.5rem 0;
+  padding: 0 0.5rem;
   position: relative;
   z-index: 1;
 }
@@ -60,8 +66,6 @@
   max-width: min(78vw, 22rem);
   object-fit: contain;
   display: block;
-  position: relative;
-  z-index: 2;
 }
 
 .ia-login__mic-wrap {
@@ -69,7 +73,6 @@
   max-width: min(96vw, 880px);
   aspect-ratio: 2.35 / 1;
   overflow: hidden;
-  margin-top: -0.15rem;
 }
 
 .ia-login__mic {
@@ -89,6 +92,14 @@
   border-radius: 12px;
   padding: 1.5rem;
   transition: background var(--transition);
+}
+
+.ia-login__footer {
+  width: 100%;
+  margin-top: auto;
+  padding: 1.5rem 1.25rem 2.25rem;
+  display: flex;
+  justify-content: center;
 }
 
 .ia-login__card h1 {
@@ -130,10 +141,8 @@
 
 .ia-login__motto {
   display: block;
-  width: 100%;
-  max-width: 40rem;
-  margin: 1.75rem auto 2.75rem;
-  padding: 0 1.25rem;
+  margin: 0;
+  padding: 0;
   text-align: center;
   color: #ffffff;
   font-size: clamp(1.1rem, 3vw, 1.45rem);
