@@ -120,9 +120,12 @@ const navTitle = computed(() => {
   if (store.activeTab === 'candidate') {
     return editingId.value ? (fNaam.value.trim() || 'Edit candidate') : 'New candidate'
   }
-  if (store.activeTab === 'production') {
-    return workingProduction.value?.naam || 'Production'
-  }
+  if (store.activeTab === 'production') return ''
+  return 'Productions'
+})
+
+const navBackLabel = computed(() => {
+  if (store.activeTab === 'candidate') return 'Production'
   return 'Productions'
 })
 
@@ -963,13 +966,17 @@ watch(() => store.role, (role) => {
                   v-if="showNavBack"
                   class="ia-tab ia-tab--labeled ia-tab--back"
                   type="button"
-                  title="Back"
+                  :title="navBackLabel"
                   @click="handleNavBack"
                 >
                   <ArrowLeftIcon class="ia-tab__icon" aria-hidden="true" />
-                  <span class="ia-tab__label">Back</span>
+                  <span class="ia-tab__label">{{ navBackLabel }}</span>
                 </button>
-                <div class="ia-nav-title" :class="{ 'ia-nav-title--solo': !showNavBack }">
+                <div
+                  v-if="navTitle"
+                  class="ia-nav-title"
+                  :class="{ 'ia-nav-title--solo': !showNavBack }"
+                >
                   {{ navTitle }}
                 </div>
               </nav>
@@ -1274,7 +1281,7 @@ watch(() => store.role, (role) => {
             <div class="ia-card ia-prod-top">
               <div class="ia-prod-detail-head">
                 <div>
-                  <p class="ia-hint" style="margin:0 0 0.25rem">Production</p>
+                  <p class="ia-hint" style="margin:0 0 0.25rem">Event Interviews</p>
                   <h2 class="ia-section-title" style="margin:0">{{ workingProduction.naam }}</h2>
                   <p class="ia-hint" style="margin:0.35rem 0 0">
                     {{ workingProduction.datum ? formatDisplayDate(workingProduction.datum) : 'No date' }}
