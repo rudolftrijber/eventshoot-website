@@ -26,6 +26,7 @@ import {
   SparklesIcon,
 } from '@heroicons/vue/24/outline'
 import type { Component } from 'vue'
+import ParticipantDefaultsCard from '@/components/interview/ParticipantDefaultsCard.vue'
 
 const store = useInterviewStore()
 
@@ -119,17 +120,14 @@ const todayIso = computed(() => todayStr())
 
 const workingProduction = computed(() => {
   const list = store.activeProductions
+  if (manualProductieId.value) {
+    return list.find((p) => p.id === manualProductieId.value) || list[0] || null
+  }
   if (store.isClient) {
-    if (manualProductieId.value) {
-      return list.find((p) => p.id === manualProductieId.value) || list[0] || null
-    }
     return list[0] || null
   }
-  if (manualProductieId.value) {
-    return list.find((p) => p.id === manualProductieId.value) || null
-  }
   const todayProd = list.find((p) => (p.datum || '').slice(0, 10) === todayIso.value)
-  return todayProd || null
+  return todayProd || list[0] || null
 })
 
 const guestFormLocked = computed(() =>
@@ -662,8 +660,8 @@ async function saveClientDefaultQuestions() {
   }
 }
 
-function loadClientDefaultQuestions(prod: Productie | null) {
-  if (!store.isClient || !prod) return
+function loadDefaultQuestions(prod: Productie | null) {
+  if (!prod) return
   resetQuestions(pQuestions, prod.vragen)
   resetProdAi()
 }
@@ -877,22 +875,24 @@ watch(
     // Sync polling replaces production objects every few seconds and must not reset AI prep.
     if (id === prevId) return
     const prod = workingProduction.value
-    if (prod && prod.id === id) loadClientDefaultQuestions(prod)
+    if (prod && prod.id === id) loadDefaultQuestions(prod)
   },
   { immediate: true },
 )
 
+watch(showProdForm, (open) => {
+  if (!open) loadDefaultQuestions(workingProduction.value)
+})
+
 watch(() => store.role, (role) => {
   if (!role) return
   store.setTab('producties')
-  if (role === 'client') {
-    guestView.value = null
-    settingsOpen.value = false
-    if (!manualProductieId.value && store.activeProductions[0]) {
-      manualProductieId.value = store.activeProductions[0].id
-    }
-    loadClientDefaultQuestions(workingProduction.value)
+  guestView.value = null
+  settingsOpen.value = false
+  if (!manualProductieId.value && store.activeProductions[0]) {
+    manualProductieId.value = store.activeProductions[0].id
   }
+  loadDefaultQuestions(workingProduction.value)
 })
 </script>
 
@@ -1314,112 +1314,25 @@ watch(() => store.role, (role) => {
               </div>
             </div>
 
-            <div v-if="store.isClient && workingProduction" class="ia-card">
-              <div class="ia-question-head">
-                <h2 class="ia-section-title ia-section-title--inline">Default questions for Participants</h2>
-                <button
-                  v-if="aiProdStep === 'idle'"
-                  class="ia-btn ia-btn--small ia-btn--secondary ia-btn--ai"
-                  type="button"
-                  @click="openProdAiPrep"
-                >
-                  <SparklesIcon class="ia-btn__icon" aria-hidden="true" />
-                  Suggest defaults
-                </button>
-              </div>
-              <p class="ia-hint">
-                These defaults are used when you add a Participant. Use AI, then edit and save what you want.
-              </p>
-              <div v-if="aiProdStep === 'prep'" class="ia-ai-preview ia-ai-preview--prep">
-                <p class="ia-ai-preview__title">Briefing for AI — answer these 3 questions first</p>
-                <div class="ia-ai-options">
-                  <div class="ia-ai-options__group">
-                    <span class="ia-ai-options__label">Language</span>
-                    <button
-                      class="ia-ai-toggle"
-                      :class="{ 'ia-ai-toggle--active': aiProdLanguage === 'nl' }"
-                      type="button"
-                      @click="aiProdLanguage = 'nl'"
-                    >NL</button>
-                    <button
-                      class="ia-ai-toggle"
-                      :class="{ 'ia-ai-toggle--active': aiProdLanguage === 'en' }"
-                      type="button"
-                      @click="aiProdLanguage = 'en'"
-                    >ENG</button>
-                  </div>
-                  <div v-if="aiProdLanguage === 'nl'" class="ia-ai-options__group">
-                    <span class="ia-ai-options__label">Address</span>
-                    <button
-                      class="ia-ai-toggle"
-                      :class="{ 'ia-ai-toggle--active': aiProdAddress === 'u' }"
-                      type="button"
-                      @click="aiProdAddress = 'u'"
-                    >u</button>
-                    <button
-                      class="ia-ai-toggle"
-                      :class="{ 'ia-ai-toggle--active': aiProdAddress === 'jij' }"
-                      type="button"
-                      @click="aiProdAddress = 'jij'"
-                    >jij</button>
-                  </div>
-                </div>
-                <div v-for="field in AI_PREP_FIELDS" :key="field.key" class="ia-ai-prep-field">
-                  <label class="ia-label">{{ field.label }}</label>
-                  <input
-                    v-model="aiProdPrep[field.key]"
-                    class="ia-input"
-                    :placeholder="field.placeholder"
-                  />
-                </div>
-                <div class="ia-actions ia-actions--tight">
-                  <button
-                    class="ia-btn ia-btn--small ia-btn--accent"
-                    type="button"
-                    :disabled="aiProdLoading || !prepIsComplete(aiProdPrep)"
-                    @click="generateProdAiProposal"
-                  >
-                    {{ aiProdLoading ? 'Generating…' : 'Generate proposal (max. 4)' }}
-                  </button>
-                  <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="dismissProductionAiPreview">
-                    Cancel
-                  </button>
-                </div>
-              </div>
-              <div v-else-if="aiProdStep === 'preview' && aiProdPreview" class="ia-ai-preview">
-                <p class="ia-ai-preview__title">AI proposal — select questions to use (max. 4)</p>
-                <ul class="ia-ai-preview__pick">
-                  <li v-for="(q, i) in aiProdPreview" :key="i">
-                    <label class="ia-ai-pick">
-                      <input v-model="aiProdSelected[i]" type="checkbox" />
-                      <span>{{ q }}</span>
-                    </label>
-                  </li>
-                </ul>
-                <div class="ia-actions ia-actions--tight">
-                  <button class="ia-btn ia-btn--small ia-btn--accent" type="button" @click="applyProductionAiPreview">
-                    Use selected questions
-                  </button>
-                  <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="dismissProductionAiPreview">
-                    Dismiss
-                  </button>
-                </div>
-              </div>
-              <div v-for="(q, i) in pQuestions" :key="`client-dq-${i}-${pQuestions.length}`" class="ia-question-row">
-                <textarea v-model="pQuestions[i]" class="ia-textarea" rows="1" :placeholder="`Question ${i + 1}`" />
-                <button
-                  class="ia-iconbtn ia-iconbtn--delete"
-                  type="button"
-                  title="Remove question"
-                  :disabled="pQuestions.length <= 1"
-                  @click.stop="removePQ(i)"
-                >🗑️</button>
-              </div>
-              <div class="ia-actions">
-                <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="addPQ">+ Question</button>
-                <button class="ia-btn ia-btn--small ia-btn--accent" type="button" @click="saveClientDefaultQuestions">Save defaults</button>
-              </div>
-            </div>
+            <ParticipantDefaultsCard
+              v-if="workingProduction"
+              v-model:questions="pQuestions"
+              v-model:ai-prep="aiProdPrep"
+              v-model:ai-language="aiProdLanguage"
+              v-model:ai-address="aiProdAddress"
+              v-model:ai-selected="aiProdSelected"
+              :ai-step="aiProdStep"
+              :ai-loading="aiProdLoading"
+              :ai-preview="aiProdPreview"
+              :prep-complete="prepIsComplete(aiProdPrep)"
+              @open-ai="openProdAiPrep"
+              @generate="generateProdAiProposal"
+              @apply="applyProductionAiPreview"
+              @dismiss="dismissProductionAiPreview"
+              @add-question="addPQ"
+              @remove-question="removePQ"
+              @save="saveClientDefaultQuestions"
+            />
 
             <div class="ia-card">
               <h2 class="ia-section-title">Interview candidates</h2>
@@ -1620,6 +1533,25 @@ watch(() => store.role, (role) => {
               <button class="ia-btn ia-btn--secondary" type="button" @click="showProdForm = false">Cancel</button>
             </div>
           </div>
+          <ParticipantDefaultsCard
+            v-if="!showProdForm && workingProduction"
+            v-model:questions="pQuestions"
+            v-model:ai-prep="aiProdPrep"
+            v-model:ai-language="aiProdLanguage"
+            v-model:ai-address="aiProdAddress"
+            v-model:ai-selected="aiProdSelected"
+            :ai-step="aiProdStep"
+            :ai-loading="aiProdLoading"
+            :ai-preview="aiProdPreview"
+            :prep-complete="prepIsComplete(aiProdPrep)"
+            @open-ai="openProdAiPrep"
+            @generate="generateProdAiProposal"
+            @apply="applyProductionAiPreview"
+            @dismiss="dismissProductionAiPreview"
+            @add-question="addPQ"
+            @remove-question="removePQ"
+            @save="saveClientDefaultQuestions"
+          />
           <div class="ia-card">
             <h2 class="ia-section-title">Active productions</h2>
             <p v-if="store.isClient" class="ia-hint">
