@@ -1092,56 +1092,61 @@ watch(() => store.role, (role) => {
 
     <!-- Login -->
     <template v-if="!store.authenticated">
-      <div class="ia-body ia-body--login">
-        <div class="ia-login">
-          <div class="ia-login__hero">
-            <img
-              class="ia-login__logo"
-              src="/DATA_EVENTSHOOT/SITE_IMAGES/EIA_LOGO_NEG.svg"
-              alt="Event Interview App"
-            />
+      <div class="ia-login-page">
+        <div class="ia-login__hero">
+          <img
+            class="ia-login__logo"
+            src="/DATA_EVENTSHOOT/SITE_IMAGES/EIA_LOGO_NEG.svg"
+            alt="Event Interview App"
+          />
+          <div class="ia-login__mic-wrap">
             <img
               class="ia-login__mic"
               src="/DATA_EVENTSHOOT/SITE_IMAGES/WERK/microphone.png?v=20260717"
               alt=""
             />
           </div>
-          <div class="ia-login__card">
-            <p v-if="devBuildStamp" class="ia-dev-badge">Local · build {{ devBuildStamp }}</p>
-            <p class="ia-login__intro">Log in with your crew or client password.</p>
-            <p v-if="apiConfigHint" class="ia-error ia-error--block ia-error--pre">{{ apiConfigHint }}</p>
-            <label class="ia-label" for="pw">Password</label>
-            <div class="ia-password-wrap">
-              <input
-                id="pw"
-                v-model="password"
-                class="ia-input ia-password-wrap__input"
-                :type="showPassword ? 'text' : 'password'"
-                autocomplete="current-password"
-                @keyup.enter="handleLogin"
-              />
-              <button
-                class="ia-password-wrap__toggle"
-                type="button"
-                :title="showPassword ? 'Hide password' : 'Show password'"
-                :aria-label="showPassword ? 'Hide password' : 'Show password'"
-                @click="showPassword = !showPassword"
-              >
-                <EyeSlashIcon v-if="showPassword" class="ia-password-wrap__icon" />
-                <EyeIcon v-else class="ia-password-wrap__icon" />
-              </button>
-            </div>
-            <p v-if="loginError" class="ia-error">{{ loginError }}</p>
-            <div class="ia-actions">
-              <button
-                class="ia-btn ia-btn--accent"
-                type="button"
-                :disabled="!apiConfigured"
-                @click="handleLogin"
-              >Log in</button>
+        </div>
+        <div class="ia-body ia-body--login">
+          <div class="ia-login">
+            <div class="ia-login__card">
+              <p v-if="devBuildStamp" class="ia-dev-badge">Local · build {{ devBuildStamp }}</p>
+              <p class="ia-login__intro">Log in with your crew or client password.</p>
+              <p v-if="apiConfigHint" class="ia-error ia-error--block ia-error--pre">{{ apiConfigHint }}</p>
+              <label class="ia-label" for="pw">Password</label>
+              <div class="ia-password-wrap">
+                <input
+                  id="pw"
+                  v-model="password"
+                  class="ia-input ia-password-wrap__input"
+                  :type="showPassword ? 'text' : 'password'"
+                  autocomplete="current-password"
+                  @keyup.enter="handleLogin"
+                />
+                <button
+                  class="ia-password-wrap__toggle"
+                  type="button"
+                  :title="showPassword ? 'Hide password' : 'Show password'"
+                  :aria-label="showPassword ? 'Hide password' : 'Show password'"
+                  @click="showPassword = !showPassword"
+                >
+                  <EyeSlashIcon v-if="showPassword" class="ia-password-wrap__icon" />
+                  <EyeIcon v-else class="ia-password-wrap__icon" />
+                </button>
+              </div>
+              <p v-if="loginError" class="ia-error">{{ loginError }}</p>
+              <div class="ia-actions">
+                <button
+                  class="ia-btn ia-btn--accent"
+                  type="button"
+                  :disabled="!apiConfigured"
+                  @click="handleLogin"
+                >Log in</button>
+              </div>
             </div>
           </div>
         </div>
+        <p class="ia-login__motto">Your event is a goldmine of content</p>
       </div>
     </template>
 
@@ -1645,7 +1650,6 @@ watch(() => store.role, (role) => {
                     + New candidate
                   </button>
                   <button
-                    v-if="store.isCrew"
                     class="ia-btn ia-btn--small ia-btn--secondary"
                     type="button"
                     @click="exportTemplate"
@@ -1653,7 +1657,6 @@ watch(() => store.role, (role) => {
                     Download template
                   </button>
                   <label
-                    v-if="store.isCrew"
                     class="ia-btn ia-btn--small ia-btn--secondary"
                     style="cursor:pointer;margin:0"
                   >

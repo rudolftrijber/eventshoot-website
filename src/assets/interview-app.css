@@ -23,50 +23,87 @@
   overflow: auto;
 }
 
+.ia-login-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+}
+
 .ia-login {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 1.5rem 1.5rem 3rem;
-  gap: 1.35rem;
+  padding: 0;
+  gap: 0;
   max-width: 900px;
   margin: 0 auto;
+  width: 100%;
 }
 
 .ia-login__hero {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
+  gap: 0.25rem;
   width: 100%;
-  max-width: 520px;
+  max-width: min(96vw, 880px);
+  padding: 0.85rem 0.5rem 0;
+  position: relative;
+  z-index: 1;
 }
 
 .ia-login__logo {
   width: auto;
-  height: clamp(3.25rem, 9vw, 5rem);
+  height: clamp(3rem, 8vw, 4.5rem);
   max-width: min(78vw, 22rem);
   object-fit: contain;
   display: block;
+  position: relative;
+  z-index: 2;
+}
+
+.ia-login__mic-wrap {
+  width: 100%;
+  max-width: min(96vw, 880px);
+  aspect-ratio: 2.35 / 1;
+  overflow: hidden;
+  margin-top: -0.15rem;
 }
 
 .ia-login__mic {
   display: block;
   width: 100%;
-  max-width: 520px;
-  height: auto;
-  object-fit: contain;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 72%;
 }
 
 .ia-body--login {
-  min-height: 100vh;
-  padding-top: 1.5rem;
+  width: 100%;
+  min-height: 0;
+  margin-top: 0;
+  padding: 1.35rem 1rem 1.75rem;
+  position: relative;
+  z-index: 2;
+}
+
+.ia-login__motto {
+  margin: 1.5rem 1.25rem 2.5rem;
+  padding: 0;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.92);
+  font-size: clamp(1.05rem, 2.8vw, 1.35rem);
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
 }
 
 .ia-login__card {
   width: 100%;
   max-width: 380px;
+  margin: 0 auto;
   background: var(--ia-panel);
   border: none;
   border-radius: 12px;
