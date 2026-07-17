@@ -13,7 +13,7 @@ import {
   todayStr,
   formatDisplayDate,
 } from '@/utils/interviewCsv'
-import '@/assets/interview-app.css?v=login-motto'
+import '@/assets/interview-app.css?v=same-header'
 import '@/assets/interview-app-buttons.css'
 import {
   EyeIcon,
@@ -1082,7 +1082,7 @@ watch(() => store.role, (role) => {
 
 <template>
   <div class="interview-app" :class="{ 'interview-app--crew-focus': crewFocusMode }">
-    <header v-if="store.authenticated && !crewFocusMode" class="ia-brand">
+    <header v-if="!crewFocusMode" class="ia-brand">
       <img
         class="ia-brand__logo"
         src="/DATA_EVENTSHOOT/SITE_IMAGES/EIA_LOGO_NEG.svg"
@@ -1093,14 +1093,6 @@ watch(() => store.role, (role) => {
     <!-- Login -->
     <template v-if="!store.authenticated">
       <div class="ia-login-page">
-        <header class="ia-login__header">
-          <img
-            class="ia-login__logo"
-            src="/DATA_EVENTSHOOT/SITE_IMAGES/EIA_LOGO_NEG.svg"
-            alt="Event Interview App"
-          />
-        </header>
-
         <div class="ia-body ia-body--login">
           <div class="ia-login">
             <div class="ia-login__card">
@@ -1140,10 +1132,6 @@ watch(() => store.role, (role) => {
             </div>
           </div>
         </div>
-
-        <footer class="ia-login__footer">
-          <p class="ia-login__motto">Your event is a goldmine of content</p>
-        </footer>
       </div>
     </template>
 
@@ -1823,6 +1811,11 @@ watch(() => store.role, (role) => {
         </div>
       </div>
     </template>
+
+    <!-- Shared footer on all pages -->
+    <footer v-if="!crewFocusMode" class="ia-app-footer">
+      <p class="ia-app-motto">Your event is a goldmine of content</p>
+    </footer>
 
     <div v-if="toast" class="ia-toast">{{ toast }}</div>
   </div>
