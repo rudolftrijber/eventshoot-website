@@ -872,10 +872,18 @@ watch([fType, fProductie], () => {
   applyDeelnemerPreset()
 })
 
-watch(workingProduction, (prod) => {
-  pickProductieId.value = prod?.id || ''
-  loadClientDefaultQuestions(prod)
-}, { immediate: true })
+watch(
+  () => workingProduction.value?.id ?? '',
+  (id, prevId) => {
+    pickProductieId.value = id || ''
+    // Only reload defaults when the selected production changes.
+    // Sync polling replaces production objects every few seconds and must not reset AI prep.
+    if (id === prevId) return
+    const prod = workingProduction.value
+    if (prod && prod.id === id) loadClientDefaultQuestions(prod)
+  },
+  { immediate: true },
+)
 
 watch(() => store.role, (role) => {
   if (role === 'client') {
