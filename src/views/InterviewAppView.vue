@@ -110,14 +110,10 @@ const aiProdSelected = ref<boolean[]>([])
 
 let toastTimer: ReturnType<typeof setTimeout> | null = null
 
-const visibleTabs = computed(() =>
-  store.isClient
-    ? [{ id: 'kandidaten' as TabId, label: 'Candidates', icon: QueueListIcon }]
-    : [
-        { id: 'kandidaten' as TabId, label: 'Candidates', icon: QueueListIcon },
-        { id: 'producties' as TabId, label: 'Productions', icon: CalendarDaysIcon },
-      ],
-)
+const visibleTabs = computed(() => [
+  { id: 'producties' as TabId, label: 'Productions', icon: CalendarDaysIcon },
+  { id: 'kandidaten' as TabId, label: 'Candidates', icon: QueueListIcon },
+])
 
 const todayIso = computed(() => todayStr())
 
@@ -251,6 +247,7 @@ function onTabClick(id: TabId) {
     showProdForm.value = false
     clearProductieForm()
   }
+  settingsOpen.value = false
   store.setTab(id)
 }
 
@@ -886,8 +883,9 @@ watch(
 )
 
 watch(() => store.role, (role) => {
+  if (!role) return
+  store.setTab('producties')
   if (role === 'client') {
-    store.setTab('kandidaten')
     guestView.value = null
     settingsOpen.value = false
     if (!manualProductieId.value && store.activeProductions[0]) {
@@ -972,7 +970,7 @@ watch(() => store.role, (role) => {
                   v-for="t in visibleTabs"
                   :key="t.id"
                   class="ia-tab ia-tab--labeled"
-                  :class="{ active: store.activeTab === t.id && !showNavBack }"
+                  :class="{ active: store.activeTab === t.id && !showNavBack && !settingsOpen }"
                   type="button"
                   :title="t.label"
                   @click="onTabClick(t.id)"
@@ -1430,7 +1428,7 @@ watch(() => store.role, (role) => {
                   + New candidate
                 </button>
                 <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="exportTemplate">
-                  Template CSV
+                  Download template
                 </button>
                 <label class="ia-btn ia-btn--small ia-btn--secondary" style="cursor:pointer;margin:0">
                   Import CSV
@@ -1481,8 +1479,8 @@ watch(() => store.role, (role) => {
         </section>
 
         <!-- PRODUCTIES -->
-        <section v-if="store.activeTab === 'producties' && store.isCrew">
-          <div v-if="showProdForm" class="ia-card ia-prod-form">
+        <section v-if="store.activeTab === 'producties'">
+          <div v-if="showProdForm && store.isCrew" class="ia-card ia-prod-form">
             <h2 class="ia-section-title">{{ editingProdId ? 'Edit production' : 'New production' }}</h2>
             <label class="ia-label">Production name</label>
             <input v-model="pNaam" class="ia-input" placeholder="name of the production" />
@@ -1624,13 +1622,24 @@ watch(() => store.role, (role) => {
           </div>
           <div class="ia-card">
             <h2 class="ia-section-title">Active productions</h2>
-            <div class="ia-actions ia-actions--tight">
+            <p v-if="store.isClient" class="ia-hint">
+              Choose a production to manage its candidates.
+            </p>
+            <div v-if="store.isCrew" class="ia-actions ia-actions--tight">
               <button class="ia-btn ia-btn--small ia-btn--accent" type="button" @click="openNewProductie">
                 + New production
               </button>
             </div>
             <table class="ia-table">
-              <thead><tr><th>Production</th><th>Date</th><th>Status</th><th>Candidates</th><th></th></tr></thead>
+              <thead>
+                <tr>
+                  <th>Production</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                  <th>Candidates</th>
+                  <th v-if="store.isCrew"></th>
+                </tr>
+              </thead>
               <tbody>
                 <tr v-for="p in store.activeProductions" :key="p.id">
                   <td>
@@ -1648,16 +1657,18 @@ watch(() => store.role, (role) => {
                       <span class="ia-progress-chip ia-progress-chip--recorded">Recorded {{ productionCounts(p).recorded }}</span>
                     </div>
                   </td>
-                  <td>
+                  <td v-if="store.isCrew">
                     <button class="ia-iconbtn" type="button" title="Edit" @click="editProductie(p); showProdForm = true">✏️</button>
                     <button class="ia-iconbtn" type="button" title="Archive" @click="store.archiveProduction(p.id)">📦</button>
                   </td>
                 </tr>
               </tbody>
             </table>
-            <p v-if="!store.activeProductions.length" class="ia-empty">No productions yet. Click + New production to get started.</p>
+            <p v-if="!store.activeProductions.length" class="ia-empty">
+              {{ store.isCrew ? 'No productions yet. Click + New production to get started.' : 'No productions available for this login.' }}
+            </p>
           </div>
-          <div v-if="store.archivedProductions.length" class="ia-card">
+          <div v-if="store.isCrew && store.archivedProductions.length" class="ia-card">
             <h2 class="ia-section-title">Archive</h2>
             <p class="ia-list-header__sub">Archived productions and their candidates.</p>
             <table class="ia-table">

@@ -712,15 +712,16 @@
   background: var(--color-accent-hover);
 }
 
-.ia-btn--secondary {
-  background: var(--ia-panel);
-  border: none;
+.interview-app .ia-btn--secondary {
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.28);
   color: #ffffff;
-  transition: background var(--transition);
+  transition: background var(--transition), border-color var(--transition);
 }
 
-.ia-btn--secondary:hover {
-  background: var(--ia-panel-hover);
+.interview-app .ia-btn--secondary:hover {
+  background: rgba(255, 255, 255, 0.22);
+  border-color: rgba(255, 255, 255, 0.4);
 }
 
 .ia-btn--accent {
