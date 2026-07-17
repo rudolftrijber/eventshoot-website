@@ -1004,14 +1004,12 @@ watch(() => store.role, (role) => {
                   {{ navTitle }}
                 </div>
               </nav>
+              <img
+                class="ia-nav-logo"
+                src="/images/logos/ES_logo_NEG_DEF.svg"
+                alt="Eventshoot.nl"
+              />
               <div class="ia-tabs-utils">
-                <img
-                  class="ia-nav-logo"
-                  src="/images/logos/ES_logo_NEG_DEF.svg"
-                  alt="Eventshoot.nl"
-                  width="36"
-                  height="36"
-                />
                 <button
                   v-if="store.isCrew"
                   class="ia-tab ia-tab--util"
