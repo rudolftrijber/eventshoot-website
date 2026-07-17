@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { isClient, isCrew } from './auth.js'
+import { isClient, isCrew } from '../auth.js'
 import {
   deleteGuest,
   ensureSchema,
@@ -7,14 +7,14 @@ import {
   fetchProducties,
   finalizeGuest,
   updateGuest,
-} from './database.js'
+} from '../database.js'
 import {
   filterGuestsForAuth,
   productionNameAllowed,
   requireLogin,
   sanitizeGuestPatchForClient,
-} from './permissions.js'
-import type { GastStatus } from './types.js'
+} from '../permissions.js'
+import type { GastStatus } from '../types.js'
 
 function parseBody(req: VercelRequest): Record<string, unknown> {
   return typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {})
