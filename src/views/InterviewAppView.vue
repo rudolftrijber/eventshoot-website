@@ -117,11 +117,8 @@ const workingProduction = computed(() => {
 })
 
 const navTitle = computed(() => {
-  if (store.activeTab === 'candidate') {
-    return editingId.value ? (fNaam.value.trim() || 'Edit candidate') : 'New candidate'
-  }
-  if (store.activeTab === 'production') return ''
-  return 'Productions'
+  if (store.activeTab === 'productions') return 'Productions'
+  return ''
 })
 
 const navBackLabel = computed(() => {
