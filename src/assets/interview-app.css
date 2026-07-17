@@ -620,14 +620,26 @@
 .ia-select,
 .ia-textarea {
   width: 100%;
+  box-sizing: border-box;
+  min-height: 2.75rem;
   padding: 0.65rem 0.75rem;
   border-radius: 8px;
   border: none;
   background: var(--ia-panel-inset);
   color: #ffffff;
   font-size: 0.9rem;
+  line-height: 1.25;
   font-family: var(--font-base);
   transition: background var(--transition);
+}
+
+.ia-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23ffffff'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.65rem center;
+  background-size: 1rem;
+  padding-right: 2.25rem;
 }
 
 .ia-input:focus,
@@ -659,10 +671,6 @@
 
 .ia-field .ia-label {
   margin-top: 0;
-}
-
-.ia-field .ia-select {
-  min-height: 44px;
 }
 
 .ia-row > * {

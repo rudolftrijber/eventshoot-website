@@ -1054,7 +1054,7 @@ watch(() => store.role, (role) => {
                   />
                 </div>
                 <div class="ia-field">
-                  <label class="ia-label">Guest type</label>
+                  <label class="ia-label">Candidate type</label>
                   <select v-model="fType" class="ia-select" :disabled="guestFormLocked">
                     <option value="">— optional —</option>
                     <option v-for="t in GAST_TYPES" :key="t" :value="t">{{ t }}</option>
