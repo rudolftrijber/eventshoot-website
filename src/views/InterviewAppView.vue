@@ -117,13 +117,13 @@ const workingProduction = computed(() => {
 })
 
 const navTitle = computed(() => {
-  if (store.activeTab === 'productions') return 'Productions'
+  if (store.activeTab === 'productions') return 'Production(s)'
   return ''
 })
 
 const navBackLabel = computed(() => {
   if (store.activeTab === 'candidate') return 'Production'
-  return 'Productions'
+  return 'Production(s)'
 })
 
 const guestFormLocked = computed(() =>
