@@ -1429,6 +1429,9 @@ watch(() => store.role, (role) => {
                 <button class="ia-btn ia-btn--small ia-btn--accent" type="button" @click="openNewGuest">
                   + New candidate
                 </button>
+                <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="exportTemplate">
+                  Template CSV
+                </button>
                 <label class="ia-btn ia-btn--small ia-btn--secondary" style="cursor:pointer;margin:0">
                   Import CSV
                   <input type="file" accept=".csv,text/csv" hidden @change="(e) => { const f=(e.target as HTMLInputElement).files?.[0]; if(f) importCsv(f) }" />
