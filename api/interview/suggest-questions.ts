@@ -1,8 +1,12 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { isClient } from './auth.js'
+import { getRequestIp, isClient } from './auth.js'
 import { suggestInterviewQuestions, type SuggestQuestionsInput } from './aiSuggestQuestions.js'
 import { ensureSchema, fetchProducties } from './database.js'
 import { productionNameAllowed, requireLogin } from './permissions.js'
+import { consumeRateLimit, rateLimited } from './rateLimit.js'
+
+const AI_MAX_HITS = 30
+const AI_WINDOW_MS = 60 * 60 * 1000
 
 function parseBody(req: VercelRequest): Record<string, unknown> {
   return typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {})
@@ -23,6 +27,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
+    const ip = getRequestIp(req)
+    const roleKey = ctx.role || 'unknown'
+    const limit = await consumeRateLimit(`ai:${roleKey}:${ip}`, AI_MAX_HITS, AI_WINDOW_MS)
+    if (!limit.ok) {
+      rateLimited(res, limit.retryAfterSec, 'AI limit reached. Try again later.')
+      return
+    }
+
     const body = parseBody(req)
     const scope = body.scope === 'production' ? 'production' : 'guest'
     const productionName = String(body.productionName || '').trim()

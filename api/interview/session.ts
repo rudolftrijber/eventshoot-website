@@ -1,16 +1,15 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import {
-  createSessionToken,
   getAuthContext,
   parseSessionToken,
   skipAuth,
   verifyCrewPassword,
+  SESSION_TTL_SEC,
 } from './auth.js'
 
 const COOKIE_NAME = 'interview_session'
-const MAX_AGE_SEC = 60 * 60 * 24 * 7
 
-export { skipAuth, verifyCrewPassword as verifyPassword }
+export { skipAuth, verifyCrewPassword as verifyPassword, SESSION_TTL_SEC }
 
 export function getSessionToken(req: VercelRequest): string | null {
   const cookie = req.headers.cookie
@@ -27,7 +26,7 @@ export function setSessionCookie(res: VercelResponse, token: string): void {
   const secure = process.env.VERCEL_ENV === 'production' ? '; Secure' : ''
   res.setHeader(
     'Set-Cookie',
-    `${COOKIE_NAME}=${encodeURIComponent(token)}; HttpOnly; Path=/; Max-Age=${MAX_AGE_SEC}; SameSite=Lax${secure}`,
+    `${COOKIE_NAME}=${encodeURIComponent(token)}; HttpOnly; Path=/; Max-Age=${SESSION_TTL_SEC}; SameSite=Lax${secure}`,
   )
 }
 

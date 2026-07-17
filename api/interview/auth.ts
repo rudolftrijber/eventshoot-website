@@ -1,4 +1,4 @@
-import { createHmac, randomBytes, timingSafeEqual } from 'crypto'
+import { createHmac, randomBytes, scryptSync, timingSafeEqual } from 'crypto'
 import type { VercelRequest } from '@vercel/node'
 
 export type InterviewRole = 'crew' | 'client'
@@ -7,6 +7,8 @@ export interface SessionPayload {
   role: InterviewRole
   productionIds: string[]
   nonce: string
+  /** Unix timestamp (seconds) when the session expires. */
+  exp: number
 }
 
 export interface AuthContext {
@@ -17,6 +19,9 @@ export interface AuthContext {
 }
 
 const INTAKE_LOCK_TYPES = new Set(['Keynote speaker', 'Executive', 'Sponsor'])
+export const SESSION_TTL_SEC = 60 * 60 * 24 * 7
+const SCRYPT_PARAMS = { N: 16384, r: 8, p: 1, maxmem: 64 * 1024 * 1024 } as const
+const SCRYPT_KEYLEN = 64
 
 export function intakeLockApplies(type: string): boolean {
   return INTAKE_LOCK_TYPES.has(String(type || '').trim())
@@ -38,19 +43,50 @@ function fromBase64Url(value: string): string {
   return Buffer.from(value, 'base64url').toString('utf8')
 }
 
+function safeEqualHex(a: string, b: string): boolean {
+  if (a.length !== b.length) return false
+  try {
+    return timingSafeEqual(Buffer.from(a, 'utf8'), Buffer.from(b, 'utf8'))
+  } catch {
+    return false
+  }
+}
+
+/** New format: scrypt:<saltHex>:<hashHex> */
 export function hashClientPassword(password: string): string {
-  return sign(`client:${password}`)
+  const salt = randomBytes(16)
+  const derived = scryptSync(password, salt, SCRYPT_KEYLEN, SCRYPT_PARAMS)
+  return `scrypt:${salt.toString('hex')}:${derived.toString('hex')}`
+}
+
+function verifyLegacyClientPassword(password: string, hash: string): boolean {
+  if (!getSecret()) return false
+  const expected = sign(`client:${password}`)
+  return safeEqualHex(expected, hash)
 }
 
 export function verifyClientPassword(password: string, hash: string): boolean {
   if (!password || !hash) return false
-  const expected = hashClientPassword(password)
-  if (expected.length !== hash.length) return false
-  try {
-    return timingSafeEqual(Buffer.from(expected), Buffer.from(hash))
-  } catch {
-    return false
+  if (hash.startsWith('scrypt:')) {
+    const parts = hash.split(':')
+    if (parts.length !== 3) return false
+    const saltHex = parts[1]
+    const hashHex = parts[2]
+    if (!saltHex || !hashHex) return false
+    try {
+      const derived = scryptSync(password, Buffer.from(saltHex, 'hex'), SCRYPT_KEYLEN, SCRYPT_PARAMS)
+      const expected = Buffer.from(hashHex, 'hex')
+      if (derived.length !== expected.length) return false
+      return timingSafeEqual(derived, expected)
+    } catch {
+      return false
+    }
   }
+  return verifyLegacyClientPassword(password, hash)
+}
+
+export function clientPasswordNeedsRehash(hash: string): boolean {
+  return Boolean(hash) && !hash.startsWith('scrypt:')
 }
 
 export function verifyCrewPassword(password: string): boolean {
@@ -64,11 +100,12 @@ export function verifyCrewPassword(password: string): boolean {
   }
 }
 
-export function createSessionToken(payload: Omit<SessionPayload, 'nonce'> & { nonce?: string }): string {
+export function createSessionToken(payload: Omit<SessionPayload, 'nonce' | 'exp'> & { nonce?: string; exp?: number }): string {
   const full: SessionPayload = {
     role: payload.role,
     productionIds: payload.productionIds || [],
     nonce: payload.nonce || randomBytes(16).toString('hex'),
+    exp: payload.exp ?? Math.floor(Date.now() / 1000) + SESSION_TTL_SEC,
   }
   const encoded = toBase64Url(JSON.stringify(full))
   return `${encoded}.${sign(encoded)}`
@@ -90,6 +127,7 @@ export function parseSessionToken(token: string | null): SessionPayload | null {
     const payload = JSON.parse(fromBase64Url(encoded)) as SessionPayload
     if (payload.role !== 'crew' && payload.role !== 'client') return null
     if (!Array.isArray(payload.productionIds)) payload.productionIds = []
+    if (typeof payload.exp !== 'number' || payload.exp < Math.floor(Date.now() / 1000)) return null
     return payload
   } catch {
     return null
@@ -97,6 +135,8 @@ export function parseSessionToken(token: string | null): SessionPayload | null {
 }
 
 export function skipAuth(): boolean {
+  // Never allow auth bypass on Vercel Production.
+  if (process.env.VERCEL_ENV === 'production') return false
   const v = process.env.INTERVIEW_SKIP_AUTH || ''
   return v === '1' || v === 'true'
 }
@@ -128,4 +168,12 @@ export function isClient(ctx: AuthContext): boolean {
 export function clientProductionFilter(ctx: AuthContext, productionIds: string[]): string[] {
   if (isCrew(ctx)) return productionIds
   return productionIds.filter((id) => ctx.productionIds.includes(id))
+}
+
+export function getRequestIp(req: VercelRequest): string {
+  const forwarded = String(req.headers['x-forwarded-for'] || '').split(',')[0]?.trim()
+  if (forwarded) return forwarded
+  const realIp = String(req.headers['x-real-ip'] || '').trim()
+  if (realIp) return realIp
+  return 'unknown'
 }

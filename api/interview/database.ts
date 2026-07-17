@@ -1,6 +1,6 @@
 import type { Gast, GastStatus, InterviewSettings, Productie, ProductieStatus } from './types.js'
 import { normalizeGastStatus, normalizeProductieStatus } from './types.js'
-import { hashClientPassword, verifyClientPassword } from './auth.js'
+import { hashClientPassword, verifyClientPassword, clientPasswordNeedsRehash } from './auth.js'
 
 let schemaReady: Promise<void> | null = null
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -77,6 +77,13 @@ async function initSchema(): Promise<void> {
   await sql`CREATE INDEX IF NOT EXISTS interview_gasten_productie_idx ON interview_gasten (productie_naam)`
   await sql`ALTER TABLE interview_producties ADD COLUMN IF NOT EXISTS client_password_hash TEXT`
   await sql`ALTER TABLE interview_gasten ADD COLUMN IF NOT EXISTS intake_complete BOOLEAN NOT NULL DEFAULT FALSE`
+  await sql`
+    CREATE TABLE IF NOT EXISTS interview_rate_limits (
+      bucket_key TEXT PRIMARY KEY,
+      hits INTEGER NOT NULL DEFAULT 0,
+      window_start TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `
 }
 
 function formatDateValue(value: unknown): string {
@@ -152,13 +159,34 @@ export async function fetchProductiesByClientPassword(password: string): Promise
     SELECT * FROM interview_producties
     WHERE archived_at IS NULL AND client_password_hash IS NOT NULL
   `
-  return rows
-    .map((row, i) => {
-      const hash = (rows[i] as { client_password_hash?: string }).client_password_hash
-      if (!hash || !verifyClientPassword(password, String(hash))) return null
-      return rowToProductie(row as Record<string, unknown>)
+  const matched: Array<{ productie: Productie; hash: string; id: string }> = []
+  for (const row of rows) {
+    const record = row as Record<string, unknown>
+    const hash = record.client_password_hash ? String(record.client_password_hash) : ''
+    if (!hash || !verifyClientPassword(password, hash)) continue
+    matched.push({
+      productie: rowToProductie(record),
+      hash,
+      id: String(record.id),
     })
-    .filter((p): p is Productie => p !== null)
+  }
+
+  // Upgrade legacy HMAC hashes to scrypt after a successful login.
+  const nextHash = matched.some((m) => clientPasswordNeedsRehash(m.hash))
+    ? hashClientPassword(password)
+    : null
+  if (nextHash) {
+    for (const item of matched) {
+      if (!clientPasswordNeedsRehash(item.hash)) continue
+      await sql`
+        UPDATE interview_producties
+        SET client_password_hash = ${nextHash}, updated_at = NOW()
+        WHERE id = ${item.id}
+      `
+    }
+  }
+
+  return matched.map((m) => m.productie)
 }
 
 export async function fetchProducties(includeArchived = false): Promise<Productie[]> {

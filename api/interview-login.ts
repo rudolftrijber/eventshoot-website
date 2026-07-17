@@ -2,16 +2,20 @@ import type { VercelRequest, VercelResponse } from '@vercel/node'
 import {
   createSessionToken,
   getAuthContext,
-  verifyClientPassword,
+  getRequestIp,
   verifyCrewPassword,
 } from './interview/auth.js'
 import { ensureSchema, fetchProductiesByClientPassword } from './interview/database.js'
+import { consumeRateLimit, rateLimited } from './interview/rateLimit.js'
 import {
   clearSessionCookie,
   getSessionToken,
   setSessionCookie,
   skipAuth,
 } from './interview/session.js'
+
+const LOGIN_MAX_ATTEMPTS = 10
+const LOGIN_WINDOW_MS = 15 * 60 * 1000
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
@@ -58,6 +62,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         res.status(500).json({ error: 'Server not configured (INTERVIEW_SESSION_SECRET)' })
         return
       }
+
+      const ip = getRequestIp(req)
+      const limit = await consumeRateLimit(`login:${ip}`, LOGIN_MAX_ATTEMPTS, LOGIN_WINDOW_MS)
+      if (!limit.ok) {
+        rateLimited(res, limit.retryAfterSec, 'Too many login attempts. Try again later.')
+        return
+      }
+
       const password = String(body?.password || '')
       if (!password) {
         res.status(401).json({ error: 'Incorrect password' })
