@@ -1196,6 +1196,12 @@ watch(() => store.role, (role) => {
               <div class="ia-actions">
                 <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" :disabled="guestFormLocked" @click="addFQ">+ Question</button>
               </div>
+              <div class="ia-tip">
+                <p class="ia-tip__title">Tip</p>
+                <p class="ia-tip__text">
+                  Prefer not to share (all) questions in advance. When someone is interviewed about their own field or expertise, they usually open up naturally, and that authenticity is what you want on camera. There should always be room to skip a question. An interview should mainly be enjoyable to watch, and sharing every question up front often makes answers rehearsed and flat, with less room for the interviewer to improvise. If a client still wants to share something, they can do that themselves by email. Eventshoot.nl only facilitates.
+                </p>
+              </div>
               <div v-if="intakeLockApplies(fType)" class="ia-actions">
                 <input id="fIntakeComplete" v-model="fIntakeComplete" type="checkbox" />
                 <label for="fIntakeComplete" style="margin:0">Intake complete</label>

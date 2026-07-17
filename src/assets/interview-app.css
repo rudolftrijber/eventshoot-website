@@ -320,6 +320,30 @@
   font-size: 0.82rem;
 }
 
+.ia-tip {
+  margin: 0.85rem 0 1rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border-left: 3px solid var(--color-accent);
+}
+
+.ia-tip__title {
+  margin: 0 0 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+.ia-tip__text {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 0.84rem;
+  line-height: 1.55;
+}
+
 .ia-btn--ai {
   display: inline-flex;
   align-items: center;
