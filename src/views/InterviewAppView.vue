@@ -314,6 +314,30 @@ function onListProductieChange() {
   clearGuestOverlay()
 }
 
+function toggleEditProduction() {
+  if (!workingProduction.value || !store.isCrew) return
+  if (showProdForm.value) {
+    showProdForm.value = false
+    clearProductieForm()
+    return
+  }
+  editProductie(workingProduction.value)
+  showProdForm.value = true
+}
+
+function toggleEditQuestions() {
+  if (editingQuestions.value) {
+    editingQuestions.value = false
+    loadDefaultQuestions(workingProduction.value)
+    return
+  }
+  editingQuestions.value = true
+}
+
+function toggleEditCandidates() {
+  editingCandidates.value = !editingCandidates.value
+}
+
 function enterProduction(p: Productie) {
   manualProductieId.value = p.id
   pickProductieId.value = p.id
@@ -1324,10 +1348,12 @@ watch(() => store.role, (role) => {
                 <button
                   v-if="store.isCrew"
                   class="ia-editbtn"
+                  :class="{ 'ia-editbtn--active': showProdForm }"
                   type="button"
-                  title="Edit production"
-                  aria-label="Edit production"
-                  @click="editProductie(workingProduction); showProdForm = true"
+                  :title="showProdForm ? 'Close production edit' : 'Edit production'"
+                  :aria-label="showProdForm ? 'Close production edit' : 'Edit production'"
+                  :aria-pressed="showProdForm"
+                  @click="toggleEditProduction"
                 >
                   <PencilSquareIcon class="ia-editbtn__icon" aria-hidden="true" />
                 </button>
@@ -1382,7 +1408,7 @@ watch(() => store.role, (role) => {
               </div>
             </div>
 
-            <div v-if="workingProduction && !showProdForm && !editingQuestions" class="ia-card">
+            <div v-if="workingProduction && !showProdForm" class="ia-card">
               <div class="ia-prod-detail-head">
                 <div>
                   <h2 class="ia-section-title" style="margin:0">Default questions for Participants</h2>
@@ -1392,51 +1418,58 @@ watch(() => store.role, (role) => {
                 </div>
                 <button
                   class="ia-editbtn"
+                  :class="{ 'ia-editbtn--active': editingQuestions }"
                   type="button"
-                  title="Edit questions"
-                  aria-label="Edit questions"
-                  @click="editingQuestions = true"
+                  :title="editingQuestions ? 'Close questions edit' : 'Edit questions'"
+                  :aria-label="editingQuestions ? 'Close questions edit' : 'Edit questions'"
+                  :aria-pressed="editingQuestions"
+                  @click="toggleEditQuestions"
                 >
                   <PencilSquareIcon class="ia-editbtn__icon" aria-hidden="true" />
                 </button>
               </div>
-              <ol v-if="pQuestions.some((q) => q.trim())" class="ia-questions ia-questions--preview">
-                <li v-for="(q, i) in pQuestions.filter((q) => q.trim())" :key="`pq-view-${i}`">
-                  <span class="ia-questions__num">{{ i + 1 }}.</span>
-                  <span class="ia-questions__text">{{ q }}</span>
-                </li>
-              </ol>
-              <p v-else class="ia-empty">No default questions yet. Tap the pencil to add some.</p>
+              <template v-if="!editingQuestions">
+                <ol v-if="pQuestions.some((q) => q.trim())" class="ia-questions ia-questions--preview">
+                  <li v-for="(q, i) in pQuestions.filter((q) => q.trim())" :key="`pq-view-${i}`">
+                    <span class="ia-questions__num">{{ i + 1 }}.</span>
+                    <span class="ia-questions__text">{{ q }}</span>
+                  </li>
+                </ol>
+                <p v-else class="ia-empty">No default questions yet. Tap the pencil to add some.</p>
+              </template>
+              <ParticipantDefaultsCard
+                v-else
+                embedded
+                v-model:questions="pQuestions"
+                v-model:ai-prep="aiProdPrep"
+                v-model:ai-language="aiProdLanguage"
+                v-model:ai-address="aiProdAddress"
+                v-model:ai-selected="aiProdSelected"
+                :ai-step="aiProdStep"
+                :ai-loading="aiProdLoading"
+                :ai-preview="aiProdPreview"
+                :prep-complete="prepIsComplete(aiProdPrep)"
+                @open-ai="openProdAiPrep"
+                @generate="generateProdAiProposal"
+                @apply="applyProductionAiPreview"
+                @dismiss="dismissProductionAiPreview"
+                @add-question="addPQ"
+                @remove-question="removePQ"
+                @save="saveClientDefaultQuestions"
+              />
             </div>
-            <ParticipantDefaultsCard
-              v-else-if="workingProduction && !showProdForm && editingQuestions"
-              v-model:questions="pQuestions"
-              v-model:ai-prep="aiProdPrep"
-              v-model:ai-language="aiProdLanguage"
-              v-model:ai-address="aiProdAddress"
-              v-model:ai-selected="aiProdSelected"
-              :ai-step="aiProdStep"
-              :ai-loading="aiProdLoading"
-              :ai-preview="aiProdPreview"
-              :prep-complete="prepIsComplete(aiProdPrep)"
-              @open-ai="openProdAiPrep"
-              @generate="generateProdAiProposal"
-              @apply="applyProductionAiPreview"
-              @dismiss="dismissProductionAiPreview"
-              @add-question="addPQ"
-              @remove-question="removePQ"
-              @save="saveClientDefaultQuestions"
-            />
 
             <div class="ia-card">
               <div class="ia-prod-detail-head">
                 <h2 class="ia-section-title" style="margin:0">Interview candidates</h2>
                 <button
                   class="ia-editbtn"
+                  :class="{ 'ia-editbtn--active': editingCandidates }"
                   type="button"
-                  title="Edit candidates"
-                  aria-label="Edit candidates"
-                  @click="editingCandidates = true"
+                  :title="editingCandidates ? 'Close candidates edit' : 'Edit candidates'"
+                  :aria-label="editingCandidates ? 'Close candidates edit' : 'Edit candidates'"
+                  :aria-pressed="editingCandidates"
+                  @click="toggleEditCandidates"
                 >
                   <PencilSquareIcon class="ia-editbtn__icon" aria-hidden="true" />
                 </button>

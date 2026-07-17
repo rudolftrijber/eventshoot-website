@@ -885,9 +885,18 @@
   border-color: rgba(255, 255, 255, 0.4);
 }
 
-.ia-editbtn__icon {
-  width: 1.25rem;
-  height: 1.25rem;
+.ia-editbtn--active {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.ia-editbtn--active:hover {
+  background: var(--color-accent-hover);
+  border-color: var(--color-accent-hover);
+}
+
+.ia-defaults-embed {
+  margin-top: 0.35rem;
 }
 
 

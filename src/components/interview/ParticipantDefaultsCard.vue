@@ -21,6 +21,7 @@ defineProps<{
   aiLoading: boolean
   aiPreview: string[] | null
   prepComplete: boolean
+  embedded?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -35,8 +36,8 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <div class="ia-card">
-    <div class="ia-question-head">
+  <div :class="embedded ? 'ia-defaults-embed' : 'ia-card'">
+    <div v-if="!embedded" class="ia-question-head">
       <h2 class="ia-section-title ia-section-title--inline">Default questions for Participants</h2>
       <button
         v-if="aiStep === 'idle'"
@@ -48,7 +49,19 @@ const emit = defineEmits<{
         Suggest defaults
       </button>
     </div>
-    <p class="ia-hint">
+    <div v-else class="ia-question-head">
+      <p class="ia-hint" style="margin:0">Use AI, then edit and save what you want.</p>
+      <button
+        v-if="aiStep === 'idle'"
+        class="ia-btn ia-btn--small ia-btn--secondary ia-btn--ai"
+        type="button"
+        @click="emit('openAi')"
+      >
+        <SparklesIcon class="ia-btn__icon" aria-hidden="true" />
+        Suggest defaults
+      </button>
+    </div>
+    <p v-if="!embedded" class="ia-hint">
       These defaults are used when you add a Participant. Use AI, then edit and save what you want.
     </p>
     <div v-if="aiStep === 'prep'" class="ia-ai-preview ia-ai-preview--prep">
