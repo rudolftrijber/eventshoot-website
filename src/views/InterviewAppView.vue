@@ -116,12 +116,25 @@ const workingProduction = computed(() => {
   return list.find((p) => p.id === manualProductieId.value) || null
 })
 
-const navTitle = computed(() => '')
+const navTitle = computed(() => {
+  if (store.activeTab === 'productions' && !showProdForm.value && !guestView.value) {
+    return 'Event Interview App'
+  }
+  return ''
+})
 
 const navBackLabel = computed(() => {
+  if (guestView.value === 'camera' || guestView.value === 'interviewer' || guestView.value === 'controle') {
+    return 'Production'
+  }
   if (store.activeTab === 'candidate') return 'Production'
+  if (editingQuestions.value || editingCandidates.value) return 'Production'
+  if (showProdForm.value && store.activeTab === 'production') return 'Production'
   return 'Production(s)'
 })
+
+const editingQuestions = ref(false)
+const editingCandidates = ref(false)
 
 const guestFormLocked = computed(() =>
   store.isClient && fIntakeComplete.value && intakeLockApplies(fType.value),
@@ -209,9 +222,10 @@ const crewFocusMode = computed(() => {
 })
 
 const showNavBack = computed(() => {
-  if (crewFocusMode.value) return false
-  if (guestView.value && guestView.value !== 'form') return true
+  if (!store.authenticated) return false
+  if (guestView.value) return true
   if (showProdForm.value) return true
+  if (editingQuestions.value || editingCandidates.value) return true
   return store.activeTab !== 'productions'
 })
 
@@ -219,6 +233,15 @@ function handleNavBack() {
   settingsOpen.value = false
   if (guestView.value && guestView.value !== 'form') {
     clearGuestOverlay()
+    return
+  }
+  if (editingQuestions.value) {
+    editingQuestions.value = false
+    loadDefaultQuestions(workingProduction.value)
+    return
+  }
+  if (editingCandidates.value) {
+    editingCandidates.value = false
     return
   }
   if (showProdForm.value) {
@@ -234,6 +257,8 @@ function handleNavBack() {
   if (store.activeTab === 'production') {
     manualProductieId.value = null
     pickProductieId.value = ''
+    editingQuestions.value = false
+    editingCandidates.value = false
     store.setTab('productions')
   }
 }
@@ -293,6 +318,8 @@ function enterProduction(p: Productie) {
   pickProductieId.value = p.id
   searchBox.value = ''
   showProdForm.value = false
+  editingQuestions.value = false
+  editingCandidates.value = false
   clearGuestOverlay()
   loadDefaultQuestions(p)
   store.setTab('production')
@@ -656,6 +683,7 @@ async function saveClientDefaultQuestions() {
     await store.saveProduction({ id: prod.id, vragen })
     showToast('Default questions saved')
     resetProdAi()
+    editingQuestions.value = false
   } catch (e) {
     showToast(e instanceof Error ? e.message : 'Save failed')
   }
@@ -891,6 +919,8 @@ watch(() => store.role, (role) => {
   guestView.value = null
   settingsOpen.value = false
   showProdForm.value = false
+  editingQuestions.value = false
+  editingCandidates.value = false
   manualProductieId.value = null
   pickProductieId.value = ''
 })
@@ -898,7 +928,7 @@ watch(() => store.role, (role) => {
 
 <template>
   <div class="interview-app" :class="{ 'interview-app--crew-focus': crewFocusMode }">
-    <header v-if="!crewFocusMode" class="ia-header">
+    <header v-if="!store.authenticated" class="ia-header">
       <img
         class="ia-header__image"
         src="/DATA_EVENTSHOOT/SITE_IMAGES/WERK/microphone.png"
@@ -975,6 +1005,13 @@ watch(() => store.role, (role) => {
                 </div>
               </nav>
               <div class="ia-tabs-utils">
+                <img
+                  class="ia-nav-logo"
+                  src="/images/logos/ES_logo_NEG_DEF.svg"
+                  alt="Eventshoot.nl"
+                  width="36"
+                  height="36"
+                />
                 <button
                   v-if="store.isCrew"
                   class="ia-tab ia-tab--util"
@@ -1257,7 +1294,10 @@ watch(() => store.role, (role) => {
                 Note: these questions were shared with the guest in advance
               </div>
               <ol class="ia-questions">
-                <li v-for="(q, i) in intGuest.questions.filter(q => q)" :key="i">{{ q }}</li>
+                <li v-for="(q, i) in intGuest.questions.filter(q => q)" :key="i">
+                  <span class="ia-questions__num">{{ i + 1 }}.</span>
+                  <span class="ia-questions__text">{{ q }}</span>
+                </li>
               </ol>
               <div class="ia-actions">
                 <button v-if="!confirmOpgenomen" class="ia-btn ia-btn--ok" type="button" @click="confirmOpgenomen = true">✓ Recorded</button>
@@ -1341,8 +1381,32 @@ watch(() => store.role, (role) => {
               </div>
             </div>
 
+            <div v-if="workingProduction && !showProdForm && !editingQuestions" class="ia-card">
+              <div class="ia-prod-detail-head">
+                <div>
+                  <h2 class="ia-section-title" style="margin:0">Default questions for Participants</h2>
+                  <p class="ia-hint" style="margin:0.35rem 0 0">
+                    These defaults are used when you add a Participant.
+                  </p>
+                </div>
+                <button
+                  class="ia-btn ia-btn--small ia-btn--secondary"
+                  type="button"
+                  @click="editingQuestions = true"
+                >
+                  Edit questions
+                </button>
+              </div>
+              <ol v-if="pQuestions.some((q) => q.trim())" class="ia-questions ia-questions--preview">
+                <li v-for="(q, i) in pQuestions.filter((q) => q.trim())" :key="`pq-view-${i}`">
+                  <span class="ia-questions__num">{{ i + 1 }}.</span>
+                  <span class="ia-questions__text">{{ q }}</span>
+                </li>
+              </ol>
+              <p v-else class="ia-empty">No default questions yet. Click Edit questions to add some.</p>
+            </div>
             <ParticipantDefaultsCard
-              v-if="workingProduction && !showProdForm"
+              v-else-if="workingProduction && !showProdForm && editingQuestions"
               v-model:questions="pQuestions"
               v-model:ai-prep="aiProdPrep"
               v-model:ai-language="aiProdLanguage"
@@ -1362,7 +1426,43 @@ watch(() => store.role, (role) => {
             />
 
             <div class="ia-card">
-              <h2 class="ia-section-title">Interview candidates</h2>
+              <div class="ia-prod-detail-head">
+                <h2 class="ia-section-title" style="margin:0">Interview candidates</h2>
+                <button
+                  v-if="!editingCandidates"
+                  class="ia-btn ia-btn--small ia-btn--secondary"
+                  type="button"
+                  @click="editingCandidates = true"
+                >
+                  Edit candidates
+                </button>
+              </div>
+              <template v-if="!editingCandidates">
+                <div v-if="workingProductionCounts" class="ia-progress-chips" style="margin-bottom:0.75rem">
+                  <span class="ia-progress-chip">Total {{ workingProductionCounts.total }}</span>
+                  <span class="ia-progress-chip ia-progress-chip--entered">Entered {{ workingProductionCounts.entered }}</span>
+                  <span class="ia-progress-chip ia-progress-chip--checked">Checked {{ workingProductionCounts.checked }}</span>
+                  <span class="ia-progress-chip ia-progress-chip--recorded">Recorded {{ workingProductionCounts.recorded }}</span>
+                </div>
+                <table class="ia-table">
+                  <thead>
+                    <tr><th v-if="store.isCrew">Crew #</th><th>Name</th><th>Role</th><th>Status</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="g in filteredGuests" :key="`view-${g.id}`">
+                      <td v-if="store.isCrew">{{ g.regienummer || '—' }}</td>
+                      <td>
+                        <div>{{ g.naam }}</div>
+                        <small v-if="g.planning" style="color:var(--color-text-muted)">{{ g.planning }}</small>
+                      </td>
+                      <td>{{ g.functie }}</td>
+                      <td><span :class="pillClass(g.status)">{{ g.status }}</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+                <p v-if="!filteredGuests.length" class="ia-empty">No candidates for this production yet.</p>
+              </template>
+              <template v-else>
               <div class="ia-actions ia-actions--tight">
                 <button class="ia-btn ia-btn--small ia-btn--accent" type="button" @click="openNewGuest">
                   + New candidate
@@ -1414,6 +1514,7 @@ watch(() => store.role, (role) => {
                 </tbody>
               </table>
               <p v-if="!filteredGuests.length" class="ia-empty">No candidates for this production yet. Click + New candidate or import a CSV list.</p>
+              </template>
             </div>
         </section>
 
