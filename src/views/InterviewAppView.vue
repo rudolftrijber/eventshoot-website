@@ -1101,16 +1101,6 @@ watch(() => store.role, (role) => {
           />
         </header>
 
-        <div class="ia-login__hero">
-          <div class="ia-login__mic-wrap">
-            <img
-              class="ia-login__mic"
-              src="/DATA_EVENTSHOOT/SITE_IMAGES/WERK/microphone.png?v=20260717"
-              alt=""
-            />
-          </div>
-        </div>
-
         <div class="ia-body ia-body--login">
           <div class="ia-login">
             <div class="ia-login__card">

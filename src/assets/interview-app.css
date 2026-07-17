@@ -49,38 +49,12 @@
   width: 100%;
 }
 
-.ia-login__hero {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  max-width: min(96vw, 880px);
-  padding: 0 0.5rem;
-  position: relative;
-  z-index: 1;
-}
-
 .ia-login__logo {
   width: auto;
   height: clamp(3rem, 8vw, 4.5rem);
   max-width: min(78vw, 22rem);
   object-fit: contain;
   display: block;
-}
-
-.ia-login__mic-wrap {
-  width: 100%;
-  max-width: min(96vw, 880px);
-  aspect-ratio: 2.35 / 1;
-  overflow: hidden;
-}
-
-.ia-login__mic {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center 72%;
 }
 
 .ia-login__card {
