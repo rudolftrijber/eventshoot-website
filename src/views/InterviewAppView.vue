@@ -4,12 +4,9 @@ import { useInterviewStore } from '@/stores/interviewStore'
 import type { Gast, GuestView, Productie } from '@/types/interview'
 import { GAST_TYPES, intakeLockApplies, PRODUCTIE_STATUSES } from '@/types/interview'
 import {
-  clientTemplateCSV,
-  csvRowToGuestPayload,
   downloadText,
   guestsToCSV,
   lowerthirdCSV,
-  parseCSV,
   todayStr,
   formatDisplayDate,
 } from '@/utils/interviewCsv'
@@ -935,10 +932,6 @@ function exportCsv() {
   downloadText(`interview-intake-${todayStr()}.csv`, guestsToCSV(store.guests), 'text/csv;charset=utf-8')
 }
 
-function exportTemplate() {
-  downloadText(`interview-intake-template-${todayStr()}.csv`, clientTemplateCSV(), 'text/csv;charset=utf-8')
-}
-
 function exportLowerthird() {
   const list = store.guests.filter((g) => g.regienummer)
   downloadText(`lowerthird-${todayStr()}.csv`, lowerthirdCSV(list), 'text/csv;charset=utf-8')
@@ -946,39 +939,6 @@ function exportLowerthird() {
 
 function exportJson() {
   downloadText(`interview-intake-${todayStr()}.json`, JSON.stringify(store.guests, null, 2), 'application/json')
-}
-
-async function importCsv(file: File) {
-  const text = await file.text()
-  const rows = parseCSV(text)
-  const defaultProductie = workingProduction.value?.naam || ''
-  let added = 0
-  for (const row of rows) {
-    const payload = csvRowToGuestPayload(row)
-    if (payload.naam) {
-      if (!payload.productieNaam && defaultProductie) {
-        payload.productieNaam = defaultProductie
-      }
-      await store.createGuest({
-        ...payload,
-        status: payload.status as Gast['status'],
-      })
-      added++
-    }
-  }
-  showToast(`${added} candidate(s) imported`)
-}
-
-async function importJson(file: File) {
-  const incoming = JSON.parse(await file.text()) as Gast[]
-  let added = 0
-  for (const g of incoming) {
-    if (!store.guests.some((x) => x.id === g.id)) {
-      await store.createGuest(g)
-      added++
-    }
-  }
-  showToast(`${added} guest(s) imported`)
 }
 
 async function saveMaxChars() {
@@ -1207,16 +1167,7 @@ watch(() => store.role, (role) => {
           <button class="ia-btn ia-btn--small ia-btn--accent" type="button" @click="loadDemoData">Load demo data</button>
           <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="exportJson">Export JSON</button>
           <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="exportCsv">Export CSV</button>
-          <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="exportTemplate">Template CSV</button>
           <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="exportLowerthird">Lowerthird CSV</button>
-          <label class="ia-btn ia-btn--small ia-btn--secondary" style="cursor:pointer">
-            Import CSV
-            <input type="file" accept=".csv,text/csv" hidden @change="(e) => { const f=(e.target as HTMLInputElement).files?.[0]; if(f) importCsv(f) }" />
-          </label>
-          <label class="ia-btn ia-btn--small ia-btn--secondary" style="cursor:pointer">
-            Import JSON
-            <input type="file" accept="application/json" hidden @change="(e) => { const f=(e.target as HTMLInputElement).files?.[0]; if(f) importJson(f) }" />
-          </label>
         </div>
       </div>
 
@@ -1634,20 +1585,6 @@ watch(() => store.role, (role) => {
                   <button class="ia-btn ia-btn--small ia-btn--accent" type="button" @click="openNewGuest">
                     + New candidate
                   </button>
-                  <button
-                    class="ia-btn ia-btn--small ia-btn--secondary"
-                    type="button"
-                    @click="exportTemplate"
-                  >
-                    Download template
-                  </button>
-                  <label
-                    class="ia-btn ia-btn--small ia-btn--secondary"
-                    style="cursor:pointer;margin:0"
-                  >
-                    Import CSV
-                    <input type="file" accept=".csv,text/csv" hidden @change="(e) => { const f=(e.target as HTMLInputElement).files?.[0]; if(f) importCsv(f) }" />
-                  </label>
                 </div>
                 <input
                   v-model="searchBox"
@@ -1732,7 +1669,7 @@ watch(() => store.role, (role) => {
                     </tr>
                   </tbody>
                 </table>
-                <p v-if="!filteredGuests.length" class="ia-empty">No candidates for this production yet.{{ editingCandidates ? ' Click + New candidate or import a CSV list.' : ' Tap the pencil to manage candidates.' }}</p>
+                <p v-if="!filteredGuests.length" class="ia-empty">No candidates for this production yet.{{ editingCandidates ? ' Click + New candidate to add someone.' : ' Tap the pencil to manage candidates.' }}</p>
               </template>
             </div>
         </section>
