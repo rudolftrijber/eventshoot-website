@@ -1089,21 +1089,23 @@
 }
 
 .ia-cam-full__guest {
-  line-height: 1.3;
-  max-width: 92vw;
-  margin-bottom: 0.1rem;
+  line-height: 1.25;
+  max-width: 94vw;
+  margin-bottom: 0.25rem;
 }
 
 .ia-cam-full__naam {
-  font-size: clamp(1.1rem, 4.2vw, 1.5rem);
-  font-weight: 600;
+  font-size: clamp(1.85rem, 7.5vw, 3rem);
+  font-weight: 700;
   color: #fff;
+  letter-spacing: -0.01em;
 }
 
 .ia-cam-full__functie {
-  font-size: clamp(0.85rem, 3.2vw, 1.08rem);
-  color: rgba(255, 255, 255, 0.9);
-  margin-top: 0.25rem;
+  font-size: clamp(1.2rem, 4.8vw, 1.85rem);
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.92);
+  margin-top: 0.4rem;
 }
 
 .ia-cam-full__number {
@@ -1159,13 +1161,15 @@
 }
 
 .ia-int-full__naam {
-  font-size: clamp(1.15rem, 4.5vw, 1.55rem);
-  font-weight: 600;
+  font-size: clamp(1.65rem, 6.5vw, 2.5rem);
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
 .ia-int-full__functie {
-  font-size: clamp(0.88rem, 3.2vw, 1.08rem);
-  color: rgba(255, 255, 255, 0.9);
+  font-size: clamp(1.1rem, 4.2vw, 1.55rem);
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.92);
 }
 
 .interview-app--crew-focus .ia-int-full__warn {
