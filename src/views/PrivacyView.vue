@@ -25,6 +25,9 @@ usePageSeo('privacy', { url: 'https://eventshoot.nl/privacy' })
         <h2>{{ t('privacyPage.h2Data') }}</h2>
         <p>{{ t('privacyPage.pData') }}</p>
 
+        <h2>{{ t('privacyPage.h2Interview') }}</h2>
+        <p>{{ t('privacyPage.pInterview') }}</p>
+
         <h2>{{ t('privacyPage.h2Purpose') }}</h2>
         <p>{{ t('privacyPage.pPurpose') }}</p>
 

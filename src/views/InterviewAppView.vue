@@ -10,7 +10,7 @@ import {
   todayStr,
   formatDisplayDate,
 } from '@/utils/interviewCsv'
-import '@/assets/interview-app.css?v=q-lg'
+import '@/assets/interview-app.css?v=privacy-link'
 import '@/assets/interview-app-buttons.css'
 import {
   EyeIcon,
@@ -1752,6 +1752,7 @@ watch(() => store.role, (role) => {
     <!-- Shared footer on all pages -->
     <footer v-if="!crewFocusMode" class="ia-app-footer">
       <p class="ia-app-motto">Your event is a goldmine of content</p>
+      <a class="ia-app-privacy" href="/privacy/" target="_blank" rel="noopener noreferrer">Privacy</a>
     </footer>
 
     <div v-if="toast" class="ia-toast">{{ toast }}</div>
