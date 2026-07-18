@@ -10,7 +10,7 @@ import {
   todayStr,
   formatDisplayDate,
 } from '@/utils/interviewCsv'
-import '@/assets/interview-app.css?v=privacy-link'
+import '@/assets/interview-app.css?v=tip-bilingual'
 import '@/assets/interview-app-buttons.css'
 import {
   EyeIcon,
@@ -1325,20 +1325,10 @@ watch(() => store.role, (role) => {
               <div class="ia-actions">
                 <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" :disabled="guestFormLocked" @click="addFQ">+ Question</button>
               </div>
-              <div class="ia-tip">
-                <button
-                  class="ia-tip__toggle"
-                  type="button"
-                  :aria-expanded="tipOpen"
-                  @click="tipOpen = !tipOpen"
-                >
-                  <span class="ia-tip__title">Tip</span>
-                  <span class="ia-tip__chevron" aria-hidden="true">{{ tipOpen ? '▾' : '▸' }}</span>
-                </button>
-                <p v-if="tipOpen" class="ia-tip__text">
-                  Prefer not to share (all) questions in advance. When someone is interviewed about their own field or expertise, they usually open up naturally, and that authenticity is what you want on camera. There should always be room to skip a question. An interview should mainly be enjoyable to watch, and sharing every question up front often makes answers rehearsed and flat, with less room for the interviewer to improvise. If a client still wants to share something, they can do that themselves by email. Eventshoot.nl only facilitates.
-                </p>
-              </div>
+              <ShortQuestionsTip
+                en="Prefer not to share (all) questions in advance. When someone is interviewed about their own field or expertise, they usually open up naturally, and that authenticity is what you want on camera. There should always be room to skip a question. An interview should mainly be enjoyable to watch, and sharing every question up front often makes answers rehearsed and flat, with less room for the interviewer to improvise. If a client still wants to share something, they can do that themselves by email. Eventshoot.nl only facilitates."
+                nl="Deel bij voorkeur niet (alle) vragen van tevoren. Als iemand over het eigen vak of expertise wordt geïnterviewd, gaat het gesprek meestal vanzelf open, en die authenticiteit wil je op camera. Er moet altijd ruimte zijn om een vraag over te slaan. Een interview moet vooral prettig zijn om naar te kijken. Alle vragen vooraf delen maakt antwoorden vaak ingestudeerd en vlak, met minder ruimte voor de interviewer om te improviseren. Wil een opdrachtgever toch iets delen, dan kan dat zelf per e-mail. Eventshoot.nl faciliteert alleen."
+              />
               <div v-if="intakeLockApplies(fType)" class="ia-actions">
                 <input id="fIntakeComplete" v-model="fIntakeComplete" type="checkbox" />
                 <label for="fIntakeComplete" style="margin:0">Intake complete</label>
