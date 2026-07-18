@@ -1181,16 +1181,17 @@
 .interview-app--crew-focus .ia-questions {
   flex: 1;
   overflow-y: auto;
-  max-height: 52dvh;
+  max-height: 58dvh;
   padding-left: 0;
-  margin: 0.15rem 0;
+  margin: 0.35rem 0;
   text-align: left;
 }
 
 .interview-app--crew-focus .ia-questions li {
-  margin-bottom: 0.75rem;
-  font-size: clamp(1.15rem, 4.2vw, 1.45rem);
-  line-height: 1.4;
+  margin-bottom: 1.15rem;
+  font-size: clamp(1.45rem, 5.5vw, 2.05rem);
+  line-height: 1.35;
+  gap: 0.7rem;
 }
 
 .interview-app .ia-int-full .ia-actions {
@@ -1237,16 +1238,16 @@
 
 .ia-questions li {
   display: flex;
-  gap: 0.55rem;
+  gap: 0.7rem;
   align-items: flex-start;
-  margin-bottom: 1rem;
-  font-size: clamp(1rem, 3.5vw, 1.35rem);
-  line-height: 1.4;
+  margin-bottom: 1.15rem;
+  font-size: clamp(1.35rem, 5vw, 1.95rem);
+  line-height: 1.35;
 }
 
 .ia-questions__num {
   flex: 0 0 auto;
-  min-width: 1.5rem;
+  min-width: 1.85rem;
   font-weight: 700;
   color: var(--color-accent);
 }

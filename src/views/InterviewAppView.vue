@@ -10,7 +10,7 @@ import {
   todayStr,
   formatDisplayDate,
 } from '@/utils/interviewCsv'
-import '@/assets/interview-app.css?v=cam-name-lg'
+import '@/assets/interview-app.css?v=q-lg'
 import '@/assets/interview-app-buttons.css'
 import {
   EyeIcon,
