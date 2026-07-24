@@ -19,7 +19,7 @@ import {
   formatDisplayDateTime,
   productionStartSortKey,
 } from '@/utils/interviewCsv'
-import '@/assets/interview-app.css?v=opt-def-compl'
+import '@/assets/interview-app.css?v=cand-chips'
 import '@/assets/interview-app-buttons.css'
 import {
   EyeIcon,
@@ -1820,6 +1820,12 @@ watch(() => store.role, (role) => {
                     <span class="ia-prod-row__crew-item"><em>4</em> {{ p.crew4 || 'N.V.T.' }}</span>
                     <span class="ia-prod-row__crew-item"><em>5</em> {{ p.crew5 || 'N.V.T.' }}</span>
                   </span>
+                  <div class="ia-progress-chips ia-progress-chips--inline ia-prod-row__candidates">
+                    <span class="ia-progress-chip">Total {{ productionCounts(p).total }}</span>
+                    <span class="ia-progress-chip ia-progress-chip--entered">Entered {{ productionCounts(p).entered }}</span>
+                    <span class="ia-progress-chip ia-progress-chip--checked">Checked {{ productionCounts(p).checked }}</span>
+                    <span class="ia-progress-chip ia-progress-chip--recorded">Recorded {{ productionCounts(p).recorded }}</span>
+                  </div>
                   <span v-if="store.isCrew" class="ia-prod-row__actions" @click.stop>
                     <button class="ia-iconbtn" type="button" title="Edit" @click="openProductionForEdit(p)">✏️</button>
                     <button class="ia-iconbtn" type="button" title="Archive" @click="store.archiveProduction(p.id)">📦</button>

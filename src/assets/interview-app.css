@@ -1070,9 +1070,28 @@
 }
 
 .ia-prod-row__line2 {
-  justify-content: space-between;
+  justify-content: flex-start;
   padding-top: 0.15rem;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
+  gap: 0.55rem 0.85rem;
+}
+
+.ia-prod-row__candidates {
+  margin: 0;
+  flex: 1 1 auto;
+}
+
+.ia-prod-row__candidates .ia-progress-chip {
+  font-size: 0.68rem;
+  padding: 0.15rem 0.4rem;
+  min-height: 0;
+}
+
+.ia-prod-row__actions {
+  display: inline-flex;
+  gap: 0.2rem;
+  flex-shrink: 0;
+  margin-left: auto;
 }
 
 .ia-prod-row__name {
@@ -1118,13 +1137,6 @@
   font-weight: 700;
   color: var(--color-accent);
   margin-right: 0.2rem;
-}
-
-.ia-prod-row__actions {
-  display: inline-flex;
-  gap: 0.2rem;
-  flex-shrink: 0;
-  margin-left: auto;
 }
 
 @media (max-width: 640px) {
