@@ -19,7 +19,7 @@ import {
   formatDisplayDateTime,
   productionStartSortKey,
 } from '@/utils/interviewCsv'
-import '@/assets/interview-app.css?v=client-pw'
+import '@/assets/interview-app.css?v=gen-pw'
 import '@/assets/interview-app-buttons.css'
 import {
   EyeIcon,
@@ -841,6 +841,17 @@ async function removeClientAccess() {
   }
 }
 
+function generateClientPassword() {
+  const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789'
+  let out = ''
+  const bytes = new Uint8Array(12)
+  crypto.getRandomValues(bytes)
+  for (const b of bytes) out += alphabet[b % alphabet.length]
+  pClientPassword.value = out
+  showPClientPassword.value = true
+  showToast('New password filled in — click Save to apply')
+}
+
 async function saveClientDefaultQuestions() {
   if (isNewProduction.value) {
     editingQuestions.value = false
@@ -1493,7 +1504,7 @@ watch(() => store.role, (role) => {
                   >
                     <span class="ia-client-pw__label">Client password</span>
                     <code v-if="workingProduction.clientPasswordStored" class="ia-client-pw__value">{{ workingProduction.clientPasswordStored }}</code>
-                    <span v-else class="ia-client-pw__missing">Set again once to store it for display</span>
+                    <span v-else class="ia-client-pw__missing">Password active, but not recoverable. Open edit, generate a new one, and save.</span>
                   </p>
                 </div>
                 <button
@@ -1568,11 +1579,19 @@ watch(() => store.role, (role) => {
                       <span class="ia-client-pw__label">Current</span>
                       <code class="ia-client-pw__value">{{ workingProduction.clientPasswordStored }}</code>
                     </p>
-                    <p v-else-if="editingProdHasClientPassword" class="ia-hint">
-                      Client access is active. Re-enter the password once and save to store it for display.
+                    <p v-else-if="editingProdHasClientPassword" class="ia-hint ia-hint--warn">
+                      A client password is active, but older passwords cannot be recovered. Generate or type a new one, save, and share that with the client. After that it stays visible here.
                     </p>
-                    <div v-if="editingProdHasClientPassword" class="ia-actions ia-actions--tight">
-                      <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="removeClientAccess">
+                    <div class="ia-actions ia-actions--tight">
+                      <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="generateClientPassword">
+                        Generate password
+                      </button>
+                      <button
+                        v-if="editingProdHasClientPassword"
+                        class="ia-btn ia-btn--small ia-btn--secondary"
+                        type="button"
+                        @click="removeClientAccess"
+                      >
                         Remove client access
                       </button>
                     </div>
