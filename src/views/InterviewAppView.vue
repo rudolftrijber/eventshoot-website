@@ -19,7 +19,7 @@ import {
   formatDisplayDateTime,
   productionStartSortKey,
 } from '@/utils/interviewCsv'
-import '@/assets/interview-app.css?v=sort-start'
+import '@/assets/interview-app.css?v=overview-v2'
 import '@/assets/interview-app-buttons.css'
 import {
   EyeIcon,
@@ -1776,11 +1776,9 @@ watch(() => store.role, (role) => {
         <!-- PRODUCTIONS LIST -->
         <section v-if="store.activeTab === 'productions' && !guestView">
           <div class="ia-card">
-            <h2 class="ia-section-title">{{ store.isCrew ? 'Active productions overview' : 'Active Production(s)' }}</h2>
+            <h2 class="ia-section-title">Active productions overview</h2>
             <p class="ia-hint">
-              {{ store.isCrew
-                ? 'Sorted by start date and time. Click a row to open details, default questions and candidates.'
-                : 'Click a production to open its details, default questions and candidates.' }}
+              Sorted by start date and time. Click a row to open details, default questions and candidates.
             </p>
             <div v-if="store.isCrew" class="ia-table-toolbar">
               <button class="ia-btn ia-btn--small ia-btn--accent" type="button" @click="openNewProductie">
@@ -1788,9 +1786,9 @@ watch(() => store.role, (role) => {
               </button>
             </div>
             <div class="ia-table-scroll">
-              <table class="ia-table" :class="{ 'ia-table--crew-overview': store.isCrew }">
+              <table class="ia-table ia-table--crew-overview">
                 <thead>
-                  <tr v-if="store.isCrew">
+                  <tr>
                     <th>Production</th>
                     <th>Status</th>
                     <th>Start</th>
@@ -1802,13 +1800,8 @@ watch(() => store.role, (role) => {
                     <th>Crew 3</th>
                     <th>Crew 4</th>
                     <th>Crew 5</th>
-                    <th></th>
-                  </tr>
-                  <tr v-else>
-                    <th>Production</th>
-                    <th>Date</th>
-                    <th>Status</th>
                     <th>Candidates</th>
+                    <th v-if="store.isCrew"></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1818,36 +1811,29 @@ watch(() => store.role, (role) => {
                     class="data-row"
                     @click="enterProduction(p)"
                   >
-                    <template v-if="store.isCrew">
-                      <td><span class="ia-prod-name">{{ p.naam }}</span></td>
-                      <td>{{ p.status }}</td>
-                      <td>{{ formatDisplayDateTime(p.datum, p.startTijd || '') }}</td>
-                      <td>{{ formatDisplayDateTime(p.eindDatum || '', p.eindTijd || '') }}</td>
-                      <td>{{ p.locatie || '—' }}</td>
-                      <td>{{ p.land || '—' }}</td>
-                      <td>{{ p.supervisor || '—' }}</td>
-                      <td>{{ p.crew2 || '—' }}</td>
-                      <td>{{ p.crew3 || '—' }}</td>
-                      <td>{{ p.crew4 || '—' }}</td>
-                      <td>{{ p.crew5 || '—' }}</td>
-                      <td class="ia-row-actions" @click.stop>
-                        <button class="ia-iconbtn" type="button" title="Edit" @click="openProductionForEdit(p)">✏️</button>
-                        <button class="ia-iconbtn" type="button" title="Archive" @click="store.archiveProduction(p.id)">📦</button>
-                      </td>
-                    </template>
-                    <template v-else>
-                      <td><span class="ia-prod-name">{{ p.naam }}</span></td>
-                      <td>{{ p.datum ? formatDisplayDate(p.datum) : '—' }}</td>
-                      <td>{{ p.status }}</td>
-                      <td>
-                        <div class="ia-progress-chips ia-progress-chips--inline">
-                          <span class="ia-progress-chip">Total {{ productionCounts(p).total }}</span>
-                          <span class="ia-progress-chip ia-progress-chip--entered">Entered {{ productionCounts(p).entered }}</span>
-                          <span class="ia-progress-chip ia-progress-chip--checked">Checked {{ productionCounts(p).checked }}</span>
-                          <span class="ia-progress-chip ia-progress-chip--recorded">Recorded {{ productionCounts(p).recorded }}</span>
-                        </div>
-                      </td>
-                    </template>
+                    <td><span class="ia-prod-name">{{ p.naam }}</span></td>
+                    <td>{{ p.status }}</td>
+                    <td>{{ formatDisplayDateTime(p.datum, p.startTijd || '') }}</td>
+                    <td>{{ formatDisplayDateTime(p.eindDatum || '', p.eindTijd || '') }}</td>
+                    <td>{{ p.locatie || '—' }}</td>
+                    <td>{{ p.land || '—' }}</td>
+                    <td>{{ p.supervisor || '—' }}</td>
+                    <td>{{ p.crew2 || '—' }}</td>
+                    <td>{{ p.crew3 || '—' }}</td>
+                    <td>{{ p.crew4 || '—' }}</td>
+                    <td>{{ p.crew5 || '—' }}</td>
+                    <td>
+                      <div class="ia-progress-chips ia-progress-chips--inline">
+                        <span class="ia-progress-chip">Total {{ productionCounts(p).total }}</span>
+                        <span class="ia-progress-chip ia-progress-chip--entered">Entered {{ productionCounts(p).entered }}</span>
+                        <span class="ia-progress-chip ia-progress-chip--checked">Checked {{ productionCounts(p).checked }}</span>
+                        <span class="ia-progress-chip ia-progress-chip--recorded">Recorded {{ productionCounts(p).recorded }}</span>
+                      </div>
+                    </td>
+                    <td v-if="store.isCrew" class="ia-row-actions" @click.stop>
+                      <button class="ia-iconbtn" type="button" title="Edit" @click="openProductionForEdit(p)">✏️</button>
+                      <button class="ia-iconbtn" type="button" title="Archive" @click="store.archiveProduction(p.id)">📦</button>
+                    </td>
                   </tr>
                 </tbody>
               </table>

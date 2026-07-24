@@ -191,10 +191,10 @@ export function todayStr(): string {
 export function formatDisplayDate(iso: string): string {
   if (!iso || !/^\d{4}-\d{2}-\d{2}/.test(iso)) return iso || todayStr()
   const d = new Date(`${iso.slice(0, 10)}T12:00:00`)
-  return d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })
+  return d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })
 }
 
-/** e.g. Fri 24 Jul 08:00 — empty parts become — */
+/** e.g. Wed 30 Sep 2026 08:00 — empty parts become — */
 export function formatDisplayDateTime(date: string, time: string): string {
   if (!date) return '—'
   const d = formatDisplayDate(date)
@@ -204,5 +204,6 @@ export function formatDisplayDateTime(date: string, time: string): string {
 
 /** Sort key for production start (ascending) */
 export function productionStartSortKey(p: { datum?: string; startTijd?: string }): string {
-  return `${p.datum || '9999-99-99'}T${(p.startTijd || '99:99').padStart(5, '0')}`
+  const time = (p.startTijd || '00:00').trim() || '00:00'
+  return `${p.datum || '9999-99-99'}T${time.padStart(5, '0')}`
 }
