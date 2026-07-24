@@ -168,12 +168,13 @@ function safeEqualString(a: string, b: string): boolean {
   }
 }
 
-/** Per-crew password from INTERVIEW_CREW_PASSWORDS; legacy shared password still accepted. */
+/** Per-crew password from INTERVIEW_CREW_PASSWORDS; no shared fallback once personal is set. */
 export function verifyCrewMemberLogin(crewName: string, password: string): boolean {
   if (!crewName || !password) return false
   if (!(CREW_LOGIN_NAMES as readonly string[]).includes(crewName)) return false
   const personal = parseCrewPasswordMap()[crewName]
-  if (personal && safeEqualString(password, personal)) return true
+  if (personal) return safeEqualString(password, personal)
+  // Only if this person has no personal password yet
   return verifyCrewPassword(password)
 }
 

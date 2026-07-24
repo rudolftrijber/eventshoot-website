@@ -1,33 +1,31 @@
-# Logs
-logs
-*.log
-npm-debug.log*
 
-# Dependencies
-node_modules/
-
-# Build output
-dist/
-dist-ssr/
-
-# Local env files
-.env
-.env.*
 !.env.example
-
-# Grote video's (te groot voor GitHub, hosten via Vimeo/Bunny)
-public/*.mp4
-public/DATA_EVENTSHOOT/VIDEOS/
-
+!.vscode/extensions.json
+# Build output
+# Dependencies
 # Editor
+# Grote video's (te groot voor GitHub, hosten via Vimeo/Bunny)
+# Local env files
+# Logs
+*.log
+*.njsproj
+*.ntvs*
+*.sln
+*.suo
+*.sw?
 .DS_Store
 .claude/settings.local.json
-.vscode/*
-!.vscode/extensions.json
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-.vercel
+.crew-passwords.json
+.env
 .env*.local
+.env.*
+.vercel
+.vscode/*
+crew-passwords.local.txt
+dist-ssr/
+dist/
+logs
+node_modules/
+npm-debug.log*
+public/*.mp4
+public/DATA_EVENTSHOOT/VIDEOS/
