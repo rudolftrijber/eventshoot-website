@@ -184,9 +184,15 @@ const productionMeta = computed(() => {
   return parts.filter((p) => p && p !== '—').join(' · ')
 })
 
-/** Crew production overview: sorted by start date + time */
+/** Production overviews: sorted by start date + time */
 const sortedActiveProductions = computed(() =>
   [...store.activeProductions].sort((a, b) =>
+    productionStartSortKey(a).localeCompare(productionStartSortKey(b)),
+  ),
+)
+
+const sortedArchivedProductions = computed(() =>
+  [...store.archivedProductions].sort((a, b) =>
     productionStartSortKey(a).localeCompare(productionStartSortKey(b)),
   ),
 )
@@ -208,9 +214,7 @@ const dayGuests = computed(() => {
     )
 })
 
-const sortedProductions = computed(() =>
-  [...store.activeProductions].sort((a, b) => a.naam.localeCompare(b.naam, 'nl')),
-)
+const sortedProductions = computed(() => sortedActiveProductions.value)
 
 const maxChars = computed(() => store.settings.maxChars)
 
