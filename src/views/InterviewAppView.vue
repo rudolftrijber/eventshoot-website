@@ -20,7 +20,7 @@ import {
   formatDisplayDateTime,
   productionStartSortKey,
 } from '@/utils/interviewCsv'
-import '@/assets/interview-app.css?v=crew-login'
+import '@/assets/interview-app.css?v=row-colors'
 import '@/assets/interview-app-buttons.css'
 import {
   EyeIcon,
