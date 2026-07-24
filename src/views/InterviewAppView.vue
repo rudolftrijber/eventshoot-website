@@ -19,7 +19,7 @@ import {
   formatDisplayDateTime,
   productionStartSortKey,
 } from '@/utils/interviewCsv'
-import '@/assets/interview-app.css?v=crew-overview'
+import '@/assets/interview-app.css?v=sort-start'
 import '@/assets/interview-app-buttons.css'
 import {
   EyeIcon,
@@ -1809,7 +1809,7 @@ watch(() => store.role, (role) => {
                 </thead>
                 <tbody>
                   <tr
-                    v-for="p in (store.isCrew ? sortedActiveProductions : store.activeProductions)"
+                    v-for="p in sortedActiveProductions"
                     :key="p.id"
                     class="data-row"
                     @click="enterProduction(p)"
@@ -1858,7 +1858,7 @@ watch(() => store.role, (role) => {
             <table class="ia-table">
               <thead><tr><th>Production</th><th>Start</th><th>Status</th><th></th></tr></thead>
               <tbody>
-                <tr v-for="p in store.archivedProductions" :key="p.id">
+                <tr v-for="p in sortedArchivedProductions" :key="p.id">
                   <td>{{ p.naam }}</td>
                   <td>{{ formatDisplayDateTime(p.datum, p.startTijd || '') }}</td>
                   <td>{{ p.status }}</td>
