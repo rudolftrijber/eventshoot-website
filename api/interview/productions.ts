@@ -35,9 +35,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         id: String(body.id || uid()),
         naam: String(body.naam || '').trim(),
         datum: String(body.datum || ''),
+        startTijd: String(body.startTijd || ''),
+        eindDatum: String(body.eindDatum || ''),
+        eindTijd: String(body.eindTijd || ''),
         status: (String(body.status || 'Planned') as Productie['status']),
         locatie: String(body.locatie || '').trim(),
         land: String(body.land || '').trim(),
+        supervisor: String(body.supervisor || 'Rolf Trijber'),
+        crew2: String(body.crew2 || 'N.V.T.'),
+        crew3: String(body.crew3 || 'N.V.T.'),
+        crew4: String(body.crew4 || 'N.V.T.'),
+        crew5: String(body.crew5 || 'N.V.T.'),
         vragen,
       }
       if (!productie.naam) {

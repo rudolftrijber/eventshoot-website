@@ -193,3 +193,16 @@ export function formatDisplayDate(iso: string): string {
   const d = new Date(`${iso.slice(0, 10)}T12:00:00`)
   return d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })
 }
+
+/** e.g. Fri 24 Jul 08:00 — empty parts become — */
+export function formatDisplayDateTime(date: string, time: string): string {
+  if (!date) return '—'
+  const d = formatDisplayDate(date)
+  const t = (time || '').trim()
+  return t ? `${d} ${t}` : d
+}
+
+/** Sort key for production start (ascending) */
+export function productionStartSortKey(p: { datum?: string; startTijd?: string }): string {
+  return `${p.datum || '9999-99-99'}T${(p.startTijd || '99:99').padStart(5, '0')}`
+}

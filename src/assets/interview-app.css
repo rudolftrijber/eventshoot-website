@@ -622,16 +622,41 @@
 .ia-prod-form .ia-input,
 .ia-prod-form .ia-select {
   width: 100%;
-  max-width: 22rem;
+  max-width: none;
 }
 
 .ia-prod-form .ia-password-wrap {
   width: 100%;
-  max-width: 22rem;
+  max-width: none;
 }
 
 .ia-prod-form .ia-password-wrap .ia-input {
   max-width: none;
+}
+
+.ia-prod-form__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem 1.5rem;
+  align-items: start;
+}
+
+.ia-prod-form__col {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.ia-prod-form__datetime {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+@media (max-width: 720px) {
+  .ia-prod-form__grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .ia-row-actions {
@@ -972,6 +997,22 @@
   display: flex;
   justify-content: flex-end;
   margin: 0.35rem 0 0.65rem;
+}
+
+.ia-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.ia-table--crew-overview {
+  min-width: 64rem;
+}
+
+.ia-table--crew-overview th,
+.ia-table--crew-overview td {
+  white-space: nowrap;
+  font-size: 0.8rem;
 }
 
 .ia-editbtn {

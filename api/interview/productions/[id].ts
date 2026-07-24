@@ -50,9 +50,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       } else if (isCrew(ctx)) {
         if (body.naam !== undefined) patch.naam = String(body.naam)
         if (body.datum !== undefined) patch.datum = String(body.datum)
+        if (body.startTijd !== undefined) patch.startTijd = String(body.startTijd)
+        if (body.eindDatum !== undefined) patch.eindDatum = String(body.eindDatum)
+        if (body.eindTijd !== undefined) patch.eindTijd = String(body.eindTijd)
         if (body.status !== undefined) patch.status = String(body.status) as ProductieStatus
         if (body.locatie !== undefined) patch.locatie = String(body.locatie)
         if (body.land !== undefined) patch.land = String(body.land)
+        if (body.supervisor !== undefined) patch.supervisor = String(body.supervisor)
+        if (body.crew2 !== undefined) patch.crew2 = String(body.crew2)
+        if (body.crew3 !== undefined) patch.crew3 = String(body.crew3)
+        if (body.crew4 !== undefined) patch.crew4 = String(body.crew4)
+        if (body.crew5 !== undefined) patch.crew5 = String(body.crew5)
         if (body.vragen !== undefined) patch.vragen = Array.isArray(body.vragen) ? body.vragen.map(String) : []
         if (body.clientPassword !== undefined) patch.clientPassword = String(body.clientPassword)
 

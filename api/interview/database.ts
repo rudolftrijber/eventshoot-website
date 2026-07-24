@@ -1,5 +1,11 @@
 import type { Gast, GastStatus, InterviewSettings, Productie, ProductieStatus } from './types.js'
-import { normalizeGastStatus, normalizeProductieStatus } from './types.js'
+import {
+  DEFAULT_CREW_SLOT,
+  DEFAULT_SUPERVISOR,
+  normalizeCrewMember,
+  normalizeGastStatus,
+  normalizeProductieStatus,
+} from './types.js'
 import { hashClientPassword, verifyClientPassword, clientPasswordNeedsRehash } from './auth.js'
 
 let schemaReady: Promise<void> | null = null
@@ -78,6 +84,14 @@ async function initSchema(): Promise<void> {
   await sql`ALTER TABLE interview_producties ADD COLUMN IF NOT EXISTS client_password_hash TEXT`
   await sql`ALTER TABLE interview_producties ADD COLUMN IF NOT EXISTS locatie TEXT NOT NULL DEFAULT ''`
   await sql`ALTER TABLE interview_producties ADD COLUMN IF NOT EXISTS land TEXT NOT NULL DEFAULT ''`
+  await sql`ALTER TABLE interview_producties ADD COLUMN IF NOT EXISTS start_tijd TEXT NOT NULL DEFAULT ''`
+  await sql`ALTER TABLE interview_producties ADD COLUMN IF NOT EXISTS eind_datum DATE`
+  await sql`ALTER TABLE interview_producties ADD COLUMN IF NOT EXISTS eind_tijd TEXT NOT NULL DEFAULT ''`
+  await sql`ALTER TABLE interview_producties ADD COLUMN IF NOT EXISTS supervisor TEXT NOT NULL DEFAULT 'Rolf Trijber'`
+  await sql`ALTER TABLE interview_producties ADD COLUMN IF NOT EXISTS crew2 TEXT NOT NULL DEFAULT 'N.V.T.'`
+  await sql`ALTER TABLE interview_producties ADD COLUMN IF NOT EXISTS crew3 TEXT NOT NULL DEFAULT 'N.V.T.'`
+  await sql`ALTER TABLE interview_producties ADD COLUMN IF NOT EXISTS crew4 TEXT NOT NULL DEFAULT 'N.V.T.'`
+  await sql`ALTER TABLE interview_producties ADD COLUMN IF NOT EXISTS crew5 TEXT NOT NULL DEFAULT 'N.V.T.'`
   await sql`ALTER TABLE interview_gasten ADD COLUMN IF NOT EXISTS intake_complete BOOLEAN NOT NULL DEFAULT FALSE`
   await sql`
     CREATE TABLE IF NOT EXISTS interview_rate_limits (
@@ -103,15 +117,31 @@ function toDateParam(datum: string): string | null {
   return formatted || null
 }
 
+function formatTimeValue(value: unknown): string {
+  if (!value) return ''
+  const s = String(value).trim()
+  const m = s.match(/^(\d{1,2}):(\d{2})/)
+  if (!m) return ''
+  return `${m[1].padStart(2, '0')}:${m[2]}`
+}
+
 function rowToProductie(row: Record<string, unknown>): Productie {
   const hash = row.client_password_hash ? String(row.client_password_hash) : ''
   return {
     id: String(row.id),
     naam: String(row.naam),
     datum: formatDateValue(row.datum),
+    startTijd: formatTimeValue(row.start_tijd),
+    eindDatum: formatDateValue(row.eind_datum),
+    eindTijd: formatTimeValue(row.eind_tijd),
     status: normalizeProductieStatus(String(row.status)),
     locatie: String(row.locatie || ''),
     land: String(row.land || ''),
+    supervisor: normalizeCrewMember(String(row.supervisor || ''), DEFAULT_SUPERVISOR),
+    crew2: normalizeCrewMember(String(row.crew2 || ''), DEFAULT_CREW_SLOT),
+    crew3: normalizeCrewMember(String(row.crew3 || ''), DEFAULT_CREW_SLOT),
+    crew4: normalizeCrewMember(String(row.crew4 || ''), DEFAULT_CREW_SLOT),
+    crew5: normalizeCrewMember(String(row.crew5 || ''), DEFAULT_CREW_SLOT),
     vragen: Array.isArray(row.vragen) ? row.vragen.map(String) : [],
     archivedAt: row.archived_at ? String(row.archived_at) : null,
     hasClientPassword: Boolean(hash),
@@ -265,10 +295,18 @@ export async function createProductie(
   const sql = await getSql()
   const hash = clientPassword?.trim() ? hashClientPassword(clientPassword.trim()) : null
   const rows = await sql`
-    INSERT INTO interview_producties (id, naam, datum, status, locatie, land, vragen, client_password_hash)
+    INSERT INTO interview_producties (
+      id, naam, datum, start_tijd, eind_datum, eind_tijd, status,
+      locatie, land, supervisor, crew2, crew3, crew4, crew5,
+      vragen, client_password_hash
+    )
     VALUES (
-      ${data.id}, ${data.naam}, ${toDateParam(data.datum)}, ${data.status},
+      ${data.id}, ${data.naam}, ${toDateParam(data.datum)}, ${formatTimeValue(data.startTijd)},
+      ${toDateParam(data.eindDatum)}, ${formatTimeValue(data.eindTijd)}, ${data.status},
       ${data.locatie || ''}, ${data.land || ''},
+      ${normalizeCrewMember(data.supervisor, DEFAULT_SUPERVISOR)},
+      ${normalizeCrewMember(data.crew2)}, ${normalizeCrewMember(data.crew3)},
+      ${normalizeCrewMember(data.crew4)}, ${normalizeCrewMember(data.crew5)},
       ${JSON.stringify(data.vragen)}::jsonb, ${hash}
     )
     RETURNING *
@@ -295,9 +333,17 @@ export async function updateProductie(id: string, patch: Partial<Productie>): Pr
     UPDATE interview_producties SET
       naam = ${next.naam},
       datum = ${toDateParam(next.datum)},
+      start_tijd = ${formatTimeValue(next.startTijd)},
+      eind_datum = ${toDateParam(next.eindDatum)},
+      eind_tijd = ${formatTimeValue(next.eindTijd)},
       status = ${next.status},
       locatie = ${next.locatie || ''},
       land = ${next.land || ''},
+      supervisor = ${normalizeCrewMember(next.supervisor, DEFAULT_SUPERVISOR)},
+      crew2 = ${normalizeCrewMember(next.crew2)},
+      crew3 = ${normalizeCrewMember(next.crew3)},
+      crew4 = ${normalizeCrewMember(next.crew4)},
+      crew5 = ${normalizeCrewMember(next.crew5)},
       vragen = ${JSON.stringify(next.vragen)}::jsonb,
       archived_at = ${next.archivedAt},
       client_password_hash = ${nextHash},

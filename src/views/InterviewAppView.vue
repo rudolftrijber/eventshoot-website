@@ -2,15 +2,24 @@
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useInterviewStore } from '@/stores/interviewStore'
 import type { Gast, GuestView, Productie } from '@/types/interview'
-import { GAST_TYPES, intakeLockApplies, PRODUCTIE_STATUSES } from '@/types/interview'
+import {
+  CREW_MEMBERS,
+  DEFAULT_CREW_SLOT,
+  DEFAULT_SUPERVISOR,
+  GAST_TYPES,
+  intakeLockApplies,
+  PRODUCTIE_STATUSES,
+} from '@/types/interview'
 import {
   downloadText,
   guestsToCSV,
   lowerthirdCSV,
   todayStr,
   formatDisplayDate,
+  formatDisplayDateTime,
+  productionStartSortKey,
 } from '@/utils/interviewCsv'
-import '@/assets/interview-app.css?v=tip-bilingual'
+import '@/assets/interview-app.css?v=crew-overview'
 import '@/assets/interview-app-buttons.css'
 import {
   EyeIcon,
@@ -59,9 +68,17 @@ const fQuestions = ref<string[]>(['', '', '', ''])
 const editingProdId = ref<string | null>(null)
 const pNaam = ref('')
 const pDatum = ref('')
+const pStartTijd = ref('')
+const pEindDatum = ref('')
+const pEindTijd = ref('')
 const pStatus = ref<Productie['status']>('Planned')
 const pLocatie = ref('')
 const pLand = ref('')
+const pSupervisor = ref(DEFAULT_SUPERVISOR)
+const pCrew2 = ref(DEFAULT_CREW_SLOT)
+const pCrew3 = ref(DEFAULT_CREW_SLOT)
+const pCrew4 = ref(DEFAULT_CREW_SLOT)
+const pCrew5 = ref(DEFAULT_CREW_SLOT)
 const pClientPassword = ref('')
 const editingProdHasClientPassword = ref(false)
 const pQuestions = ref<string[]>(['', '', '', ''])
@@ -148,20 +165,31 @@ const productionHeading = computed(() => {
 const productionMeta = computed(() => {
   const parts: string[] = []
   if (isNewProduction.value) {
-    parts.push(pDatum.value ? formatDisplayDate(pDatum.value) : 'No date')
+    parts.push(formatDisplayDateTime(pDatum.value, pStartTijd.value))
+    if (pEindDatum.value) parts.push(`→ ${formatDisplayDateTime(pEindDatum.value, pEindTijd.value)}`)
     parts.push(pStatus.value)
     if (pLocatie.value.trim()) parts.push(pLocatie.value.trim())
     if (pLand.value.trim()) parts.push(pLand.value.trim())
-    return parts.join(' · ')
+    if (pSupervisor.value && pSupervisor.value !== DEFAULT_CREW_SLOT) parts.push(pSupervisor.value)
+    return parts.filter((p) => p && p !== '—').join(' · ')
   }
   const prod = workingProduction.value
   if (!prod) return ''
-  parts.push(prod.datum ? formatDisplayDate(prod.datum) : 'No date')
+  parts.push(formatDisplayDateTime(prod.datum, prod.startTijd || ''))
+  if (prod.eindDatum) parts.push(`→ ${formatDisplayDateTime(prod.eindDatum, prod.eindTijd || '')}`)
   parts.push(prod.status)
   if (prod.locatie?.trim()) parts.push(prod.locatie.trim())
   if (prod.land?.trim()) parts.push(prod.land.trim())
-  return parts.join(' · ')
+  if (prod.supervisor && prod.supervisor !== DEFAULT_CREW_SLOT) parts.push(prod.supervisor)
+  return parts.filter((p) => p && p !== '—').join(' · ')
 })
+
+/** Crew production overview: sorted by start date + time */
+const sortedActiveProductions = computed(() =>
+  [...store.activeProductions].sort((a, b) =>
+    productionStartSortKey(a).localeCompare(productionStartSortKey(b)),
+  ),
+)
 
 const guestFormLocked = computed(() =>
   store.isClient && fIntakeComplete.value && intakeLockApplies(fType.value),
@@ -328,7 +356,15 @@ function openNewProductie() {
   resetQuestions(pQuestions)
   resetProdAi()
   pDatum.value = todayIso.value
+  pStartTijd.value = '08:00'
+  pEindDatum.value = todayIso.value
+  pEindTijd.value = '18:00'
   pStatus.value = 'Active'
+  pSupervisor.value = DEFAULT_SUPERVISOR
+  pCrew2.value = DEFAULT_CREW_SLOT
+  pCrew3.value = DEFAULT_CREW_SLOT
+  pCrew4.value = DEFAULT_CREW_SLOT
+  pCrew5.value = DEFAULT_CREW_SLOT
   isNewProduction.value = true
   manualProductieId.value = null
   pickProductieId.value = ''
@@ -707,9 +743,17 @@ async function saveProductie() {
       id: editingProdId.value || undefined,
       naam,
       datum,
+      startTijd: pStartTijd.value,
+      eindDatum: pEindDatum.value,
+      eindTijd: pEindTijd.value,
       status: pStatus.value,
       locatie: pLocatie.value.trim(),
       land: pLand.value.trim(),
+      supervisor: pSupervisor.value,
+      crew2: pCrew2.value,
+      crew3: pCrew3.value,
+      crew4: pCrew4.value,
+      crew5: pCrew5.value,
       vragen,
     }
     if (pClientPassword.value.trim()) {
@@ -735,9 +779,17 @@ function clearProductieForm() {
   editingProdId.value = null
   pNaam.value = ''
   pDatum.value = ''
+  pStartTijd.value = ''
+  pEindDatum.value = ''
+  pEindTijd.value = ''
   pStatus.value = 'Planned'
   pLocatie.value = ''
   pLand.value = ''
+  pSupervisor.value = DEFAULT_SUPERVISOR
+  pCrew2.value = DEFAULT_CREW_SLOT
+  pCrew3.value = DEFAULT_CREW_SLOT
+  pCrew4.value = DEFAULT_CREW_SLOT
+  pCrew5.value = DEFAULT_CREW_SLOT
   pClientPassword.value = ''
   showPClientPassword.value = false
   editingProdHasClientPassword.value = false
@@ -749,9 +801,17 @@ function editProductie(p: Productie) {
   editingProdId.value = p.id
   pNaam.value = p.naam
   pDatum.value = p.datum
+  pStartTijd.value = p.startTijd || ''
+  pEindDatum.value = p.eindDatum || ''
+  pEindTijd.value = p.eindTijd || ''
   pStatus.value = p.status
   pLocatie.value = p.locatie || ''
   pLand.value = p.land || ''
+  pSupervisor.value = p.supervisor || DEFAULT_SUPERVISOR
+  pCrew2.value = p.crew2 || DEFAULT_CREW_SLOT
+  pCrew3.value = p.crew3 || DEFAULT_CREW_SLOT
+  pCrew4.value = p.crew4 || DEFAULT_CREW_SLOT
+  pCrew5.value = p.crew5 || DEFAULT_CREW_SLOT
   pClientPassword.value = ''
   showPClientPassword.value = false
   editingProdHasClientPassword.value = Boolean(p.hasClientPassword)
@@ -1444,44 +1504,90 @@ watch(() => store.role, (role) => {
                 class="ia-prod-form"
                 :class="{ 'ia-prod-form--inline': !isNewProduction }"
               >
-                <label class="ia-label">Production name</label>
-                <input v-model="pNaam" class="ia-input" placeholder="name of the production" />
-                <label class="ia-label">Production date</label>
-                <input v-model="pDatum" class="ia-input" type="date" />
-                <label class="ia-label">Location</label>
-                <input v-model="pLocatie" class="ia-input" placeholder="venue or city" />
-                <label class="ia-label">Country</label>
-                <input v-model="pLand" class="ia-input" placeholder="e.g. Netherlands" />
-                <label class="ia-label">Status</label>
-                <select v-model="pStatus" class="ia-select">
-                  <option v-for="s in PRODUCTIE_STATUSES" :key="s" :value="s">{{ s }}</option>
-                </select>
-                <label class="ia-label">Client password (optional)</label>
-                <div class="ia-password-wrap">
-                  <input
-                    v-model="pClientPassword"
-                    class="ia-input ia-password-wrap__input"
-                    :type="showPClientPassword ? 'text' : 'password'"
-                    autocomplete="new-password"
-                    :placeholder="editingProdHasClientPassword ? 'Leave empty to keep current password' : 'Set password for client login'"
-                  />
-                  <button
-                    class="ia-password-wrap__toggle"
-                    type="button"
-                    :title="showPClientPassword ? 'Hide password' : 'Show password'"
-                    :aria-label="showPClientPassword ? 'Hide password' : 'Show password'"
-                    @click="showPClientPassword = !showPClientPassword"
-                  >
-                    <EyeSlashIcon v-if="showPClientPassword" class="ia-password-wrap__icon" />
-                    <EyeIcon v-else class="ia-password-wrap__icon" />
-                  </button>
+                <div class="ia-prod-form__grid">
+                  <div class="ia-prod-form__col">
+                    <label class="ia-label">Production name</label>
+                    <input v-model="pNaam" class="ia-input" placeholder="name of the production" />
+
+                    <label class="ia-label">Start date</label>
+                    <div class="ia-prod-form__datetime">
+                      <input v-model="pDatum" class="ia-input" type="date" />
+                      <input v-model="pStartTijd" class="ia-input" type="time" />
+                    </div>
+
+                    <label class="ia-label">Location</label>
+                    <input v-model="pLocatie" class="ia-input" placeholder="venue or city" />
+
+                    <label class="ia-label">Country</label>
+                    <input v-model="pLand" class="ia-input" placeholder="e.g. Netherlands" />
+
+                    <label class="ia-label">Status</label>
+                    <select v-model="pStatus" class="ia-select">
+                      <option v-for="s in PRODUCTIE_STATUSES" :key="s" :value="s">{{ s }}</option>
+                    </select>
+
+                    <label class="ia-label">Client password (optional)</label>
+                    <div class="ia-password-wrap">
+                      <input
+                        v-model="pClientPassword"
+                        class="ia-input ia-password-wrap__input"
+                        :type="showPClientPassword ? 'text' : 'password'"
+                        autocomplete="new-password"
+                        :placeholder="editingProdHasClientPassword ? 'Leave empty to keep current password' : 'Set password for client login'"
+                      />
+                      <button
+                        class="ia-password-wrap__toggle"
+                        type="button"
+                        :title="showPClientPassword ? 'Hide password' : 'Show password'"
+                        :aria-label="showPClientPassword ? 'Hide password' : 'Show password'"
+                        @click="showPClientPassword = !showPClientPassword"
+                      >
+                        <EyeSlashIcon v-if="showPClientPassword" class="ia-password-wrap__icon" />
+                        <EyeIcon v-else class="ia-password-wrap__icon" />
+                      </button>
+                    </div>
+                    <p v-if="editingProdHasClientPassword" class="ia-hint">Client access is active for this production.</p>
+                    <div v-if="editingProdHasClientPassword" class="ia-actions ia-actions--tight">
+                      <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="removeClientAccess">
+                        Remove client access
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="ia-prod-form__col">
+                    <label class="ia-label">End date</label>
+                    <div class="ia-prod-form__datetime">
+                      <input v-model="pEindDatum" class="ia-input" type="date" />
+                      <input v-model="pEindTijd" class="ia-input" type="time" />
+                    </div>
+
+                    <label class="ia-label">Supervisor</label>
+                    <select v-model="pSupervisor" class="ia-select">
+                      <option v-for="m in CREW_MEMBERS" :key="`sup-${m}`" :value="m">{{ m }}</option>
+                    </select>
+
+                    <label class="ia-label">Crew 2</label>
+                    <select v-model="pCrew2" class="ia-select">
+                      <option v-for="m in CREW_MEMBERS" :key="`c2-${m}`" :value="m">{{ m }}</option>
+                    </select>
+
+                    <label class="ia-label">Crew 3</label>
+                    <select v-model="pCrew3" class="ia-select">
+                      <option v-for="m in CREW_MEMBERS" :key="`c3-${m}`" :value="m">{{ m }}</option>
+                    </select>
+
+                    <label class="ia-label">Crew 4</label>
+                    <select v-model="pCrew4" class="ia-select">
+                      <option v-for="m in CREW_MEMBERS" :key="`c4-${m}`" :value="m">{{ m }}</option>
+                    </select>
+
+                    <label class="ia-label">Crew 5</label>
+                    <select v-model="pCrew5" class="ia-select">
+                      <option v-for="m in CREW_MEMBERS" :key="`c5-${m}`" :value="m">{{ m }}</option>
+                    </select>
+                  </div>
                 </div>
-                <p v-if="editingProdHasClientPassword" class="ia-hint">Client access is active for this production.</p>
-                <div v-if="editingProdHasClientPassword" class="ia-actions ia-actions--tight">
-                  <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="removeClientAccess">
-                    Remove client access
-                  </button>
-                </div>
+
                 <div class="ia-actions">
                   <button class="ia-btn" type="button" @click="saveProductie">Save</button>
                   <button class="ia-btn ia-btn--secondary" type="button" @click="cancelProductionEdit">Cancel</button>
@@ -1666,50 +1772,82 @@ watch(() => store.role, (role) => {
         <!-- PRODUCTIONS LIST -->
         <section v-if="store.activeTab === 'productions' && !guestView">
           <div class="ia-card">
-            <h2 class="ia-section-title">Active Production(s)</h2>
-            <p class="ia-hint">Click a production to open its details, default questions and candidates.</p>
+            <h2 class="ia-section-title">{{ store.isCrew ? 'Active productions overview' : 'Active Production(s)' }}</h2>
+            <p class="ia-hint">
+              {{ store.isCrew
+                ? 'Sorted by start date and time. Click a row to open details, default questions and candidates.'
+                : 'Click a production to open its details, default questions and candidates.' }}
+            </p>
             <div v-if="store.isCrew" class="ia-table-toolbar">
               <button class="ia-btn ia-btn--small ia-btn--accent" type="button" @click="openNewProductie">
                 + New production
               </button>
             </div>
-            <table class="ia-table">
-              <thead>
-                <tr>
-                  <th>Production</th>
-                  <th>Date</th>
-                  <th>Status</th>
-                  <th>Candidates</th>
-                  <th v-if="store.isCrew"></th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr
-                  v-for="p in store.activeProductions"
-                  :key="p.id"
-                  class="data-row"
-                  @click="enterProduction(p)"
-                >
-                  <td>
-                    <span class="ia-prod-name">{{ p.naam }}</span>
-                  </td>
-                  <td>{{ p.datum ? formatDisplayDate(p.datum) : '—' }}</td>
-                  <td>{{ p.status }}</td>
-                  <td>
-                    <div class="ia-progress-chips ia-progress-chips--inline">
-                      <span class="ia-progress-chip">Total {{ productionCounts(p).total }}</span>
-                      <span class="ia-progress-chip ia-progress-chip--entered">Entered {{ productionCounts(p).entered }}</span>
-                      <span class="ia-progress-chip ia-progress-chip--checked">Checked {{ productionCounts(p).checked }}</span>
-                      <span class="ia-progress-chip ia-progress-chip--recorded">Recorded {{ productionCounts(p).recorded }}</span>
-                    </div>
-                  </td>
-                  <td v-if="store.isCrew" class="ia-row-actions" @click.stop>
-                    <button class="ia-iconbtn" type="button" title="Edit" @click="openProductionForEdit(p)">✏️</button>
-                    <button class="ia-iconbtn" type="button" title="Archive" @click="store.archiveProduction(p.id)">📦</button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+            <div class="ia-table-scroll">
+              <table class="ia-table" :class="{ 'ia-table--crew-overview': store.isCrew }">
+                <thead>
+                  <tr v-if="store.isCrew">
+                    <th>Production</th>
+                    <th>Status</th>
+                    <th>Start</th>
+                    <th>End</th>
+                    <th>Location</th>
+                    <th>Country</th>
+                    <th>Supervisor</th>
+                    <th>Crew 2</th>
+                    <th>Crew 3</th>
+                    <th>Crew 4</th>
+                    <th>Crew 5</th>
+                    <th></th>
+                  </tr>
+                  <tr v-else>
+                    <th>Production</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Candidates</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    v-for="p in (store.isCrew ? sortedActiveProductions : store.activeProductions)"
+                    :key="p.id"
+                    class="data-row"
+                    @click="enterProduction(p)"
+                  >
+                    <template v-if="store.isCrew">
+                      <td><span class="ia-prod-name">{{ p.naam }}</span></td>
+                      <td>{{ p.status }}</td>
+                      <td>{{ formatDisplayDateTime(p.datum, p.startTijd || '') }}</td>
+                      <td>{{ formatDisplayDateTime(p.eindDatum || '', p.eindTijd || '') }}</td>
+                      <td>{{ p.locatie || '—' }}</td>
+                      <td>{{ p.land || '—' }}</td>
+                      <td>{{ p.supervisor || '—' }}</td>
+                      <td>{{ p.crew2 || '—' }}</td>
+                      <td>{{ p.crew3 || '—' }}</td>
+                      <td>{{ p.crew4 || '—' }}</td>
+                      <td>{{ p.crew5 || '—' }}</td>
+                      <td class="ia-row-actions" @click.stop>
+                        <button class="ia-iconbtn" type="button" title="Edit" @click="openProductionForEdit(p)">✏️</button>
+                        <button class="ia-iconbtn" type="button" title="Archive" @click="store.archiveProduction(p.id)">📦</button>
+                      </td>
+                    </template>
+                    <template v-else>
+                      <td><span class="ia-prod-name">{{ p.naam }}</span></td>
+                      <td>{{ p.datum ? formatDisplayDate(p.datum) : '—' }}</td>
+                      <td>{{ p.status }}</td>
+                      <td>
+                        <div class="ia-progress-chips ia-progress-chips--inline">
+                          <span class="ia-progress-chip">Total {{ productionCounts(p).total }}</span>
+                          <span class="ia-progress-chip ia-progress-chip--entered">Entered {{ productionCounts(p).entered }}</span>
+                          <span class="ia-progress-chip ia-progress-chip--checked">Checked {{ productionCounts(p).checked }}</span>
+                          <span class="ia-progress-chip ia-progress-chip--recorded">Recorded {{ productionCounts(p).recorded }}</span>
+                        </div>
+                      </td>
+                    </template>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
             <p v-if="!store.activeProductions.length" class="ia-empty">
               {{ store.isCrew ? 'No productions yet. Click + New production to get started.' : 'No productions available for this login.' }}
             </p>
@@ -1718,11 +1856,11 @@ watch(() => store.role, (role) => {
             <h2 class="ia-section-title">Archive</h2>
             <p class="ia-list-header__sub">Archived productions and their candidates.</p>
             <table class="ia-table">
-              <thead><tr><th>Production</th><th>Date</th><th>Status</th><th></th></tr></thead>
+              <thead><tr><th>Production</th><th>Start</th><th>Status</th><th></th></tr></thead>
               <tbody>
                 <tr v-for="p in store.archivedProductions" :key="p.id">
                   <td>{{ p.naam }}</td>
-                  <td>{{ p.datum ? formatDisplayDate(p.datum) : '—' }}</td>
+                  <td>{{ formatDisplayDateTime(p.datum, p.startTijd || '') }}</td>
                   <td>{{ p.status }}</td>
                   <td>
                     <button class="ia-iconbtn" type="button" title="Restore" @click="store.restoreProduction(p.id)">↩️</button>
