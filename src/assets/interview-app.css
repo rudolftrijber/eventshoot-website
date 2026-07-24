@@ -1005,14 +1005,108 @@
   -webkit-overflow-scrolling: touch;
 }
 
-.ia-table--crew-overview {
-  min-width: 72rem;
+.ia-prod-overview {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  margin-top: 0.35rem;
 }
 
-.ia-table--crew-overview th,
-.ia-table--crew-overview td {
-  white-space: nowrap;
-  font-size: 0.8rem;
+.ia-prod-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.28rem;
+  padding: 0.55rem 0.7rem;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  transition: background var(--transition), border-color var(--transition);
+}
+
+.ia-prod-row:hover,
+.ia-prod-row:focus-visible {
+  background: rgba(0, 0, 0, 0.34);
+  border-color: rgba(255, 255, 255, 0.22);
+  outline: none;
+}
+
+.ia-prod-row__line1,
+.ia-prod-row__line2 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem 0.45rem;
+  min-width: 0;
+}
+
+.ia-prod-row__line2 {
+  justify-content: space-between;
+  padding-top: 0.15rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.ia-prod-row__name {
+  font-weight: 700;
+  font-size: 0.92rem;
+  color: #fff;
+  margin-right: 0.15rem;
+}
+
+.ia-prod-row__status {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.75);
+  padding: 0.12rem 0.4rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  margin-right: 0.2rem;
+}
+
+.ia-prod-row__meta {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.88);
+  line-height: 1.35;
+}
+
+.ia-prod-row__sep {
+  color: rgba(255, 255, 255, 0.35);
+  font-size: 0.75rem;
+}
+
+.ia-prod-row__crew {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.75rem;
+  font-size: 0.74rem;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.ia-prod-row__crew-item em {
+  font-style: normal;
+  font-weight: 700;
+  color: var(--color-accent);
+  margin-right: 0.2rem;
+}
+
+.ia-prod-row__actions {
+  display: inline-flex;
+  gap: 0.2rem;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+@media (max-width: 640px) {
+  .ia-prod-row__line2 {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .ia-prod-row__actions {
+    margin-left: 0;
+  }
 }
 
 .ia-editbtn {

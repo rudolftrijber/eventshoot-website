@@ -19,7 +19,7 @@ import {
   formatDisplayDateTime,
   productionStartSortKey,
 } from '@/utils/interviewCsv'
-import '@/assets/interview-app.css?v=overview-v2'
+import '@/assets/interview-app.css?v=prod-rows'
 import '@/assets/interview-app-buttons.css'
 import {
   EyeIcon,
@@ -1785,58 +1785,40 @@ watch(() => store.role, (role) => {
                 + New production
               </button>
             </div>
-            <div class="ia-table-scroll">
-              <table class="ia-table ia-table--crew-overview">
-                <thead>
-                  <tr>
-                    <th>Production</th>
-                    <th>Status</th>
-                    <th>Start</th>
-                    <th>End</th>
-                    <th>Location</th>
-                    <th>Country</th>
-                    <th>Supervisor</th>
-                    <th>Crew 2</th>
-                    <th>Crew 3</th>
-                    <th>Crew 4</th>
-                    <th>Crew 5</th>
-                    <th>Candidates</th>
-                    <th v-if="store.isCrew"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr
-                    v-for="p in sortedActiveProductions"
-                    :key="p.id"
-                    class="data-row"
-                    @click="enterProduction(p)"
-                  >
-                    <td><span class="ia-prod-name">{{ p.naam }}</span></td>
-                    <td>{{ p.status }}</td>
-                    <td>{{ formatDisplayDateTime(p.datum, p.startTijd || '') }}</td>
-                    <td>{{ formatDisplayDateTime(p.eindDatum || '', p.eindTijd || '') }}</td>
-                    <td>{{ p.locatie || '—' }}</td>
-                    <td>{{ p.land || '—' }}</td>
-                    <td>{{ p.supervisor || '—' }}</td>
-                    <td>{{ p.crew2 || '—' }}</td>
-                    <td>{{ p.crew3 || '—' }}</td>
-                    <td>{{ p.crew4 || '—' }}</td>
-                    <td>{{ p.crew5 || '—' }}</td>
-                    <td>
-                      <div class="ia-progress-chips ia-progress-chips--inline">
-                        <span class="ia-progress-chip">Total {{ productionCounts(p).total }}</span>
-                        <span class="ia-progress-chip ia-progress-chip--entered">Entered {{ productionCounts(p).entered }}</span>
-                        <span class="ia-progress-chip ia-progress-chip--checked">Checked {{ productionCounts(p).checked }}</span>
-                        <span class="ia-progress-chip ia-progress-chip--recorded">Recorded {{ productionCounts(p).recorded }}</span>
-                      </div>
-                    </td>
-                    <td v-if="store.isCrew" class="ia-row-actions" @click.stop>
-                      <button class="ia-iconbtn" type="button" title="Edit" @click="openProductionForEdit(p)">✏️</button>
-                      <button class="ia-iconbtn" type="button" title="Archive" @click="store.archiveProduction(p.id)">📦</button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+            <div class="ia-prod-overview">
+              <article
+                v-for="p in sortedActiveProductions"
+                :key="p.id"
+                class="ia-prod-row"
+                role="button"
+                tabindex="0"
+                @click="enterProduction(p)"
+                @keyup.enter="enterProduction(p)"
+              >
+                <div class="ia-prod-row__line1">
+                  <span class="ia-prod-row__name">{{ p.naam }}</span>
+                  <span class="ia-prod-row__status">{{ p.status }}</span>
+                  <span class="ia-prod-row__meta">{{ formatDisplayDateTime(p.datum, p.startTijd || '') }}</span>
+                  <span class="ia-prod-row__sep" aria-hidden="true">·</span>
+                  <span class="ia-prod-row__meta">{{ formatDisplayDateTime(p.eindDatum || '', p.eindTijd || '') }}</span>
+                  <span class="ia-prod-row__sep" aria-hidden="true">·</span>
+                  <span class="ia-prod-row__meta">{{ p.locatie || '—' }}</span>
+                  <span class="ia-prod-row__sep" aria-hidden="true">·</span>
+                  <span class="ia-prod-row__meta">{{ p.supervisor || '—' }}</span>
+                </div>
+                <div class="ia-prod-row__line2">
+                  <span class="ia-prod-row__crew">
+                    <span class="ia-prod-row__crew-item"><em>2</em> {{ p.crew2 || 'N.V.T.' }}</span>
+                    <span class="ia-prod-row__crew-item"><em>3</em> {{ p.crew3 || 'N.V.T.' }}</span>
+                    <span class="ia-prod-row__crew-item"><em>4</em> {{ p.crew4 || 'N.V.T.' }}</span>
+                    <span class="ia-prod-row__crew-item"><em>5</em> {{ p.crew5 || 'N.V.T.' }}</span>
+                  </span>
+                  <span v-if="store.isCrew" class="ia-prod-row__actions" @click.stop>
+                    <button class="ia-iconbtn" type="button" title="Edit" @click="openProductionForEdit(p)">✏️</button>
+                    <button class="ia-iconbtn" type="button" title="Archive" @click="store.archiveProduction(p.id)">📦</button>
+                  </span>
+                </div>
+              </article>
             </div>
             <p v-if="!store.activeProductions.length" class="ia-empty">
               {{ store.isCrew ? 'No productions yet. Click + New production to get started.' : 'No productions available for this login.' }}
