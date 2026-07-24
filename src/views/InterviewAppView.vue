@@ -822,8 +822,8 @@ function editProductie(p: Productie) {
   pCrew3.value = p.crew3 || DEFAULT_CREW_SLOT
   pCrew4.value = p.crew4 || DEFAULT_CREW_SLOT
   pCrew5.value = p.crew5 || DEFAULT_CREW_SLOT
-  pClientPassword.value = ''
-  showPClientPassword.value = false
+  pClientPassword.value = p.clientPasswordStored || ''
+  showPClientPassword.value = Boolean(p.clientPasswordStored)
   editingProdHasClientPassword.value = Boolean(p.hasClientPassword)
   resetQuestions(pQuestions, p.vragen)
 }
@@ -1551,7 +1551,7 @@ watch(() => store.role, (role) => {
                         class="ia-input ia-password-wrap__input"
                         :type="showPClientPassword ? 'text' : 'password'"
                         autocomplete="new-password"
-                        :placeholder="editingProdHasClientPassword ? 'Leave empty to keep current password' : 'Set password for client login'"
+                        :placeholder="editingProdHasClientPassword && !pClientPassword ? 'Leave empty to keep current password' : 'Set password for client login'"
                       />
                       <button
                         class="ia-password-wrap__toggle"
