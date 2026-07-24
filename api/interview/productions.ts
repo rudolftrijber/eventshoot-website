@@ -38,7 +38,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         startTijd: String(body.startTijd || ''),
         eindDatum: String(body.eindDatum || ''),
         eindTijd: String(body.eindTijd || ''),
-        status: (String(body.status || 'Planned') as Productie['status']),
+        status: (String(body.status || 'Option') as Productie['status']),
         locatie: String(body.locatie || '').trim(),
         land: String(body.land || '').trim(),
         supervisor: String(body.supervisor || 'Rolf Trijber'),

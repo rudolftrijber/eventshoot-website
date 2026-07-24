@@ -1024,11 +1024,40 @@
   transition: background var(--transition), border-color var(--transition);
 }
 
+.ia-prod-row--option {
+  background: rgba(148, 163, 184, 0.22);
+  border-color: rgba(148, 163, 184, 0.35);
+}
+
+.ia-prod-row--definitief {
+  background: rgba(255, 140, 50, 0.22);
+  border-color: rgba(255, 140, 50, 0.4);
+}
+
+.ia-prod-row--completed {
+  background: rgba(62, 207, 142, 0.2);
+  border-color: rgba(62, 207, 142, 0.38);
+}
+
 .ia-prod-row:hover,
 .ia-prod-row:focus-visible {
-  background: rgba(0, 0, 0, 0.34);
-  border-color: rgba(255, 255, 255, 0.22);
+  filter: brightness(1.08);
   outline: none;
+}
+
+.ia-prod-row--option:hover,
+.ia-prod-row--option:focus-visible {
+  background: rgba(148, 163, 184, 0.3);
+}
+
+.ia-prod-row--definitief:hover,
+.ia-prod-row--definitief:focus-visible {
+  background: rgba(255, 140, 50, 0.3);
+}
+
+.ia-prod-row--completed:hover,
+.ia-prod-row--completed:focus-visible {
+  background: rgba(62, 207, 142, 0.28);
 }
 
 .ia-prod-row__line1,

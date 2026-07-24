@@ -19,7 +19,7 @@ import {
   formatDisplayDateTime,
   productionStartSortKey,
 } from '@/utils/interviewCsv'
-import '@/assets/interview-app.css?v=prod-rows'
+import '@/assets/interview-app.css?v=status-tint'
 import '@/assets/interview-app-buttons.css'
 import {
   EyeIcon,
@@ -71,7 +71,7 @@ const pDatum = ref('')
 const pStartTijd = ref('')
 const pEindDatum = ref('')
 const pEindTijd = ref('')
-const pStatus = ref<Productie['status']>('Planned')
+const pStatus = ref<Productie['status']>('Option')
 const pLocatie = ref('')
 const pLand = ref('')
 const pSupervisor = ref(DEFAULT_SUPERVISOR)
@@ -247,6 +247,12 @@ function productionCounts(p: Productie) {
   }
 }
 
+function prodRowStatusClass(status: Productie['status']) {
+  if (status === 'Definitief') return 'ia-prod-row--definitief'
+  if (status === 'Completed') return 'ia-prod-row--completed'
+  return 'ia-prod-row--option'
+}
+
 const workingProductionCounts = computed(() => {
   if (!workingProduction.value) return null
   return productionCounts(workingProduction.value)
@@ -363,7 +369,7 @@ function openNewProductie() {
   pStartTijd.value = '08:00'
   pEindDatum.value = todayIso.value
   pEindTijd.value = '18:00'
-  pStatus.value = 'Active'
+  pStatus.value = 'Definitief'
   pSupervisor.value = DEFAULT_SUPERVISOR
   pCrew2.value = DEFAULT_CREW_SLOT
   pCrew3.value = DEFAULT_CREW_SLOT
@@ -786,7 +792,7 @@ function clearProductieForm() {
   pStartTijd.value = ''
   pEindDatum.value = ''
   pEindTijd.value = ''
-  pStatus.value = 'Planned'
+  pStatus.value = 'Option'
   pLocatie.value = ''
   pLand.value = ''
   pSupervisor.value = DEFAULT_SUPERVISOR
@@ -1790,6 +1796,7 @@ watch(() => store.role, (role) => {
                 v-for="p in sortedActiveProductions"
                 :key="p.id"
                 class="ia-prod-row"
+                :class="prodRowStatusClass(p.status)"
                 role="button"
                 tabindex="0"
                 @click="enterProduction(p)"
