@@ -28,6 +28,8 @@ export interface Productie {
   vragen: string[]
   archivedAt: string | null
   hasClientPassword?: boolean
+  /** Crew-only: recoverable client password for display */
+  clientPasswordStored?: string
   clientPassword?: string
   createdAt: string
   updatedAt: string

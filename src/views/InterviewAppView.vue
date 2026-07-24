@@ -19,7 +19,7 @@ import {
   formatDisplayDateTime,
   productionStartSortKey,
 } from '@/utils/interviewCsv'
-import '@/assets/interview-app.css?v=cand-chips'
+import '@/assets/interview-app.css?v=client-pw'
 import '@/assets/interview-app-buttons.css'
 import {
   EyeIcon,
@@ -1487,6 +1487,14 @@ watch(() => store.role, (role) => {
                   <p v-if="!isNewProduction" class="ia-hint" style="margin:0 0 0.25rem">Event Interviews</p>
                   <h2 class="ia-section-title" style="margin:0">{{ productionHeading }}</h2>
                   <p v-if="!showProdForm" class="ia-hint" style="margin:0.35rem 0 0">{{ productionMeta }}</p>
+                  <p
+                    v-if="store.isCrew && !isNewProduction && !showProdForm && workingProduction?.hasClientPassword"
+                    class="ia-client-pw"
+                  >
+                    <span class="ia-client-pw__label">Client password</span>
+                    <code v-if="workingProduction.clientPasswordStored" class="ia-client-pw__value">{{ workingProduction.clientPasswordStored }}</code>
+                    <span v-else class="ia-client-pw__missing">Set again once to store it for display</span>
+                  </p>
                 </div>
                 <button
                   v-if="store.isCrew && !isNewProduction"
@@ -1556,7 +1564,13 @@ watch(() => store.role, (role) => {
                         <EyeIcon v-else class="ia-password-wrap__icon" />
                       </button>
                     </div>
-                    <p v-if="editingProdHasClientPassword" class="ia-hint">Client access is active for this production.</p>
+                    <p v-if="editingProdHasClientPassword && workingProduction?.clientPasswordStored" class="ia-client-pw ia-client-pw--form">
+                      <span class="ia-client-pw__label">Current</span>
+                      <code class="ia-client-pw__value">{{ workingProduction.clientPasswordStored }}</code>
+                    </p>
+                    <p v-else-if="editingProdHasClientPassword" class="ia-hint">
+                      Client access is active. Re-enter the password once and save to store it for display.
+                    </p>
                     <div v-if="editingProdHasClientPassword" class="ia-actions ia-actions--tight">
                       <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="removeClientAccess">
                         Remove client access

@@ -6,7 +6,7 @@ import {
   normalizeGastStatus,
   normalizeProductieStatus,
 } from './types.js'
-import { hashClientPassword, verifyClientPassword, clientPasswordNeedsRehash } from './auth.js'
+import { hashClientPassword, verifyClientPassword, clientPasswordNeedsRehash, encryptClientPassword, decryptClientPassword } from './auth.js'
 
 let schemaReady: Promise<void> | null = null
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -82,6 +82,7 @@ async function initSchema(): Promise<void> {
   await sql`CREATE INDEX IF NOT EXISTS interview_gasten_datum_idx ON interview_gasten (datum)`
   await sql`CREATE INDEX IF NOT EXISTS interview_gasten_productie_idx ON interview_gasten (productie_naam)`
   await sql`ALTER TABLE interview_producties ADD COLUMN IF NOT EXISTS client_password_hash TEXT`
+  await sql`ALTER TABLE interview_producties ADD COLUMN IF NOT EXISTS client_password_enc TEXT`
   await sql`ALTER TABLE interview_producties ADD COLUMN IF NOT EXISTS locatie TEXT NOT NULL DEFAULT ''`
   await sql`ALTER TABLE interview_producties ADD COLUMN IF NOT EXISTS land TEXT NOT NULL DEFAULT ''`
   await sql`ALTER TABLE interview_producties ADD COLUMN IF NOT EXISTS start_tijd TEXT NOT NULL DEFAULT ''`
@@ -127,6 +128,7 @@ function formatTimeValue(value: unknown): string {
 
 function rowToProductie(row: Record<string, unknown>): Productie {
   const hash = row.client_password_hash ? String(row.client_password_hash) : ''
+  const stored = decryptClientPassword(row.client_password_enc ? String(row.client_password_enc) : '')
   return {
     id: String(row.id),
     naam: String(row.naam),
@@ -145,6 +147,7 @@ function rowToProductie(row: Record<string, unknown>): Productie {
     vragen: Array.isArray(row.vragen) ? row.vragen.map(String) : [],
     archivedAt: row.archived_at ? String(row.archived_at) : null,
     hasClientPassword: Boolean(hash),
+    clientPasswordStored: stored || undefined,
     createdAt: String(row.created_at),
     updatedAt: String(row.updated_at),
   }
@@ -294,11 +297,12 @@ export async function createProductie(
 ): Promise<Productie> {
   const sql = await getSql()
   const hash = clientPassword?.trim() ? hashClientPassword(clientPassword.trim()) : null
+  const enc = clientPassword?.trim() ? encryptClientPassword(clientPassword.trim()) : null
   const rows = await sql`
     INSERT INTO interview_producties (
       id, naam, datum, start_tijd, eind_datum, eind_tijd, status,
       locatie, land, supervisor, crew2, crew3, crew4, crew5,
-      vragen, client_password_hash
+      vragen, client_password_hash, client_password_enc
     )
     VALUES (
       ${data.id}, ${data.naam}, ${toDateParam(data.datum)}, ${formatTimeValue(data.startTijd)},
@@ -307,7 +311,7 @@ export async function createProductie(
       ${normalizeCrewMember(data.supervisor, DEFAULT_SUPERVISOR)},
       ${normalizeCrewMember(data.crew2)}, ${normalizeCrewMember(data.crew3)},
       ${normalizeCrewMember(data.crew4)}, ${normalizeCrewMember(data.crew5)},
-      ${JSON.stringify(data.vragen)}::jsonb, ${hash}
+      ${JSON.stringify(data.vragen)}::jsonb, ${hash}, ${enc}
     )
     RETURNING *
   `
@@ -322,12 +326,16 @@ export async function updateProductie(id: string, patch: Partial<Productie>): Pr
   const next = { ...current, ...patch, id }
 
   let clientPasswordHash: string | null | undefined
+  let clientPasswordEnc: string | null | undefined
   if ('clientPassword' in patch) {
     const raw = String((patch as { clientPassword?: string }).clientPassword ?? '').trim()
     clientPasswordHash = raw ? hashClientPassword(raw) : null
+    clientPasswordEnc = raw ? encryptClientPassword(raw) : null
   }
   const currentHash = (existing[0] as { client_password_hash?: string | null }).client_password_hash || null
+  const currentEnc = (existing[0] as { client_password_enc?: string | null }).client_password_enc || null
   const nextHash = clientPasswordHash !== undefined ? clientPasswordHash : currentHash
+  const nextEnc = clientPasswordEnc !== undefined ? clientPasswordEnc : currentEnc
 
   const rows = await sql`
     UPDATE interview_producties SET
@@ -347,6 +355,7 @@ export async function updateProductie(id: string, patch: Partial<Productie>): Pr
       vragen = ${JSON.stringify(next.vragen)}::jsonb,
       archived_at = ${next.archivedAt},
       client_password_hash = ${nextHash},
+      client_password_enc = ${nextEnc},
       updated_at = NOW()
     WHERE id = ${id}
     RETURNING *

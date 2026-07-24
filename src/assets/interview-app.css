@@ -1094,6 +1094,38 @@
   margin-left: auto;
 }
 
+.ia-client-pw {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.55rem;
+  margin: 0.45rem 0 0;
+  font-size: 0.8rem;
+}
+
+.ia-client-pw--form {
+  margin-top: 0.55rem;
+}
+
+.ia-client-pw__label {
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 600;
+}
+
+.ia-client-pw__value {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.85rem;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 6px;
+  padding: 0.2rem 0.5rem;
+}
+
+.ia-client-pw__missing {
+  color: #ffd699;
+}
+
 .ia-prod-row__name {
   font-weight: 700;
   font-size: 0.92rem;

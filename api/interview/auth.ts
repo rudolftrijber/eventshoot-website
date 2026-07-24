@@ -1,4 +1,4 @@
-import { createHmac, randomBytes, scryptSync, timingSafeEqual } from 'crypto'
+import { createCipheriv, createDecipheriv, createHash, createHmac, randomBytes, scryptSync, timingSafeEqual } from 'crypto'
 import type { VercelRequest } from '@vercel/node'
 
 export type InterviewRole = 'crew' | 'client'
@@ -87,6 +87,35 @@ export function verifyClientPassword(password: string, hash: string): boolean {
 
 export function clientPasswordNeedsRehash(hash: string): boolean {
   return Boolean(hash) && !hash.startsWith('scrypt:')
+}
+
+function clientPasswordEncKey(): Buffer {
+  return createHash('sha256').update(`client-pw:${getSecret() || 'interview-fallback'}`).digest()
+}
+
+/** Reversible store so crew can rediscover the shared client password. */
+export function encryptClientPassword(password: string): string {
+  const iv = randomBytes(12)
+  const cipher = createCipheriv('aes-256-gcm', clientPasswordEncKey(), iv)
+  const enc = Buffer.concat([cipher.update(password, 'utf8'), cipher.final()])
+  const tag = cipher.getAuthTag()
+  return `enc:${iv.toString('hex')}:${tag.toString('hex')}:${enc.toString('hex')}`
+}
+
+export function decryptClientPassword(payload: string | null | undefined): string {
+  if (!payload || !payload.startsWith('enc:')) return ''
+  const parts = payload.split(':')
+  if (parts.length !== 4) return ''
+  try {
+    const iv = Buffer.from(parts[1], 'hex')
+    const tag = Buffer.from(parts[2], 'hex')
+    const data = Buffer.from(parts[3], 'hex')
+    const decipher = createDecipheriv('aes-256-gcm', clientPasswordEncKey(), iv)
+    decipher.setAuthTag(tag)
+    return Buffer.concat([decipher.update(data), decipher.final()]).toString('utf8')
+  } catch {
+    return ''
+  }
 }
 
 export function verifyCrewPassword(password: string): boolean {

@@ -27,8 +27,13 @@ export function requireCrew(req: VercelRequest, res: VercelResponse): AuthContex
 }
 
 export function filterProductionsForAuth(ctx: AuthContext, list: Productie[]): Productie[] {
-  if (isCrew(ctx)) return list
-  return list.filter((p) => ctx.productionIds.includes(p.id))
+  const scoped = isCrew(ctx) ? list : list.filter((p) => ctx.productionIds.includes(p.id))
+  if (isCrew(ctx)) return scoped
+  // Never send recoverable client passwords to clients
+  return scoped.map((p) => {
+    const { clientPasswordStored: _omit, ...rest } = p
+    return rest
+  })
 }
 
 export function filterGuestsForAuth(ctx: AuthContext, guests: Gast[], productions: Productie[]): Gast[] {
