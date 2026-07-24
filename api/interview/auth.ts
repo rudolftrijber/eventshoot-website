@@ -6,6 +6,8 @@ export type InterviewRole = 'crew' | 'client'
 export interface SessionPayload {
   role: InterviewRole
   productionIds: string[]
+  /** Set when a named crew member logs in */
+  crewName?: string
   nonce: string
   /** Unix timestamp (seconds) when the session expires. */
   exp: number
@@ -15,6 +17,7 @@ export interface AuthContext {
   authenticated: boolean
   role: InterviewRole | null
   productionIds: string[]
+  crewName: string | null
   skipAuth: boolean
 }
 
@@ -129,10 +132,56 @@ export function verifyCrewPassword(password: string): boolean {
   }
 }
 
+export const CREW_LOGIN_NAMES = [
+  'Rolf Trijber',
+  'Maurice Antenbrink',
+  'Ron Gessel',
+  'Niels Visser',
+  'Vanessa Cristina',
+] as const
+
+export function parseCrewPasswordMap(): Record<string, string> {
+  const raw = process.env.INTERVIEW_CREW_PASSWORDS || ''
+  if (!raw.trim()) return {}
+  try {
+    const parsed = JSON.parse(raw) as Record<string, unknown>
+    const out: Record<string, string> = {}
+    for (const [key, value] of Object.entries(parsed)) {
+      if (typeof value === 'string' && value.trim()) out[key.trim()] = value
+    }
+    return out
+  } catch {
+    return {}
+  }
+}
+
+export function hasCrewAuthConfigured(): boolean {
+  return Object.keys(parseCrewPasswordMap()).length > 0 || Boolean(process.env.INTERVIEW_APP_PASSWORD)
+}
+
+function safeEqualString(a: string, b: string): boolean {
+  if (a.length !== b.length) return false
+  try {
+    return timingSafeEqual(Buffer.from(a), Buffer.from(b))
+  } catch {
+    return false
+  }
+}
+
+/** Per-crew password from INTERVIEW_CREW_PASSWORDS; legacy shared password still accepted. */
+export function verifyCrewMemberLogin(crewName: string, password: string): boolean {
+  if (!crewName || !password) return false
+  if (!(CREW_LOGIN_NAMES as readonly string[]).includes(crewName)) return false
+  const personal = parseCrewPasswordMap()[crewName]
+  if (personal && safeEqualString(password, personal)) return true
+  return verifyCrewPassword(password)
+}
+
 export function createSessionToken(payload: Omit<SessionPayload, 'nonce' | 'exp'> & { nonce?: string; exp?: number }): string {
   const full: SessionPayload = {
     role: payload.role,
     productionIds: payload.productionIds || [],
+    crewName: payload.crewName || undefined,
     nonce: payload.nonce || randomBytes(16).toString('hex'),
     exp: payload.exp ?? Math.floor(Date.now() / 1000) + SESSION_TTL_SEC,
   }
@@ -172,16 +221,17 @@ export function skipAuth(): boolean {
 
 export function getAuthContext(req: VercelRequest, token: string | null): AuthContext {
   if (skipAuth()) {
-    return { authenticated: true, role: 'crew', productionIds: [], skipAuth: true }
+    return { authenticated: true, role: 'crew', productionIds: [], crewName: null, skipAuth: true }
   }
   const payload = parseSessionToken(token)
   if (!payload) {
-    return { authenticated: false, role: null, productionIds: [], skipAuth: false }
+    return { authenticated: false, role: null, productionIds: [], crewName: null, skipAuth: false }
   }
   return {
     authenticated: true,
     role: payload.role,
     productionIds: payload.productionIds,
+    crewName: payload.crewName || null,
     skipAuth: false,
   }
 }

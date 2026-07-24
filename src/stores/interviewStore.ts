@@ -38,6 +38,7 @@ async function api<T>(url: string, options?: RequestInit): Promise<T> {
 export const useInterviewStore = defineStore('interview', () => {
   const authenticated = ref(false)
   const role = ref<InterviewRole | null>(null)
+  const crewName = ref<string | null>(null)
   const clientProductionIds = ref<string[]>([])
   const loading = ref(false)
   const error = ref('')
@@ -67,24 +68,34 @@ export const useInterviewStore = defineStore('interview', () => {
       authenticated: boolean
       role?: InterviewRole | null
       productionIds?: string[]
+      crewName?: string | null
       skipAuth?: boolean
       configured?: boolean
       missing?: string[]
     }>('/api/interview-login')
     authenticated.value = Boolean(data.skipAuth || data.authenticated)
     role.value = data.skipAuth ? 'crew' : (data.role || null)
+    crewName.value = data.skipAuth ? null : (data.crewName || null)
     clientProductionIds.value = data.productionIds || []
     return data
   }
 
-  async function login(password: string) {
+  async function login(password: string, selectedCrewName = '') {
     error.value = ''
-    const data = await api<{ ok: boolean; role?: InterviewRole; productionIds?: string[] }>('/api/interview-login', {
-      method: 'POST',
-      body: JSON.stringify({ action: 'login', password }),
-    })
+    const data = await api<{ ok: boolean; role?: InterviewRole; productionIds?: string[]; crewName?: string }>(
+      '/api/interview-login',
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          action: 'login',
+          password,
+          crewName: selectedCrewName || undefined,
+        }),
+      },
+    )
     authenticated.value = true
     role.value = data.role || 'crew'
+    crewName.value = data.crewName || null
     clientProductionIds.value = data.productionIds || []
     await sync()
     startPolling()
@@ -97,6 +108,7 @@ export const useInterviewStore = defineStore('interview', () => {
     })
     authenticated.value = false
     role.value = null
+    crewName.value = null
     clientProductionIds.value = []
     stopPolling()
   }
@@ -277,6 +289,7 @@ export const useInterviewStore = defineStore('interview', () => {
   return {
     authenticated,
     role,
+    crewName,
     clientProductionIds,
     isCrew,
     isClient,

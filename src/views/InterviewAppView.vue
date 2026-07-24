@@ -3,6 +3,7 @@ import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useInterviewStore } from '@/stores/interviewStore'
 import type { Gast, GuestView, Productie } from '@/types/interview'
 import {
+  CREW_LOGIN_NAMES,
   CREW_MEMBERS,
   DEFAULT_CREW_SLOT,
   DEFAULT_SUPERVISOR,
@@ -19,7 +20,7 @@ import {
   formatDisplayDateTime,
   productionStartSortKey,
 } from '@/utils/interviewCsv'
-import '@/assets/interview-app.css?v=gen-pw'
+import '@/assets/interview-app.css?v=crew-login'
 import '@/assets/interview-app-buttons.css'
 import {
   EyeIcon,
@@ -39,6 +40,7 @@ const store = useInterviewStore()
 const devBuildStamp = import.meta.env.DEV ? '13 jul 09:50 · compact buttons' : ''
 const skipAuthMode = ref(false)
 const password = ref('')
+const loginIdentity = ref('') // '' = client, otherwise crew name
 const showPassword = ref(false)
 const showPClientPassword = ref(false)
 const loginError = ref('')
@@ -466,7 +468,7 @@ async function handleLogin() {
   if (!apiConfigured.value) return
   loginError.value = ''
   try {
-    await store.login(password.value)
+    await store.login(password.value, loginIdentity.value)
     password.value = ''
   } catch (e) {
     const msg = e instanceof Error ? e.message : 'Login failed'
@@ -1137,8 +1139,13 @@ watch(() => store.role, (role) => {
           <div class="ia-login">
             <div class="ia-login__card">
               <p v-if="devBuildStamp" class="ia-dev-badge">Local · build {{ devBuildStamp }}</p>
-              <p class="ia-login__intro">Log in with your crew or client password.</p>
+              <p class="ia-login__intro">Crew: choose your name and password. Clients: choose Client and use the production password.</p>
               <p v-if="apiConfigHint" class="ia-error ia-error--block ia-error--pre">{{ apiConfigHint }}</p>
+              <label class="ia-label" for="login-identity">Who are you?</label>
+              <select id="login-identity" v-model="loginIdentity" class="ia-select ia-login__identity">
+                <option value="">Client (production password)</option>
+                <option v-for="name in CREW_LOGIN_NAMES" :key="name" :value="name">{{ name }}</option>
+              </select>
               <label class="ia-label" for="pw">Password</label>
               <div class="ia-password-wrap">
                 <input
@@ -1227,6 +1234,7 @@ watch(() => store.role, (role) => {
           </header>
 
       <p v-if="skipAuthMode && !crewFocusMode" class="ia-skip-auth-banner">Finetune mode: password is off. Local only or set intentionally on Vercel.</p>
+      <p v-else-if="store.isCrew && store.crewName && !crewFocusMode" class="ia-crew-banner">Crew · {{ store.crewName }}</p>
       <p v-else-if="store.isClient && !crewFocusMode" class="ia-client-banner">Client view — open a production, set Participant defaults, add candidates, and mark intake complete.</p>
 
       <div v-if="settingsOpen && store.isCrew" class="ia-settings">

@@ -79,6 +79,9 @@ export const CREW_MEMBERS = [
 export const DEFAULT_SUPERVISOR = 'Rolf Trijber'
 export const DEFAULT_CREW_SLOT = 'N.V.T.'
 
+/** Crew members who can log in (excludes N.V.T.) */
+export const CREW_LOGIN_NAMES = CREW_MEMBERS.filter((m) => m !== 'N.V.T.')
+
 export function normalizeCrewMember(value: string | null | undefined, fallback = DEFAULT_CREW_SLOT): string {
   const v = String(value || '').trim()
   if ((CREW_MEMBERS as readonly string[]).includes(v)) return v

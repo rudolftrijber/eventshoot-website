@@ -3,7 +3,8 @@ import {
   createSessionToken,
   getAuthContext,
   getRequestIp,
-  verifyCrewPassword,
+  hasCrewAuthConfigured,
+  verifyCrewMemberLogin,
 } from './interview/auth.js'
 import { ensureSchema, fetchProductiesByClientPassword } from './interview/database.js'
 import { consumeRateLimit, rateLimited } from './interview/rateLimit.js'
@@ -24,18 +25,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const ctx = getAuthContext(req, token)
       const authSkipped = skipAuth()
       const hasSecret = Boolean(process.env.INTERVIEW_SESSION_SECRET)
-      const hasPassword = Boolean(process.env.INTERVIEW_APP_PASSWORD)
+      const hasCrewAuth = hasCrewAuthConfigured()
       const hasDb = Boolean(process.env.POSTGRES_URL || process.env.POSTGRES_URL_NON_POOLING)
       res.status(200).json({
         authenticated: ctx.authenticated,
         role: ctx.role,
         productionIds: ctx.productionIds,
+        crewName: ctx.crewName,
         skipAuth: authSkipped,
-        configured: authSkipped ? hasDb : hasSecret && hasPassword && hasDb,
+        configured: authSkipped ? hasDb : hasSecret && hasCrewAuth && hasDb,
         missing: authSkipped
           ? [!hasDb && 'POSTGRES_URL'].filter(Boolean)
           : [
-              !hasPassword && 'INTERVIEW_APP_PASSWORD',
+              !hasCrewAuth && 'INTERVIEW_CREW_PASSWORDS (or INTERVIEW_APP_PASSWORD)',
               !hasSecret && 'INTERVIEW_SESSION_SECRET',
               !hasDb && 'POSTGRES_URL',
             ].filter(Boolean),
@@ -71,15 +73,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
 
       const password = String(body?.password || '')
+      const crewName = String(body?.crewName || '').trim()
       if (!password) {
         res.status(401).json({ error: 'Incorrect password' })
         return
       }
 
-      if (process.env.INTERVIEW_APP_PASSWORD && verifyCrewPassword(password)) {
-        const token = createSessionToken({ role: 'crew', productionIds: [] })
+      if (crewName) {
+        if (!verifyCrewMemberLogin(crewName, password)) {
+          res.status(401).json({ error: 'Incorrect password' })
+          return
+        }
+        const token = createSessionToken({ role: 'crew', productionIds: [], crewName })
         setSessionCookie(res, token)
-        res.status(200).json({ ok: true, role: 'crew' })
+        res.status(200).json({ ok: true, role: 'crew', crewName })
         return
       }
 

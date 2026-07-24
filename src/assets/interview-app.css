@@ -562,6 +562,23 @@
   line-height: 1.5;
 }
 
+.ia-crew-banner {
+  margin: 0 1.15rem 0.85rem;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.ia-login__identity {
+  width: 100%;
+  max-width: none;
+  margin-bottom: 0.35rem;
+}
+
 .ia-hint--warn {
   color: #ffb020;
 }
