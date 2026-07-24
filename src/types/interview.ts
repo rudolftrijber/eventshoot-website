@@ -1,5 +1,5 @@
 export type GastStatus = 'Entered' | 'Checked' | 'Recorded'
-export type ProductieStatus = 'Option' | 'Definitief' | 'Completed'
+export type ProductieStatus = 'OPT' | 'DEF' | 'COMPL'
 
 export interface InterviewSettings {
   maxChars: number
@@ -62,7 +62,7 @@ export function intakeLockApplies(type: string): boolean {
   return (INTAKE_LOCK_TYPES as readonly string[]).includes(type)
 }
 export const GAST_STATUS_ORDER: GastStatus[] = ['Entered', 'Checked', 'Recorded']
-export const PRODUCTIE_STATUSES: ProductieStatus[] = ['Option', 'Definitief', 'Completed']
+export const PRODUCTIE_STATUSES: ProductieStatus[] = ['OPT', 'DEF', 'COMPL']
 
 /** Crew roster for Supervisor / Crew 2–5 dropdowns */
 export const CREW_MEMBERS = [
@@ -93,16 +93,18 @@ const LEGACY_GAST_STATUS: Record<string, GastStatus> = {
 }
 
 const LEGACY_PRODUCTIE_STATUS: Record<string, ProductieStatus> = {
-  Gepland: 'Option',
-  Gaande: 'Definitief',
-  Afgerond: 'Completed',
-  Planned: 'Option',
-  Active: 'Definitief',
-  Completed: 'Completed',
-  Option: 'Option',
-  Definitief: 'Definitief',
-  OPT: 'Option',
-  DEF: 'Definitief',
+  Gepland: 'OPT',
+  Gaande: 'DEF',
+  Afgerond: 'COMPL',
+  Planned: 'OPT',
+  Active: 'DEF',
+  Completed: 'COMPL',
+  Option: 'OPT',
+  Definitief: 'DEF',
+  Definite: 'DEF',
+  OPT: 'OPT',
+  DEF: 'DEF',
+  COMPL: 'COMPL',
 }
 
 export function normalizeGastStatus(value: string): GastStatus {
@@ -110,7 +112,7 @@ export function normalizeGastStatus(value: string): GastStatus {
 }
 
 export function normalizeProductieStatus(value: string): ProductieStatus {
-  return LEGACY_PRODUCTIE_STATUS[value] || 'Option'
+  return LEGACY_PRODUCTIE_STATUS[value] || 'OPT'
 }
 
 export const CSV_HEADERS = [

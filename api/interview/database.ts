@@ -48,7 +48,7 @@ async function initSchema(): Promise<void> {
       id TEXT PRIMARY KEY,
       naam TEXT NOT NULL,
       datum DATE,
-      status TEXT NOT NULL DEFAULT 'Option',
+      status TEXT NOT NULL DEFAULT 'OPT',
       vragen JSONB NOT NULL DEFAULT '[]',
       archived_at TIMESTAMPTZ,
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),

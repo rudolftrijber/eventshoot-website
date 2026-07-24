@@ -1024,17 +1024,17 @@
   transition: background var(--transition), border-color var(--transition);
 }
 
-.ia-prod-row--option {
+.ia-prod-row--opt {
   background: rgba(148, 163, 184, 0.22);
   border-color: rgba(148, 163, 184, 0.35);
 }
 
-.ia-prod-row--definitief {
+.ia-prod-row--def {
   background: rgba(255, 140, 50, 0.22);
   border-color: rgba(255, 140, 50, 0.4);
 }
 
-.ia-prod-row--completed {
+.ia-prod-row--compl {
   background: rgba(62, 207, 142, 0.2);
   border-color: rgba(62, 207, 142, 0.38);
 }
@@ -1045,18 +1045,18 @@
   outline: none;
 }
 
-.ia-prod-row--option:hover,
-.ia-prod-row--option:focus-visible {
+.ia-prod-row--opt:hover,
+.ia-prod-row--opt:focus-visible {
   background: rgba(148, 163, 184, 0.3);
 }
 
-.ia-prod-row--definitief:hover,
-.ia-prod-row--definitief:focus-visible {
+.ia-prod-row--def:hover,
+.ia-prod-row--def:focus-visible {
   background: rgba(255, 140, 50, 0.3);
 }
 
-.ia-prod-row--completed:hover,
-.ia-prod-row--completed:focus-visible {
+.ia-prod-row--compl:hover,
+.ia-prod-row--compl:focus-visible {
   background: rgba(62, 207, 142, 0.28);
 }
 

@@ -1,5 +1,5 @@
 export type GastStatus = 'Entered' | 'Checked' | 'Recorded'
-export type ProductieStatus = 'Option' | 'Definitief' | 'Completed'
+export type ProductieStatus = 'OPT' | 'DEF' | 'COMPL'
 export type GastType = 'Keynote speaker' | 'Executive' | 'Participant' | 'Sponsor' | 'Other' | ''
 
 export interface InterviewSettings {
@@ -68,16 +68,18 @@ const LEGACY_GAST_STATUS: Record<string, GastStatus> = {
 }
 
 const LEGACY_PRODUCTIE_STATUS: Record<string, ProductieStatus> = {
-  Gepland: 'Option',
-  Gaande: 'Definitief',
-  Afgerond: 'Completed',
-  Planned: 'Option',
-  Active: 'Definitief',
-  Completed: 'Completed',
-  Option: 'Option',
-  Definitief: 'Definitief',
-  OPT: 'Option',
-  DEF: 'Definitief',
+  Gepland: 'OPT',
+  Gaande: 'DEF',
+  Afgerond: 'COMPL',
+  Planned: 'OPT',
+  Active: 'DEF',
+  Completed: 'COMPL',
+  Option: 'OPT',
+  Definitief: 'DEF',
+  Definite: 'DEF',
+  OPT: 'OPT',
+  DEF: 'DEF',
+  COMPL: 'COMPL',
 }
 
 export function normalizeGastStatus(value: string): GastStatus {
@@ -85,7 +87,7 @@ export function normalizeGastStatus(value: string): GastStatus {
 }
 
 export function normalizeProductieStatus(value: string): ProductieStatus {
-  return LEGACY_PRODUCTIE_STATUS[value] || 'Option'
+  return LEGACY_PRODUCTIE_STATUS[value] || 'OPT'
 }
 
 export const CREW_MEMBERS = [
