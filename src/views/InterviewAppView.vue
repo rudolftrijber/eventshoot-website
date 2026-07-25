@@ -1512,16 +1512,6 @@ watch(() => store.role, (role) => {
                 </li>
               </ol>
               <div class="ia-actions">
-                <button
-                  class="ia-btn ia-btn--small ia-btn--secondary"
-                  type="button"
-                  @click="copyQuestions(intGuest.questions, [intGuest.naam, intGuest.functie].filter(Boolean).join(' — '))"
-                >
-                  <ClipboardDocumentIcon class="ia-btn__icon" aria-hidden="true" />
-                  Copy all questions
-                </button>
-              </div>
-              <div class="ia-actions">
                 <button v-if="!confirmOpgenomen" class="ia-btn ia-btn--ok" type="button" @click="confirmOpgenomen = true">✓ Recorded</button>
                 <template v-else>
                   <span>Interview complete?</span>
