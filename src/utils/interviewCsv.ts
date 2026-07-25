@@ -213,3 +213,35 @@ export function productionStartSortKey(p: { datum?: string; startTijd?: string }
   const time = (p.startTijd || '00:00').trim() || '00:00'
   return `${p.datum || '9999-99-99'}T${time.padStart(5, '0')}`
 }
+
+/** Numbered list for email / presenter cards */
+export function formatQuestionsForCopy(questions: string[], title?: string): string {
+  const lines = questions.map((q) => q.trim()).filter(Boolean)
+  if (!lines.length) return ''
+  const body = lines.map((q, i) => `${i + 1}. ${q}`).join('\n')
+  const heading = (title || '').trim()
+  return heading ? `${heading}\n\n${body}` : body
+}
+
+export async function copyTextToClipboard(text: string): Promise<boolean> {
+  if (!text.trim()) return false
+  try {
+    await navigator.clipboard.writeText(text)
+    return true
+  } catch {
+    try {
+      const ta = document.createElement('textarea')
+      ta.value = text
+      ta.setAttribute('readonly', '')
+      ta.style.position = 'fixed'
+      ta.style.left = '-9999px'
+      document.body.appendChild(ta)
+      ta.select()
+      const ok = document.execCommand('copy')
+      document.body.removeChild(ta)
+      return ok
+    } catch {
+      return false
+    }
+  }
+}

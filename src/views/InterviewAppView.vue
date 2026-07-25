@@ -19,13 +19,16 @@ import {
   formatDisplayDate,
   formatDisplayDateTime,
   productionStartSortKey,
+  formatQuestionsForCopy,
+  copyTextToClipboard,
 } from '@/utils/interviewCsv'
-import '@/assets/interview-app.css?v=row-colors'
+import '@/assets/interview-app.css?v=copy-all'
 import '@/assets/interview-app-buttons.css'
 import {
   EyeIcon,
   EyeSlashIcon,
   ArrowRightOnRectangleIcon,
+  ClipboardDocumentIcon,
   Cog6ToothIcon,
   ArrowLeftIcon,
   SparklesIcon,
@@ -462,6 +465,16 @@ function showToast(msg: string) {
   toast.value = msg
   if (toastTimer) clearTimeout(toastTimer)
   toastTimer = setTimeout(() => { toast.value = '' }, 2000)
+}
+
+async function copyQuestions(questions: string[], title?: string) {
+  const text = formatQuestionsForCopy(questions, title)
+  if (!text) {
+    showToast('No questions to copy')
+    return
+  }
+  const ok = await copyTextToClipboard(text)
+  showToast(ok ? 'All questions copied' : 'Copy failed')
 }
 
 async function handleLogin() {
@@ -1299,15 +1312,27 @@ watch(() => store.role, (role) => {
               <input v-model="fPlanning" class="ia-input" placeholder="e.g. interview after the keynote" :disabled="guestFormLocked" />
               <div class="ia-question-head">
                 <label class="ia-label ia-label--inline">Interview questions (max. 7)</label>
-                <button
-                  v-if="aiGuestStep === 'idle' && !guestFormLocked"
-                  class="ia-btn ia-btn--small ia-btn--secondary ia-btn--ai"
-                  type="button"
-                  @click="openGuestAiPrep"
-                >
-                  <SparklesIcon class="ia-btn__icon" aria-hidden="true" />
-                  Suggest questions
-                </button>
+                <div class="ia-question-head__actions">
+                  <button
+                    class="ia-btn ia-btn--small ia-btn--secondary"
+                    type="button"
+                    title="Copy all questions for email or presenter card"
+                    :disabled="!fQuestions.some((q) => q.trim())"
+                    @click="copyQuestions(fQuestions, [fNaam, fFunctie].filter(Boolean).join(' — ') || 'Interview questions')"
+                  >
+                    <ClipboardDocumentIcon class="ia-btn__icon" aria-hidden="true" />
+                    Copy all
+                  </button>
+                  <button
+                    v-if="aiGuestStep === 'idle' && !guestFormLocked"
+                    class="ia-btn ia-btn--small ia-btn--secondary ia-btn--ai"
+                    type="button"
+                    @click="openGuestAiPrep"
+                  >
+                    <SparklesIcon class="ia-btn__icon" aria-hidden="true" />
+                    Suggest questions
+                  </button>
+                </div>
               </div>
               <ShortQuestionsTip />
               <p v-if="fType === 'Participant'" class="ia-hint">
@@ -1487,6 +1512,16 @@ watch(() => store.role, (role) => {
                 </li>
               </ol>
               <div class="ia-actions">
+                <button
+                  class="ia-btn ia-btn--small ia-btn--secondary"
+                  type="button"
+                  @click="copyQuestions(intGuest.questions, [intGuest.naam, intGuest.functie].filter(Boolean).join(' — '))"
+                >
+                  <ClipboardDocumentIcon class="ia-btn__icon" aria-hidden="true" />
+                  Copy all questions
+                </button>
+              </div>
+              <div class="ia-actions">
                 <button v-if="!confirmOpgenomen" class="ia-btn ia-btn--ok" type="button" @click="confirmOpgenomen = true">✓ Recorded</button>
                 <template v-else>
                   <span>Interview complete?</span>
@@ -1655,18 +1690,30 @@ watch(() => store.role, (role) => {
                     These defaults are used when you add a Participant.
                   </p>
                 </div>
-                <button
-                  class="ia-editbtn"
-                  :class="{ 'ia-editbtn--active': editingQuestions }"
-                  type="button"
-                  :title="editingQuestions ? 'Edit mode — tap to close' : 'View mode — tap to edit'"
-                  :aria-label="editingQuestions ? 'Edit mode — tap to close' : 'View mode — tap to edit'"
-                  :aria-pressed="editingQuestions"
-                  @click="toggleEditQuestions"
-                >
-                  <PencilSquareSolidIcon v-if="editingQuestions" class="ia-editbtn__icon" aria-hidden="true" />
-                  <PencilSquareIcon v-else class="ia-editbtn__icon" aria-hidden="true" />
-                </button>
+                <div class="ia-prod-detail-head__actions">
+                  <button
+                    v-if="pQuestions.some((q) => q.trim())"
+                    class="ia-btn ia-btn--small ia-btn--secondary"
+                    type="button"
+                    title="Copy all default questions"
+                    @click="copyQuestions(pQuestions, `${productionHeading} — default questions`)"
+                  >
+                    <ClipboardDocumentIcon class="ia-btn__icon" aria-hidden="true" />
+                    Copy all
+                  </button>
+                  <button
+                    class="ia-editbtn"
+                    :class="{ 'ia-editbtn--active': editingQuestions }"
+                    type="button"
+                    :title="editingQuestions ? 'Edit mode — tap to close' : 'View mode — tap to edit'"
+                    :aria-label="editingQuestions ? 'Edit mode — tap to close' : 'View mode — tap to edit'"
+                    :aria-pressed="editingQuestions"
+                    @click="toggleEditQuestions"
+                  >
+                    <PencilSquareSolidIcon v-if="editingQuestions" class="ia-editbtn__icon" aria-hidden="true" />
+                    <PencilSquareIcon v-else class="ia-editbtn__icon" aria-hidden="true" />
+                  </button>
+                </div>
               </div>
               <template v-if="!editingQuestions">
                 <ol v-if="pQuestions.some((q) => q.trim())" class="ia-questions ia-questions--preview">

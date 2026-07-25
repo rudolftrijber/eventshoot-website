@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { SparklesIcon } from '@heroicons/vue/24/outline'
+import { ClipboardDocumentIcon, SparklesIcon } from '@heroicons/vue/24/outline'
 import ShortQuestionsTip from '@/components/interview/ShortQuestionsTip.vue'
+import { copyTextToClipboard, formatQuestionsForCopy } from '@/utils/interviewCsv'
+import { ref } from 'vue'
 
 type AiPrepAnswers = { sector: string; specialism: string; timeliness: string; customPrompt: string }
 type AiStep = 'idle' | 'prep' | 'preview'
@@ -34,6 +36,19 @@ const emit = defineEmits<{
   removeQuestion: [index: number]
   save: []
 }>()
+
+const copyHint = ref('')
+
+async function copyAll() {
+  const text = formatQuestionsForCopy(questions.value, 'Default participant questions')
+  if (!text) {
+    copyHint.value = 'No questions to copy'
+  } else {
+    const ok = await copyTextToClipboard(text)
+    copyHint.value = ok ? 'Copied' : 'Copy failed'
+  }
+  setTimeout(() => { copyHint.value = '' }, 2000)
+}
 </script>
 
 <template>
@@ -162,6 +177,16 @@ const emit = defineEmits<{
     </div>
     <div class="ia-actions">
       <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="emit('addQuestion')">+ Question</button>
+      <button
+        class="ia-btn ia-btn--small ia-btn--secondary"
+        type="button"
+        title="Copy all questions"
+        :disabled="!questions.some((q) => q.trim())"
+        @click="copyAll"
+      >
+        <ClipboardDocumentIcon class="ia-btn__icon" aria-hidden="true" />
+        {{ copyHint || 'Copy all' }}
+      </button>
       <button class="ia-btn ia-btn--small ia-btn--accent" type="button" @click="emit('save')">Save defaults</button>
     </div>
   </div>

@@ -379,6 +379,21 @@
   margin-bottom: 0.35rem;
 }
 
+.ia-question-head__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.ia-prod-detail-head__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
 .ia-card > .ia-question-head:first-child {
   margin-top: 0;
 }
