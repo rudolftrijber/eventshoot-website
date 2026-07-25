@@ -763,6 +763,22 @@ async function saveProductie() {
   if (!naam) { showToast('Enter a production name'); return }
   const vragen = pQuestions.value.map((q) => q.trim()).filter(Boolean)
   const datum = pDatum.value
+  if (pEindDatum.value) {
+    if (datum && pEindDatum.value < datum) {
+      showToast('End date must be on or after start date')
+      return
+    }
+    if (
+      datum
+      && pEindDatum.value === datum
+      && pStartTijd.value
+      && pEindTijd.value
+      && pEindTijd.value < pStartTijd.value
+    ) {
+      showToast('End time must be on or after start time')
+      return
+    }
+  }
   try {
     const payload: Partial<Productie> & { id?: string; clientPassword?: string } = {
       id: editingProdId.value || undefined,
@@ -1084,6 +1100,13 @@ onMounted(async () => {
 
 onUnmounted(() => {
   store.stopPolling()
+})
+
+watch(pDatum, (newStart, oldStart) => {
+  if (!pEindDatum.value) return
+  if (pEindDatum.value === oldStart || (newStart && pEindDatum.value < newStart)) {
+    pEindDatum.value = newStart
+  }
 })
 
 watch(() => store.activeTab, (tab) => {
@@ -1633,7 +1656,7 @@ watch(() => store.role, (role) => {
                   <div class="ia-prod-form__col">
                     <label class="ia-label">End date</label>
                     <div class="ia-prod-form__datetime">
-                      <input v-model="pEindDatum" class="ia-input" type="date" />
+                      <input v-model="pEindDatum" class="ia-input" type="date" :min="pDatum || undefined" />
                       <input v-model="pEindTijd" class="ia-input" type="time" />
                     </div>
 
