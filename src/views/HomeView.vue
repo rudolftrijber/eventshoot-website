@@ -49,13 +49,23 @@ function injectOrganizationSchema() {
     email: 'rolf@eventshoot.nl',
     telephone: '+31625177728',
     description:
-      'Professionele eventfotografie en eventvideo voor congressen, seminars en zakelijke bijeenkomsten door heel Nederland. 25+ kant-en-klare items, gemaakt door mensen, geleverd binnen 48 uur.',
+      'Professionele eventfotografie en eventvideo voor congressen, seminars en zakelijke bijeenkomsten door heel Nederland. 25+ kant-en-klare items, gemaakt door mensen, geleverd binnen 48 uur. Openingstijden op afspraak.',
+    vatID: 'NL855572735B01',
+    identifier: {
+      '@type': 'PropertyValue',
+      name: 'KvK',
+      value: '64222519',
+    },
     areaServed: {
       '@type': 'Country',
       name: 'Nederland',
     },
     address: {
       '@type': 'PostalAddress',
+      streetAddress: 'Rubenslaan',
+      postalCode: '3582 JJ',
+      addressLocality: 'Utrecht',
+      addressRegion: 'Utrecht',
       addressCountry: 'NL',
     },
     sameAs: [

@@ -91,6 +91,10 @@ const knowledgeLinks = computed(() => [
         <a href="/privacy">{{ t('footer.privacy') }}</a>
         &nbsp;&middot;&nbsp;
         <a :href="termsUrl" target="_blank" rel="noopener">{{ t('footer.terms') }}</a>
+        &nbsp;&middot;&nbsp;
+        {{ t('footer.kvk') }}
+        &nbsp;&middot;&nbsp;
+        {{ t('footer.btw') }}
       </p>
     </div>
   </footer>

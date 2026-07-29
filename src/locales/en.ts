@@ -35,8 +35,8 @@ export default {
     linkContent: 'Content after your event',
     privacy: 'Privacy & Disclaimer',
     terms: 'Terms & Conditions',
-    kvk: 'Chamber of Commerce',
-    btw: 'VAT',
+    kvk: 'KvK 64222519',
+    btw: 'VAT NL855572735B01',
   },
   seo: {
     home: {

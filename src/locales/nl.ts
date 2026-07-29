@@ -35,8 +35,8 @@ export default {
     linkContent: 'Content na je event',
     privacy: 'Privacy & Disclaimer',
     terms: 'Algemene voorwaarden',
-    kvk: 'KvK',
-    btw: 'BTW',
+    kvk: 'KvK 64222519',
+    btw: 'BTW NL855572735B01',
   },
   seo: {
     home: {
