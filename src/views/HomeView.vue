@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import UspGrid from '@/components/UspGrid.vue'
@@ -28,6 +28,69 @@ const checklistDownloadName = computed(() =>
 )
 
 usePageSeo('home', { url: 'https://eventshoot.nl/' })
+
+const ORGANIZATION_SCHEMA_ID = 'organization-schema'
+
+function injectOrganizationSchema() {
+  if (document.getElementById(ORGANIZATION_SCHEMA_ID)) return
+  const script = document.createElement('script')
+  script.id = ORGANIZATION_SCHEMA_ID
+  script.type = 'application/ld+json'
+  script.textContent = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'Eventshoot.nl',
+    legalName: 'Eventshoot.nl BV',
+    url: 'https://eventshoot.nl',
+    logo: {
+      '@type': 'ImageObject',
+      url: 'https://eventshoot.nl/images/logos/logo.svg',
+    },
+    email: 'rolf@eventshoot.nl',
+    telephone: '+31625177728',
+    description:
+      'Professionele eventfotografie en eventvideo voor congressen, seminars en zakelijke bijeenkomsten door heel Nederland. 25+ kant-en-klare items, gemaakt door mensen, geleverd binnen 48 uur.',
+    areaServed: {
+      '@type': 'Country',
+      name: 'Nederland',
+    },
+    address: {
+      '@type': 'PostalAddress',
+      addressCountry: 'NL',
+    },
+    sameAs: [
+      'https://www.linkedin.com/company/eventshoot',
+      'https://www.linkedin.com/in/rolftrijber/',
+    ],
+    founder: {
+      '@type': 'Person',
+      name: 'Rolf Trijber',
+      url: 'https://eventshoot.nl/over-rolf',
+      sameAs: 'https://www.linkedin.com/in/rolftrijber/',
+    },
+    contactPoint: {
+      '@type': 'ContactPoint',
+      telephone: '+31625177728',
+      email: 'rolf@eventshoot.nl',
+      contactType: 'customer service',
+      availableLanguage: ['Dutch', 'English'],
+      areaServed: 'NL',
+    },
+  })
+  document.head.appendChild(script)
+}
+
+function removeOrganizationSchema() {
+  document.getElementById(ORGANIZATION_SCHEMA_ID)?.remove()
+}
+
+onMounted(() => {
+  injectOrganizationSchema()
+})
+
+onUnmounted(() => {
+  removeOrganizationSchema()
+})
 
 const { send } = useEmailJS()
 
