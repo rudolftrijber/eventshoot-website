@@ -39,6 +39,7 @@ const router = createRouter({
     { path: '/klanten/DSR/Video', name: 'klant-dsr-video', component: () => import('../views/KlantView.vue'), meta: { klantSlug: 'dsr-video' } },
     { path: '/klanten/:slug', name: 'klant', component: () => import('../views/KlantView.vue') },
     { path: '/leontine', redirect: '/klanten/leontine' },
+    { path: '/eemhart', redirect: '/klanten/eemhart' },
     { path: '/:pathMatch(.*)*', name: 'not-found', component: () => import('../views/NotFoundView.vue') },
   ],
 })
