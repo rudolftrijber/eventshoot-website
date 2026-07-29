@@ -62,7 +62,7 @@ function injectOrganizationSchema() {
     },
     address: {
       '@type': 'PostalAddress',
-      streetAddress: 'Rubenslaan',
+      streetAddress: 'Rubenslaan 176',
       postalCode: '3582 JJ',
       addressLocality: 'Utrecht',
       addressRegion: 'Utrecht',
