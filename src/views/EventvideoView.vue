@@ -107,7 +107,7 @@ const videoTypes = computed(() => [
     <section class="ev-block ev-block--2 section">
       <div class="container ev-block__inner ev-block__inner--reversed">
         <div class="ev-block__video">
-          <iframe src="https://player.vimeo.com/video/1177248996?background=1" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+          <iframe src="https://player.vimeo.com/video/1213854235?background=1" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
         </div>
         <div class="ev-block__text">
           <h2 class="ev-block__title">{{ t('ev.block2Title') }}</h2>
