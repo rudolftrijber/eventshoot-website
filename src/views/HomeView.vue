@@ -10,6 +10,7 @@ import BackgroundVideo from '@/components/BackgroundVideo.vue'
 import ClientLogoCarousel from '@/components/ClientLogoCarousel.vue'
 import { usePageSeo } from '@/composables/usePageSeo'
 import { useEmailJS } from '@/composables/useEmailJS'
+import ReviewsEmbed from '@/components/ReviewsEmbed.vue'
 
 const { t, locale } = useI18n()
 
@@ -242,7 +243,7 @@ const teaserImages = [
     <section class="reviews">
       <div class="container">
         <SectionHeading :title="t('home_featured.reviewsTitle')" />
-        <div class="elfsight-app-4ed38ed1-21e2-4238-bb5c-d1127391e146"></div>
+        <ReviewsEmbed />
       </div>
     </section>
 

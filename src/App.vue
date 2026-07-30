@@ -6,25 +6,17 @@ import RolfContact from '@/components/RolfContact.vue'
 import FooterSection from '@/components/FooterSection.vue'
 import BackgroundVideo from '@/components/BackgroundVideo.vue'
 import { RouterView } from 'vue-router'
-
-type ElfsightWindow = Window & {
-  ElfsightEmbeds?: { widgets: { initialize: () => void } }
-  Elfsight?: { reload: () => void }
-}
+import { reinitElfsightWidgets } from '@/lib/elfsight'
 
 const route = useRoute()
 const hideLayout = computed(() => Boolean(route.meta.hideLayout))
 
-watch(() => route.path, () => {
-  setTimeout(() => {
-    const w = window as ElfsightWindow
-    if (w.ElfsightEmbeds?.widgets?.initialize) {
-      w.ElfsightEmbeds.widgets.initialize()
-    } else if (w.Elfsight?.reload) {
-      w.Elfsight.reload()
-    }
-  }, 300)
-})
+watch(
+  () => route.fullPath,
+  () => {
+    void reinitElfsightWidgets()
+  },
+)
 </script>
 
 <template>

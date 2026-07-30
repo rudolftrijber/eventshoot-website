@@ -8,6 +8,7 @@ import UspGrid from '@/components/UspGrid.vue'
 import FaqBlock from '@/components/FaqBlock.vue'
 import OptimizedImage from '@/components/OptimizedImage.vue'
 import { usePageSeo } from '@/composables/usePageSeo'
+import ReviewsEmbed from '@/components/ReviewsEmbed.vue'
 
 const { t } = useI18n()
 
@@ -171,7 +172,7 @@ const videoTypes = computed(() => [
     <section class="reviews">
       <div class="container">
         <SectionHeading :title="t('ev.reviewsTitle')" />
-        <div class="elfsight-app-4ed38ed1-21e2-4238-bb5c-d1127391e146"></div>
+        <ReviewsEmbed />
       </div>
     </section>
   </main>
