@@ -20,6 +20,11 @@ const members = computed(() => [
     photo: '/DATA_EVENTSHOOT/TEAM/Vanessa_christina.png',
     paragraphs: [t('overRolf.crewVanessaP1'), t('overRolf.crewVanessaP2')],
   },
+  {
+    name: t('overRolf.crewNielsName'),
+    photo: '/DATA_EVENTSHOOT/TEAM/niels_vissier.png',
+    paragraphs: [t('overRolf.crewNielsP1'), t('overRolf.crewNielsP2')],
+  },
 ])
 </script>
 
@@ -57,8 +62,10 @@ const members = computed(() => [
 
 .crew__grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2rem;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2.5rem 2rem;
+  max-width: 960px;
+  margin: 0 auto;
 }
 
 .crew__card {
