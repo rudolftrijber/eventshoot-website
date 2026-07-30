@@ -72,6 +72,7 @@ export const CREW_MEMBERS = [
   'Rolf Trijber',
   'Maurice Antenbrink',
   'Ron Gessel',
+  'Jeroen Lutmers',
   'Niels Visser',
   'Vanessa Cristina',
 ] as const
