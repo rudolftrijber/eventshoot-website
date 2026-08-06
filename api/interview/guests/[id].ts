@@ -56,6 +56,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
         guest.naam = String(body.naam ?? guest.naam).trim()
         guest.functie = String(body.functie ?? guest.functie).trim()
+        guest.organisatie = String(body.organisatie ?? guest.organisatie).trim()
         const finalized = await finalizeGuest(guest)
         res.status(200).json({ guest: finalized })
         return
@@ -66,6 +67,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (body.type !== undefined) patch.type = String(body.type)
       if (body.naam !== undefined) patch.naam = String(body.naam)
       if (body.functie !== undefined) patch.functie = String(body.functie)
+      if (body.organisatie !== undefined) patch.organisatie = String(body.organisatie)
       if (body.planning !== undefined) patch.planning = String(body.planning)
       if (body.gedeeld !== undefined) patch.gedeeld = Boolean(body.gedeeld)
       if (body.questions !== undefined) {

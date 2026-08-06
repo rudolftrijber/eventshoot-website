@@ -167,8 +167,8 @@ export const useInterviewStore = defineStore('interview', () => {
     return data.guest
   }
 
-  async function finalizeGuest(id: string, naam: string, functie: string) {
-    return updateGuest(id, { action: 'finalize', naam, functie })
+  async function finalizeGuest(id: string, naam: string, functie: string, organisatie = '') {
+    return updateGuest(id, { action: 'finalize', naam, functie, organisatie })
   }
 
   async function deleteGuest(id: string) {
@@ -181,7 +181,12 @@ export const useInterviewStore = defineStore('interview', () => {
     const idx = order.indexOf(guest.status)
     const next = order[(idx + 1) % order.length]
     if (next === 'Checked') {
-      await updateGuest(guest.id, { action: 'finalize', naam: guest.naam, functie: guest.functie })
+      await updateGuest(guest.id, {
+        action: 'finalize',
+        naam: guest.naam,
+        functie: guest.functie,
+        organisatie: guest.organisatie,
+      })
     } else {
       await updateGuest(guest.id, { status: next })
     }

@@ -64,6 +64,7 @@ const fProductie = ref('')
 const fType = ref('')
 const fNaam = ref('')
 const fFunctie = ref('')
+const fOrganisatie = ref('')
 const fPlanning = ref('')
 const fGedeeld = ref(false)
 const fIntakeComplete = ref(false)
@@ -91,6 +92,7 @@ const pQuestions = ref<string[]>(['', '', '', ''])
 // Controle
 const controleNaam = ref('')
 const controleFunctie = ref('')
+const controleOrganisatie = ref('')
 
 // Camera / Interviewer search
 const camSearch = ref('')
@@ -212,7 +214,7 @@ const dayGuests = computed(() => {
   const q = searchBox.value.toLowerCase()
   return [...store.guests]
     .filter((g) => g.productieNaam === prod.naam)
-    .filter((g) => !q || [g.naam, g.functie, g.regienummer, g.type].join(' ').toLowerCase().includes(q))
+    .filter((g) => !q || [g.naam, g.functie, g.organisatie, g.regienummer, g.type].join(' ').toLowerCase().includes(q))
     .sort((a, b) =>
       (parseInt(a.regienummer) || 9999) - (parseInt(b.regienummer) || 9999)
       || a.naam.localeCompare(b.naam, 'nl'),
@@ -225,9 +227,13 @@ const maxChars = computed(() => store.settings.maxChars)
 
 const naamOverLimit = computed(() => fNaam.value.length > maxChars.value)
 const functieOverLimit = computed(() => fFunctie.value.length > maxChars.value)
+const organisatieOverLimit = computed(() => fOrganisatie.value.length > maxChars.value)
 const controleFunctieOver = computed(() => controleFunctie.value.length > maxChars.value)
 const controleNaamOver = computed(() => controleNaam.value.length > maxChars.value)
-const controleOverLimit = computed(() => controleNaamOver.value || controleFunctieOver.value)
+const controleOrganisatieOver = computed(() => controleOrganisatie.value.length > maxChars.value)
+const controleOverLimit = computed(() =>
+  controleNaamOver.value || controleFunctieOver.value || controleOrganisatieOver.value,
+)
 
 const deelnemerPreset = computed(() => {
   if (fType.value !== 'Participant') return null
@@ -574,6 +580,7 @@ async function generateGuestAiProposal() {
       guestType: fType.value || 'Other',
       name: fNaam.value.trim(),
       role: fFunctie.value.trim(),
+      organization: fOrganisatie.value.trim(),
       planning: fPlanning.value.trim(),
       productionDefaults: participantDefaultsForForm(),
       prepAnswers: {
@@ -695,6 +702,7 @@ function clearForm() {
   fGedeeld.value = false
   fNaam.value = ''
   fFunctie.value = ''
+  fOrganisatie.value = ''
   fIntakeComplete.value = false
   resetQuestions(fQuestions)
   resetGuestAi()
@@ -703,9 +711,10 @@ function clearForm() {
 async function saveGuest() {
   const naam = fNaam.value.trim()
   const functie = fFunctie.value.trim()
+  const organisatie = fOrganisatie.value.trim()
   if (!naam) { showToast('Enter a name'); return }
-  if (naam.length > maxChars.value || functie.length > maxChars.value) {
-    showToast(`Name and role max. ${maxChars.value} characters`)
+  if (naam.length > maxChars.value || functie.length > maxChars.value || organisatie.length > maxChars.value) {
+    showToast(`Name, role and organization max. ${maxChars.value} characters`)
     return
   }
   const questions = fQuestions.value.map((q) => q.trim()).filter(Boolean)
@@ -714,6 +723,7 @@ async function saveGuest() {
     type: fType.value,
     naam,
     functie,
+    organisatie,
     planning: fPlanning.value.trim(),
     gedeeld: fGedeeld.value,
     intakeComplete: intakeLockApplies(fType.value) ? fIntakeComplete.value : false,
@@ -743,6 +753,7 @@ function loadForEdit(g: Gast) {
   fIntakeComplete.value = g.intakeComplete
   fNaam.value = g.naam
   fFunctie.value = g.functie
+  fOrganisatie.value = g.organisatie || ''
   resetQuestions(fQuestions, g.questions)
   resetGuestAi()
   store.selectGuest(g.id)
@@ -935,17 +946,27 @@ function openControle(g: Gast) {
   store.selectGuest(g.id)
   controleNaam.value = g.naam
   controleFunctie.value = g.functie
+  controleOrganisatie.value = g.organisatie || ''
 }
 
 async function confirmControle() {
   if (!store.activeGuest) return
-  if (controleNaam.value.length > maxChars.value || controleFunctie.value.length > maxChars.value) {
-    showToast(`Name and role max. ${maxChars.value} characters`)
+  if (
+    controleNaam.value.length > maxChars.value
+    || controleFunctie.value.length > maxChars.value
+    || controleOrganisatie.value.length > maxChars.value
+  ) {
+    showToast(`Name, role and organization max. ${maxChars.value} characters`)
     return
   }
   try {
     const id = store.activeGuest.id
-    await store.finalizeGuest(id, controleNaam.value.trim(), controleFunctie.value.trim())
+    await store.finalizeGuest(
+      id,
+      controleNaam.value.trim(),
+      controleFunctie.value.trim(),
+      controleOrganisatie.value.trim(),
+    )
     const guest = store.guests.find((g) => g.id === id)
     if (guest && guest.status !== 'Checked') {
       await store.updateGuest(id, { status: 'Checked' })
@@ -1275,7 +1296,7 @@ watch(() => store.role, (role) => {
 
       <div v-if="settingsOpen && store.isCrew" class="ia-settings">
         <div class="ia-row">
-          <label class="ia-label" style="margin:0">Max. characters for name &amp; role</label>
+          <label class="ia-label" style="margin:0">Max. characters for name, role &amp; organization</label>
           <input
             class="ia-input"
             type="number"
@@ -1330,6 +1351,11 @@ watch(() => store.role, (role) => {
                   <input v-model="fFunctie" class="ia-input" placeholder="e.g. Director of Innovation" :disabled="guestFormLocked" />
                   <div class="ia-charcount" :class="{ warn: functieOverLimit }">{{ fFunctie.length }} / {{ maxChars }} characters</div>
                 </div>
+                <div>
+                  <label class="ia-label">Organization</label>
+                  <input v-model="fOrganisatie" class="ia-input" placeholder="e.g. Acme BV" :disabled="guestFormLocked" />
+                  <div class="ia-charcount" :class="{ warn: organisatieOverLimit }">{{ fOrganisatie.length }} / {{ maxChars }} characters</div>
+                </div>
               </div>
               <label class="ia-label">Schedule / time slot (optional)</label>
               <input v-model="fPlanning" class="ia-input" placeholder="e.g. interview after the keynote" :disabled="guestFormLocked" />
@@ -1341,7 +1367,7 @@ watch(() => store.role, (role) => {
                     type="button"
                     title="Copy all questions for email or presenter card"
                     :disabled="!fQuestions.some((q) => q.trim())"
-                    @click="copyQuestions(fQuestions, [fNaam, fFunctie].filter(Boolean).join(' — ') || 'Interview questions')"
+                    @click="copyQuestions(fQuestions, [fNaam, fFunctie, fOrganisatie].filter(Boolean).join(' — ') || 'Interview questions')"
                   >
                     <ClipboardDocumentIcon class="ia-btn__icon" aria-hidden="true" />
                     Copy all
@@ -1484,9 +1510,9 @@ watch(() => store.role, (role) => {
         <!-- CREW OVERLAYS -->
         <template v-if="guestView === 'controle'">
             <div v-if="store.activeGuest && store.activeGuest.status === 'Entered'" class="ia-card">
-              <p class="ia-controle-intro">Check name and role for the lower third in the video.</p>
+              <p class="ia-controle-intro">Check name, role and organization for the lower third in the video.</p>
               <p v-if="controleOverLimit" class="ia-controle-limit ia-controle-limit--alert">
-                Too long — name and role may each be at most {{ maxChars }} characters.
+                Too long — name, role and organization may each be at most {{ maxChars }} characters.
               </p>
               <label class="ia-label">Name</label>
               <input v-model="controleNaam" class="ia-input ia-controle-input" />
@@ -1494,6 +1520,9 @@ watch(() => store.role, (role) => {
               <label class="ia-label">Role</label>
               <input v-model="controleFunctie" class="ia-input ia-controle-input" />
               <div class="ia-charcount" :class="{ warn: controleFunctieOver }">{{ controleFunctie.length }} / {{ maxChars }} characters</div>
+              <label class="ia-label">Organization</label>
+              <input v-model="controleOrganisatie" class="ia-input ia-controle-input" />
+              <div class="ia-charcount" :class="{ warn: controleOrganisatieOver }">{{ controleOrganisatie.length }} / {{ maxChars }} characters</div>
               <div class="ia-actions" style="margin-top:1.5rem">
                 <button class="ia-btn ia-btn--ok" type="button" :disabled="controleOverLimit" @click="confirmControle">
                   ✓ Checked, looks good
@@ -1510,6 +1539,7 @@ watch(() => store.role, (role) => {
               <div class="ia-cam-full__guest">
                 <div class="ia-cam-full__naam">{{ camGuest.naam }}</div>
                 <div class="ia-cam-full__functie">{{ camGuest.functie }}</div>
+                <div v-if="camGuest.organisatie" class="ia-cam-full__functie">{{ camGuest.organisatie }}</div>
               </div>
               <div class="ia-cam-full__number">{{ camGuest.regienummer }}</div>
               <div class="ia-actions">
@@ -1524,6 +1554,7 @@ watch(() => store.role, (role) => {
                 <div class="ia-int-full__regie">Crew #{{ intGuest.regienummer || '—' }}</div>
                 <div class="ia-int-full__naam">{{ intGuest.naam }}</div>
                 <div class="ia-int-full__functie">{{ intGuest.functie }}</div>
+                <div v-if="intGuest.organisatie" class="ia-int-full__functie">{{ intGuest.organisatie }}</div>
               </div>
               <div v-if="intGuest.gedeeld" class="ia-int-full__warn">
                 Note: these questions were shared with the guest in advance
@@ -1804,6 +1835,7 @@ watch(() => store.role, (role) => {
                       <th v-if="store.isCrew">Crew #</th>
                       <th>Name</th>
                       <th>Role</th>
+                      <th>Organization</th>
                       <th>Status</th>
                       <th></th>
                     </tr>
@@ -1823,6 +1855,7 @@ watch(() => store.role, (role) => {
                         <small v-if="g.intakeComplete" class="ia-intake-badge">Intake complete</small>
                       </td>
                       <td>{{ g.functie }}</td>
+                      <td>{{ g.organisatie || '—' }}</td>
                       <td @click.stop>
                         <button
                           v-if="store.isCrew"

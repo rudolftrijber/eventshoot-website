@@ -41,6 +41,7 @@ export interface Gast {
   type: GastType | string
   naam: string
   functie: string
+  organisatie: string
   planning: string
   gedeeld: boolean
   questions: string[]

@@ -94,6 +94,7 @@ async function initSchema(): Promise<void> {
   await sql`ALTER TABLE interview_producties ADD COLUMN IF NOT EXISTS crew4 TEXT NOT NULL DEFAULT 'N.V.T.'`
   await sql`ALTER TABLE interview_producties ADD COLUMN IF NOT EXISTS crew5 TEXT NOT NULL DEFAULT 'N.V.T.'`
   await sql`ALTER TABLE interview_gasten ADD COLUMN IF NOT EXISTS intake_complete BOOLEAN NOT NULL DEFAULT FALSE`
+  await sql`ALTER TABLE interview_gasten ADD COLUMN IF NOT EXISTS organisatie TEXT NOT NULL DEFAULT ''`
   await sql`
     CREATE TABLE IF NOT EXISTS interview_rate_limits (
       bucket_key TEXT PRIMARY KEY,
@@ -160,6 +161,7 @@ function rowToGast(row: Record<string, unknown>): Gast {
     type: String(row.type || ''),
     naam: String(row.naam),
     functie: String(row.functie || ''),
+    organisatie: String(row.organisatie || ''),
     planning: String(row.planning || ''),
     gedeeld: Boolean(row.gedeeld),
     questions: Array.isArray(row.questions) ? row.questions.map(String) : [],
@@ -244,10 +246,11 @@ export async function createGuest(data: Omit<Gast, 'createdAt' | 'updatedAt'>): 
   const sql = await getSql()
   const rows = await sql`
     INSERT INTO interview_gasten (
-      id, productie_naam, type, naam, functie, planning, gedeeld,
+      id, productie_naam, type, naam, functie, organisatie, planning, gedeeld,
       questions, intake_complete, status, regienummer, datum, tijd
     ) VALUES (
       ${data.id}, ${data.productieNaam}, ${data.type}, ${data.naam}, ${data.functie},
+      ${data.organisatie || ''},
       ${data.planning}, ${data.gedeeld}, ${JSON.stringify(data.questions)}::jsonb,
       ${Boolean(data.intakeComplete)}, ${data.status}, ${data.regienummer || null},
       ${toDateParam(data.datum)}, ${data.tijd || null}
@@ -270,6 +273,7 @@ export async function updateGuest(id: string, patch: Partial<Gast>): Promise<Gas
       type = ${next.type},
       naam = ${next.naam},
       functie = ${next.functie},
+      organisatie = ${next.organisatie || ''},
       planning = ${next.planning},
       gedeeld = ${next.gedeeld},
       questions = ${JSON.stringify(next.questions)}::jsonb,

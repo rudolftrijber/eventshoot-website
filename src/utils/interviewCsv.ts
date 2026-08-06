@@ -18,6 +18,7 @@ export function guestsToCSV(list: Gast[]): string {
     type: 'Participant',
     naam: 'Jane Smith',
     functie: 'Director of Innovation',
+    organisatie: 'Acme BV',
     planning: 'interview before lunch',
     gedeeld: false,
     questions: [
@@ -39,6 +40,7 @@ export function guestsToCSV(list: Gast[]): string {
       r.type || '',
       r.naam,
       r.functie,
+      'organisatie' in r ? r.organisatie : '',
       'planning' in r ? r.planning : '',
       ('gedeeld' in r && r.gedeeld) ? 'yes' : 'no',
       q[0], q[1], q[2], q[3], q[4], q[5], q[6],
@@ -57,6 +59,7 @@ const CLIENT_TEMPLATE_EXAMPLE = {
   type: 'Keynote speaker',
   naam: 'Jane Smith',
   functie: 'Director of Innovation',
+  organisatie: 'Acme BV',
   planning: 'interview after keynote, around 12:30',
   gedeeld: true,
   questions: [
@@ -74,6 +77,7 @@ function clientExampleRow(): string[] {
     CLIENT_TEMPLATE_EXAMPLE.type,
     CLIENT_TEMPLATE_EXAMPLE.naam,
     CLIENT_TEMPLATE_EXAMPLE.functie,
+    CLIENT_TEMPLATE_EXAMPLE.organisatie,
     CLIENT_TEMPLATE_EXAMPLE.planning,
     CLIENT_TEMPLATE_EXAMPLE.gedeeld ? 'yes' : 'no',
     q[0], q[1], q[2], q[3], q[4], q[5], q[6],
@@ -99,11 +103,11 @@ export function clientTemplateCSV(): string {
 }
 
 export function lowerthirdCSV(list: Gast[]): string {
-  const headers = ['crew_number', 'date', 'time', 'name', 'role', 'production', 'status']
+  const headers = ['crew_number', 'date', 'time', 'name', 'role', 'organization', 'production', 'status']
   const lines = [headers.join(',')]
   list.forEach((g) => {
     lines.push([
-      g.regienummer, g.datum, g.tijd, g.naam, g.functie, g.productieNaam, g.status,
+      g.regienummer, g.datum, g.tijd, g.naam, g.functie, g.organisatie || '', g.productieNaam, g.status,
     ].map(toCSVField).join(','))
   })
   return lines.join('\r\n')
@@ -164,6 +168,7 @@ export function csvRowToGuestPayload(row: Record<string, string>) {
     type: row.type || '',
     naam: row.name || row.naam || '',
     functie: row.role || row.functie || '',
+    organisatie: row.organization || row.organisation || row.organisatie || '',
     planning: row.planning || '',
     gedeeld: /^(yes|ja|true|1)$/i.test(sharedRaw),
     questions,

@@ -62,6 +62,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         type,
         naam: String(body.naam || '').trim(),
         functie: String(body.functie || '').trim(),
+        organisatie: String(body.organisatie || '').trim(),
         planning: String(body.planning || ''),
         gedeeld: Boolean(body.gedeeld),
         questions,

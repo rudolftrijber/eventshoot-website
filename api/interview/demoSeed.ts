@@ -79,6 +79,7 @@ const gasten: Omit<Gast, 'createdAt' | 'updatedAt'>[] = [
     type: 'Keynote speaker',
     naam: 'Dr. Anna van Berg',
     functie: 'CEO TechCorp',
+    organisatie: '',
     planning: '09:30 keynote, daarna interview',
     gedeeld: true,
     questions: [
@@ -99,6 +100,7 @@ const gasten: Omit<Gast, 'createdAt' | 'updatedAt'>[] = [
     type: 'Keynote speaker',
     naam: 'Prof. Jan Meijer',
     functie: 'Hoogleraar Innovatie, TU Delft',
+    organisatie: '',
     planning: '14:00 breakout + interview',
     gedeeld: false,
     questions: [
@@ -119,6 +121,7 @@ const gasten: Omit<Gast, 'createdAt' | 'updatedAt'>[] = [
     type: 'Participant',
     naam: 'Sophie Jansen',
     functie: 'Marketingmanager',
+    organisatie: '',
     planning: '11:15 interviewplek lobby',
     gedeeld: true,
     questions: [
@@ -139,6 +142,7 @@ const gasten: Omit<Gast, 'createdAt' | 'updatedAt'>[] = [
     type: 'Executive',
     naam: 'Mark de Vries',
     functie: 'Directeur Communicatie',
+    organisatie: '',
     planning: '12:00 boardroom',
     gedeeld: true,
     questions: [
@@ -159,6 +163,7 @@ const gasten: Omit<Gast, 'createdAt' | 'updatedAt'>[] = [
     type: 'Other',
     naam: 'Lars Bakker',
     functie: 'Moderator & host',
+    organisatie: '',
     planning: '16:30 afsluiting',
     gedeeld: false,
     questions: [
@@ -179,6 +184,7 @@ const gasten: Omit<Gast, 'createdAt' | 'updatedAt'>[] = [
     type: 'Participant',
     naam: 'Eva Smit',
     functie: 'Product owner SaaS',
+    organisatie: '',
     planning: '15:00 stand B12',
     gedeeld: true,
     questions: [
