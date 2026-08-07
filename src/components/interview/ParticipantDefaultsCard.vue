@@ -147,7 +147,7 @@ async function copyAll() {
       </div>
     </div>
     <div v-else-if="aiStep === 'preview' && aiPreview" class="ia-ai-preview">
-      <p class="ia-ai-preview__title">AI proposal — select questions to use (max. 4)</p>
+      <p class="ia-ai-preview__title">AI proposal — select questions to add (existing questions stay)</p>
       <ul class="ia-ai-preview__pick">
         <li v-for="(q, i) in aiPreview" :key="i">
           <label class="ia-ai-pick">
@@ -158,7 +158,7 @@ async function copyAll() {
       </ul>
       <div class="ia-actions ia-actions--tight">
         <button class="ia-btn ia-btn--small ia-btn--accent" type="button" @click="emit('apply')">
-          Use selected questions
+          Add selected questions
         </button>
         <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="emit('dismiss')">
           Dismiss

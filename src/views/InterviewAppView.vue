@@ -515,6 +515,36 @@ function resetQuestions(list: { value: string[] }, values?: string[]) {
   while (list.value.length < 4) list.value.push('')
 }
 
+/** Append AI picks to existing questions. Never replaces what the user already wrote. */
+function appendAiQuestions(list: { value: string[] }, picked: string[]): boolean {
+  const existing = list.value.map((q) => q.trim()).filter(Boolean)
+  const room = 7 - existing.length
+  if (room <= 0) {
+    showToast('Already at maximum 7 questions — remove some with the trash icon first')
+    return false
+  }
+
+  const existingLower = new Set(existing.map((q) => q.toLowerCase()))
+  const uniquePicks = picked
+    .map((q) => q.trim())
+    .filter(Boolean)
+    .filter((q) => !existingLower.has(q.toLowerCase()))
+
+  if (!uniquePicks.length) {
+    showToast('Selected questions are already in the list')
+    return false
+  }
+
+  const added = uniquePicks.slice(0, room)
+  list.value = [...existing, ...added]
+  if (uniquePicks.length > room) {
+    showToast(`Added ${added.length}. ${uniquePicks.length - room} skipped (max. 7).`)
+  } else {
+    showToast(`Added ${added.length} question(s) — review before saving`)
+  }
+  return true
+}
+
 function productionByName(name: string) {
   const trimmed = name.trim().toLowerCase()
   if (!trimmed) return null
@@ -609,9 +639,8 @@ function applyGuestAiPreview() {
     showToast('Select at least one question')
     return
   }
-  resetQuestions(fQuestions, picked)
+  if (!appendAiQuestions(fQuestions, picked)) return
   resetGuestAi()
-  showToast('Selected questions applied — review before saving')
 }
 
 function dismissGuestAi() {
@@ -685,9 +714,8 @@ function applyProductionAiPreview() {
     showToast('Select at least one question')
     return
   }
-  resetQuestions(pQuestions, picked)
+  if (!appendAiQuestions(pQuestions, picked)) return
   resetProdAi()
-  showToast('Selected questions applied — review before saving')
 }
 
 function dismissProductionAiPreview() {
@@ -1456,7 +1484,7 @@ watch(() => store.role, (role) => {
                 </div>
               </div>
               <div v-else-if="aiGuestStep === 'preview' && aiGuestPreview" class="ia-ai-preview">
-                <p class="ia-ai-preview__title">AI proposal — select questions to use (max. 4)</p>
+                <p class="ia-ai-preview__title">AI proposal — select questions to add (existing questions stay)</p>
                 <ul class="ia-ai-preview__pick">
                   <li v-for="(q, i) in aiGuestPreview" :key="i">
                     <label class="ia-ai-pick">
@@ -1467,7 +1495,7 @@ watch(() => store.role, (role) => {
                 </ul>
                 <div class="ia-actions ia-actions--tight">
                   <button class="ia-btn ia-btn--small ia-btn--accent" type="button" :disabled="guestFormLocked" @click="applyGuestAiPreview">
-                    Use selected questions
+                    Add selected questions
                   </button>
                   <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="dismissGuestAi">
                     Dismiss
