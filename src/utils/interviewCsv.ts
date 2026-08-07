@@ -43,7 +43,7 @@ export function guestsToCSV(list: Gast[]): string {
       'organisatie' in r ? r.organisatie : '',
       'planning' in r ? r.planning : '',
       ('gedeeld' in r && r.gedeeld) ? 'yes' : 'no',
-      q[0], q[1], q[2], q[3], q[4], q[5], q[6],
+      q[0], q[1], q[2], q[3], q[4], q[5], q[6], q[7],
       r.status,
       r.regienummer || '',
       r.datum || '',
@@ -80,7 +80,7 @@ function clientExampleRow(): string[] {
     CLIENT_TEMPLATE_EXAMPLE.organisatie,
     CLIENT_TEMPLATE_EXAMPLE.planning,
     CLIENT_TEMPLATE_EXAMPLE.gedeeld ? 'yes' : 'no',
-    q[0], q[1], q[2], q[3], q[4], q[5], q[6],
+    q[0], q[1], q[2], q[3], q[4], q[5], q[6], q[7],
   ].map(toCSVField)
 }
 
@@ -157,7 +157,7 @@ export function parseCSV(text: string): Record<string, string>[] {
 
 export function csvRowToGuestPayload(row: Record<string, string>) {
   const questions: string[] = []
-  for (let i = 1; i <= 7; i++) {
+  for (let i = 1; i <= 8; i++) {
     const q = questionFromRow(row, i)
     if (q) questions.push(q)
   }

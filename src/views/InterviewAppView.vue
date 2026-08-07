@@ -497,8 +497,10 @@ async function handleLogin() {
   }
 }
 
+const MAX_QUESTIONS = 8
+
 function addQuestion(list: { value: string[] }) {
-  if (list.value.length >= 7) { showToast('Maximum 7 questions'); return }
+  if (list.value.length >= MAX_QUESTIONS) { showToast(`Maximum ${MAX_QUESTIONS} questions`); return }
   list.value.push('')
 }
 
@@ -518,9 +520,9 @@ function resetQuestions(list: { value: string[] }, values?: string[]) {
 /** Append AI picks to existing questions. Never replaces what the user already wrote. */
 function appendAiQuestions(list: { value: string[] }, picked: string[]): boolean {
   const existing = list.value.map((q) => q.trim()).filter(Boolean)
-  const room = 7 - existing.length
+  const room = MAX_QUESTIONS - existing.length
   if (room <= 0) {
-    showToast('Already at maximum 7 questions — remove some with the trash icon first')
+    showToast(`Already at maximum ${MAX_QUESTIONS} questions — remove some with the trash icon first`)
     return false
   }
 
@@ -538,7 +540,7 @@ function appendAiQuestions(list: { value: string[] }, picked: string[]): boolean
   const added = uniquePicks.slice(0, room)
   list.value = [...existing, ...added]
   if (uniquePicks.length > room) {
-    showToast(`Added ${added.length}. ${uniquePicks.length - room} skipped (max. 7).`)
+    showToast(`Added ${added.length}. ${uniquePicks.length - room} skipped (max. ${MAX_QUESTIONS}).`)
   } else {
     showToast(`Added ${added.length} question(s) — review before saving`)
   }
@@ -1388,7 +1390,7 @@ watch(() => store.role, (role) => {
               <label class="ia-label">Schedule / time slot (optional)</label>
               <input v-model="fPlanning" class="ia-input" placeholder="e.g. interview after the keynote" :disabled="guestFormLocked" />
               <div class="ia-question-head">
-                <label class="ia-label ia-label--inline">Interview questions (max. 7)</label>
+                <label class="ia-label ia-label--inline">Interview questions (max. 8)</label>
                 <div class="ia-question-head__actions">
                   <button
                     class="ia-btn ia-btn--small ia-btn--secondary"
@@ -1516,8 +1518,8 @@ watch(() => store.role, (role) => {
                 <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" :disabled="guestFormLocked" @click="addFQ">+ Question</button>
               </div>
               <ShortQuestionsTip
-                en="Prefer not to share (all) questions in advance. When someone is interviewed about their own field or expertise, they usually open up naturally, and that authenticity is what you want on camera. There should always be room to skip a question. An interview should mainly be enjoyable to watch, and sharing every question up front often makes answers rehearsed and flat, with less room for the interviewer to improvise. If a client still wants to share something, they can do that themselves by email. Eventshoot.nl only facilitates."
-                nl="Deel bij voorkeur niet (alle) vragen van tevoren. Als iemand over het eigen vak of expertise wordt geïnterviewd, gaat het gesprek meestal vanzelf open, en die authenticiteit wil je op camera. Er moet altijd ruimte zijn om een vraag over te slaan. Een interview moet vooral prettig zijn om naar te kijken. Alle vragen vooraf delen maakt antwoorden vaak ingestudeerd en vlak, met minder ruimte voor de interviewer om te improviseren. Wil een opdrachtgever toch iets delen, dan kan dat zelf per e-mail. Eventshoot.nl faciliteert alleen."
+                en="Prefer not to share (all) questions in advance. When someone is interviewed about their own field or expertise, they usually open up naturally, and that authenticity is what you want on camera. Keep some room for deepening and improvisation, eight questions is enough. There should always be room to skip a question. An interview should mainly be enjoyable to watch, and sharing every question up front often makes answers rehearsed and flat. If a client still wants to share something, they can do that themselves by email. Eventshoot.nl only facilitates."
+                nl="Deel bij voorkeur niet (alle) vragen van tevoren. Als iemand over het eigen vak of expertise wordt geïnterviewd, gaat het gesprek meestal vanzelf open, en die authenticiteit wil je op camera. Houd ruimte over voor verdieping en improvisatie, acht vragen is genoeg. Er moet altijd ruimte zijn om een vraag over te slaan. Een interview moet vooral prettig zijn om naar te kijken. Alle vragen vooraf delen maakt antwoorden vaak ingestudeerd en vlak. Wil een opdrachtgever toch iets delen, dan kan dat zelf per e-mail. Eventshoot.nl faciliteert alleen."
               />
               <div v-if="intakeLockApplies(fType)" class="ia-actions">
                 <input id="fIntakeComplete" v-model="fIntakeComplete" type="checkbox" />
