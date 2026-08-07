@@ -14,6 +14,7 @@ export interface SuggestQuestionsInput {
   guestType?: string
   name?: string
   role?: string
+  organization?: string
   planning?: string
   productionDefaults?: string[]
   prepAnswers?: AiPrepAnswers
@@ -128,6 +129,7 @@ function buildUserPrompt(input: SuggestQuestionsInput): string {
     lines.push(`Guest type: ${guestType}`)
     if (input.name?.trim()) lines.push(`Name: ${input.name.trim()}`)
     if (input.role?.trim()) lines.push(`Role: ${input.role.trim()}`)
+    if (input.organization?.trim()) lines.push(`Organization: ${input.organization.trim()}`)
     if (input.planning?.trim()) lines.push(`Schedule: ${input.planning.trim()}`)
   }
 

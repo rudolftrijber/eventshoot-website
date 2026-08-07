@@ -270,6 +270,7 @@ export const useInterviewStore = defineStore('interview', () => {
     guestType?: string
     name?: string
     role?: string
+    organization?: string
     planning?: string
     productionDefaults?: string[]
     prepAnswers: { sector: string; specialism: string; timeliness: string; customPrompt?: string }

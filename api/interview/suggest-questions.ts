@@ -78,6 +78,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       guestType: String(body.guestType || '').trim() || undefined,
       name: String(body.name || '').trim() || undefined,
       role: String(body.role || '').trim() || undefined,
+      organization: String(body.organization || '').trim() || undefined,
       planning: String(body.planning || '').trim() || undefined,
       productionDefaults: asStringArray(body.productionDefaults),
       prepAnswers,
