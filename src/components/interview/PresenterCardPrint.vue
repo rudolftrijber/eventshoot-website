@@ -220,11 +220,11 @@ function printCard() {
   gap: 8mm;
 }
 
-/* Slightly smaller than A5 landscape (210 × 148) */
+/* Slightly smaller than A5 landscape (210 × 148): 200 × 130 mm (13 cm high) */
 .pc-panel {
   position: relative;
   width: 200mm;
-  height: 132mm;
+  height: 130mm;
   flex: 0 0 auto;
   background: #fff;
   color: #111;
