@@ -1380,7 +1380,9 @@ watch(() => store.role, (role) => {
         <section v-if="store.activeTab === 'candidate' && (!guestView || guestView === 'form')">
             <div class="ia-card">
               <h2 class="ia-section-title">{{ editingId ? 'Edit candidate' : 'New candidate' }}</h2>
-              <p v-if="guestFormLocked" class="ia-hint ia-hint--warn">Intake complete — unlock below to edit fields.</p>
+              <p v-if="guestFormLocked" class="ia-hint ia-hint--warn">
+                Intake complete — uncheck “Intake complete” below, then Save to unlock and edit (intro, outro, questions).
+              </p>
               <div class="ia-row ia-row--fields">
                 <div class="ia-field">
                   <label class="ia-label">Production</label>
@@ -1604,7 +1606,13 @@ watch(() => store.role, (role) => {
                 <label for="fGedeeld" style="margin:0">Questions were shared with the interviewee in advance</label>
               </div>
               <div class="ia-actions">
-                <button class="ia-btn" type="button" @click="saveGuest">Save</button>
+                <button
+                  class="ia-btn"
+                  type="button"
+                  :disabled="guestFormLocked"
+                  :title="guestFormLocked ? 'Uncheck Intake complete first, then Save' : undefined"
+                  @click="saveGuest"
+                >Save</button>
                 <button class="ia-btn ia-btn--secondary" type="button" @click="handleNavBack">Cancel</button>
                 <button v-if="store.isCrew" class="ia-iconbtn" type="button" title="Clear" @click="clearForm">🗑️</button>
               </div>

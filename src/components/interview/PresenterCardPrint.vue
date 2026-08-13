@@ -135,11 +135,6 @@ function printCard() {
             <span class="pc-crop__mark pc-crop__mark--br" />
           </div>
           <div class="pc-panel__inner">
-            <header class="pc-head pc-head--compact">
-              <h1 class="pc-name">{{ naam || 'Name' }}</h1>
-              <p v-if="functie" class="pc-role">{{ functie }}</p>
-            </header>
-
             <div v-if="panel2Questions.length" class="pc-block">
               <div class="pc-label">Questions (continued)</div>
               <ol class="pc-questions">
@@ -298,10 +293,6 @@ function printCard() {
 .pc-org {
   color: #444;
   font-size: 11pt;
-}
-
-.pc-head--compact .pc-name {
-  font-size: 15pt;
 }
 
 .pc-label {

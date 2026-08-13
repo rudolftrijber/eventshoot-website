@@ -59,14 +59,12 @@ export function productionNameAllowed(
 export function guestEditableByClient(guest: Gast, patch: Record<string, unknown>): string | null {
   if (!guest.intakeComplete) return null
 
-  const allowedKeys = new Set(['intakeComplete'])
-  const keys = Object.keys(patch).filter((k) => patch[k] !== undefined)
-  const onlyUnlock = keys.length === 1 && keys[0] === 'intakeComplete' && patch.intakeComplete === false
-  if (onlyUnlock) return null
+  // Unlock may arrive alone or together with field edits (intro/outro/questions).
+  // The candidate form always sends a full payload, so requiring a solitary
+  // intakeComplete=false patch made Save fail after unchecking the lock.
+  if (patch.intakeComplete === false) return null
 
-  const blocked = keys.some((k) => !allowedKeys.has(k))
-  if (blocked) return 'Intake complete — unlock before editing'
-  return null
+  return 'Intake complete — unlock before editing'
 }
 
 export function sanitizeGuestPatchForClient(
