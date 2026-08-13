@@ -46,11 +46,35 @@ watch(
   { immediate: true },
 )
 
+let previousTitle = ''
+
 onUnmounted(() => {
   document.body.classList.remove('ia-presenter-print-open')
+  if (previousTitle) {
+    document.title = previousTitle
+    previousTitle = ''
+  }
 })
 
+function pdfFileBaseName(): string {
+  const raw = (props.naam || '').trim() || 'Presenter-card'
+  return raw
+    .replace(/[\\/:*?"<>|]+/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
 function printCard() {
+  previousTitle = document.title
+  document.title = pdfFileBaseName()
+  const restore = () => {
+    if (previousTitle) {
+      document.title = previousTitle
+      previousTitle = ''
+    }
+    window.removeEventListener('afterprint', restore)
+  }
+  window.addEventListener('afterprint', restore)
   // Small delay so the browser paints the print layout cleanly
   requestAnimationFrame(() => window.print())
 }
@@ -68,7 +92,7 @@ function printCard() {
       <div class="pc-toolbar no-print">
         <div class="pc-toolbar__text">
           <strong>Presenter card</strong>
-          <span>A4 portrait · 2 cut panels (slightly smaller than A5) · print on white paper</span>
+          <span>A4 portrait · 2 cut panels (19 × 13 cm) · Save as PDF uses the interviewee name</span>
         </div>
         <div class="pc-toolbar__actions">
           <button class="ia-btn" type="button" @click="printCard">Print / Save as PDF</button>
@@ -153,7 +177,7 @@ function printCard() {
         </article>
       </div>
 
-      <p class="pc-cut-hint no-print">Cut along each dashed line (slightly smaller than A5). Stick onto the pre-printed presenter cards.</p>
+      <p class="pc-cut-hint no-print">Cut along each dashed line (19 × 13 cm). Stick onto the pre-printed presenter cards.</p>
     </div>
   </Teleport>
 </template>
@@ -215,15 +239,15 @@ function printCard() {
   gap: 8mm;
 }
 
-/* Slightly smaller than A5 landscape (210 × 148): 200 × 130 mm (13 cm high) */
+/* Cut panel: max 19 × 13 cm */
 .pc-panel {
   position: relative;
-  width: 200mm;
+  width: 190mm;
   height: 130mm;
   flex: 0 0 auto;
   background: #fff;
   color: #111;
-  border: 1.5px dashed #222;
+  border: 0.5px dashed #c8c8cc;
   box-sizing: border-box;
   overflow: hidden;
 }
@@ -253,22 +277,22 @@ function printCard() {
 
 .pc-crop__mark {
   position: absolute;
-  width: 4mm;
-  height: 4mm;
-  border-color: #111;
+  width: 3mm;
+  height: 3mm;
+  border-color: #c8c8cc;
   border-style: solid;
   border-width: 0;
   z-index: 1;
 }
 
-.pc-crop__mark--tl { top: -1px; left: -1px; border-top-width: 1.5px; border-left-width: 1.5px; }
-.pc-crop__mark--tr { top: -1px; right: -1px; border-top-width: 1.5px; border-right-width: 1.5px; }
-.pc-crop__mark--bl { bottom: -1px; left: -1px; border-bottom-width: 1.5px; border-left-width: 1.5px; }
-.pc-crop__mark--br { bottom: -1px; right: -1px; border-bottom-width: 1.5px; border-right-width: 1.5px; }
+.pc-crop__mark--tl { top: -1px; left: -1px; border-top-width: 0.5px; border-left-width: 0.5px; }
+.pc-crop__mark--tr { top: -1px; right: -1px; border-top-width: 0.5px; border-right-width: 0.5px; }
+.pc-crop__mark--bl { bottom: -1px; left: -1px; border-bottom-width: 0.5px; border-left-width: 0.5px; }
+.pc-crop__mark--br { bottom: -1px; right: -1px; border-bottom-width: 0.5px; border-right-width: 0.5px; }
 
 .pc-prod {
   margin: 0 0 0.5mm;
-  font-size: 9pt;
+  font-size: 10pt;
   color: #555;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -276,7 +300,7 @@ function printCard() {
 
 .pc-name {
   margin: 0;
-  font-size: 18pt;
+  font-size: 20pt;
   line-height: 1.12;
   font-weight: 700;
   color: #111;
@@ -285,18 +309,18 @@ function printCard() {
 .pc-role,
 .pc-org {
   margin: 1mm 0 0;
-  font-size: 12pt;
+  font-size: 13pt;
   line-height: 1.25;
   color: #222;
 }
 
 .pc-org {
   color: #444;
-  font-size: 11pt;
+  font-size: 12pt;
 }
 
 .pc-label {
-  font-size: 9pt;
+  font-size: 10pt;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -306,8 +330,8 @@ function printCard() {
 
 .pc-text {
   margin: 0;
-  font-size: 11pt;
-  line-height: 1.3;
+  font-size: 12.5pt;
+  line-height: 1.32;
   white-space: pre-wrap;
   color: #111;
 }
@@ -321,9 +345,9 @@ function printCard() {
 .pc-questions li {
   display: flex;
   gap: 2.5mm;
-  margin-bottom: 2mm;
-  font-size: 11pt;
-  line-height: 1.28;
+  margin-bottom: 2.2mm;
+  font-size: 12.5pt;
+  line-height: 1.3;
   color: #111;
 }
 
@@ -337,7 +361,7 @@ function printCard() {
   margin: 0;
   color: #888;
   font-style: italic;
-  font-size: 11pt;
+  font-size: 12.5pt;
 }
 
 .pc-cut-hint {
