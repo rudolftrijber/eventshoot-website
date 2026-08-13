@@ -247,7 +247,7 @@ function printCard() {
   flex: 0 0 auto;
   background: #fff;
   color: #111;
-  border: 0.5px dashed #c8c8cc;
+  border: 1.25px dashed #b0b0b5;
   box-sizing: border-box;
   overflow: hidden;
 }
@@ -277,18 +277,18 @@ function printCard() {
 
 .pc-crop__mark {
   position: absolute;
-  width: 3mm;
-  height: 3mm;
-  border-color: #c8c8cc;
+  width: 3.5mm;
+  height: 3.5mm;
+  border-color: #b0b0b5;
   border-style: solid;
   border-width: 0;
   z-index: 1;
 }
 
-.pc-crop__mark--tl { top: -1px; left: -1px; border-top-width: 0.5px; border-left-width: 0.5px; }
-.pc-crop__mark--tr { top: -1px; right: -1px; border-top-width: 0.5px; border-right-width: 0.5px; }
-.pc-crop__mark--bl { bottom: -1px; left: -1px; border-bottom-width: 0.5px; border-left-width: 0.5px; }
-.pc-crop__mark--br { bottom: -1px; right: -1px; border-bottom-width: 0.5px; border-right-width: 0.5px; }
+.pc-crop__mark--tl { top: -1px; left: -1px; border-top-width: 1.25px; border-left-width: 1.25px; }
+.pc-crop__mark--tr { top: -1px; right: -1px; border-top-width: 1.25px; border-right-width: 1.25px; }
+.pc-crop__mark--bl { bottom: -1px; left: -1px; border-bottom-width: 1.25px; border-left-width: 1.25px; }
+.pc-crop__mark--br { bottom: -1px; right: -1px; border-bottom-width: 1.25px; border-right-width: 1.25px; }
 
 .pc-prod {
   margin: 0 0 0.5mm;
@@ -396,6 +396,16 @@ function printCard() {
   .pc-panel__inner {
     background: #fff !important;
     color: #111 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .pc-panel {
+    border: 1.25px dashed #b0b0b5 !important;
+  }
+
+  .pc-crop__mark {
+    border-color: #b0b0b5 !important;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
