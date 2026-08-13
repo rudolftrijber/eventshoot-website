@@ -67,6 +67,10 @@ const fFunctie = ref('')
 const fOrganisatie = ref('')
 const fPlanning = ref('')
 const fGedeeld = ref(false)
+const fUseIntro = ref(false)
+const fIntroTekst = ref('')
+const fUseOutro = ref(false)
+const fOutroTekst = ref('')
 const fIntakeComplete = ref(false)
 const fQuestions = ref<string[]>(['', '', '', ''])
 
@@ -473,8 +477,12 @@ function showToast(msg: string) {
   toastTimer = setTimeout(() => { toast.value = '' }, 2000)
 }
 
-async function copyQuestions(questions: string[], title?: string) {
-  const text = formatQuestionsForCopy(questions, title)
+async function copyQuestions(
+  questions: string[],
+  title?: string,
+  extras?: { intro?: string; outro?: string },
+) {
+  const text = formatQuestionsForCopy(questions, title, extras)
   if (!text) {
     showToast('No questions to copy')
     return
@@ -730,6 +738,10 @@ function clearForm() {
   fType.value = ''
   fPlanning.value = ''
   fGedeeld.value = false
+  fUseIntro.value = false
+  fIntroTekst.value = ''
+  fUseOutro.value = false
+  fOutroTekst.value = ''
   fNaam.value = ''
   fFunctie.value = ''
   fOrganisatie.value = ''
@@ -756,6 +768,8 @@ async function saveGuest() {
     organisatie,
     planning: fPlanning.value.trim(),
     gedeeld: fGedeeld.value,
+    introTekst: fUseIntro.value ? fIntroTekst.value.trim() : '',
+    outroTekst: fUseOutro.value ? fOutroTekst.value.trim() : '',
     intakeComplete: intakeLockApplies(fType.value) ? fIntakeComplete.value : false,
     questions,
   }
@@ -780,6 +794,10 @@ function loadForEdit(g: Gast) {
   fType.value = g.type
   fPlanning.value = g.planning
   fGedeeld.value = g.gedeeld
+  fUseIntro.value = Boolean(g.introTekst?.trim())
+  fIntroTekst.value = g.introTekst || ''
+  fUseOutro.value = Boolean(g.outroTekst?.trim())
+  fOutroTekst.value = g.outroTekst || ''
   fIntakeComplete.value = g.intakeComplete
   fNaam.value = g.naam
   fFunctie.value = g.functie
@@ -1397,7 +1415,14 @@ watch(() => store.role, (role) => {
                     type="button"
                     title="Copy all questions for email or presenter card"
                     :disabled="!fQuestions.some((q) => q.trim())"
-                    @click="copyQuestions(fQuestions, [fNaam, fFunctie, fOrganisatie].filter(Boolean).join(' — ') || 'Interview questions')"
+                    @click="copyQuestions(
+                      fQuestions,
+                      [fNaam, fFunctie, fOrganisatie].filter(Boolean).join(' — ') || 'Interview questions',
+                      {
+                        intro: fUseIntro ? fIntroTekst : '',
+                        outro: fUseOutro ? fOutroTekst : '',
+                      },
+                    )"
                   >
                     <ClipboardDocumentIcon class="ia-btn__icon" aria-hidden="true" />
                     Copy all
@@ -1420,6 +1445,20 @@ watch(() => store.role, (role) => {
               <p v-else-if="fType" class="ia-hint">
                 {{ fType }} questions are generated separately from production defaults.
               </p>
+              <div class="ia-actions ia-actions--tight">
+                <input id="fUseIntro" v-model="fUseIntro" type="checkbox" :disabled="guestFormLocked" />
+                <label for="fUseIntro" style="margin:0">Use intro text (before the questions)</label>
+              </div>
+              <div v-if="fUseIntro" class="ia-intro-outro">
+                <label class="ia-label">Intro text</label>
+                <textarea
+                  v-model="fIntroTekst"
+                  class="ia-textarea"
+                  rows="3"
+                  placeholder="e.g. Welcome, thank you for joining us. Could you briefly introduce yourself?"
+                  :disabled="guestFormLocked"
+                />
+              </div>
               <div v-if="aiGuestStep === 'prep'" class="ia-ai-preview ia-ai-preview--prep">
                 <p class="ia-ai-preview__title">Briefing for AI — fill the 3 fields, or write your own prompt</p>
                 <div class="ia-ai-options">
@@ -1517,6 +1556,20 @@ watch(() => store.role, (role) => {
               <div class="ia-actions">
                 <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" :disabled="guestFormLocked" @click="addFQ">+ Question</button>
               </div>
+              <div class="ia-actions ia-actions--tight">
+                <input id="fUseOutro" v-model="fUseOutro" type="checkbox" :disabled="guestFormLocked" />
+                <label for="fUseOutro" style="margin:0">Use outro text (after the questions)</label>
+              </div>
+              <div v-if="fUseOutro" class="ia-intro-outro">
+                <label class="ia-label">Outro text</label>
+                <textarea
+                  v-model="fOutroTekst"
+                  class="ia-textarea"
+                  rows="3"
+                  placeholder="e.g. Thank you. Any final message for our viewers?"
+                  :disabled="guestFormLocked"
+                />
+              </div>
               <ShortQuestionsTip
                 en="Prefer not to share (all) questions in advance. When someone is interviewed about their own field or expertise, they usually open up naturally, and that authenticity is what you want on camera. Keep some room for deepening and improvisation, eight questions is enough. There should always be room to skip a question. An interview should mainly be enjoyable to watch, and sharing every question up front often makes answers rehearsed and flat. If a client still wants to share something, they can do that themselves by email. Eventshoot.nl only facilitates."
                 nl="Deel bij voorkeur niet (alle) vragen van tevoren. Als iemand over het eigen vak of expertise wordt geïnterviewd, gaat het gesprek meestal vanzelf open, en die authenticiteit wil je op camera. Houd ruimte over voor verdieping en improvisatie, acht vragen is genoeg. Er moet altijd ruimte zijn om een vraag over te slaan. Een interview moet vooral prettig zijn om naar te kijken. Alle vragen vooraf delen maakt antwoorden vaak ingestudeerd en vlak. Wil een opdrachtgever toch iets delen, dan kan dat zelf per e-mail. Eventshoot.nl faciliteert alleen."
@@ -1589,12 +1642,20 @@ watch(() => store.role, (role) => {
               <div v-if="intGuest.gedeeld" class="ia-int-full__warn">
                 Note: these questions were shared with the guest in advance
               </div>
+              <div v-if="intGuest.introTekst?.trim()" class="ia-int-full__script ia-int-full__script--intro">
+                <div class="ia-int-full__script-label">Intro</div>
+                <p class="ia-int-full__script-text">{{ intGuest.introTekst }}</p>
+              </div>
               <ol class="ia-questions">
                 <li v-for="(q, i) in intGuest.questions.filter(q => q)" :key="i">
                   <span class="ia-questions__num">{{ i + 1 }}.</span>
                   <span class="ia-questions__text">{{ q }}</span>
                 </li>
               </ol>
+              <div v-if="intGuest.outroTekst?.trim()" class="ia-int-full__script ia-int-full__script--outro">
+                <div class="ia-int-full__script-label">Outro</div>
+                <p class="ia-int-full__script-text">{{ intGuest.outroTekst }}</p>
+              </div>
               <div class="ia-actions">
                 <button v-if="!confirmOpgenomen" class="ia-btn ia-btn--ok" type="button" @click="confirmOpgenomen = true">✓ Recorded</button>
                 <template v-else>

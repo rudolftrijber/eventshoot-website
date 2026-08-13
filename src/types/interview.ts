@@ -44,6 +44,10 @@ export interface Gast {
   organisatie: string
   planning: string
   gedeeld: boolean
+  /** Optional spoken intro before the interview questions */
+  introTekst: string
+  /** Optional spoken outro after the interview questions */
+  outroTekst: string
   questions: string[]
   intakeComplete: boolean
   status: GastStatus

@@ -82,6 +82,8 @@ const gasten: Omit<Gast, 'createdAt' | 'updatedAt'>[] = [
     organisatie: '',
     planning: '09:30 keynote, daarna interview',
     gedeeld: true,
+    introTekst: '',
+    outroTekst: '',
     questions: [
       'Wat was voor u het hoogtepunt van dit congres?',
       'Welke trend ziet u de komende jaren in de sector?',
@@ -103,6 +105,8 @@ const gasten: Omit<Gast, 'createdAt' | 'updatedAt'>[] = [
     organisatie: '',
     planning: '14:00 breakout + interview',
     gedeeld: false,
+    introTekst: '',
+    outroTekst: '',
     questions: [
       'Wat verraste u vandaag het meest?',
       'Hoe vertaalt innovatie zich naar de praktijk?',
@@ -124,6 +128,8 @@ const gasten: Omit<Gast, 'createdAt' | 'updatedAt'>[] = [
     organisatie: '',
     planning: '11:15 interviewplek lobby',
     gedeeld: true,
+    introTekst: '',
+    outroTekst: '',
     questions: [
       'Wat haalt u uit deze ledendag?',
       'Welke sessie sprak u het meest aan?',
@@ -145,6 +151,8 @@ const gasten: Omit<Gast, 'createdAt' | 'updatedAt'>[] = [
     organisatie: '',
     planning: '12:00 boardroom',
     gedeeld: true,
+    introTekst: '',
+    outroTekst: '',
     questions: [
       'Waarom is deze ledendag belangrijk voor uw leden?',
       'Welke boodschap neemt u mee naar de raad van bestuur?',
@@ -166,6 +174,8 @@ const gasten: Omit<Gast, 'createdAt' | 'updatedAt'>[] = [
     organisatie: '',
     planning: '16:30 afsluiting',
     gedeeld: false,
+    introTekst: '',
+    outroTekst: '',
     questions: [
       'Hoe kijkt u terug op deze editie?',
       'Welk moment vond u het meest energiek?',
@@ -187,6 +197,8 @@ const gasten: Omit<Gast, 'createdAt' | 'updatedAt'>[] = [
     organisatie: '',
     planning: '15:00 stand B12',
     gedeeld: true,
+    introTekst: '',
+    outroTekst: '',
     questions: [
       'Welke productupdate vindt u het meest relevant?',
       'Hoe gebruikt u onze oplossing in de praktijk?',

@@ -21,6 +21,8 @@ export function guestsToCSV(list: Gast[]): string {
     organisatie: 'Acme BV',
     planning: 'interview before lunch',
     gedeeld: false,
+    introTekst: '',
+    outroTekst: '',
     questions: [
       'What stood out to you most today?',
       'What was the highlight?',
@@ -220,12 +222,22 @@ export function productionStartSortKey(p: { datum?: string; startTijd?: string }
 }
 
 /** Numbered list for email / presenter cards */
-export function formatQuestionsForCopy(questions: string[], title?: string): string {
+export function formatQuestionsForCopy(
+  questions: string[],
+  title?: string,
+  extras?: { intro?: string; outro?: string },
+): string {
   const lines = questions.map((q) => q.trim()).filter(Boolean)
-  if (!lines.length) return ''
-  const body = lines.map((q, i) => `${i + 1}. ${q}`).join('\n')
+  if (!lines.length && !extras?.intro?.trim() && !extras?.outro?.trim()) return ''
+  const parts: string[] = []
   const heading = (title || '').trim()
-  return heading ? `${heading}\n\n${body}` : body
+  if (heading) parts.push(heading)
+  const intro = (extras?.intro || '').trim()
+  if (intro) parts.push(`Intro:\n${intro}`)
+  if (lines.length) parts.push(lines.map((q, i) => `${i + 1}. ${q}`).join('\n'))
+  const outro = (extras?.outro || '').trim()
+  if (outro) parts.push(`Outro:\n${outro}`)
+  return parts.join('\n\n')
 }
 
 export async function copyTextToClipboard(text: string): Promise<boolean> {

@@ -927,6 +927,11 @@
   max-width: 100%;
 }
 
+.interview-app .ia-actions--tight {
+  margin-top: 0.65rem;
+  margin-bottom: 0.25rem;
+}
+
 .ia-pill {
   display: inline-block;
   padding: 0.2rem 0.6rem;
@@ -1483,6 +1488,40 @@
   font-size: 0.85rem;
   font-weight: 600;
   margin-bottom: 1rem;
+}
+
+.ia-intro-outro {
+  margin: 0.5rem 0 1rem;
+}
+
+.ia-int-full__script {
+  margin-bottom: 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius);
+  background: rgba(27, 156, 252, 0.12);
+  border: 1px solid rgba(27, 156, 252, 0.35);
+}
+
+.ia-int-full__script--outro {
+  margin-top: 0.25rem;
+  background: rgba(255, 140, 0, 0.1);
+  border-color: rgba(255, 140, 0, 0.35);
+}
+
+.ia-int-full__script-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  opacity: 0.8;
+  margin-bottom: 0.35rem;
+}
+
+.ia-int-full__script-text {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
 }
 
 .ia-questions {
