@@ -19,7 +19,23 @@ const emit = defineEmits<{
 const questions = computed(() => props.questions.map((q) => q.trim()).filter(Boolean))
 const intro = computed(() => (props.introTekst || '').trim())
 const outro = computed(() => (props.outroTekst || '').trim())
-const hasPage2 = computed(() => Boolean(outro.value))
+
+/** With larger type, keep page 1 readable: intro + first questions; rest + outro on page 2. */
+const page1Questions = computed(() => {
+  const all = questions.value
+  if (all.length <= 4) return all
+  // With intro, leave more room on page 2
+  const split = intro.value ? 4 : 5
+  return all.slice(0, Math.min(split, all.length))
+})
+
+const page2Questions = computed(() => {
+  const all = questions.value
+  if (all.length <= page1Questions.value.length) return []
+  return all.slice(page1Questions.value.length)
+})
+
+const hasPage2 = computed(() => page2Questions.value.length > 0 || Boolean(outro.value))
 
 watch(
   () => props.open,
@@ -44,7 +60,7 @@ function printCard() {
       <div class="pc-toolbar no-print">
         <div class="pc-toolbar__text">
           <strong>Presenter card</strong>
-          <span>A4 landscape · cut lines slightly smaller than A5 · print on white paper</span>
+          <span>A4 landscape · cut lines slightly smaller than A5 · choose Landscape in the print dialog</span>
         </div>
         <div class="pc-toolbar__actions">
           <button class="ia-btn" type="button" @click="printCard">Print / Save as PDF</button>
@@ -52,7 +68,7 @@ function printCard() {
         </div>
       </div>
 
-      <!-- Page 1: identity + intro + questions -->
+      <!-- Page 1 -->
       <section class="pc-page">
         <div class="pc-panel">
           <div class="pc-crop" aria-hidden="true">
@@ -74,23 +90,23 @@ function printCard() {
               <p class="pc-text">{{ intro }}</p>
             </div>
 
-            <div v-if="questions.length" class="pc-block">
+            <div v-if="page1Questions.length" class="pc-block">
               <div class="pc-label">Questions</div>
               <ol class="pc-questions">
-                <li v-for="(q, i) in questions" :key="i">
+                <li v-for="(q, i) in page1Questions" :key="i">
                   <span class="pc-qnum">{{ i + 1 }}.</span>
                   <span>{{ q }}</span>
                 </li>
               </ol>
             </div>
-            <p v-else class="pc-empty">No questions yet</p>
+            <p v-else-if="!intro" class="pc-empty">No questions yet</p>
 
             <p class="pc-cut-hint no-print">Cut along the dashed line (smaller than A5)</p>
           </div>
         </div>
       </section>
 
-      <!-- Page 2: outro only (when present) -->
+      <!-- Page 2: remaining questions + outro -->
       <section v-if="hasPage2" class="pc-page pc-page--break">
         <div class="pc-panel">
           <div class="pc-crop" aria-hidden="true">
@@ -104,10 +120,22 @@ function printCard() {
               <h1 class="pc-name">{{ naam || 'Name' }}</h1>
               <p v-if="functie" class="pc-role">{{ functie }}</p>
             </header>
-            <div class="pc-block">
+
+            <div v-if="page2Questions.length" class="pc-block">
+              <div class="pc-label">Questions (continued)</div>
+              <ol class="pc-questions">
+                <li v-for="(q, i) in page2Questions" :key="i">
+                  <span class="pc-qnum">{{ page1Questions.length + i + 1 }}.</span>
+                  <span>{{ q }}</span>
+                </li>
+              </ol>
+            </div>
+
+            <div v-if="outro" class="pc-block">
               <div class="pc-label">Outro</div>
               <p class="pc-text">{{ outro }}</p>
             </div>
+
             <p class="pc-cut-hint no-print">Cut along the dashed line (smaller than A5)</p>
           </div>
         </div>
@@ -161,7 +189,9 @@ function printCard() {
 .pc-page {
   display: flex;
   justify-content: center;
+  align-items: center;
   margin: 0 auto 1.25rem;
+  background: transparent;
 }
 
 .pc-page--break {
@@ -182,12 +212,14 @@ function printCard() {
 
 .pc-panel__inner {
   height: 100%;
-  padding: 8mm 9mm;
+  padding: 7mm 8mm;
   overflow: hidden;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  gap: 4mm;
+  gap: 3.5mm;
+  background: #fff;
+  color: #111;
 }
 
 .pc-crop__mark {
@@ -229,7 +261,7 @@ function printCard() {
 
 .pc-prod {
   margin: 0 0 1mm;
-  font-size: 9pt;
+  font-size: 10pt;
   color: #555;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -237,31 +269,31 @@ function printCard() {
 
 .pc-name {
   margin: 0;
-  font-size: 18pt;
-  line-height: 1.15;
+  font-size: 22pt;
+  line-height: 1.12;
   font-weight: 700;
   color: #111;
 }
 
 .pc-role,
 .pc-org {
-  margin: 1mm 0 0;
-  font-size: 12pt;
+  margin: 1.5mm 0 0;
+  font-size: 14pt;
   line-height: 1.25;
   color: #222;
 }
 
 .pc-org {
   color: #444;
-  font-size: 11pt;
+  font-size: 13pt;
 }
 
 .pc-head--compact .pc-name {
-  font-size: 14pt;
+  font-size: 18pt;
 }
 
 .pc-label {
-  font-size: 8pt;
+  font-size: 10pt;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -271,9 +303,10 @@ function printCard() {
 
 .pc-text {
   margin: 0;
-  font-size: 11pt;
+  font-size: 13pt;
   line-height: 1.35;
   white-space: pre-wrap;
+  color: #111;
 }
 
 .pc-questions {
@@ -284,10 +317,11 @@ function printCard() {
 
 .pc-questions li {
   display: flex;
-  gap: 2.5mm;
-  margin-bottom: 2.5mm;
-  font-size: 11pt;
+  gap: 3mm;
+  margin-bottom: 3mm;
+  font-size: 13pt;
   line-height: 1.3;
+  color: #111;
 }
 
 .pc-qnum {
@@ -300,6 +334,7 @@ function printCard() {
   margin: 0;
   color: #888;
   font-style: italic;
+  font-size: 12pt;
 }
 
 .pc-cut-hint {
@@ -310,53 +345,62 @@ function printCard() {
 
 @media print {
   .presenter-card-print {
-    position: static;
-    inset: auto;
-    background: #fff;
-    padding: 0;
-    overflow: visible;
+    position: static !important;
+    inset: auto !important;
+    background: #fff !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    color: #111 !important;
   }
 
   .pc-page {
-    margin: 0;
-    width: 100%;
-    min-height: 100vh;
+    margin: 0 !important;
+    width: 100% !important;
+    min-height: auto !important;
+    height: 190mm;
     align-items: center;
+    justify-content: center;
+    background: #fff !important;
   }
 
-  .pc-panel {
-    box-shadow: none;
+  .pc-panel,
+  .pc-panel__inner {
+    background: #fff !important;
+    color: #111 !important;
+    box-shadow: none !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
 }
 </style>
 
 <style>
-/* Global print rules: only the presenter card is visible */
+/* Hide the dark app chrome completely when printing presenter cards */
 @media print {
   @page {
     size: A4 landscape;
-    margin: 10mm;
+    margin: 8mm;
   }
 
-  body.ia-presenter-print-open * {
-    visibility: hidden !important;
+  html,
+  body {
+    background: #fff !important;
+    color: #111 !important;
   }
 
-  body.ia-presenter-print-open .presenter-card-print,
-  body.ia-presenter-print-open .presenter-card-print * {
-    visibility: visible !important;
+  body.ia-presenter-print-open #app {
+    display: none !important;
   }
 
   body.ia-presenter-print-open .presenter-card-print {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
+    display: block !important;
+    position: static !important;
+    background: #fff !important;
+    color: #111 !important;
   }
 
   body.ia-presenter-print-open .no-print {
     display: none !important;
-    visibility: hidden !important;
   }
 }
 </style>
