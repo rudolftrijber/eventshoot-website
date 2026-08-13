@@ -29,6 +29,7 @@ import {
   EyeSlashIcon,
   ArrowRightOnRectangleIcon,
   ClipboardDocumentIcon,
+  DocumentTextIcon,
   Cog6ToothIcon,
   ArrowLeftIcon,
   SparklesIcon,
@@ -37,6 +38,7 @@ import {
 import { PencilSquareIcon as PencilSquareSolidIcon } from '@heroicons/vue/24/solid'
 import ParticipantDefaultsCard from '@/components/interview/ParticipantDefaultsCard.vue'
 import ShortQuestionsTip from '@/components/interview/ShortQuestionsTip.vue'
+import PresenterCardPrint from '@/components/interview/PresenterCardPrint.vue'
 
 const store = useInterviewStore()
 
@@ -105,6 +107,7 @@ const showCamQuestions = ref(false)
 
 // Confirm dialogs
 const confirmOpgenomen = ref(false)
+const showPresenterCard = ref(false)
 
 // AI question assistant
 type AiPrepAnswers = { sector: string; specialism: string; timeliness: string; customPrompt: string }
@@ -489,6 +492,14 @@ async function copyQuestions(
   }
   const ok = await copyTextToClipboard(text)
   showToast(ok ? 'All questions copied' : 'Copy failed')
+}
+
+function openPresenterCard() {
+  if (!fNaam.value.trim() && !fQuestions.value.some((q) => q.trim())) {
+    showToast('Add a name or questions first')
+    return
+  }
+  showPresenterCard.value = true
 }
 
 async function handleLogin() {
@@ -1428,6 +1439,16 @@ watch(() => store.role, (role) => {
                     Copy all
                   </button>
                   <button
+                    class="ia-btn ia-btn--small ia-btn--secondary"
+                    type="button"
+                    title="Print cut-to-size insert for pre-printed presenter cards"
+                    :disabled="!fNaam.trim() && !fQuestions.some((q) => q.trim())"
+                    @click="openPresenterCard"
+                  >
+                    <DocumentTextIcon class="ia-btn__icon" aria-hidden="true" />
+                    Presenter card
+                  </button>
+                  <button
                     v-if="aiGuestStep === 'idle' && !guestFormLocked"
                     class="ia-btn ia-btn--small ia-btn--secondary ia-btn--ai"
                     type="button"
@@ -2093,5 +2114,17 @@ watch(() => store.role, (role) => {
     </footer>
 
     <div v-if="toast" class="ia-toast">{{ toast }}</div>
+
+    <PresenterCardPrint
+      :open="showPresenterCard"
+      :naam="fNaam"
+      :functie="fFunctie"
+      :organisatie="fOrganisatie"
+      :productie-naam="fProductie"
+      :intro-tekst="fUseIntro ? fIntroTekst : ''"
+      :outro-tekst="fUseOutro ? fOutroTekst : ''"
+      :questions="fQuestions"
+      @close="showPresenterCard = false"
+    />
   </div>
 </template>
