@@ -1462,6 +1462,8 @@ watch(() => store.role, (role) => {
                 v-model="fSerieNaam"
                 class="ia-input ia-input--serie"
                 maxlength="35"
+                autocomplete="off"
+                name="serie-naam"
                 placeholder="e.g. Cloud Talk"
                 :disabled="guestFormLocked"
               />

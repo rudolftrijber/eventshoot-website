@@ -193,7 +193,7 @@ function printCard() {
   inset: 0;
   z-index: 5000;
   overflow: auto;
-  background: rgba(49, 159, 232, 0.92);
+  background: rgba(49, 159, 232, 0.72);
   padding: 1rem 1rem 2rem;
   color: #fff;
   font-family: var(--font-base, system-ui, sans-serif);
