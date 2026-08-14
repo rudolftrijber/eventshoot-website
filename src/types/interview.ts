@@ -130,12 +130,12 @@ export function normalizeProductieStatus(value: string): ProductieStatus {
 
 export const CSV_HEADERS = [
   'production', 'type', 'name', 'role', 'organization', 'planning', 'shared',
-  'question1', 'question2', 'question3', 'question4', 'question5', 'question6', 'question7', 'question8',
+  'question1', 'question2', 'question3', 'question4', 'question5', 'question6', 'question7', 'question8', 'question9', 'question10',
   'status', 'crew_number', 'date', 'time',
 ] as const
 
 /** Client template columns — without crew fields */
 export const CLIENT_CSV_HEADERS = [
   'production', 'type', 'name', 'role', 'organization', 'planning', 'shared',
-  'question1', 'question2', 'question3', 'question4', 'question5', 'question6', 'question7', 'question8',
+  'question1', 'question2', 'question3', 'question4', 'question5', 'question6', 'question7', 'question8', 'question9', 'question10',
 ] as const

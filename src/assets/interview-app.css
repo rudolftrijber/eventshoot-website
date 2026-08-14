@@ -1494,6 +1494,19 @@
   margin: 0.5rem 0 1rem;
 }
 
+.ia-form-divider {
+  margin: 1.35rem 0 1rem;
+  border: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.ia-form-section-title {
+  margin: 0 0 0.85rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
 .ia-int-full__script {
   margin-bottom: 1rem;
   padding: 0.85rem 1rem;

@@ -236,6 +236,9 @@ const maxChars = computed(() => store.settings.maxChars)
 const naamOverLimit = computed(() => fNaam.value.length > maxChars.value)
 const functieOverLimit = computed(() => fFunctie.value.length > maxChars.value)
 const organisatieOverLimit = computed(() => fOrganisatie.value.length > maxChars.value)
+const serieOverLimit = computed(() => fSerieNaam.value.length > MAX_SERIE_CHARS)
+const introOverLimit = computed(() => fIntroTekst.value.length > MAX_INTRO_OUTRO_CHARS)
+const outroOverLimit = computed(() => fOutroTekst.value.length > MAX_INTRO_OUTRO_CHARS)
 const controleFunctieOver = computed(() => controleFunctie.value.length > maxChars.value)
 const controleNaamOver = computed(() => controleNaam.value.length > maxChars.value)
 const controleOrganisatieOver = computed(() => controleOrganisatie.value.length > maxChars.value)
@@ -517,7 +520,9 @@ async function handleLogin() {
   }
 }
 
-const MAX_QUESTIONS = 8
+const MAX_QUESTIONS = 10
+const MAX_SERIE_CHARS = 35
+const MAX_INTRO_OUTRO_CHARS = 600
 
 function addQuestion(list: { value: string[] }) {
   if (list.value.length >= MAX_QUESTIONS) { showToast(`Maximum ${MAX_QUESTIONS} questions`); return }
@@ -772,7 +777,22 @@ async function saveGuest() {
     showToast(`Name, role and organization max. ${maxChars.value} characters`)
     return
   }
+  const serieNaam = fSerieNaam.value.trim()
+  if (serieNaam.length > MAX_SERIE_CHARS) {
+    showToast(`Series name max. ${MAX_SERIE_CHARS} characters`)
+    return
+  }
+  const introTekst = fUseIntro.value ? fIntroTekst.value.trim() : ''
+  const outroTekst = fUseOutro.value ? fOutroTekst.value.trim() : ''
+  if (introTekst.length > MAX_INTRO_OUTRO_CHARS || outroTekst.length > MAX_INTRO_OUTRO_CHARS) {
+    showToast(`Intro and outro max. ${MAX_INTRO_OUTRO_CHARS} characters each`)
+    return
+  }
   const questions = fQuestions.value.map((q) => q.trim()).filter(Boolean)
+  if (questions.length > MAX_QUESTIONS) {
+    showToast(`Maximum ${MAX_QUESTIONS} questions`)
+    return
+  }
   const payload = {
     productieNaam: fProductie.value.trim(),
     type: fType.value,
@@ -781,9 +801,9 @@ async function saveGuest() {
     organisatie,
     planning: fPlanning.value.trim(),
     gedeeld: fGedeeld.value,
-    introTekst: fUseIntro.value ? fIntroTekst.value.trim() : '',
-    outroTekst: fUseOutro.value ? fOutroTekst.value.trim() : '',
-    serieNaam: fSerieNaam.value.trim(),
+    introTekst,
+    outroTekst,
+    serieNaam,
     intakeComplete: intakeLockApplies(fType.value) ? fIntakeComplete.value : false,
     questions,
   }
@@ -1424,15 +1444,21 @@ watch(() => store.role, (role) => {
               </div>
               <label class="ia-label">Schedule / time slot (optional)</label>
               <input v-model="fPlanning" class="ia-input" placeholder="e.g. interview after the keynote" :disabled="guestFormLocked" />
+
+              <div class="ia-form-divider" role="separator" aria-hidden="true" />
+              <h3 class="ia-form-section-title">Interview content</h3>
+
               <label class="ia-label">Series name</label>
               <input
                 v-model="fSerieNaam"
                 class="ia-input"
+                maxlength="35"
                 placeholder="e.g. Cloud Talk, DSR Interviews"
                 :disabled="guestFormLocked"
               />
+              <div class="ia-charcount" :class="{ warn: serieOverLimit }">{{ fSerieNaam.length }} / 35 characters</div>
               <div class="ia-question-head">
-                <label class="ia-label ia-label--inline">Interview questions (max. 8)</label>
+                <label class="ia-label ia-label--inline">Interview questions (max. 10)</label>
                 <div class="ia-question-head__actions">
                   <button
                     class="ia-btn ia-btn--small ia-btn--secondary"
@@ -1489,9 +1515,11 @@ watch(() => store.role, (role) => {
                   v-model="fIntroTekst"
                   class="ia-textarea"
                   rows="3"
+                  maxlength="600"
                   placeholder="Welcome. In this new episode, we will talk about x, y and especially z. This is <series name>."
                   :disabled="guestFormLocked"
                 />
+                <div class="ia-charcount" :class="{ warn: introOverLimit }">{{ fIntroTekst.length }} / 600 characters</div>
               </div>
               <div v-if="aiGuestStep === 'prep'" class="ia-ai-preview ia-ai-preview--prep">
                 <p class="ia-ai-preview__title">Briefing for AI — fill the 3 fields, or write your own prompt</p>
@@ -1600,13 +1628,15 @@ watch(() => store.role, (role) => {
                   v-model="fOutroTekst"
                   class="ia-textarea"
                   rows="3"
+                  maxlength="600"
                   placeholder="Thank you <guest name> for coming to <location name>. If you want to see more similar interviews, follow us, sign up for our newsletter or visit our <series name> video channel."
                   :disabled="guestFormLocked"
                 />
+                <div class="ia-charcount" :class="{ warn: outroOverLimit }">{{ fOutroTekst.length }} / 600 characters</div>
               </div>
               <ShortQuestionsTip
-                en="Prefer not to share (all) questions in advance. When someone is interviewed about their own field or expertise, they usually open up naturally, and that authenticity is what you want on camera. Keep some room for deepening and improvisation, eight questions is enough. There should always be room to skip a question. An interview should mainly be enjoyable to watch, and sharing every question up front often makes answers rehearsed and flat. If a client still wants to share something, they can do that themselves by email. Eventshoot.nl only facilitates."
-                nl="Deel bij voorkeur niet (alle) vragen van tevoren. Als iemand over het eigen vak of expertise wordt geïnterviewd, gaat het gesprek meestal vanzelf open, en die authenticiteit wil je op camera. Houd ruimte over voor verdieping en improvisatie, acht vragen is genoeg. Er moet altijd ruimte zijn om een vraag over te slaan. Een interview moet vooral prettig zijn om naar te kijken. Alle vragen vooraf delen maakt antwoorden vaak ingestudeerd en vlak. Wil een opdrachtgever toch iets delen, dan kan dat zelf per e-mail. Eventshoot.nl faciliteert alleen."
+                en="Prefer not to share (all) questions in advance. When someone is interviewed about their own field or expertise, they usually open up naturally, and that authenticity is what you want on camera. Keep some room for deepening and improvisation, ten questions is enough. There should always be room to skip a question. An interview should mainly be enjoyable to watch, and sharing every question up front often makes answers rehearsed and flat. If a client still wants to share something, they can do that themselves by email. Eventshoot.nl only facilitates."
+                nl="Deel bij voorkeur niet (alle) vragen van tevoren. Als iemand over het eigen vak of expertise wordt geïnterviewd, gaat het gesprek meestal vanzelf open, en die authenticiteit wil je op camera. Houd ruimte over voor verdieping en improvisatie, tien vragen is genoeg. Er moet altijd ruimte zijn om een vraag over te slaan. Een interview moet vooral prettig zijn om naar te kijken. Alle vragen vooraf delen maakt antwoorden vaak ingestudeerd en vlak. Wil een opdrachtgever toch iets delen, dan kan dat zelf per e-mail. Eventshoot.nl faciliteert alleen."
               />
               <div v-if="intakeLockApplies(fType)" class="ia-actions">
                 <input id="fIntakeComplete" v-model="fIntakeComplete" type="checkbox" />
