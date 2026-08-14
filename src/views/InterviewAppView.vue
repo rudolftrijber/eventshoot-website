@@ -1457,13 +1457,20 @@ watch(() => store.role, (role) => {
               <div class="ia-form-divider" role="separator" aria-hidden="true" />
               <h3 class="ia-form-section-title">Interview content</h3>
 
-              <label class="ia-label">Series name</label>
+              <label class="ia-label" for="fSerieTitle">Series title</label>
               <input
+                id="fSerieTitle"
                 v-model="fSerieNaam"
                 class="ia-input ia-input--serie"
+                type="text"
                 maxlength="35"
                 autocomplete="off"
-                name="serie-naam"
+                autocapitalize="off"
+                autocorrect="off"
+                spellcheck="false"
+                data-1p-ignore
+                data-lpignore="true"
+                data-form-type="other"
                 placeholder="e.g. Cloud Talk"
                 :disabled="guestFormLocked"
               />

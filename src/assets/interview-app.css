@@ -1512,6 +1512,20 @@
   max-width: 16rem;
 }
 
+/* Safari/Chrome contact autofill icon — not part of the app */
+.ia-input--serie::-webkit-contacts-auto-fill-button,
+.ia-input--serie::-webkit-credentials-auto-fill-button {
+  visibility: hidden;
+  display: none !important;
+  pointer-events: none;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  margin: 0;
+  position: absolute;
+  right: 0;
+}
+
 .ia-int-full__script {
   margin-bottom: 1rem;
   padding: 0.85rem 1rem;
