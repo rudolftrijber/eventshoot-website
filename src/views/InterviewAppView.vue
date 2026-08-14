@@ -522,7 +522,7 @@ async function handleLogin() {
 
 const MAX_QUESTIONS = 10
 const MAX_SERIE_CHARS = 35
-const MAX_INTRO_OUTRO_CHARS = 600
+const MAX_INTRO_OUTRO_CHARS = 350
 
 function addQuestion(list: { value: string[] }) {
   if (list.value.length >= MAX_QUESTIONS) { showToast(`Maximum ${MAX_QUESTIONS} questions`); return }
@@ -1451,9 +1451,9 @@ watch(() => store.role, (role) => {
               <label class="ia-label">Series name</label>
               <input
                 v-model="fSerieNaam"
-                class="ia-input"
+                class="ia-input ia-input--serie"
                 maxlength="35"
-                placeholder="e.g. Cloud Talk, DSR Interviews"
+                placeholder="e.g. Cloud Talk"
                 :disabled="guestFormLocked"
               />
               <div class="ia-charcount" :class="{ warn: serieOverLimit }">{{ fSerieNaam.length }} / 35 characters</div>
@@ -1515,11 +1515,11 @@ watch(() => store.role, (role) => {
                   v-model="fIntroTekst"
                   class="ia-textarea"
                   rows="3"
-                  maxlength="600"
+                  maxlength="350"
                   placeholder="Welcome. In this new episode, we will talk about x, y and especially z. This is <series name>."
                   :disabled="guestFormLocked"
                 />
-                <div class="ia-charcount" :class="{ warn: introOverLimit }">{{ fIntroTekst.length }} / 600 characters</div>
+                <div class="ia-charcount" :class="{ warn: introOverLimit }">{{ fIntroTekst.length }} / 350 characters</div>
               </div>
               <div v-if="aiGuestStep === 'prep'" class="ia-ai-preview ia-ai-preview--prep">
                 <p class="ia-ai-preview__title">Briefing for AI — fill the 3 fields, or write your own prompt</p>
@@ -1628,11 +1628,11 @@ watch(() => store.role, (role) => {
                   v-model="fOutroTekst"
                   class="ia-textarea"
                   rows="3"
-                  maxlength="600"
+                  maxlength="350"
                   placeholder="Thank you <guest name> for coming to <location name>. If you want to see more similar interviews, follow us, sign up for our newsletter or visit our <series name> video channel."
                   :disabled="guestFormLocked"
                 />
-                <div class="ia-charcount" :class="{ warn: outroOverLimit }">{{ fOutroTekst.length }} / 600 characters</div>
+                <div class="ia-charcount" :class="{ warn: outroOverLimit }">{{ fOutroTekst.length }} / 350 characters</div>
               </div>
               <ShortQuestionsTip
                 en="Prefer not to share (all) questions in advance. When someone is interviewed about their own field or expertise, they usually open up naturally, and that authenticity is what you want on camera. Keep some room for deepening and improvisation, ten questions is enough. There should always be room to skip a question. An interview should mainly be enjoyable to watch, and sharing every question up front often makes answers rehearsed and flat. If a client still wants to share something, they can do that themselves by email. Eventshoot.nl only facilitates."

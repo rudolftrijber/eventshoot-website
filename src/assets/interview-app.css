@@ -1507,6 +1507,11 @@
   color: #ffffff;
 }
 
+.ia-input--serie {
+  width: 100%;
+  max-width: 16rem;
+}
+
 .ia-int-full__script {
   margin-bottom: 1rem;
   padding: 0.85rem 1rem;
