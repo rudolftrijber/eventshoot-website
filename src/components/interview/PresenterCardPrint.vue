@@ -7,6 +7,7 @@ const props = defineProps<{
   functie: string
   organisatie?: string
   productieNaam?: string
+  productieDatum?: string
   serieNaam?: string
   introTekst?: string
   outroTekst?: string
@@ -118,7 +119,11 @@ function printCard() {
           </div>
           <div class="pc-panel__inner">
             <header class="pc-head">
-              <p v-if="productieNaam" class="pc-prod">{{ productieNaam }}</p>
+              <p v-if="productieNaam || productieDatum" class="pc-prod">
+                <span v-if="productieNaam">{{ productieNaam }}</span>
+                <span v-if="productieNaam && productieDatum"> · </span>
+                <span v-if="productieDatum">{{ productieDatum }}</span>
+              </p>
               <p v-if="serie" class="pc-serie">{{ serie }}</p>
               <h1 class="pc-name">{{ naam || 'Name' }}</h1>
               <p v-if="functie" class="pc-role">{{ functie }}</p>

@@ -253,6 +253,15 @@ const deelnemerPreset = computed(() => {
   )
 })
 
+const presenterProductionDate = computed(() => {
+  const name = fProductie.value.trim().toLowerCase()
+  if (!name) return ''
+  const prod = store.productions.find((p) => p.naam.trim().toLowerCase() === name)
+    || store.activeProductions.find((p) => p.naam.trim().toLowerCase() === name)
+  if (!prod?.datum) return ''
+  return formatDisplayDate(prod.datum)
+})
+
 const filteredGuests = dayGuests
 
 function productionGuests(p: Productie) {
@@ -2170,6 +2179,7 @@ watch(() => store.role, (role) => {
       :functie="fFunctie"
       :organisatie="fOrganisatie"
       :productie-naam="fProductie"
+      :productie-datum="presenterProductionDate"
       :serie-naam="fSerieNaam"
       :intro-tekst="fUseIntro ? fIntroTekst : ''"
       :outro-tekst="fUseOutro ? fOutroTekst : ''"
