@@ -72,6 +72,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (body.gedeeld !== undefined) patch.gedeeld = Boolean(body.gedeeld)
       if (body.introTekst !== undefined) patch.introTekst = String(body.introTekst)
       if (body.outroTekst !== undefined) patch.outroTekst = String(body.outroTekst)
+      if (body.serieNaam !== undefined) patch.serieNaam = String(body.serieNaam)
       if (body.questions !== undefined) {
         patch.questions = Array.isArray(body.questions) ? body.questions.map(String) : []
       }

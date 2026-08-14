@@ -23,6 +23,7 @@ export function guestsToCSV(list: Gast[]): string {
     gedeeld: false,
     introTekst: '',
     outroTekst: '',
+    serieNaam: '',
     questions: [
       'What stood out to you most today?',
       'What was the highlight?',

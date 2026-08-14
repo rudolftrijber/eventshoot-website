@@ -73,6 +73,7 @@ const fUseIntro = ref(false)
 const fIntroTekst = ref('')
 const fUseOutro = ref(false)
 const fOutroTekst = ref('')
+const fSerieNaam = ref('')
 const fIntakeComplete = ref(false)
 const fQuestions = ref<string[]>(['', '', '', ''])
 
@@ -753,6 +754,7 @@ function clearForm() {
   fIntroTekst.value = ''
   fUseOutro.value = false
   fOutroTekst.value = ''
+  fSerieNaam.value = ''
   fNaam.value = ''
   fFunctie.value = ''
   fOrganisatie.value = ''
@@ -781,6 +783,7 @@ async function saveGuest() {
     gedeeld: fGedeeld.value,
     introTekst: fUseIntro.value ? fIntroTekst.value.trim() : '',
     outroTekst: fUseOutro.value ? fOutroTekst.value.trim() : '',
+    serieNaam: fSerieNaam.value.trim(),
     intakeComplete: intakeLockApplies(fType.value) ? fIntakeComplete.value : false,
     questions,
   }
@@ -809,6 +812,7 @@ function loadForEdit(g: Gast) {
   fIntroTekst.value = g.introTekst || ''
   fUseOutro.value = Boolean(g.outroTekst?.trim())
   fOutroTekst.value = g.outroTekst || ''
+  fSerieNaam.value = g.serieNaam || ''
   fIntakeComplete.value = g.intakeComplete
   fNaam.value = g.naam
   fFunctie.value = g.functie
@@ -1420,6 +1424,13 @@ watch(() => store.role, (role) => {
               </div>
               <label class="ia-label">Schedule / time slot (optional)</label>
               <input v-model="fPlanning" class="ia-input" placeholder="e.g. interview after the keynote" :disabled="guestFormLocked" />
+              <label class="ia-label">Series name</label>
+              <input
+                v-model="fSerieNaam"
+                class="ia-input"
+                placeholder="e.g. Cloud Talk, DSR Interviews"
+                :disabled="guestFormLocked"
+              />
               <div class="ia-question-head">
                 <label class="ia-label ia-label--inline">Interview questions (max. 8)</label>
                 <div class="ia-question-head__actions">
@@ -1478,7 +1489,7 @@ watch(() => store.role, (role) => {
                   v-model="fIntroTekst"
                   class="ia-textarea"
                   rows="3"
-                  placeholder="e.g. Welcome, thank you for joining us. Could you briefly introduce yourself?"
+                  placeholder="Welcome. In this new episode, we will talk about x, y and especially z. This is <series name>."
                   :disabled="guestFormLocked"
                 />
               </div>
@@ -1589,7 +1600,7 @@ watch(() => store.role, (role) => {
                   v-model="fOutroTekst"
                   class="ia-textarea"
                   rows="3"
-                  placeholder="e.g. Thank you. Any final message for our viewers?"
+                  placeholder="Thank you <guest name> for coming to <location name>. If you want to see more similar interviews, follow us, sign up for our newsletter or visit our <series name> video channel."
                   :disabled="guestFormLocked"
                 />
               </div>
@@ -2129,6 +2140,7 @@ watch(() => store.role, (role) => {
       :functie="fFunctie"
       :organisatie="fOrganisatie"
       :productie-naam="fProductie"
+      :serie-naam="fSerieNaam"
       :intro-tekst="fUseIntro ? fIntroTekst : ''"
       :outro-tekst="fUseOutro ? fOutroTekst : ''"
       :questions="fQuestions"

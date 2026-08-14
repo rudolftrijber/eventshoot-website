@@ -97,6 +97,7 @@ async function initSchema(): Promise<void> {
   await sql`ALTER TABLE interview_gasten ADD COLUMN IF NOT EXISTS organisatie TEXT NOT NULL DEFAULT ''`
   await sql`ALTER TABLE interview_gasten ADD COLUMN IF NOT EXISTS intro_tekst TEXT NOT NULL DEFAULT ''`
   await sql`ALTER TABLE interview_gasten ADD COLUMN IF NOT EXISTS outro_tekst TEXT NOT NULL DEFAULT ''`
+  await sql`ALTER TABLE interview_gasten ADD COLUMN IF NOT EXISTS serie_naam TEXT NOT NULL DEFAULT ''`
   await sql`
     CREATE TABLE IF NOT EXISTS interview_rate_limits (
       bucket_key TEXT PRIMARY KEY,
@@ -168,6 +169,7 @@ function rowToGast(row: Record<string, unknown>): Gast {
     gedeeld: Boolean(row.gedeeld),
     introTekst: String(row.intro_tekst || ''),
     outroTekst: String(row.outro_tekst || ''),
+    serieNaam: String(row.serie_naam || ''),
     questions: Array.isArray(row.questions) ? row.questions.map(String) : [],
     intakeComplete: Boolean(row.intake_complete),
     status: normalizeGastStatus(String(row.status)),
@@ -251,13 +253,13 @@ export async function createGuest(data: Omit<Gast, 'createdAt' | 'updatedAt'>): 
   const rows = await sql`
     INSERT INTO interview_gasten (
       id, productie_naam, type, naam, functie, organisatie, planning, gedeeld,
-      intro_tekst, outro_tekst,
+      intro_tekst, outro_tekst, serie_naam,
       questions, intake_complete, status, regienummer, datum, tijd
     ) VALUES (
       ${data.id}, ${data.productieNaam}, ${data.type}, ${data.naam}, ${data.functie},
       ${data.organisatie || ''},
       ${data.planning}, ${data.gedeeld},
-      ${data.introTekst || ''}, ${data.outroTekst || ''},
+      ${data.introTekst || ''}, ${data.outroTekst || ''}, ${data.serieNaam || ''},
       ${JSON.stringify(data.questions)}::jsonb,
       ${Boolean(data.intakeComplete)}, ${data.status}, ${data.regienummer || null},
       ${toDateParam(data.datum)}, ${data.tijd || null}
@@ -285,6 +287,7 @@ export async function updateGuest(id: string, patch: Partial<Gast>): Promise<Gas
       gedeeld = ${next.gedeeld},
       intro_tekst = ${next.introTekst || ''},
       outro_tekst = ${next.outroTekst || ''},
+      serie_naam = ${next.serieNaam || ''},
       questions = ${JSON.stringify(next.questions)}::jsonb,
       intake_complete = ${Boolean(next.intakeComplete)},
       status = ${next.status},

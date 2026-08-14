@@ -7,6 +7,7 @@ const props = defineProps<{
   functie: string
   organisatie?: string
   productieNaam?: string
+  serieNaam?: string
   introTekst?: string
   outroTekst?: string
   questions: string[]
@@ -19,6 +20,7 @@ const emit = defineEmits<{
 const questions = computed(() => props.questions.map((q) => q.trim()).filter(Boolean))
 const intro = computed(() => (props.introTekst || '').trim())
 const outro = computed(() => (props.outroTekst || '').trim())
+const serie = computed(() => (props.serieNaam || '').trim())
 
 /** First cut panel: identity + intro + first questions */
 const panel1Questions = computed(() => {
@@ -87,16 +89,13 @@ function printCard() {
       class="presenter-card-print"
       role="dialog"
       aria-modal="true"
-      aria-label="Presenter card"
+      aria-label="Presenter Card Content"
     >
       <div class="pc-toolbar no-print">
-        <div class="pc-toolbar__text">
-          <strong>Presenter card</strong>
-          <span>A4 portrait · 2 cut panels (19 × 13 cm) · Save as PDF uses the interviewee name</span>
-        </div>
+        <h2 class="pc-toolbar__title">Presenter Card Content</h2>
         <div class="pc-toolbar__actions">
-          <button class="ia-btn" type="button" @click="printCard">Print / Save as PDF</button>
-          <button class="ia-btn ia-btn--secondary" type="button" @click="emit('close')">Close</button>
+          <button class="pc-btn pc-btn--primary" type="button" @click="printCard">Print / Save as PDF</button>
+          <button class="pc-btn pc-btn--secondary" type="button" @click="emit('close')">Close</button>
         </div>
       </div>
 
@@ -120,6 +119,7 @@ function printCard() {
           <div class="pc-panel__inner">
             <header class="pc-head">
               <p v-if="productieNaam" class="pc-prod">{{ productieNaam }}</p>
+              <p v-if="serie" class="pc-serie">{{ serie }}</p>
               <h1 class="pc-name">{{ naam || 'Name' }}</h1>
               <p v-if="functie" class="pc-role">{{ functie }}</p>
               <p v-if="organisatie" class="pc-org">{{ organisatie }}</p>
@@ -188,9 +188,10 @@ function printCard() {
   inset: 0;
   z-index: 5000;
   overflow: auto;
-  background: #e8e8ec;
+  background: rgba(49, 159, 232, 0.92);
   padding: 1rem 1rem 2rem;
-  color: #111;
+  color: #fff;
+  font-family: var(--font-base, system-ui, sans-serif);
 }
 
 .pc-toolbar {
@@ -201,27 +202,56 @@ function printCard() {
   justify-content: space-between;
   max-width: 210mm;
   margin: 0 auto 1rem;
-  padding: 0.75rem 1rem;
-  background: #1a1a2e;
-  border-radius: 8px;
+  padding: 0;
+  background: transparent;
   color: #fff;
 }
 
-.pc-toolbar__text {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-  font-size: 0.85rem;
-}
-
-.pc-toolbar__text span {
-  opacity: 0.7;
-  font-size: 0.75rem;
+.pc-toolbar__title {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #fff;
 }
 
 .pc-toolbar__actions {
   display: flex;
   gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.pc-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.5rem;
+  padding: 0.5rem 0.95rem;
+  border-radius: 8px;
+  border: none;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.25;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.pc-btn--primary {
+  background: #ff7b00;
+  color: #fff;
+}
+
+.pc-btn--primary:hover {
+  background: #e06e00;
+}
+
+.pc-btn--secondary {
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: #fff;
+}
+
+.pc-btn--secondary:hover {
+  background: rgba(255, 255, 255, 0.28);
 }
 
 .pc-sheet {
@@ -232,6 +262,8 @@ function printCard() {
   box-sizing: border-box;
   background: #fff;
   color: #111;
+  border-radius: 14px;
+  box-shadow: 0 12px 40px rgba(0, 20, 60, 0.18);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -248,6 +280,7 @@ function printCard() {
   background: #fff;
   color: #111;
   border: 1.25px dashed #b0b0b5;
+  border-radius: 4px;
   box-sizing: border-box;
   overflow: hidden;
 }
@@ -296,6 +329,13 @@ function printCard() {
   color: #555;
   text-transform: uppercase;
   letter-spacing: 0.04em;
+}
+
+.pc-serie {
+  margin: 0 0 1mm;
+  font-size: 11pt;
+  font-weight: 600;
+  color: #1b9cfc;
 }
 
 .pc-name {
@@ -367,8 +407,8 @@ function printCard() {
 .pc-cut-hint {
   max-width: 210mm;
   margin: 0.75rem auto 0;
-  font-size: 0.8rem;
-  color: #444;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.9);
   text-align: center;
 }
 
@@ -389,6 +429,7 @@ function printCard() {
     padding: 0 !important;
     gap: 6mm;
     background: #fff !important;
+    border-radius: 0 !important;
     box-shadow: none !important;
   }
 
@@ -402,6 +443,7 @@ function printCard() {
 
   .pc-panel {
     border: 1.25px dashed #b0b0b5 !important;
+    border-radius: 0 !important;
   }
 
   .pc-crop__mark {

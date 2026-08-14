@@ -84,6 +84,7 @@ const gasten: Omit<Gast, 'createdAt' | 'updatedAt'>[] = [
     gedeeld: true,
     introTekst: '',
     outroTekst: '',
+    serieNaam: '',
     questions: [
       'Wat was voor u het hoogtepunt van dit congres?',
       'Welke trend ziet u de komende jaren in de sector?',
@@ -107,6 +108,7 @@ const gasten: Omit<Gast, 'createdAt' | 'updatedAt'>[] = [
     gedeeld: false,
     introTekst: '',
     outroTekst: '',
+    serieNaam: '',
     questions: [
       'Wat verraste u vandaag het meest?',
       'Hoe vertaalt innovatie zich naar de praktijk?',
@@ -130,6 +132,7 @@ const gasten: Omit<Gast, 'createdAt' | 'updatedAt'>[] = [
     gedeeld: true,
     introTekst: '',
     outroTekst: '',
+    serieNaam: '',
     questions: [
       'Wat haalt u uit deze ledendag?',
       'Welke sessie sprak u het meest aan?',
@@ -153,6 +156,7 @@ const gasten: Omit<Gast, 'createdAt' | 'updatedAt'>[] = [
     gedeeld: true,
     introTekst: '',
     outroTekst: '',
+    serieNaam: '',
     questions: [
       'Waarom is deze ledendag belangrijk voor uw leden?',
       'Welke boodschap neemt u mee naar de raad van bestuur?',
@@ -176,6 +180,7 @@ const gasten: Omit<Gast, 'createdAt' | 'updatedAt'>[] = [
     gedeeld: false,
     introTekst: '',
     outroTekst: '',
+    serieNaam: '',
     questions: [
       'Hoe kijkt u terug op deze editie?',
       'Welk moment vond u het meest energiek?',
@@ -199,6 +204,7 @@ const gasten: Omit<Gast, 'createdAt' | 'updatedAt'>[] = [
     gedeeld: true,
     introTekst: '',
     outroTekst: '',
+    serieNaam: '',
     questions: [
       'Welke productupdate vindt u het meest relevant?',
       'Hoe gebruikt u onze oplossing in de praktijk?',

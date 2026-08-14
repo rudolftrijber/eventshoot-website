@@ -48,6 +48,8 @@ export interface Gast {
   introTekst: string
   /** Optional spoken outro after the interview questions */
   outroTekst: string
+  /** Series / show name used in intro and outro (e.g. Cloud Talk) */
+  serieNaam: string
   questions: string[]
   intakeComplete: boolean
   status: GastStatus

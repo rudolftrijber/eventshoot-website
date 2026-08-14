@@ -67,6 +67,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         gedeeld: Boolean(body.gedeeld),
         introTekst: String(body.introTekst || '').trim(),
         outroTekst: String(body.outroTekst || '').trim(),
+        serieNaam: String(body.serieNaam || '').trim(),
         questions,
         intakeComplete,
         status: 'Entered',
