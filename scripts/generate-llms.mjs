@@ -56,6 +56,7 @@ Ideale klanten: brancheverenigingen, eventbureaus en DMC's, hotels met congresfa
 ${link('Home', `${BASE}/`, 'Propositie, USP\'s, pakketten en reviews')}
 ${link('Eventfotografie', `${BASE}/eventfotografie`, 'Foto\'s voor LinkedIn, website en nieuwsbrief, binnen 48 uur')}
 ${link('Eventvideo', `${BASE}/eventvideo`, 'Social aftermovies, corporate aftermovies en interviews')}
+${link('Event Vodcast Recording', `${BASE}/diensten/event-vodcast-recording`, '30 tot 40 branded video\'s uit één eventdag, goed voor minimaal 3 maanden content')}
 ${link('Werk / portfolio', `${BASE}/werk`, 'Selectie congressen, jaarcongressen en bedrijfsbijeenkomsten')}
 ${link('Tarieven', `${BASE}/tarieven`, 'Highlight, Headline en Heroes pakketten')}
 

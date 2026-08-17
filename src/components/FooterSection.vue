@@ -14,6 +14,7 @@ const termsUrl = computed(() =>
 const pagesLinks = computed(() => [
   { to: '/eventfotografie', label: t('nav.photography') },
   { to: '/eventvideo', label: t('nav.video') },
+  { to: '/diensten/event-vodcast-recording', label: t('nav.vodcast') },
   { to: '/werk', label: t('nav.work') },
   { to: '/tarieven', label: t('nav.pricing') },
   { to: '/over-rolf', label: t('nav.aboutRolf') },

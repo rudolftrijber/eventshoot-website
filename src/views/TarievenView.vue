@@ -157,7 +157,8 @@ const packages = computed(() => [
               <p class="vodcast__price">{{ t('tarieven.vodcastPrice') }} <span>{{ t('tarieven.vodcastPricePer') }}</span></p>
               <p class="vodcast__sub">{{ t('tarieven.vodcastSub') }}</p>
             </div>
-            <RouterLink to="/kennismaken" class="btn btn--primary btn--full">{{ t('tarieven.vodcastCta') }}</RouterLink>
+            <RouterLink to="/diensten/event-vodcast-recording" class="btn btn--primary btn--full">{{ t('tarieven.vodcastMore') }}</RouterLink>
+            <RouterLink to="/kennismaken" class="btn btn--outline btn--full">{{ t('tarieven.vodcastCta') }}</RouterLink>
             <a
               :href="vodcastPdf"
               :download="vodcastDownloadName"
@@ -439,6 +440,10 @@ const packages = computed(() => [
 
 .vodcast__download:hover {
   color: #fff;
+}
+
+.btn--outline.btn--full {
+  margin-top: 0.75rem;
 }
 
 .btn--full {

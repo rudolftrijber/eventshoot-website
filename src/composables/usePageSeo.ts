@@ -17,6 +17,7 @@ export type PageSeoKey =
   | 'eventkennis'
   | 'privacy'
   | 'gallery'
+  | 'eventVodcast'
 
 type PageSeoOptions = {
   url?: string

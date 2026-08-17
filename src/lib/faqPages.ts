@@ -9,6 +9,7 @@ export const FAQ_PAGE_KEYS = [
   'voor-eventbureaus',
   'voor-hotels',
   'voor-bedrijven',
+  'event-vodcast-recording',
 ] as const
 
 export type FaqPageKey = (typeof FAQ_PAGE_KEYS)[number]

@@ -450,6 +450,50 @@ const faqs = [
     qEn: 'Does Rolf work throughout the Netherlands?',
     aEn: 'Yes, Eventshoot.nl is active throughout the Netherlands. Travel costs are calculated separately.',
   },
+
+  // ── EVENT VODCAST RECORDING (6) ────────────────────────────────────────────
+  {
+    page: 'event-vodcast-recording', category: 'vodcast', order: 1,
+    qNl: 'Wat is Event Vodcast Recording?',
+    aNl: 'Op je event lopen je keynotesprekers, executives en klanten toch al rond. Wij interviewen hen in een tijdelijke videostudio op locatie. Uit één eventdag haal je 30 tot 40 branded video\'s: long form afleveringen plus short form snippets, goed voor minimaal 3 maanden content.',
+    qEn: 'What is Event Vodcast Recording?',
+    aEn: 'Your keynote speakers, executives and clients are already at your event. We interview them in a temporary video studio on location. From one event day you get 30 to 40 branded videos: long form episodes plus short form snippets, enough for at least 3 months of content.',
+  },
+  {
+    page: 'event-vodcast-recording', category: 'vodcast', order: 2,
+    qNl: 'Hoeveel video\'s levert één eventdag op?',
+    aNl: 'Minimaal acht vodcasts van 15 tot 25 minuten, plus 4 tot 5 short form snippets per aflevering. Samen 30 tot 40 branded video\'s, goed voor minimaal 3 maanden content voor je marketeer.',
+    qEn: 'How many videos do you get from one event day?',
+    aEn: 'At least eight vodcasts of 15 to 25 minutes, plus 4 to 5 short form snippets per episode. Together that is 30 to 40 branded videos, enough for at least 3 months of content for your marketer.',
+  },
+  {
+    page: 'event-vodcast-recording', category: 'vodcast', order: 3,
+    qNl: 'Zijn er cameramensen nodig op locatie?',
+    aNl: 'Nee. We werken met een plug and play meercamerasysteem: vijf AI-gestuurde PTZ-camera\'s gekoppeld aan één schakelunit. Geen cameramensen nodig, binnen 30 minuten staat de set klaar. Met 3 presets per camera kiezen we uit 15 verschillende camerabeelden.',
+    qEn: 'Are camera operators needed on site?',
+    aEn: 'No. We work with a plug-and-play multi-camera system: five AI-driven PTZ cameras linked to one switching unit. No camera operators needed, the set is ready within 30 minutes. With 3 presets per camera we choose from 15 different camera angles.',
+  },
+  {
+    page: 'event-vodcast-recording', category: 'vodcast', order: 4,
+    qNl: 'Moet de opname in een aparte studio?',
+    aNl: 'Ideaal aan tafel: 1 tot 3 gasten plus een moderator of gastheer. Dat kan in een aparte ruimte, maar een rustige hoek van de eventlocatie is ook mogelijk. Een locatiecheck vooraf vinden wij daarom belangrijk.',
+    qEn: 'Does the recording need a separate studio?',
+    aEn: 'Ideal at a table: 1 to 3 guests plus a moderator or host. That can be in a separate room, but a quiet corner of the event venue also works. That is why we find a location check beforehand important.',
+  },
+  {
+    page: 'event-vodcast-recording', category: 'vodcast', order: 5,
+    qNl: 'Wat is het verschil tussen long form en short form?',
+    aNl: 'Long form is de volledige aflevering van 15 tot 25 minuten, voor je eigen website, video- of podcastkanaal. Per aflevering knippen we met AI nog 4 tot 5 short form clips voor social media. Alles in jouw huisstijl, klaar voor je marketeer.',
+    qEn: 'What is the difference between long form and short form?',
+    aEn: 'Long form is the full episode of 15 to 25 minutes, for your own website, video or podcast channel. Per episode we also cut 4 to 5 short form clips for social media with AI. Everything in your house style, ready for your marketer.',
+  },
+  {
+    page: 'event-vodcast-recording', category: 'vodcast', order: 6,
+    qNl: 'Hoe weten gasten welke vragen eraan komen?',
+    aNl: 'Met onze eigen interview-app weet elke gast vooraf precies welke vragen eraan komen. Zo verlopen de opnames soepel en zonder verrassingen.',
+    qEn: 'How do guests know which questions are coming?',
+    aEn: 'With our own interview app every guest knows in advance exactly which questions are coming. Recordings then run smoothly and without surprises.',
+  },
 ]
 
 const HEADERS = [

@@ -80,6 +80,8 @@ async function run() {
   }
 
   collectImages(join(PUBLIC, 'DATA_EVENTSHOOT'), []).forEach(p => images.add(p))
+  collectImages(join(PUBLIC, 'images/vodcast'), []).forEach(p => images.add(p))
+  collectImages(join(PUBLIC, 'video'), []).forEach(p => images.add(p))
 
   for (const rel of ['images/checklist.jpg', 'images/Eventshoot_GOLDEN_HOUR.jpg']) {
     const p = join(PUBLIC, rel)

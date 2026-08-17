@@ -66,6 +66,7 @@ onUnmounted(() => {
 const diensten = computed(() => [
   { label: t('nav.photography'), to: '/eventfotografie' },
   { label: t('nav.video'), to: '/eventvideo' },
+  { label: t('nav.vodcast'), to: '/diensten/event-vodcast-recording' },
 ])
 const voorWie = computed(() => [
   { label: t('nav.associations'), to: '/voor/brancheverenigingen' },
@@ -94,7 +95,7 @@ const voorWie = computed(() => [
 
           <!-- Diensten -->
           <div class="dd" @mouseenter="onMouseEnter('diensten')" @mouseleave="onMouseLeave">
-            <button class="navbar__link dd__trigger" :class="{ 'navbar__link--active': route.path.startsWith('/eventfotografie') || route.path.startsWith('/eventvideo') }" @click="toggleSection('diensten')">
+            <button class="navbar__link dd__trigger" :class="{ 'navbar__link--active': route.path.startsWith('/eventfotografie') || route.path.startsWith('/eventvideo') || route.path.startsWith('/diensten') }" @click="toggleSection('diensten')">
               {{ t('nav.services') }} <span class="dd__arrow">▾</span>
             </button>
             <div class="dd__panel" :class="{ 'dd__panel--open': expanded === 'diensten' }">

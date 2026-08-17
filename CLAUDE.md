@@ -86,21 +86,21 @@ Top-navigatie (6 items + 1 CTA-knop)
 Drie dropdowns plus drie directe items, plus de Kennismaken-knop in afwijkende kleur rechts.
 Diensten ▾      Voor wie ▾                          Werk    Tarieven    Over ▾           [Kennismaken]
 ├ Eventfotografie  ├ Brancheverenigingen                                  ├ Over Rolf
-└ Eventvideo       ├ Eventbureaus & DMC's                                 └ Eventkennis
-                   ├ Hotels met congresfaciliteiten
+├ Eventvideo       ├ Eventbureaus & DMC's                                 └ Eventkennis
+└ Event Vodcast    ├ Hotels met congresfaciliteiten
                    └ Bedrijven met eigen events
-URL-structuur is flat — /eventfotografie/ niet /diensten/eventfotografie/. Dropdown is alleen een visueel mechanisme, URL's blijven onafhankelijk.
+URL-structuur is flat voor de bestaande diensten — /eventfotografie/ niet /diensten/eventfotografie/. Uitzondering: Event Vodcast Recording staat op /diensten/event-vodcast-recording. Dropdown is verder alleen een visueel mechanisme.
 Telefoonregel boven de header
 "Vragen? Bel Rolf — 06 251 777 28" → tel:+31625177728
 Sitemap (alle pagina's, gegroepeerd)
-#HoofdmenuSub-paginaURLDoel1(Logo)Home/Conversie-anker2Diensten ▾Eventfotografie/eventfotografie/Service-landing3Eventvideo/eventvideo/Service-landing4Voor wie ▾Brancheverenigingen/voor/brancheverenigingen/Outreach-landing5Eventbureaus & DMC's/voor/eventbureaus/Outreach-landing6Hotels met congresfaciliteiten/voor/hotels/Outreach-landing7Bedrijven met eigen events/voor/bedrijven/Outreach-landing8WerkOverview + case-detail templates/werk/Bewijs / portfolio9Tarieven—/tarieven/Conversie10Over ▾Over Rolf/over-rolf/Vertrouwen11Eventkennis/eventkennis/AI-vindbaarheid (knowledge base)12Kennismaken (CTA)—/kennismaken/Conversie13(Footer)Privacy & Disclaimer/privacy/Juridisch
+#HoofdmenuSub-paginaURLDoel1(Logo)Home/Conversie-anker2Diensten ▾Eventfotografie/eventfotografie/Service-landing3Eventvideo/eventvideo/Service-landing3bEvent Vodcast Recording/diensten/event-vodcast-recordingService-landing4Voor wie ▾Brancheverenigingen/voor/brancheverenigingen/Outreach-landing5Eventbureaus & DMC's/voor/eventbureaus/Outreach-landing6Hotels met congresfaciliteiten/voor/hotels/Outreach-landing7Bedrijven met eigen events/voor/bedrijven/Outreach-landing8WerkOverview + case-detail templates/werk/Bewijs / portfolio9Tarieven—/tarieven/Conversie10Over ▾Over Rolf/over-rolf/Vertrouwen11Eventkennis/eventkennis/AI-vindbaarheid (knowledge base)12Kennismaken (CTA)—/kennismaken/Conversie13(Footer)Privacy & Disclaimer/privacy/Juridisch
 Dynamische pagina-templates:
 
 /werk/{case-slug}/ — case detail (gevuld via Sanity of statisch)
 /eventkennis/{artikel-slug}/ — artikel detail (gevuld via Sanity)
 
 Footer (vier kolommen)
-Kolom 1: Brand + contactKolom 2: Pagina'sKolom 3: Voor wieKolom 4: Eventkennis (dynamisch)LogoEventfotografieBrancheverenigingen5 meest recente artikelenMottoEventvideoEventbureaus & DMC's"Alle artikelen →"📞 06 251 777 28WerkHotels✉ rolf@eventshoot.nlTarievenBedrijven[LinkedIn]Over RolfKennismaken
+Kolom 1: Brand + contactKolom 2: Pagina'sKolom 3: Voor wieKolom 4: Eventkennis (dynamisch)LogoEventfotografieBrancheverenigingen5 meest recente artikelenMottoEventvideoEventbureaus & DMC's"Alle artikelen →"📞 06 251 777 28Event Vodcast RecordingHotels✉ rolf@eventshoot.nlWerkBedrijven[LinkedIn]TarievenOver RolfKennismaken
 Bottom bar (donker, kleine letters): © Eventshoot.nl BV — 2026 · Privacy & Disclaimer · Algemene voorwaarden (PDF) · KvK · BTW
 
 5. Pagina-content per pagina
@@ -124,6 +124,16 @@ Eventvideo (/eventvideo/)
 H1: Eventvideo en aftermovies.
 Sub: Korte social aftermovies voor LinkedIn, lange corporate aftermovies voor je website, en interviews met sprekers en deelnemers.
 Componenten: HeaderBar → HeroImage → MottoBar (identiek aan Eventfotografie) → VideoTypeBlock ×3 (Social aftermovie / Corporate aftermovie / Event interviews) → VideoTypeBlock (Event promotievideo) → UspGrid4 → ReviewsEmbed → BelRolfStrip → FooterBar
+
+Event Vodcast Recording (/diensten/event-vodcast-recording)
+
+H1: Event Vodcast Recording
+Sub: 25 - 40 branded video's die je event verlengen, je zichtbaarheid en je thought leadership maximaliseren.
+Meta title: Event Vodcast Recording | Eventshoot.nl
+Componenten: HeaderBar → Hero (foto + Bel Rolf / Download onepager) → Gecentreerde videostrook (titel: Vod- & Podcast recordings tijdens je event) → Wat het oplevert (4 tegels, oranje achtergrond) → Praktisch (locatie, set, interview-app) → Fotogalerij met lightbox → FaqBlock (lichtblauw) → Download-strook → Investering (optioneel, flag SHOW_VODCAST_INVESTMENT in src/data/vodcastPage.ts, standaard uit) → BelRolfStrip → FooterBar
+Onepager: /downloads/eventshoot-event-vodcast-recording.pdf
+Introductievideo: Vimeo https://vimeo.com/1218955382
+Foto's: /DATA_EVENTSHOOT/SITE_IMAGES/VODCAST/ (hero: RT202570.jpg). De map is leidend: wat erin staat komt op de pagina, wat je verwijdert niet. Na wijzigingen: npm run generate:vodcast-photos (draait ook bij prebuild).
 
 Werk (/werk/)
 
@@ -425,10 +435,11 @@ Eventshoot_Website_Teksten_v3 — exacte teksten per pagina per strook (de bron 
 Eventshoot_Onepager_v5 — propositie, motto, USP's, pakketten in onepager-vorm (commerciële bron)
 Strategisch_advies_Eventshoot_Rolf_Trijber — strategische onderbouwing van keuzes (positionering, doelgroep, prijsstrategie)
 Workflow_Eventshoot_werkblad — wekelijks ritme voor sales & content (1 post/week + 15–20 outreach-touches/dag)
+data/content-systeem/ — Eventkennis-content: overzicht, artikeltemplate (site + LinkedIn + video), één bestand per onderwerp
 
 Bij twijfel over een specifieke pagina of een specifieke regel: raadpleeg eerst dit CLAUDE.md, daarna het juiste referentiedocument.
 
-Laatste update: mei 2026 — na strategische sessies en onepager v5.
+Laatste update: augustus 2026 — Event Vodcast Recording-landing toegevoegd.
 
 ---
 

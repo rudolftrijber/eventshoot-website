@@ -14,6 +14,7 @@ const STATIC_PAGES = [
   { path: '/', priority: '1.0', changefreq: 'weekly' },
   { path: '/eventfotografie', priority: '0.9', changefreq: 'monthly' },
   { path: '/eventvideo', priority: '0.9', changefreq: 'monthly' },
+  { path: '/diensten/event-vodcast-recording', priority: '0.9', changefreq: 'monthly' },
   { path: '/werk', priority: '0.8', changefreq: 'monthly' },
   { path: '/tarieven', priority: '0.9', changefreq: 'monthly' },
   { path: '/kennismaken', priority: '0.9', changefreq: 'monthly' },

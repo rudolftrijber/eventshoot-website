@@ -5,6 +5,7 @@ export const faqCategories = [
   { title: 'Eventfotografie', value: 'eventfotografie' },
   { title: 'Eventvideo', value: 'eventvideo' },
   { title: 'Tarieven & pakketten', value: 'tarieven' },
+  { title: 'Event Vodcast Recording', value: 'vodcast' },
   { title: 'Voor wie', value: 'voor-wie' },
 ]
 
@@ -13,6 +14,7 @@ export const faqPages = [
   { title: 'Kennismaken', value: 'kennismaken' },
   { title: 'Eventfotografie', value: 'eventfotografie' },
   { title: 'Eventvideo', value: 'eventvideo' },
+  { title: 'Event Vodcast Recording', value: 'event-vodcast-recording' },
   { title: 'Tarieven', value: 'tarieven' },
   { title: 'Over Rolf', value: 'over-rolf' },
   { title: 'Brancheverenigingen', value: 'voor-brancheverenigingen' },

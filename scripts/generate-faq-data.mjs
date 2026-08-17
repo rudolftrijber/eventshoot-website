@@ -22,6 +22,7 @@ const PAGE_KEYS = [
   'voor-eventbureaus',
   'voor-hotels',
   'voor-bedrijven',
+  'event-vodcast-recording',
 ]
 
 function parseLine(line) {

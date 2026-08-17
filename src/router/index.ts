@@ -8,6 +8,7 @@ const router = createRouter({
     { path: '/', name: 'home', component: HomeView },
     { path: '/eventfotografie', name: 'eventfotografie', component: () => import('../views/EventfotografieView.vue') },
     { path: '/eventvideo', name: 'eventvideo', component: () => import('../views/EventvideoView.vue') },
+    { path: '/diensten/event-vodcast-recording', name: 'event-vodcast-recording', component: () => import('../views/EventVodcastView.vue') },
     { path: '/werk', name: 'werk', component: () => import('../views/WerkView.vue') },
     { path: '/werk/:slug', redirect: '/werk' },
     { path: '/tarieven', name: 'tarieven', component: () => import('../views/TarievenView.vue') },
