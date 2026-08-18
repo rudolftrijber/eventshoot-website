@@ -7,6 +7,7 @@ import PricingCard from '@/components/PricingCard.vue'
 import UspGrid from '@/components/UspGrid.vue'
 import FaqBlock from '@/components/FaqBlock.vue'
 import OptimizedImage from '@/components/OptimizedImage.vue'
+import { usePageSeo } from '@/composables/usePageSeo'
 import { vodcastPath } from '@/data/vodcastPage'
 
 const { t, locale } = useI18n()
