@@ -20,7 +20,7 @@ export type PageSeoKey =
   | 'eventVodcast'
 
 type PageSeoOptions = {
-  url?: string
+  url?: string | (() => string)
   image?: string
   /** Altijd NL-meta (bijv. Eventkennis, alleen NL-content). */
   fixedLocale?: 'nl' | 'en'
@@ -32,11 +32,12 @@ export function usePageSeo(page: PageSeoKey, options: PageSeoOptions = {}) {
   const apply = () => {
     const loc =
       options.fixedLocale ?? (locale.value.startsWith('en') ? 'en' : 'nl')
+    const url = typeof options.url === 'function' ? options.url() : options.url
 
     useSeo({
       title: t(`seo.${page}.title`),
       description: t(`seo.${page}.description`),
-      url: options.url,
+      url,
       image: options.image,
       locale: loc,
     })

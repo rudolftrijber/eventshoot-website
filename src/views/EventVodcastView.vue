@@ -16,11 +16,16 @@ import {
   VODCAST_GALLERY,
   VODCAST_HERO,
   VODCAST_INTRO_VIMEO,
+  VODCAST_INTRO_VIMEO_EN,
   VODCAST_ONEPAGER_EN,
   VODCAST_ONEPAGER_NL,
+  VODCAST_PATH_EN,
+  VODCAST_PATH_NL,
 } from '@/data/vodcastPage'
 
 const { t, locale, tm } = useI18n()
+
+const isEnglish = computed(() => locale.value.startsWith('en'))
 
 const videoParagraphs = computed(() => {
   const items = tm('vodcast.videoBody')
@@ -28,14 +33,20 @@ const videoParagraphs = computed(() => {
 })
 
 const OG_IMAGE = 'https://eventshoot.nl/DATA_EVENTSHOOT/SITE_IMAGES/VODCAST/RT202570.jpg'
-const PAGE_URL = 'https://eventshoot.nl/diensten/event-vodcast-recording'
+const pageUrl = computed(() =>
+  `https://eventshoot.nl${isEnglish.value ? VODCAST_PATH_EN : VODCAST_PATH_NL}`,
+)
 
-usePageSeo('eventVodcast', { url: PAGE_URL, image: OG_IMAGE })
+usePageSeo('eventVodcast', { url: () => pageUrl.value, image: OG_IMAGE })
 
 const showInvestment = SHOW_VODCAST_INVESTMENT
 
 const onepagerPdf = computed(() =>
-  locale.value.startsWith('en') ? VODCAST_ONEPAGER_EN : VODCAST_ONEPAGER_NL,
+  isEnglish.value ? VODCAST_ONEPAGER_EN : VODCAST_ONEPAGER_NL,
+)
+
+const introVimeo = computed(() =>
+  isEnglish.value ? VODCAST_INTRO_VIMEO_EN : VODCAST_INTRO_VIMEO,
 )
 
 const yieldItems = computed(() => [
@@ -102,7 +113,7 @@ onMounted(() => {
       provider: { '@type': 'LocalBusiness', name: 'Eventshoot.nl' },
       areaServed: 'Nederland',
       description: t('seo.eventVodcast.description'),
-      url: PAGE_URL,
+      url: pageUrl.value,
     })
     document.head.appendChild(script)
   }
@@ -150,7 +161,8 @@ onUnmounted(() => {
         <h2 class="vod-feature__title">{{ t('vodcast.videoTitle') }}</h2>
         <div class="vod-feature__media">
           <iframe
-            :src="VODCAST_INTRO_VIMEO"
+            :key="introVimeo"
+            :src="introVimeo"
             :title="t('vodcast.videoTitle')"
             allow="autoplay; fullscreen; picture-in-picture"
             allowfullscreen

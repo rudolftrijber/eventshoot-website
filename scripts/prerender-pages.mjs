@@ -18,6 +18,15 @@ const PAGES = [
     description:
       '30 tot 40 branded video\'s uit één eventdag, goed voor minimaal 3 maanden content. Vodcasts op locatie plus short form snippets. Geen studio, geen cameraploeg.',
     image: `${BASE_URL}/DATA_EVENTSHOOT/SITE_IMAGES/VODCAST/RT202570.jpg`,
+    locale: 'nl_NL',
+  },
+  {
+    path: '/en/diensten/event-vodcast-recording',
+    title: 'Event Vodcast Recording | Eventshoot.nl',
+    description:
+      '30 to 40 branded videos from one event day, enough for at least 3 months of content. Vodcasts on location plus short form snippets. No studio, no camera crew.',
+    image: `${BASE_URL}/DATA_EVENTSHOOT/SITE_IMAGES/VODCAST/RT202570.jpg`,
+    locale: 'en_GB',
   },
 ]
 
@@ -28,14 +37,14 @@ function escapeAttr(value) {
     .replace(/</g, '&lt;')
 }
 
-function injectMeta(html, { title, description, image, url }) {
+function injectMeta(html, { title, description, image, url, locale }) {
   const ogTags = `
     <meta property="og:title" content="${escapeAttr(title)}" />
     <meta property="og:description" content="${escapeAttr(description)}" />
     <meta property="og:image" content="${escapeAttr(image)}" />
     <meta property="og:url" content="${escapeAttr(url)}" />
     <meta property="og:type" content="website" />
-    <meta property="og:locale" content="nl_NL" />
+    <meta property="og:locale" content="${escapeAttr(locale || 'nl_NL')}" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="${escapeAttr(title)}" />
     <meta name="twitter:description" content="${escapeAttr(description)}" />
@@ -43,6 +52,7 @@ function injectMeta(html, { title, description, image, url }) {
     <link rel="canonical" href="${escapeAttr(url)}" />`
 
   let result = html
+    .replace(/<html lang="[^"]*">/, `<html lang="${(locale || 'nl_NL').startsWith('en') ? 'en' : 'nl'}">`)
     .replace(/<title>[^<]*<\/title>/, `<title>${escapeAttr(title)}</title>`)
     .replace(
       /<meta name="description" content="[^"]*"\s*\/?>/,
@@ -70,6 +80,7 @@ for (const page of PAGES) {
     description: page.description,
     image: page.image,
     url,
+    locale: page.locale,
   })
   const outDir = join('dist', ...page.path.replace(/^\//, '').split('/'))
   mkdirSync(outDir, { recursive: true })

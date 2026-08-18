@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { vodcastPath } from '@/data/vodcastPage'
 const { t, locale } = useI18n()
 
 const showEventkennis = computed(() => !locale.value.startsWith('en'))
@@ -14,7 +15,7 @@ const termsUrl = computed(() =>
 const pagesLinks = computed(() => [
   { to: '/eventfotografie', label: t('nav.photography') },
   { to: '/eventvideo', label: t('nav.video') },
-  { to: '/diensten/event-vodcast-recording', label: t('nav.vodcast') },
+  { to: vodcastPath(locale.value), label: t('nav.vodcast') },
   { to: '/werk', label: t('nav.work') },
   { to: '/tarieven', label: t('nav.pricing') },
   { to: '/over-rolf', label: t('nav.aboutRolf') },

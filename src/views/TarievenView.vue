@@ -7,7 +7,7 @@ import PricingCard from '@/components/PricingCard.vue'
 import UspGrid from '@/components/UspGrid.vue'
 import FaqBlock from '@/components/FaqBlock.vue'
 import OptimizedImage from '@/components/OptimizedImage.vue'
-import { usePageSeo } from '@/composables/usePageSeo'
+import { vodcastPath } from '@/data/vodcastPage'
 
 const { t, locale } = useI18n()
 
@@ -157,7 +157,7 @@ const packages = computed(() => [
               <p class="vodcast__price">{{ t('tarieven.vodcastPrice') }} <span>{{ t('tarieven.vodcastPricePer') }}</span></p>
               <p class="vodcast__sub">{{ t('tarieven.vodcastSub') }}</p>
             </div>
-            <RouterLink to="/diensten/event-vodcast-recording" class="btn btn--primary btn--full">{{ t('tarieven.vodcastMore') }}</RouterLink>
+            <RouterLink :to="vodcastPath(locale)" class="btn btn--primary btn--full">{{ t('tarieven.vodcastMore') }}</RouterLink>
             <RouterLink to="/kennismaken" class="btn btn--outline btn--full">{{ t('tarieven.vodcastCta') }}</RouterLink>
             <a
               :href="vodcastPdf"

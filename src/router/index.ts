@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
+import { i18n } from '../i18n'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -9,6 +10,7 @@ const router = createRouter({
     { path: '/eventfotografie', name: 'eventfotografie', component: () => import('../views/EventfotografieView.vue') },
     { path: '/eventvideo', name: 'eventvideo', component: () => import('../views/EventvideoView.vue') },
     { path: '/diensten/event-vodcast-recording', name: 'event-vodcast-recording', component: () => import('../views/EventVodcastView.vue') },
+    { path: '/en/diensten/event-vodcast-recording', name: 'event-vodcast-recording-en', component: () => import('../views/EventVodcastView.vue'), meta: { locale: 'en' } },
     { path: '/werk', name: 'werk', component: () => import('../views/WerkView.vue') },
     { path: '/werk/:slug', redirect: '/werk' },
     { path: '/tarieven', name: 'tarieven', component: () => import('../views/TarievenView.vue') },
@@ -43,6 +45,14 @@ const router = createRouter({
     { path: '/eemhart', redirect: '/klanten/eemhart' },
     { path: '/:pathMatch(.*)*', name: 'not-found', component: () => import('../views/NotFoundView.vue') },
   ],
+})
+
+router.beforeEach((to) => {
+  const lang = to.path.startsWith('/en/') ? 'en' : to.name === 'event-vodcast-recording' ? 'nl' : null
+  if (!lang) return
+  i18n.global.locale.value = lang
+  if (typeof localStorage !== 'undefined') localStorage.setItem('lang', lang)
+  if (typeof document !== 'undefined') document.documentElement.lang = lang
 })
 
 export default router

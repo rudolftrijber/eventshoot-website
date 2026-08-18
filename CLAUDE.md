@@ -125,14 +125,15 @@ H1: Eventvideo en aftermovies.
 Sub: Korte social aftermovies voor LinkedIn, lange corporate aftermovies voor je website, en interviews met sprekers en deelnemers.
 Componenten: HeaderBar → HeroImage → MottoBar (identiek aan Eventfotografie) → VideoTypeBlock ×3 (Social aftermovie / Corporate aftermovie / Event interviews) → VideoTypeBlock (Event promotievideo) → UspGrid4 → ReviewsEmbed → BelRolfStrip → FooterBar
 
-Event Vodcast Recording (/diensten/event-vodcast-recording)
+Event Vodcast Recording (/diensten/event-vodcast-recording, Engels: /en/diensten/event-vodcast-recording)
 
 H1: Event Vodcast Recording
 Sub: 25 - 40 branded video's die je event verlengen, je zichtbaarheid en je thought leadership maximaliseren.
 Meta title: Event Vodcast Recording | Eventshoot.nl
 Componenten: HeaderBar → Hero (foto + Bel Rolf / Download onepager) → Gecentreerde videostrook (titel: Vod- & Podcast recordings tijdens je event) → Wat het oplevert (4 tegels, oranje achtergrond) → Praktisch (locatie, set, interview-app) → Fotogalerij met lightbox → FaqBlock (lichtblauw) → Download-strook → Investering (optioneel, flag SHOW_VODCAST_INVESTMENT in src/data/vodcastPage.ts, standaard uit) → BelRolfStrip → FooterBar
 Onepager: /downloads/eventshoot-event-vodcast-recording.pdf
-Introductievideo: Vimeo https://vimeo.com/1218955382
+Introductievideo: Vimeo https://vimeo.com/1218955382 (Engels: zelfde embed met texttrack=en)
+Engelse URL: /en/diensten/event-vodcast-recording (vlag in de header wisselt NL/EN).
 Foto's: /DATA_EVENTSHOOT/SITE_IMAGES/VODCAST/ (hero: RT202570.jpg). De map is leidend: wat erin staat komt op de pagina, wat je verwijdert niet. Na wijzigingen: npm run generate:vodcast-photos (draait ook bij prebuild).
 
 Werk (/werk/)

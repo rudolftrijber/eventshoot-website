@@ -3,7 +3,11 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 
+import { vodcastPath, VODCAST_PATH_EN, VODCAST_PATH_NL } from '@/data/vodcastPage'
+
 const { t, locale } = useI18n()
+const route = useRoute()
+const router = useRouter()
 
 const showEventkennis = computed(() => !locale.value.startsWith('en'))
 
@@ -12,15 +16,17 @@ function setLang(lang: string) {
   localStorage.setItem('lang', lang)
   document.documentElement.lang = lang
   closeMenu()
+  const onVodcast = route.path === VODCAST_PATH_NL || route.path === VODCAST_PATH_EN
+  if (onVodcast) {
+    router.replace(lang === 'en' ? VODCAST_PATH_EN : VODCAST_PATH_NL)
+  }
 }
-
-const route = useRoute()
-const router = useRouter()
 
 function goKennismaken() {
   closeMenu()
   router.push('/kennismaken')
 }
+
 const scrolled = ref(false)
 const menuOpen = ref(false)
 const expanded = ref<string | null>(null)
@@ -66,7 +72,7 @@ onUnmounted(() => {
 const diensten = computed(() => [
   { label: t('nav.photography'), to: '/eventfotografie' },
   { label: t('nav.video'), to: '/eventvideo' },
-  { label: t('nav.vodcast'), to: '/diensten/event-vodcast-recording' },
+  { label: t('nav.vodcast'), to: vodcastPath(locale.value) },
 ])
 const voorWie = computed(() => [
   { label: t('nav.associations'), to: '/voor/brancheverenigingen' },
