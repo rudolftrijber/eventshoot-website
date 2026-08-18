@@ -9,7 +9,7 @@
     "setup:env": "test -f .env.local || cp .env.example .env.local; echo '→ Bewerk .env.local: INTERVIEW_APP_PASSWORD, INTERVIEW_SESSION_SECRET, POSTGRES_URL (of: vercel env pull .env.local)'",
     "open:env": "open -e .env.local",
     "sync:env": "node scripts/sync-interview-env.mjs",
-    "build": "vue-tsc -b && vite build && node scripts/prerender-klanten.mjs",
+    "build": "vue-tsc -b && vite build && node scripts/prerender-klanten.mjs && node scripts/prerender-pages.mjs",
     "preview": "vite preview",
     "lint": "eslint . --ext .vue,.ts,.tsx --fix",
     "type-check": "vue-tsc --noEmit",
