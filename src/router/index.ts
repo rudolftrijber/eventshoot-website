@@ -43,6 +43,7 @@ const router = createRouter({
     { path: '/klanten/:slug', name: 'klant', component: () => import('../views/KlantView.vue') },
     { path: '/leontine', redirect: '/klanten/leontine' },
     { path: '/eemhart', redirect: '/klanten/eemhart' },
+    { path: '/moeders-90', redirect: '/klanten/moeders-90' },
     { path: '/:pathMatch(.*)*', name: 'not-found', component: () => import('../views/NotFoundView.vue') },
   ],
 })
