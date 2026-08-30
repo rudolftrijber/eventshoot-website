@@ -2,9 +2,15 @@
   "slug": "moeders-90",
   "title": "Moeders 90 jaar",
   "eyebrow": "22 augustus 2026",
-  "subtitle": "Het 90e verjaardagsfeest van Moeders, Omi, overgroot Omi of Hedwig in Leersum bij Ronald en Eva. Hier zijn de foto's, klaar om te bekijken en te downloaden. Video volgt later deze week.",
+  "subtitle": "Het 90e verjaardagsfeest van Moeders, Omi, overgroot Omi of Hedwig in Leersum bij Ronald en Eva. Hier zijn de foto's en de video, klaar om te bekijken en te downloaden.",
   "heroImage": "/def/MOEDERS_90/moeders_90-169.jpg",
   "localFolder": "MOEDERS_90",
   "reversePhotos": false,
-  "videos": []
+  "videos": [
+    {
+      "title": "Moeders 90 jaar",
+      "url": "https://vimeo.com/1222351559",
+      "type": "vimeo"
+    }
+  ]
 }
