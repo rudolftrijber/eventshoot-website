@@ -49,6 +49,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         patch = sanitized
       } else if (isCrew(ctx)) {
         if (body.naam !== undefined) patch.naam = String(body.naam)
+        if (body.generalTitel !== undefined) patch.generalTitel = String(body.generalTitel).trim().slice(0, 30)
+        if (body.png16x9 !== undefined) patch.png16x9 = String(body.png16x9).trim()
+        if (body.png9x16 !== undefined) patch.png9x16 = String(body.png9x16).trim()
+        if (body.png4x5 !== undefined) patch.png4x5 = String(body.png4x5).trim()
         if (body.datum !== undefined) patch.datum = String(body.datum)
         if (body.startTijd !== undefined) patch.startTijd = String(body.startTijd)
         if (body.eindDatum !== undefined) patch.eindDatum = String(body.eindDatum)

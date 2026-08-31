@@ -262,6 +262,18 @@ export const useInterviewStore = defineStore('interview', () => {
     })
   }
 
+  async function uploadPng(payload: {
+    kind: 'production-png' | 'guest-screenshot' | 'guest-thumbnail'
+    ratio: '16x9' | '9x16' | '4x5'
+    dataUrl: string
+    filename?: string
+  }) {
+    return api<{ url: string }>('/api/interview/upload', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    })
+  }
+
   async function suggestQuestions(payload: {
     scope: 'guest' | 'production'
     productionName: string
@@ -328,6 +340,7 @@ export const useInterviewStore = defineStore('interview', () => {
     deleteProduction,
     updateMaxChars,
     seedDemo,
+    uploadPng,
     suggestQuestions,
     setTab,
     selectGuest,

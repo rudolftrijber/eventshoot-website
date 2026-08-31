@@ -73,6 +73,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (body.introTekst !== undefined) patch.introTekst = String(body.introTekst)
       if (body.outroTekst !== undefined) patch.outroTekst = String(body.outroTekst)
       if (body.serieNaam !== undefined) patch.serieNaam = String(body.serieNaam)
+      if (body.interviewTitel !== undefined) patch.interviewTitel = String(body.interviewTitel).trim().slice(0, 30)
+      if (body.screenshot16x9 !== undefined) patch.screenshot16x9 = String(body.screenshot16x9).trim()
+      if (body.screenshot9x16 !== undefined) patch.screenshot9x16 = String(body.screenshot9x16).trim()
+      if (body.screenshot4x5 !== undefined) patch.screenshot4x5 = String(body.screenshot4x5).trim()
+      if (body.thumbnail16x9 !== undefined) patch.thumbnail16x9 = String(body.thumbnail16x9).trim()
+      if (body.thumbnail9x16 !== undefined) patch.thumbnail9x16 = String(body.thumbnail9x16).trim()
+      if (body.thumbnail4x5 !== undefined) patch.thumbnail4x5 = String(body.thumbnail4x5).trim()
       if (body.questions !== undefined) {
         patch.questions = Array.isArray(body.questions) ? body.questions.map(String) : []
       }

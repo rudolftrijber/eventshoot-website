@@ -98,6 +98,17 @@ async function initSchema(): Promise<void> {
   await sql`ALTER TABLE interview_gasten ADD COLUMN IF NOT EXISTS intro_tekst TEXT NOT NULL DEFAULT ''`
   await sql`ALTER TABLE interview_gasten ADD COLUMN IF NOT EXISTS outro_tekst TEXT NOT NULL DEFAULT ''`
   await sql`ALTER TABLE interview_gasten ADD COLUMN IF NOT EXISTS serie_naam TEXT NOT NULL DEFAULT ''`
+  await sql`ALTER TABLE interview_producties ADD COLUMN IF NOT EXISTS general_titel TEXT NOT NULL DEFAULT ''`
+  await sql`ALTER TABLE interview_producties ADD COLUMN IF NOT EXISTS png_16x9 TEXT NOT NULL DEFAULT ''`
+  await sql`ALTER TABLE interview_producties ADD COLUMN IF NOT EXISTS png_9x16 TEXT NOT NULL DEFAULT ''`
+  await sql`ALTER TABLE interview_producties ADD COLUMN IF NOT EXISTS png_4x5 TEXT NOT NULL DEFAULT ''`
+  await sql`ALTER TABLE interview_gasten ADD COLUMN IF NOT EXISTS interview_titel TEXT NOT NULL DEFAULT ''`
+  await sql`ALTER TABLE interview_gasten ADD COLUMN IF NOT EXISTS screenshot_16x9 TEXT NOT NULL DEFAULT ''`
+  await sql`ALTER TABLE interview_gasten ADD COLUMN IF NOT EXISTS screenshot_9x16 TEXT NOT NULL DEFAULT ''`
+  await sql`ALTER TABLE interview_gasten ADD COLUMN IF NOT EXISTS screenshot_4x5 TEXT NOT NULL DEFAULT ''`
+  await sql`ALTER TABLE interview_gasten ADD COLUMN IF NOT EXISTS thumbnail_16x9 TEXT NOT NULL DEFAULT ''`
+  await sql`ALTER TABLE interview_gasten ADD COLUMN IF NOT EXISTS thumbnail_9x16 TEXT NOT NULL DEFAULT ''`
+  await sql`ALTER TABLE interview_gasten ADD COLUMN IF NOT EXISTS thumbnail_4x5 TEXT NOT NULL DEFAULT ''`
   await sql`
     CREATE TABLE IF NOT EXISTS interview_rate_limits (
       bucket_key TEXT PRIMARY KEY,
@@ -136,6 +147,10 @@ function rowToProductie(row: Record<string, unknown>): Productie {
   return {
     id: String(row.id),
     naam: String(row.naam),
+    generalTitel: String(row.general_titel || ''),
+    png16x9: String(row.png_16x9 || ''),
+    png9x16: String(row.png_9x16 || ''),
+    png4x5: String(row.png_4x5 || ''),
     datum: formatDateValue(row.datum),
     startTijd: formatTimeValue(row.start_tijd),
     eindDatum: formatDateValue(row.eind_datum),
@@ -170,6 +185,13 @@ function rowToGast(row: Record<string, unknown>): Gast {
     introTekst: String(row.intro_tekst || ''),
     outroTekst: String(row.outro_tekst || ''),
     serieNaam: String(row.serie_naam || ''),
+    interviewTitel: String(row.interview_titel || ''),
+    screenshot16x9: String(row.screenshot_16x9 || ''),
+    screenshot9x16: String(row.screenshot_9x16 || ''),
+    screenshot4x5: String(row.screenshot_4x5 || ''),
+    thumbnail16x9: String(row.thumbnail_16x9 || ''),
+    thumbnail9x16: String(row.thumbnail_9x16 || ''),
+    thumbnail4x5: String(row.thumbnail_4x5 || ''),
     questions: Array.isArray(row.questions) ? row.questions.map(String) : [],
     intakeComplete: Boolean(row.intake_complete),
     status: normalizeGastStatus(String(row.status)),
@@ -253,13 +275,18 @@ export async function createGuest(data: Omit<Gast, 'createdAt' | 'updatedAt'>): 
   const rows = await sql`
     INSERT INTO interview_gasten (
       id, productie_naam, type, naam, functie, organisatie, planning, gedeeld,
-      intro_tekst, outro_tekst, serie_naam,
+      intro_tekst, outro_tekst, serie_naam, interview_titel,
+      screenshot_16x9, screenshot_9x16, screenshot_4x5,
+      thumbnail_16x9, thumbnail_9x16, thumbnail_4x5,
       questions, intake_complete, status, regienummer, datum, tijd
     ) VALUES (
       ${data.id}, ${data.productieNaam}, ${data.type}, ${data.naam}, ${data.functie},
       ${data.organisatie || ''},
       ${data.planning}, ${data.gedeeld},
       ${data.introTekst || ''}, ${data.outroTekst || ''}, ${data.serieNaam || ''},
+      ${data.interviewTitel || ''},
+      ${data.screenshot16x9 || ''}, ${data.screenshot9x16 || ''}, ${data.screenshot4x5 || ''},
+      ${data.thumbnail16x9 || ''}, ${data.thumbnail9x16 || ''}, ${data.thumbnail4x5 || ''},
       ${JSON.stringify(data.questions)}::jsonb,
       ${Boolean(data.intakeComplete)}, ${data.status}, ${data.regienummer || null},
       ${toDateParam(data.datum)}, ${data.tijd || null}
@@ -288,6 +315,13 @@ export async function updateGuest(id: string, patch: Partial<Gast>): Promise<Gas
       intro_tekst = ${next.introTekst || ''},
       outro_tekst = ${next.outroTekst || ''},
       serie_naam = ${next.serieNaam || ''},
+      interview_titel = ${next.interviewTitel || ''},
+      screenshot_16x9 = ${next.screenshot16x9 || ''},
+      screenshot_9x16 = ${next.screenshot9x16 || ''},
+      screenshot_4x5 = ${next.screenshot4x5 || ''},
+      thumbnail_16x9 = ${next.thumbnail16x9 || ''},
+      thumbnail_9x16 = ${next.thumbnail9x16 || ''},
+      thumbnail_4x5 = ${next.thumbnail4x5 || ''},
       questions = ${JSON.stringify(next.questions)}::jsonb,
       intake_complete = ${Boolean(next.intakeComplete)},
       status = ${next.status},
@@ -316,12 +350,15 @@ export async function createProductie(
   const enc = clientPassword?.trim() ? encryptClientPassword(clientPassword.trim()) : null
   const rows = await sql`
     INSERT INTO interview_producties (
-      id, naam, datum, start_tijd, eind_datum, eind_tijd, status,
+      id, naam, general_titel, png_16x9, png_9x16, png_4x5,
+      datum, start_tijd, eind_datum, eind_tijd, status,
       locatie, land, supervisor, crew2, crew3, crew4, crew5,
       vragen, client_password_hash, client_password_enc
     )
     VALUES (
-      ${data.id}, ${data.naam}, ${toDateParam(data.datum)}, ${formatTimeValue(data.startTijd)},
+      ${data.id}, ${data.naam}, ${data.generalTitel || ''},
+      ${data.png16x9 || ''}, ${data.png9x16 || ''}, ${data.png4x5 || ''},
+      ${toDateParam(data.datum)}, ${formatTimeValue(data.startTijd)},
       ${toDateParam(data.eindDatum)}, ${formatTimeValue(data.eindTijd)}, ${data.status},
       ${data.locatie || ''}, ${data.land || ''},
       ${normalizeCrewMember(data.supervisor, DEFAULT_SUPERVISOR)},
@@ -356,6 +393,10 @@ export async function updateProductie(id: string, patch: Partial<Productie>): Pr
   const rows = await sql`
     UPDATE interview_producties SET
       naam = ${next.naam},
+      general_titel = ${next.generalTitel || ''},
+      png_16x9 = ${next.png16x9 || ''},
+      png_9x16 = ${next.png9x16 || ''},
+      png_4x5 = ${next.png4x5 || ''},
       datum = ${toDateParam(next.datum)},
       start_tijd = ${formatTimeValue(next.startTijd)},
       eind_datum = ${toDateParam(next.eindDatum)},

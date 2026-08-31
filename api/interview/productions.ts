@@ -47,6 +47,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         crew4: String(body.crew4 || 'N.V.T.'),
         crew5: String(body.crew5 || 'N.V.T.'),
         vragen,
+        generalTitel: String(body.generalTitel || '').trim().slice(0, 30),
+        png16x9: String(body.png16x9 || '').trim(),
+        png9x16: String(body.png9x16 || '').trim(),
+        png4x5: String(body.png4x5 || '').trim(),
       }
       if (!productie.naam) {
         res.status(400).json({ error: 'Production name is required' })

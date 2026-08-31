@@ -15,6 +15,7 @@ function matchApiRoute(pathname: string): RouteMatch | null {
     { re: /^\/api\/interview\/seed-demo$/, modulePath: '/api/interview/seed-demo.ts' },
     { re: /^\/api\/interview\/settings$/, modulePath: '/api/interview/settings.ts' },
     { re: /^\/api\/interview\/suggest-questions$/, modulePath: '/api/interview/suggest-questions.ts' },
+    { re: /^\/api\/interview\/upload$/, modulePath: '/api/interview/upload.ts' },
     { re: /^\/api\/interview\/guests$/, modulePath: '/api/interview/guests.ts' },
     { re: /^\/api\/interview\/guests\/([^/]+)$/, modulePath: '/api/interview/guests/[id].ts', params: ['id'] },
     { re: /^\/api\/interview\/productions$/, modulePath: '/api/interview/productions.ts' },

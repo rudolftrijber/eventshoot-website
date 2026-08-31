@@ -7,9 +7,29 @@ export interface InterviewSettings {
 
 export type InterviewRole = 'crew' | 'client'
 
+export type PngRatioId = '16x9' | '9x16' | '4x5'
+
+export const MAX_GENERAL_TITLE_CHARS = 30
+export const MAX_INTERVIEW_TITLE_CHARS = 30
+export const MAX_PNG_BYTES = 3 * 1024 * 1024
+
+export const PNG_RATIOS: Array<{ id: PngRatioId; label: string; ratio: number }> = [
+  { id: '16x9', label: '16:9', ratio: 16 / 9 },
+  { id: '9x16', label: '9:16', ratio: 9 / 16 },
+  { id: '4x5', label: '4:5', ratio: 4 / 5 },
+]
+
+/** Temporary: hide 9:16 and 4:5 slots until those formats are finetuned. */
+export const SHOW_PORTRAIT_THUMBNAIL_RATIOS = false
+
 export interface Productie {
   id: string
   naam: string
+  /** Overlay title for later thumbnails (max 30) */
+  generalTitel: string
+  png16x9: string
+  png9x16: string
+  png4x5: string
   /** Start date (YYYY-MM-DD) */
   datum: string
   /** Start time (HH:mm) */
@@ -50,6 +70,14 @@ export interface Gast {
   outroTekst: string
   /** Series / show name used in intro and outro (e.g. Cloud Talk) */
   serieNaam: string
+  /** Overlay title for later thumbnails (max 30) */
+  interviewTitel: string
+  screenshot16x9: string
+  screenshot9x16: string
+  screenshot4x5: string
+  thumbnail16x9: string
+  thumbnail9x16: string
+  thumbnail4x5: string
   questions: string[]
   intakeComplete: boolean
   status: GastStatus

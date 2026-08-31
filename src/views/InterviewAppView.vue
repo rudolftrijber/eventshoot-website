@@ -9,7 +9,11 @@ import {
   DEFAULT_SUPERVISOR,
   GAST_TYPES,
   intakeLockApplies,
+  MAX_GENERAL_TITLE_CHARS,
+  MAX_INTERVIEW_TITLE_CHARS,
   PRODUCTIE_STATUSES,
+  SHOW_PORTRAIT_THUMBNAIL_RATIOS,
+  type PngRatioId,
 } from '@/types/interview'
 import {
   downloadText,
@@ -22,6 +26,11 @@ import {
   formatQuestionsForCopy,
   copyTextToClipboard,
 } from '@/utils/interviewCsv'
+import {
+  composeInterviewThumbnail,
+  formatThumbnailDate,
+  thumbnailFilename,
+} from '@/utils/composeInterviewThumbnail'
 import '@/assets/interview-app.css?v=copy-all'
 import '@/assets/interview-app-buttons.css'
 import {
@@ -37,6 +46,7 @@ import {
 } from '@heroicons/vue/24/outline'
 import { PencilSquareIcon as PencilSquareSolidIcon } from '@heroicons/vue/24/solid'
 import ParticipantDefaultsCard from '@/components/interview/ParticipantDefaultsCard.vue'
+import RatioPngUpload from '@/components/interview/RatioPngUpload.vue'
 import ShortQuestionsTip from '@/components/interview/ShortQuestionsTip.vue'
 import PresenterCardPrint from '@/components/interview/PresenterCardPrint.vue'
 
@@ -73,13 +83,24 @@ const fUseIntro = ref(false)
 const fIntroTekst = ref('')
 const fUseOutro = ref(false)
 const fOutroTekst = ref('')
-const fSerieNaam = ref('')
+const fInterviewTitel = ref('')
+const fScreenshot16x9 = ref('')
+const fScreenshot9x16 = ref('')
+const fScreenshot4x5 = ref('')
+const fThumbnail16x9 = ref('')
+const fThumbnail9x16 = ref('')
+const fThumbnail4x5 = ref('')
+const thumbnailBusy = ref<PngRatioId | null>(null)
 const fIntakeComplete = ref(false)
 const fQuestions = ref<string[]>(['', '', '', ''])
 
 // Productie form
 const editingProdId = ref<string | null>(null)
 const pNaam = ref('')
+const pGeneralTitel = ref('')
+const pPng16x9 = ref('')
+const pPng9x16 = ref('')
+const pPng4x5 = ref('')
 const pDatum = ref('')
 const pStartTijd = ref('')
 const pEindDatum = ref('')
@@ -236,7 +257,8 @@ const maxChars = computed(() => store.settings.maxChars)
 const naamOverLimit = computed(() => fNaam.value.length > maxChars.value)
 const functieOverLimit = computed(() => fFunctie.value.length > maxChars.value)
 const organisatieOverLimit = computed(() => fOrganisatie.value.length > maxChars.value)
-const serieOverLimit = computed(() => fSerieNaam.value.length > MAX_SERIE_CHARS)
+const interviewTitelOverLimit = computed(() => fInterviewTitel.value.length > MAX_INTERVIEW_TITLE_CHARS)
+const generalTitelOverLimit = computed(() => pGeneralTitel.value.length > MAX_GENERAL_TITLE_CHARS)
 const introOverLimit = computed(() => fIntroTekst.value.length > MAX_INTRO_OUTRO_CHARS)
 const outroOverLimit = computed(() => fOutroTekst.value.length > MAX_INTRO_OUTRO_CHARS)
 const controleFunctieOver = computed(() => controleFunctie.value.length > maxChars.value)
@@ -253,14 +275,93 @@ const deelnemerPreset = computed(() => {
   )
 })
 
-const presenterProductionDate = computed(() => {
+const presenterProduction = computed(() => {
   const name = fProductie.value.trim().toLowerCase()
-  if (!name) return ''
-  const prod = store.productions.find((p) => p.naam.trim().toLowerCase() === name)
+  if (!name) return workingProduction.value
+  return store.productions.find((p) => p.naam.trim().toLowerCase() === name)
     || store.activeProductions.find((p) => p.naam.trim().toLowerCase() === name)
-  if (!prod?.datum) return ''
-  return formatDisplayDate(prod.datum)
+    || workingProduction.value
 })
+
+const presenterProductionDate = computed(() => {
+  const datum = presenterProduction.value?.datum
+  return datum ? formatDisplayDate(datum) : ''
+})
+
+const presenterSerieNaam = computed(() => (presenterProduction.value?.generalTitel || '').trim())
+
+function overlayUrlFor(ratio: PngRatioId): string {
+  const p = presenterProduction.value
+  if (!p) return ''
+  if (ratio === '16x9') return p.png16x9
+  if (ratio === '9x16') return p.png9x16
+  return p.png4x5
+}
+
+function stillUrlFor(ratio: PngRatioId): string {
+  if (ratio === '16x9') return fScreenshot16x9.value
+  if (ratio === '9x16') return fScreenshot9x16.value
+  return fScreenshot4x5.value
+}
+
+function setThumbnailUrl(ratio: PngRatioId, url: string) {
+  if (ratio === '16x9') fThumbnail16x9.value = url
+  else if (ratio === '9x16') fThumbnail9x16.value = url
+  else fThumbnail4x5.value = url
+}
+
+function thumbDownloadName(ratio: PngRatioId): string {
+  return thumbnailFilename(ratio, fNaam.value.trim(), presenterProduction.value?.datum || '')
+}
+
+function generateHint(ratio: PngRatioId): string {
+  if (!stillUrlFor(ratio)) return 'Upload a JPG still first'
+  if (!overlayUrlFor(ratio)) return 'Upload a PNG overlay on the production first'
+  if (!fInterviewTitel.value.trim()) return 'Fill in Interview titel first'
+  if (!fNaam.value.trim()) return 'Enter a name first'
+  if (!fFunctie.value.trim()) return 'Fill in Role first'
+  return ''
+}
+
+function canGenerateThumbnail(ratio: PngRatioId): boolean {
+  return !generateHint(ratio)
+}
+
+async function generateThumbnail(ratio: PngRatioId) {
+  const hint = generateHint(ratio)
+  if (hint) {
+    showToast(hint)
+    return
+  }
+  const stillUrl = stillUrlFor(ratio)
+  const overlayUrl = overlayUrlFor(ratio)
+  thumbnailBusy.value = ratio
+  try {
+    const dataUrl = await composeInterviewThumbnail({
+      ratio,
+      stillUrl,
+      overlayUrl,
+      interviewTitel: fInterviewTitel.value.trim(),
+      naam: fNaam.value.trim(),
+      functie: fFunctie.value.trim(),
+      organisatie: fOrganisatie.value.trim(),
+      generalTitel: presenterSerieNaam.value,
+      dateLabel: formatThumbnailDate(presenterProduction.value?.datum || ''),
+    })
+    const result = await store.uploadPng({
+      kind: 'guest-thumbnail',
+      ratio,
+      dataUrl,
+      filename: thumbDownloadName(ratio),
+    })
+    setThumbnailUrl(ratio, `${result.url}${result.url.includes('?') ? '&' : '?'}v=${Date.now()}`)
+    showToast('Thumbnail ready')
+  } catch (e) {
+    showToast(e instanceof Error ? e.message : 'Thumbnail failed')
+  } finally {
+    thumbnailBusy.value = null
+  }
+}
 
 const filteredGuests = dayGuests
 
@@ -530,7 +631,6 @@ async function handleLogin() {
 }
 
 const MAX_QUESTIONS = 10
-const MAX_SERIE_CHARS = 35
 const MAX_INTRO_OUTRO_CHARS = 350
 
 function addQuestion(list: { value: string[] }) {
@@ -768,7 +868,13 @@ function clearForm() {
   fIntroTekst.value = ''
   fUseOutro.value = false
   fOutroTekst.value = ''
-  fSerieNaam.value = ''
+  fInterviewTitel.value = ''
+  fScreenshot16x9.value = ''
+  fScreenshot9x16.value = ''
+  fScreenshot4x5.value = ''
+  fThumbnail16x9.value = ''
+  fThumbnail9x16.value = ''
+  fThumbnail4x5.value = ''
   fNaam.value = ''
   fFunctie.value = ''
   fOrganisatie.value = ''
@@ -786,9 +892,9 @@ async function saveGuest() {
     showToast(`Name, role and organization max. ${maxChars.value} characters`)
     return
   }
-  const serieNaam = fSerieNaam.value.trim()
-  if (serieNaam.length > MAX_SERIE_CHARS) {
-    showToast(`Series name max. ${MAX_SERIE_CHARS} characters`)
+  const interviewTitel = fInterviewTitel.value.trim()
+  if (interviewTitel.length > MAX_INTERVIEW_TITLE_CHARS) {
+    showToast(`Interview titel max. ${MAX_INTERVIEW_TITLE_CHARS} characters`)
     return
   }
   const introTekst = fUseIntro.value ? fIntroTekst.value.trim() : ''
@@ -812,7 +918,14 @@ async function saveGuest() {
     gedeeld: fGedeeld.value,
     introTekst,
     outroTekst,
-    serieNaam,
+    serieNaam: presenterSerieNaam.value,
+    interviewTitel,
+    screenshot16x9: fScreenshot16x9.value,
+    screenshot9x16: fScreenshot9x16.value,
+    screenshot4x5: fScreenshot4x5.value,
+    thumbnail16x9: fThumbnail16x9.value,
+    thumbnail9x16: fThumbnail9x16.value,
+    thumbnail4x5: fThumbnail4x5.value,
     intakeComplete: intakeLockApplies(fType.value) ? fIntakeComplete.value : false,
     questions,
   }
@@ -841,7 +954,13 @@ function loadForEdit(g: Gast) {
   fIntroTekst.value = g.introTekst || ''
   fUseOutro.value = Boolean(g.outroTekst?.trim())
   fOutroTekst.value = g.outroTekst || ''
-  fSerieNaam.value = g.serieNaam || ''
+  fInterviewTitel.value = g.interviewTitel || ''
+  fScreenshot16x9.value = g.screenshot16x9 || ''
+  fScreenshot9x16.value = g.screenshot9x16 || ''
+  fScreenshot4x5.value = g.screenshot4x5 || ''
+  fThumbnail16x9.value = g.thumbnail16x9 || ''
+  fThumbnail9x16.value = g.thumbnail9x16 || ''
+  fThumbnail4x5.value = g.thumbnail4x5 || ''
   fIntakeComplete.value = g.intakeComplete
   fNaam.value = g.naam
   fFunctie.value = g.functie
@@ -864,6 +983,11 @@ function applyDeelnemerPreset() {
 async function saveProductie() {
   const naam = pNaam.value.trim()
   if (!naam) { showToast('Enter a production name'); return }
+  const generalTitel = pGeneralTitel.value.trim()
+  if (generalTitel.length > MAX_GENERAL_TITLE_CHARS) {
+    showToast(`Serie titel max. ${MAX_GENERAL_TITLE_CHARS} characters`)
+    return
+  }
   const vragen = pQuestions.value.map((q) => q.trim()).filter(Boolean)
   const datum = pDatum.value
   if (pEindDatum.value) {
@@ -886,6 +1010,10 @@ async function saveProductie() {
     const payload: Partial<Productie> & { id?: string; clientPassword?: string } = {
       id: editingProdId.value || undefined,
       naam,
+      generalTitel,
+      png16x9: pPng16x9.value,
+      png9x16: pPng9x16.value,
+      png4x5: pPng4x5.value,
       datum,
       startTijd: pStartTijd.value,
       eindDatum: pEindDatum.value,
@@ -922,6 +1050,10 @@ async function saveProductie() {
 function clearProductieForm() {
   editingProdId.value = null
   pNaam.value = ''
+  pGeneralTitel.value = ''
+  pPng16x9.value = ''
+  pPng9x16.value = ''
+  pPng4x5.value = ''
   pDatum.value = ''
   pStartTijd.value = ''
   pEindDatum.value = ''
@@ -944,6 +1076,10 @@ function clearProductieForm() {
 function editProductie(p: Productie) {
   editingProdId.value = p.id
   pNaam.value = p.naam
+  pGeneralTitel.value = p.generalTitel || ''
+  pPng16x9.value = p.png16x9 || ''
+  pPng9x16.value = p.png9x16 || ''
+  pPng4x5.value = p.png4x5 || ''
   pDatum.value = p.datum
   pStartTijd.value = p.startTijd || ''
   pEindDatum.value = p.eindDatum || ''
@@ -1222,6 +1358,22 @@ watch(pDatum, (newStart, oldStart) => {
   }
 })
 
+watch(pGeneralTitel, (value) => {
+  if (value.length > MAX_GENERAL_TITLE_CHARS) {
+    pGeneralTitel.value = value.slice(0, MAX_GENERAL_TITLE_CHARS)
+  }
+})
+
+watch(fInterviewTitel, (value) => {
+  if (value.length > MAX_INTERVIEW_TITLE_CHARS) {
+    fInterviewTitel.value = value.slice(0, MAX_INTERVIEW_TITLE_CHARS)
+  }
+})
+
+watch(fScreenshot16x9, (value) => { if (!value) fThumbnail16x9.value = '' })
+watch(fScreenshot9x16, (value) => { if (!value) fThumbnail9x16.value = '' })
+watch(fScreenshot4x5, (value) => { if (!value) fThumbnail4x5.value = '' })
+
 watch(() => store.activeTab, (tab) => {
   guestView.value = null
   store.selectGuest(null)
@@ -1455,26 +1607,144 @@ watch(() => store.role, (role) => {
               <input v-model="fPlanning" class="ia-input" placeholder="e.g. interview after the keynote" :disabled="guestFormLocked" />
 
               <div class="ia-form-divider" role="separator" aria-hidden="true" />
-              <h3 class="ia-form-section-title">Interview content</h3>
-
-              <label class="ia-label" for="fSerieTitle">Series title</label>
+              <h3 class="ia-form-section-title">Interview titel &amp; screenshots</h3>
+              <p class="ia-hint" style="margin:0 0 0.75rem">
+                Stills from the recording (JPG). These become the background of the thumbnail.
+              </p>
+              <label class="ia-label">Serie titel</label>
               <input
-                id="fSerieTitle"
-                v-model="fSerieNaam"
+                class="ia-input"
+                :value="presenterSerieNaam"
+                disabled
+                placeholder="Set on the production first"
+              />
+              <p class="ia-hint" style="margin:0 0 0.75rem">
+                From this production. Same on every candidate. Edit it on the production, not here.
+              </p>
+              <label class="ia-label" for="fInterviewTitel">Interview titel</label>
+              <input
+                id="fInterviewTitel"
+                v-model="fInterviewTitel"
                 class="ia-input ia-input--serie"
                 type="text"
-                maxlength="35"
+                maxlength="30"
                 autocomplete="off"
-                autocapitalize="off"
-                autocorrect="off"
-                spellcheck="false"
-                data-1p-ignore
-                data-lpignore="true"
-                data-form-type="other"
-                placeholder="e.g. Cloud Talk"
+                placeholder="max. 30 characters"
                 :disabled="guestFormLocked"
               />
-              <div class="ia-charcount" :class="{ warn: serieOverLimit }">{{ fSerieNaam.length }} / 35 characters</div>
+              <div class="ia-charcount" :class="{ warn: interviewTitelOverLimit }">
+                {{ fInterviewTitel.length }} / {{ MAX_INTERVIEW_TITLE_CHARS }} characters
+              </div>
+              <div class="ia-png-grid" :class="{ 'ia-png-grid--single': !SHOW_PORTRAIT_THUMBNAIL_RATIOS }">
+                <RatioPngUpload
+                  v-model="fScreenshot16x9"
+                  kind="guest-screenshot"
+                  ratio="16x9"
+                  :disabled="guestFormLocked"
+                >
+                  <template #actions>
+                    <button
+                      v-if="fScreenshot16x9"
+                      class="ia-btn ia-btn--small ia-btn--accent"
+                      type="button"
+                      :disabled="guestFormLocked || thumbnailBusy === '16x9' || !canGenerateThumbnail('16x9')"
+                      :title="generateHint('16x9') || undefined"
+                      @click="generateThumbnail('16x9')"
+                    >
+                      {{ thumbnailBusy === '16x9' ? 'Generating…' : 'Genereer thumbnail' }}
+                    </button>
+                  </template>
+                  <template #after>
+                    <p v-if="fScreenshot16x9 && generateHint('16x9')" class="ia-hint" style="margin:0.35rem 0 0">
+                      {{ generateHint('16x9') }}
+                    </p>
+                    <a
+                      v-if="fThumbnail16x9"
+                      class="ia-png-slot__thumb"
+                      :href="fThumbnail16x9"
+                      :download="thumbDownloadName('16x9')"
+                      target="_blank"
+                      rel="noopener"
+                    >
+                      <img :key="fThumbnail16x9" :src="fThumbnail16x9" alt="Thumbnail 16:9" />
+                      <span>{{ thumbDownloadName('16x9') }}</span>
+                    </a>
+                  </template>
+                </RatioPngUpload>
+                <RatioPngUpload
+                  v-if="SHOW_PORTRAIT_THUMBNAIL_RATIOS"
+                  v-model="fScreenshot9x16"
+                  kind="guest-screenshot"
+                  ratio="9x16"
+                  :disabled="guestFormLocked"
+                >
+                  <template #actions>
+                    <button
+                      v-if="fScreenshot9x16"
+                      class="ia-btn ia-btn--small ia-btn--accent"
+                      type="button"
+                      :disabled="guestFormLocked || thumbnailBusy === '9x16' || !canGenerateThumbnail('9x16')"
+                      :title="generateHint('9x16') || undefined"
+                      @click="generateThumbnail('9x16')"
+                    >
+                      {{ thumbnailBusy === '9x16' ? 'Generating…' : 'Genereer thumbnail' }}
+                    </button>
+                  </template>
+                  <template #after>
+                    <p v-if="fScreenshot9x16 && generateHint('9x16')" class="ia-hint" style="margin:0.35rem 0 0">
+                      {{ generateHint('9x16') }}
+                    </p>
+                    <a
+                      v-if="fThumbnail9x16"
+                      class="ia-png-slot__thumb"
+                      :href="fThumbnail9x16"
+                      :download="thumbDownloadName('9x16')"
+                      target="_blank"
+                      rel="noopener"
+                    >
+                      <img :key="fThumbnail9x16" :src="fThumbnail9x16" alt="Thumbnail 9:16" />
+                      <span>{{ thumbDownloadName('9x16') }}</span>
+                    </a>
+                  </template>
+                </RatioPngUpload>
+                <RatioPngUpload
+                  v-if="SHOW_PORTRAIT_THUMBNAIL_RATIOS"
+                  v-model="fScreenshot4x5"
+                  kind="guest-screenshot"
+                  ratio="4x5"
+                  :disabled="guestFormLocked"
+                >
+                  <template #actions>
+                    <button
+                      v-if="fScreenshot4x5"
+                      class="ia-btn ia-btn--small ia-btn--accent"
+                      type="button"
+                      :disabled="guestFormLocked || thumbnailBusy === '4x5' || !canGenerateThumbnail('4x5')"
+                      :title="generateHint('4x5') || undefined"
+                      @click="generateThumbnail('4x5')"
+                    >
+                      {{ thumbnailBusy === '4x5' ? 'Generating…' : 'Genereer thumbnail' }}
+                    </button>
+                  </template>
+                  <template #after>
+                    <p v-if="fScreenshot4x5 && generateHint('4x5')" class="ia-hint" style="margin:0.35rem 0 0">
+                      {{ generateHint('4x5') }}
+                    </p>
+                    <a
+                      v-if="fThumbnail4x5"
+                      class="ia-png-slot__thumb"
+                      :href="fThumbnail4x5"
+                      :download="thumbDownloadName('4x5')"
+                      target="_blank"
+                      rel="noopener"
+                    >
+                      <img :key="fThumbnail4x5" :src="fThumbnail4x5" alt="Thumbnail 4:5" />
+                      <span>{{ thumbDownloadName('4x5') }}</span>
+                    </a>
+                  </template>
+                </RatioPngUpload>
+              </div>
+
               <div class="ia-question-head">
                 <label class="ia-label ia-label--inline">Interview questions (max. 10)</label>
                 <div class="ia-question-head__actions">
@@ -1795,6 +2065,30 @@ watch(() => store.role, (role) => {
               </div>
 
               <div
+                v-if="!showProdForm && !isNewProduction && workingProduction && (workingProduction.generalTitel || workingProduction.png16x9 || workingProduction.png9x16 || workingProduction.png4x5)"
+                class="ia-thumb-preview"
+              >
+                <p v-if="workingProduction.generalTitel" class="ia-thumb-preview__title">
+                  <span class="ia-thumb-preview__label">Serie titel</span>
+                  {{ workingProduction.generalTitel }}
+                </p>
+                <div class="ia-png-grid ia-png-grid--preview">
+                  <figure v-if="workingProduction.png16x9" class="ia-png-preview">
+                    <img :src="workingProduction.png16x9" alt="PNG 16:9" />
+                    <figcaption>16:9</figcaption>
+                  </figure>
+                  <figure v-if="SHOW_PORTRAIT_THUMBNAIL_RATIOS && workingProduction.png9x16" class="ia-png-preview">
+                    <img :src="workingProduction.png9x16" alt="PNG 9:16" />
+                    <figcaption>9:16</figcaption>
+                  </figure>
+                  <figure v-if="SHOW_PORTRAIT_THUMBNAIL_RATIOS && workingProduction.png4x5" class="ia-png-preview">
+                    <img :src="workingProduction.png4x5" alt="PNG 4:5" />
+                    <figcaption>4:5</figcaption>
+                  </figure>
+                </div>
+              </div>
+
+              <div
                 v-if="showProdForm && store.isCrew"
                 class="ia-prod-form"
                 :class="{ 'ia-prod-form--inline': !isNewProduction }"
@@ -1894,6 +2188,31 @@ watch(() => store.role, (role) => {
                     <select v-model="pCrew5" class="ia-select">
                       <option v-for="m in CREW_MEMBERS" :key="`c5-${m}`" :value="m">{{ m }}</option>
                     </select>
+                  </div>
+                </div>
+
+                <div class="ia-thumb-block">
+                  <h3 class="ia-form-section-title">PNG overlays</h3>
+                  <p class="ia-hint" style="margin:0 0 0.75rem">
+                    One transparent PNG per format, max 3 MB. No JPG: the overlay needs a transparent background.
+                  </p>
+                  <label class="ia-label">Serie titel</label>
+                  <input
+                    v-model="pGeneralTitel"
+                    class="ia-input"
+                    maxlength="30"
+                    placeholder="e.g. Ronde Tafel"
+                  />
+                  <div class="ia-charcount" :class="{ warn: generalTitelOverLimit }">
+                    {{ pGeneralTitel.length }} / {{ MAX_GENERAL_TITLE_CHARS }} characters
+                  </div>
+                  <p class="ia-hint" style="margin:0 0 0.85rem">
+                    Comes on every thumbnail of this production, under the logo.
+                  </p>
+                  <div class="ia-png-grid" :class="{ 'ia-png-grid--single': !SHOW_PORTRAIT_THUMBNAIL_RATIOS }">
+                    <RatioPngUpload v-model="pPng16x9" kind="production-png" ratio="16x9" />
+                    <RatioPngUpload v-if="SHOW_PORTRAIT_THUMBNAIL_RATIOS" v-model="pPng9x16" kind="production-png" ratio="9x16" />
+                    <RatioPngUpload v-if="SHOW_PORTRAIT_THUMBNAIL_RATIOS" v-model="pPng4x5" kind="production-png" ratio="4x5" />
                   </div>
                 </div>
 
@@ -2189,7 +2508,7 @@ watch(() => store.role, (role) => {
       :organisatie="fOrganisatie"
       :productie-naam="fProductie"
       :productie-datum="presenterProductionDate"
-      :serie-naam="fSerieNaam"
+      :serie-naam="presenterSerieNaam"
       :intro-tekst="fUseIntro ? fIntroTekst : ''"
       :outro-tekst="fUseOutro ? fOutroTekst : ''"
       :questions="fQuestions"
