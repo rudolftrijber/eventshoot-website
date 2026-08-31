@@ -8,6 +8,17 @@ import { isPngRatioId, parseDataUrlImage, assertImageRatio, type ScreenshotExt }
 const KINDS = ['production-png', 'guest-screenshot', 'guest-thumbnail'] as const
 type UploadKind = (typeof KINDS)[number]
 
+/** Vercel cannot write to /public. If Cloudinary fails, small files stay as data URLs. */
+const DATA_URL_MAX_BYTES = 700 * 1024
+
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: '4mb',
+    },
+  },
+}
+
 function parseBody(req: VercelRequest): Record<string, unknown> {
   return typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {})
 }
@@ -113,20 +124,38 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     assertImageRatio(buf, ext, ratio)
 
     const onVercel = Boolean(process.env.VERCEL)
-    if (onVercel && !cloudinaryReady()) {
-      res.status(503).json({ error: 'Image upload requires Cloudinary on Vercel' })
-      return
-    }
+    let url = ''
 
-    const url = onVercel
-      ? await storeCloudinaryImage(dataUrl, kind, ratio, filename)
-      : await storeLocalImage(buf, kind, ratio, ext, filename)
+    if (onVercel) {
+      if (cloudinaryReady()) {
+        try {
+          url = await storeCloudinaryImage(dataUrl, kind, ratio, filename)
+        } catch (cloudErr) {
+          console.error('Cloudinary upload failed, using fallback:', cloudErr)
+        }
+      }
+      if (!url) {
+        if (buf.length > DATA_URL_MAX_BYTES) {
+          res.status(503).json({
+            error: 'Live upload needs a working Cloudinary account, or a PNG under 500 KB. This file is too large to store without Cloudinary.',
+          })
+          return
+        }
+        url = dataUrl
+      }
+    } else {
+      url = await storeLocalImage(buf, kind, ratio, ext, filename)
+    }
 
     res.status(201).json({ url })
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Upload failed'
-    const known = /PNG|JPG|JPEG|ratio|Upload a JPG|max 3 MB|not a valid|Image /i.test(message)
+    const raw = err instanceof Error ? err.message : 'Upload failed'
     console.error('interview upload error:', err)
-    res.status(known ? 400 : 500).json({ error: known ? message : 'Upload failed' })
+    if (/Unexpected end of JSON|Unexpected token/i.test(raw)) {
+      res.status(413).json({ error: 'File is too large for live upload. Use a PNG under 2 MB.' })
+      return
+    }
+    const known = /PNG|JPG|JPEG|ratio|Upload a JPG|max 3 MB|not a valid|Image |Cloudinary|too large/i.test(raw)
+    res.status(known ? 400 : 500).json({ error: raw.slice(0, 180) || 'Upload failed' })
   }
 }

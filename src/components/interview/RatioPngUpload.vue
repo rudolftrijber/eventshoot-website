@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useInterviewStore } from '@/stores/interviewStore'
 import { MAX_PNG_BYTES, PNG_RATIOS, type PngRatioId } from '@/types/interview'
+import { interviewUploadUnavailable } from '@/utils/interviewUploads'
 
 const RATIO_TOLERANCE = 0.08
 
@@ -16,7 +17,19 @@ const url = defineModel<string>({ default: '' })
 const store = useInterviewStore()
 const busy = ref(false)
 const error = ref('')
+const broken = ref(false)
 const inputId = `png-${props.kind}-${props.ratio}`
+
+watch(() => url.value, () => {
+  broken.value = false
+  error.value = ''
+})
+
+const unavailable = computed(() => {
+  if (!url.value) return false
+  return interviewUploadUnavailable(url.value) || broken.value
+})
+const showPreview = computed(() => Boolean(url.value) && !unavailable.value)
 
 const spec = PNG_RATIOS.find((r) => r.id === props.ratio)!
 const isOverlay = computed(() => props.kind === 'production-png')
@@ -102,9 +115,14 @@ async function onPick(event: Event) {
   }
 }
 
+function onPreviewError() {
+  broken.value = true
+}
+
 function removeFile() {
   url.value = ''
   error.value = ''
+  broken.value = false
 }
 </script>
 
@@ -114,15 +132,23 @@ function removeFile() {
     <div
       class="ia-png-slot__box"
       :class="{
-        'ia-png-slot__box--filled': url,
+        'ia-png-slot__box--filled': showPreview,
         'ia-png-slot__box--busy': busy,
         [`ia-png-slot__box--${ratio}`]: true,
       }"
     >
-      <img v-if="url" :src="url" :alt="slotLabel" class="ia-png-slot__preview" />
-      <div v-else class="ia-png-slot__empty">
+      <img
+        v-if="showPreview"
+        :src="url"
+        :alt="slotLabel"
+        class="ia-png-slot__preview"
+        @error="onPreviewError"
+      />
+      <div v-if="!showPreview" class="ia-png-slot__empty">
         <span class="ia-png-slot__ratio">{{ spec.label }}</span>
-        <span class="ia-png-slot__hint">{{ busy ? 'Uploading…' : idleHint }}</span>
+        <span class="ia-png-slot__hint">{{
+          busy ? 'Uploading…' : unavailable ? 'Not on this site — click to replace' : idleHint
+        }}</span>
       </div>
       <input
         :id="inputId"
@@ -134,6 +160,9 @@ function removeFile() {
       />
     </div>
     <div class="ia-png-slot__meta">
+      <p v-if="unavailable && !error" class="ia-hint ia-hint--warn" style="margin:0">
+        This file is not on the live site. Click the box to upload it again.
+      </p>
       <p v-if="error" class="ia-hint ia-hint--warn" style="margin:0">{{ error }}</p>
       <button
         v-if="url && !disabled"

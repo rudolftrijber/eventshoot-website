@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useInterviewStore } from '@/stores/interviewStore'
 import type { Gast, GuestView, Productie } from '@/types/interview'
 import {
@@ -31,6 +31,7 @@ import {
   formatThumbnailDate,
   thumbnailFilename,
 } from '@/utils/composeInterviewThumbnail'
+import { interviewUploadUnavailable } from '@/utils/interviewUploads'
 import '@/assets/interview-app.css?v=copy-all'
 import '@/assets/interview-app-buttons.css'
 import {
@@ -316,7 +317,11 @@ function thumbDownloadName(ratio: PngRatioId): string {
 
 function generateHint(ratio: PngRatioId): string {
   if (!stillUrlFor(ratio)) return 'Upload a JPG still first'
-  if (!overlayUrlFor(ratio)) return 'Upload a PNG overlay on the production first'
+  const overlay = overlayUrlFor(ratio)
+  if (!overlay) return 'Upload a PNG overlay on the production first'
+  if (interviewUploadUnavailable(overlay)) {
+    return 'Replace the PNG overlay on the production first (not on this site)'
+  }
   if (!fInterviewTitel.value.trim()) return 'Fill in Interview titel first'
   if (!fNaam.value.trim()) return 'Enter a name first'
   if (!fFunctie.value.trim()) return 'Fill in Role first'
@@ -555,6 +560,34 @@ function toggleEditProduction() {
     editProductie(workingProduction.value)
   }
   showProdForm.value = true
+}
+
+const pngPreviewBroken = ref<Record<PngRatioId, boolean>>({
+  '16x9': false,
+  '9x16': false,
+  '4x5': false,
+})
+
+function productionPngMissing(ratio: PngRatioId): boolean {
+  const url =
+    ratio === '16x9'
+      ? workingProduction.value?.png16x9
+      : ratio === '9x16'
+        ? workingProduction.value?.png9x16
+        : workingProduction.value?.png4x5
+  if (!url) return false
+  return interviewUploadUnavailable(url) || Boolean(pngPreviewBroken.value[ratio])
+}
+
+function onProductionPngError(ratio: PngRatioId) {
+  pngPreviewBroken.value = { ...pngPreviewBroken.value, [ratio]: true }
+}
+
+async function startReplaceProductionPng() {
+  if (!store.isCrew) return
+  if (!showProdForm.value) toggleEditProduction()
+  await nextTick()
+  document.getElementById('ia-png-overlays')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
 }
 
 function toggleEditQuestions() {
@@ -1409,6 +1442,17 @@ watch(showProdForm, (open) => {
   if (!open) loadDefaultQuestions(workingProduction.value)
 })
 
+watch(
+  () => [
+    workingProduction.value?.png16x9,
+    workingProduction.value?.png9x16,
+    workingProduction.value?.png4x5,
+  ],
+  () => {
+    pngPreviewBroken.value = { '16x9': false, '9x16': false, '4x5': false }
+  },
+)
+
 watch(() => store.role, (role) => {
   if (!role) return
   store.setTab('productions')
@@ -2073,17 +2117,63 @@ watch(() => store.role, (role) => {
                   {{ workingProduction.generalTitel }}
                 </p>
                 <div class="ia-png-grid ia-png-grid--preview">
-                  <figure v-if="workingProduction.png16x9" class="ia-png-preview">
-                    <img :src="workingProduction.png16x9" alt="PNG 16:9" />
-                    <figcaption>16:9</figcaption>
+                  <figure
+                    v-if="workingProduction.png16x9"
+                    class="ia-png-preview"
+                    :class="{ 'ia-png-preview--replace': store.isCrew }"
+                    :role="store.isCrew ? 'button' : undefined"
+                    :tabindex="store.isCrew ? 0 : undefined"
+                    :aria-label="productionPngMissing('16x9') ? 'PNG 16:9 missing, tap to replace' : 'PNG 16:9, tap to replace'"
+                    @click="store.isCrew && startReplaceProductionPng()"
+                    @keydown.enter.prevent="store.isCrew && startReplaceProductionPng()"
+                  >
+                    <img
+                      v-if="!productionPngMissing('16x9')"
+                      :src="workingProduction.png16x9"
+                      alt="PNG 16:9"
+                      @error="onProductionPngError('16x9')"
+                    />
+                    <div v-else class="ia-png-preview__missing" aria-label="PNG 16:9 missing">
+                      <span>PNG 16:9</span>
+                      <span>Not on the live site. Tap to replace.</span>
+                    </div>
+                    <figcaption>{{ productionPngMissing('16x9') ? '16:9 · tap to replace' : '16:9' }}</figcaption>
                   </figure>
-                  <figure v-if="SHOW_PORTRAIT_THUMBNAIL_RATIOS && workingProduction.png9x16" class="ia-png-preview">
-                    <img :src="workingProduction.png9x16" alt="PNG 9:16" />
-                    <figcaption>9:16</figcaption>
+                  <figure
+                    v-if="SHOW_PORTRAIT_THUMBNAIL_RATIOS && workingProduction.png9x16"
+                    class="ia-png-preview"
+                    :class="{ 'ia-png-preview--replace': store.isCrew }"
+                    @click="store.isCrew && startReplaceProductionPng()"
+                  >
+                    <img
+                      v-if="!productionPngMissing('9x16')"
+                      :src="workingProduction.png9x16"
+                      alt="PNG 9:16"
+                      @error="onProductionPngError('9x16')"
+                    />
+                    <div v-else class="ia-png-preview__missing" aria-label="PNG 9:16 missing">
+                      <span>PNG 9:16</span>
+                      <span>Not on the live site. Tap to replace.</span>
+                    </div>
+                    <figcaption>{{ productionPngMissing('9x16') ? '9:16 · tap to replace' : '9:16' }}</figcaption>
                   </figure>
-                  <figure v-if="SHOW_PORTRAIT_THUMBNAIL_RATIOS && workingProduction.png4x5" class="ia-png-preview">
-                    <img :src="workingProduction.png4x5" alt="PNG 4:5" />
-                    <figcaption>4:5</figcaption>
+                  <figure
+                    v-if="SHOW_PORTRAIT_THUMBNAIL_RATIOS && workingProduction.png4x5"
+                    class="ia-png-preview"
+                    :class="{ 'ia-png-preview--replace': store.isCrew }"
+                    @click="store.isCrew && startReplaceProductionPng()"
+                  >
+                    <img
+                      v-if="!productionPngMissing('4x5')"
+                      :src="workingProduction.png4x5"
+                      alt="PNG 4:5"
+                      @error="onProductionPngError('4x5')"
+                    />
+                    <div v-else class="ia-png-preview__missing" aria-label="PNG 4:5 missing">
+                      <span>PNG 4:5</span>
+                      <span>Not on the live site. Tap to replace.</span>
+                    </div>
+                    <figcaption>{{ productionPngMissing('4x5') ? '4:5 · tap to replace' : '4:5' }}</figcaption>
                   </figure>
                 </div>
               </div>
@@ -2191,7 +2281,7 @@ watch(() => store.role, (role) => {
                   </div>
                 </div>
 
-                <div class="ia-thumb-block">
+                <div id="ia-png-overlays" class="ia-thumb-block">
                   <h3 class="ia-form-section-title">PNG overlays</h3>
                   <p class="ia-hint" style="margin:0 0 0.75rem">
                     One transparent PNG per format, max 3 MB. No JPG: the overlay needs a transparent background.

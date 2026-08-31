@@ -31,7 +31,7 @@ export function formatThumbnailDate(iso: string): string {
 function loadImage(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const img = new Image()
-    img.crossOrigin = 'anonymous'
+    if (/^https?:\/\//i.test(src)) img.crossOrigin = 'anonymous'
     img.onload = () => resolve(img)
     img.onerror = () => reject(new Error('Could not load image for thumbnail'))
     img.src = src
