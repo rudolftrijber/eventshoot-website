@@ -388,5 +388,21 @@ export async function composeInterviewThumbnail(input: {
     }
   }
 
-  return canvas.toDataURL('image/jpeg', 0.9)
+  return canvasToJpegDataUrl(canvas)
+}
+
+function canvasToJpegDataUrl(canvas: HTMLCanvasElement, maxBytes = 650_000): string {
+  let quality = 0.9
+  let url = canvas.toDataURL('image/jpeg', quality)
+  while (quality > 0.55 && dataUrlBytes(url) > maxBytes) {
+    quality -= 0.08
+    url = canvas.toDataURL('image/jpeg', quality)
+  }
+  return url
+}
+
+function dataUrlBytes(url: string): number {
+  const comma = url.indexOf(',')
+  const b64 = comma >= 0 ? url.slice(comma + 1) : url
+  return Math.ceil((b64.length * 3) / 4)
 }

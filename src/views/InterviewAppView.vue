@@ -31,7 +31,12 @@ import {
   formatThumbnailDate,
   thumbnailFilename,
 } from '@/utils/composeInterviewThumbnail'
-import { interviewUploadUnavailable } from '@/utils/interviewUploads'
+import {
+  interviewUploadUnavailable,
+  stripImageCacheBust,
+  triggerImageDownload,
+  withImageCacheBust,
+} from '@/utils/interviewUploads'
 import '@/assets/interview-app.css?v=copy-all'
 import '@/assets/interview-app-buttons.css'
 import {
@@ -294,15 +299,15 @@ const presenterSerieNaam = computed(() => (presenterProduction.value?.generalTit
 function overlayUrlFor(ratio: PngRatioId): string {
   const p = presenterProduction.value
   if (!p) return ''
-  if (ratio === '16x9') return p.png16x9
-  if (ratio === '9x16') return p.png9x16
-  return p.png4x5
+  if (ratio === '16x9') return stripImageCacheBust(p.png16x9)
+  if (ratio === '9x16') return stripImageCacheBust(p.png9x16)
+  return stripImageCacheBust(p.png4x5)
 }
 
 function stillUrlFor(ratio: PngRatioId): string {
-  if (ratio === '16x9') return fScreenshot16x9.value
-  if (ratio === '9x16') return fScreenshot9x16.value
-  return fScreenshot4x5.value
+  if (ratio === '16x9') return stripImageCacheBust(fScreenshot16x9.value)
+  if (ratio === '9x16') return stripImageCacheBust(fScreenshot9x16.value)
+  return stripImageCacheBust(fScreenshot4x5.value)
 }
 
 function setThumbnailUrl(ratio: PngRatioId, url: string) {
@@ -353,13 +358,18 @@ async function generateThumbnail(ratio: PngRatioId) {
       generalTitel: presenterSerieNaam.value,
       dateLabel: formatThumbnailDate(presenterProduction.value?.datum || ''),
     })
-    const result = await store.uploadPng({
-      kind: 'guest-thumbnail',
-      ratio,
-      dataUrl,
-      filename: thumbDownloadName(ratio),
-    })
-    setThumbnailUrl(ratio, `${result.url}${result.url.includes('?') ? '&' : '?'}v=${Date.now()}`)
+    setThumbnailUrl(ratio, dataUrl)
+    try {
+      const result = await store.uploadPng({
+        kind: 'guest-thumbnail',
+        ratio,
+        dataUrl,
+        filename: thumbDownloadName(ratio),
+      })
+      setThumbnailUrl(ratio, withImageCacheBust(result.url))
+    } catch (uploadErr) {
+      console.warn('Thumbnail upload failed, keeping local preview', uploadErr)
+    }
     showToast('Thumbnail ready')
   } catch (e) {
     showToast(e instanceof Error ? e.message : 'Thumbnail failed')
@@ -569,12 +579,13 @@ const pngPreviewBroken = ref<Record<PngRatioId, boolean>>({
 })
 
 function productionPngMissing(ratio: PngRatioId): boolean {
-  const url =
+  const raw =
     ratio === '16x9'
       ? workingProduction.value?.png16x9
       : ratio === '9x16'
         ? workingProduction.value?.png9x16
         : workingProduction.value?.png4x5
+  const url = stripImageCacheBust(raw || '')
   if (!url) return false
   return interviewUploadUnavailable(url) || Boolean(pngPreviewBroken.value[ratio])
 }
@@ -953,12 +964,12 @@ async function saveGuest() {
     outroTekst,
     serieNaam: presenterSerieNaam.value,
     interviewTitel,
-    screenshot16x9: fScreenshot16x9.value,
-    screenshot9x16: fScreenshot9x16.value,
-    screenshot4x5: fScreenshot4x5.value,
-    thumbnail16x9: fThumbnail16x9.value,
-    thumbnail9x16: fThumbnail9x16.value,
-    thumbnail4x5: fThumbnail4x5.value,
+    screenshot16x9: stripImageCacheBust(fScreenshot16x9.value),
+    screenshot9x16: stripImageCacheBust(fScreenshot9x16.value),
+    screenshot4x5: stripImageCacheBust(fScreenshot4x5.value),
+    thumbnail16x9: stripImageCacheBust(fThumbnail16x9.value),
+    thumbnail9x16: stripImageCacheBust(fThumbnail9x16.value),
+    thumbnail4x5: stripImageCacheBust(fThumbnail4x5.value),
     intakeComplete: intakeLockApplies(fType.value) ? fIntakeComplete.value : false,
     questions,
   }
@@ -988,12 +999,12 @@ function loadForEdit(g: Gast) {
   fUseOutro.value = Boolean(g.outroTekst?.trim())
   fOutroTekst.value = g.outroTekst || ''
   fInterviewTitel.value = g.interviewTitel || ''
-  fScreenshot16x9.value = g.screenshot16x9 || ''
-  fScreenshot9x16.value = g.screenshot9x16 || ''
-  fScreenshot4x5.value = g.screenshot4x5 || ''
-  fThumbnail16x9.value = g.thumbnail16x9 || ''
-  fThumbnail9x16.value = g.thumbnail9x16 || ''
-  fThumbnail4x5.value = g.thumbnail4x5 || ''
+  fScreenshot16x9.value = stripImageCacheBust(g.screenshot16x9 || '')
+  fScreenshot9x16.value = stripImageCacheBust(g.screenshot9x16 || '')
+  fScreenshot4x5.value = stripImageCacheBust(g.screenshot4x5 || '')
+  fThumbnail16x9.value = stripImageCacheBust(g.thumbnail16x9 || '')
+  fThumbnail9x16.value = stripImageCacheBust(g.thumbnail9x16 || '')
+  fThumbnail4x5.value = stripImageCacheBust(g.thumbnail4x5 || '')
   fIntakeComplete.value = g.intakeComplete
   fNaam.value = g.naam
   fFunctie.value = g.functie
@@ -1044,9 +1055,9 @@ async function saveProductie() {
       id: editingProdId.value || undefined,
       naam,
       generalTitel,
-      png16x9: pPng16x9.value,
-      png9x16: pPng9x16.value,
-      png4x5: pPng4x5.value,
+      png16x9: stripImageCacheBust(pPng16x9.value),
+      png9x16: stripImageCacheBust(pPng9x16.value),
+      png4x5: stripImageCacheBust(pPng4x5.value),
       datum,
       startTijd: pStartTijd.value,
       eindDatum: pEindDatum.value,
@@ -1110,9 +1121,9 @@ function editProductie(p: Productie) {
   editingProdId.value = p.id
   pNaam.value = p.naam
   pGeneralTitel.value = p.generalTitel || ''
-  pPng16x9.value = p.png16x9 || ''
-  pPng9x16.value = p.png9x16 || ''
-  pPng4x5.value = p.png4x5 || ''
+  pPng16x9.value = stripImageCacheBust(p.png16x9 || '')
+  pPng9x16.value = stripImageCacheBust(p.png9x16 || '')
+  pPng4x5.value = stripImageCacheBust(p.png4x5 || '')
   pDatum.value = p.datum
   pStartTijd.value = p.startTijd || ''
   pEindDatum.value = p.eindDatum || ''
@@ -1705,12 +1716,10 @@ watch(() => store.role, (role) => {
                     <a
                       v-if="fThumbnail16x9"
                       class="ia-png-slot__thumb"
-                      :href="fThumbnail16x9"
-                      :download="thumbDownloadName('16x9')"
-                      target="_blank"
-                      rel="noopener"
+                      href="#"
+                      @click.prevent="triggerImageDownload(fThumbnail16x9, thumbDownloadName('16x9'))"
                     >
-                      <img :key="fThumbnail16x9" :src="fThumbnail16x9" alt="Thumbnail 16:9" />
+                      <img :key="fThumbnail16x9" :src="stripImageCacheBust(fThumbnail16x9)" alt="Thumbnail 16:9" />
                       <span>{{ thumbDownloadName('16x9') }}</span>
                     </a>
                   </template>
@@ -1741,12 +1750,10 @@ watch(() => store.role, (role) => {
                     <a
                       v-if="fThumbnail9x16"
                       class="ia-png-slot__thumb"
-                      :href="fThumbnail9x16"
-                      :download="thumbDownloadName('9x16')"
-                      target="_blank"
-                      rel="noopener"
+                      href="#"
+                      @click.prevent="triggerImageDownload(fThumbnail9x16, thumbDownloadName('9x16'))"
                     >
-                      <img :key="fThumbnail9x16" :src="fThumbnail9x16" alt="Thumbnail 9:16" />
+                      <img :key="fThumbnail9x16" :src="stripImageCacheBust(fThumbnail9x16)" alt="Thumbnail 9:16" />
                       <span>{{ thumbDownloadName('9x16') }}</span>
                     </a>
                   </template>
@@ -1777,12 +1784,10 @@ watch(() => store.role, (role) => {
                     <a
                       v-if="fThumbnail4x5"
                       class="ia-png-slot__thumb"
-                      :href="fThumbnail4x5"
-                      :download="thumbDownloadName('4x5')"
-                      target="_blank"
-                      rel="noopener"
+                      href="#"
+                      @click.prevent="triggerImageDownload(fThumbnail4x5, thumbDownloadName('4x5'))"
                     >
-                      <img :key="fThumbnail4x5" :src="fThumbnail4x5" alt="Thumbnail 4:5" />
+                      <img :key="fThumbnail4x5" :src="stripImageCacheBust(fThumbnail4x5)" alt="Thumbnail 4:5" />
                       <span>{{ thumbDownloadName('4x5') }}</span>
                     </a>
                   </template>
@@ -2129,7 +2134,7 @@ watch(() => store.role, (role) => {
                   >
                     <img
                       v-if="!productionPngMissing('16x9')"
-                      :src="workingProduction.png16x9"
+                      :src="stripImageCacheBust(workingProduction.png16x9)"
                       alt="PNG 16:9"
                       @error="onProductionPngError('16x9')"
                     />
@@ -2147,7 +2152,7 @@ watch(() => store.role, (role) => {
                   >
                     <img
                       v-if="!productionPngMissing('9x16')"
-                      :src="workingProduction.png9x16"
+                      :src="stripImageCacheBust(workingProduction.png9x16)"
                       alt="PNG 9:16"
                       @error="onProductionPngError('9x16')"
                     />
@@ -2165,7 +2170,7 @@ watch(() => store.role, (role) => {
                   >
                     <img
                       v-if="!productionPngMissing('4x5')"
-                      :src="workingProduction.png4x5"
+                      :src="stripImageCacheBust(workingProduction.png4x5)"
                       alt="PNG 4:5"
                       @error="onProductionPngError('4x5')"
                     />

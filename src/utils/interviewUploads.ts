@@ -22,3 +22,28 @@ export function interviewUploadUnavailable(url: string): boolean {
   const host = window.location.hostname
   return host !== 'localhost' && host !== '127.0.0.1'
 }
+
+/** `?v=` on a data URL corrupts the base64 and shows the broken-image icon. */
+export function stripImageCacheBust(url: string): string {
+  const value = String(url || '').trim()
+  if (value.startsWith('data:')) return value.replace(/[?&]v=\d+$/, '')
+  return value
+}
+
+export function withImageCacheBust(url: string): string {
+  const value = stripImageCacheBust(url)
+  if (!value || value.startsWith('data:')) return value
+  return `${value}${value.includes('?') ? '&' : '?'}v=${Date.now()}`
+}
+
+export function triggerImageDownload(url: string, filename: string) {
+  const href = stripImageCacheBust(url)
+  if (!href) return
+  const a = document.createElement('a')
+  a.href = href
+  a.download = filename
+  a.rel = 'noopener'
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+}

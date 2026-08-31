@@ -2,7 +2,7 @@
 import { computed, ref, watch } from 'vue'
 import { useInterviewStore } from '@/stores/interviewStore'
 import { MAX_PNG_BYTES, PNG_RATIOS, type PngRatioId } from '@/types/interview'
-import { interviewUploadUnavailable } from '@/utils/interviewUploads'
+import { interviewUploadUnavailable, stripImageCacheBust } from '@/utils/interviewUploads'
 
 const RATIO_TOLERANCE = 0.08
 
@@ -27,9 +27,11 @@ watch(() => url.value, () => {
 
 const unavailable = computed(() => {
   if (!url.value) return false
-  return interviewUploadUnavailable(url.value) || broken.value
+  const src = stripImageCacheBust(url.value)
+  return interviewUploadUnavailable(src) || broken.value
 })
 const showPreview = computed(() => Boolean(url.value) && !unavailable.value)
+const previewSrc = computed(() => stripImageCacheBust(url.value))
 
 const spec = PNG_RATIOS.find((r) => r.id === props.ratio)!
 const isOverlay = computed(() => props.kind === 'production-png')
@@ -139,7 +141,7 @@ function removeFile() {
     >
       <img
         v-if="showPreview"
-        :src="url"
+        :src="previewSrc"
         :alt="slotLabel"
         class="ia-png-slot__preview"
         @error="onPreviewError"
