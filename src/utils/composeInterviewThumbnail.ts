@@ -1,4 +1,8 @@
-import type { PngRatioId } from '@/types/interview'
+import {
+  MAX_GENERAL_TITLE_CHARS,
+  MAX_INTERVIEW_TITLE_CHARS,
+  type PngRatioId,
+} from '@/types/interview'
 
 export const THUMBNAIL_SIZE: Record<PngRatioId, { width: number; height: number }> = {
   '16x9': { width: 1920, height: 1080 },
@@ -191,6 +195,108 @@ function leftFieldWidthAt(overlay: HTMLCanvasElement, y: number): number {
   return Math.max(0, end - start + 1)
 }
 
+function findLogoBottomY(
+  overlay: HTMLCanvasElement,
+  textX: number,
+  fieldWidth: number,
+): number {
+  const ctx = overlay.getContext('2d')
+  const { width, height } = overlay
+  const fallback = Math.round(height * 0.155)
+  if (!ctx) return fallback
+
+  const scanLeft = Math.max(0, Math.round(textX - 4))
+  const scanRight = Math.min(width, Math.round(textX + Math.max(160, fieldWidth * 0.72)))
+  const scanW = Math.max(1, scanRight - scanLeft)
+  const scanTop = Math.round(height * 0.018)
+  const scanBottom = Math.round(height * 0.26)
+  const scanH = Math.max(1, scanBottom - scanTop)
+  const logoMaxBottom = Math.round(height * 0.20)
+  const data = ctx.getImageData(scanLeft, scanTop, scanW, scanH).data
+  const brightPerRow = new Float32Array(scanH)
+
+  for (let y = 0; y < scanH; y++) {
+    let bright = 0
+    for (let x = 0; x < scanW; x++) {
+      const i = (y * scanW + x) * 4
+      if (data[i + 3] < 96) continue
+      const lum = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2]
+      if (lum > 200) bright++
+    }
+    brightPerRow[y] = bright
+  }
+
+  const thresh = Math.max(3, scanW * 0.008)
+  let start = 0
+  while (start < scanH && brightPerRow[start] < thresh) start++
+  if (start < scanH) {
+    let end = start
+    let gap = 0
+    const maxGap = Math.max(3, Math.round(height * 0.008))
+    for (let y = start; y < scanH; y++) {
+      if (brightPerRow[y] >= thresh) {
+        end = y
+        gap = 0
+      } else if (++gap > maxGap) {
+        break
+      }
+    }
+    return Math.min(logoMaxBottom, scanTop + end + 1)
+  }
+
+  const bgY = Math.min(height - 1, Math.round(height * 0.22))
+  const bgSample = ctx.getImageData(scanLeft, bgY, scanW, 1).data
+  let br = 0
+  let bg = 0
+  let bb = 0
+  let bn = 0
+  for (let x = 0; x < scanW; x++) {
+    const i = x * 4
+    if (bgSample[i + 3] < 96) continue
+    br += bgSample[i]
+    bg += bgSample[i + 1]
+    bb += bgSample[i + 2]
+    bn++
+  }
+  if (!bn) return fallback
+
+  br /= bn
+  bg /= bn
+  bb /= bn
+  const contrast = 55 * 55
+  const markPerRow = new Float32Array(scanH)
+  for (let y = 0; y < scanH; y++) {
+    let marks = 0
+    for (let x = 0; x < scanW; x++) {
+      const i = (y * scanW + x) * 4
+      if (data[i + 3] < 96) continue
+      const dr = data[i] - br
+      const dg = data[i + 1] - bg
+      const db = data[i + 2] - bb
+      if (dr * dr + dg * dg + db * db > contrast) marks++
+    }
+    markPerRow[y] = marks
+  }
+
+  const markThresh = Math.max(4, scanW * 0.015)
+  start = 0
+  while (start < scanH && markPerRow[start] < markThresh) start++
+  if (start >= scanH) return fallback
+
+  let end = start
+  let gap = 0
+  const maxGap = Math.max(3, Math.round(height * 0.008))
+  for (let y = start; y < scanH; y++) {
+    if (markPerRow[y] >= markThresh) {
+      end = y
+      gap = 0
+    } else if (++gap > maxGap) {
+      break
+    }
+  }
+  return Math.min(logoMaxBottom, scanTop + end + 1)
+}
+
 function minFieldWidth(overlay: HTMLCanvasElement, y0: number, y1: number): number {
   const top = Math.min(y0, y1)
   const bottom = Math.max(y0, y1)
@@ -294,10 +400,11 @@ export async function composeInterviewThumbnail(input: {
   const titleBandBottom = height * 0.88
   const titleField = minFieldWidth(overlay, titleBandTop, titleBandBottom)
   const titleMaxWidth = Math.max(140, titleField - textX - Math.round(margin * 0.45))
+  const interviewTitel = input.interviewTitel.trim().slice(0, MAX_INTERVIEW_TITLE_CHARS)
   const titleCap = sizeForCharBudget(ctx, titleMaxWidth, 16, '700')
   const { size: usedTitleSize, lines: titleLines } = fitText(
     ctx,
-    input.interviewTitel.trim(),
+    interviewTitel,
     titleMaxWidth,
     Math.min(Math.round(height * (66 / 1080)), titleCap),
     '700',
@@ -348,43 +455,55 @@ export async function composeInterviewThumbnail(input: {
     }
   }
 
-  const generalTitel = (input.generalTitel || '').trim()
+  const generalTitel = (input.generalTitel || '').trim().slice(0, MAX_GENERAL_TITLE_CHARS)
   const dateLabel = (input.dateLabel || '').trim()
-  if (generalTitel || dateLabel) {
+  let dateBottom = 0
+  if (dateLabel) {
+    const logoBottom = findLogoBottomY(overlay, textX, box.width)
+    const dateGap = Math.round(height * (10 / 1080))
+    const dateBandTop = logoBottom + dateGap
+    const dateBandBottom = dateBandTop + Math.round(height * 0.06)
+    const dateField = minFieldWidth(overlay, dateBandTop, dateBandBottom)
+    const dateMaxWidth = Math.max(140, dateField - textX - Math.round(margin * 0.45))
+    let dateSize = Math.round(height * (26 / 1080))
+    ctx.font = `400 ${dateSize}px Roboto, system-ui, sans-serif`
+    while (dateSize > 16 && ctx.measureText(dateLabel).width > dateMaxWidth) {
+      dateSize -= 1
+      ctx.font = `400 ${dateSize}px Roboto, system-ui, sans-serif`
+    }
+    const dateY = logoBottom + dateGap + dateSize
+    ctx.font = `400 ${dateSize}px Roboto, system-ui, sans-serif`
+    ctx.fillText(dateLabel, textX, dateY)
+    dateBottom = dateY
+  }
+
+  if (generalTitel) {
     const serieY = Math.round(height * 0.52)
     const serieField = minFieldWidth(overlay, serieY - 20, serieY + 50)
     const serieMaxWidth = Math.max(140, serieField - textX - Math.round(margin * 0.45))
     const serieCap = sizeForCharBudget(ctx, serieMaxWidth, 18, '500')
-    let serieSize = Math.min(Math.round(height * (40 / 1080)), serieCap)
-    let serieLines: string[] = []
-    if (generalTitel) {
-      const fitted = fitText(ctx, generalTitel, serieMaxWidth, serieSize, '500', 2)
-      serieSize = fitted.size
-      serieLines = fitted.lines
-    }
-    let dateSize = Math.round(serieSize / 1.55)
-    if (dateLabel) {
-      ctx.font = `400 ${dateSize}px Roboto, system-ui, sans-serif`
-      while (dateSize > 16 && ctx.measureText(dateLabel).width > serieMaxWidth) {
-        dateSize -= 1
-        ctx.font = `400 ${dateSize}px Roboto, system-ui, sans-serif`
-      }
-    }
-    const serieBlock = serieLines.length * serieSize * 1.08 + (dateLabel ? dateSize * 1.5 : 0)
-    const zoneTop = Math.round(height * 0.46)
+    const fitted = fitText(
+      ctx,
+      generalTitel,
+      serieMaxWidth,
+      Math.min(Math.round(height * (40 / 1080)), serieCap),
+      '500',
+      2,
+    )
+    const serieSize = fitted.size
+    const serieLines = fitted.lines
+    const serieBlock = serieLines.length * serieSize * 1.08
+    const zoneTop = Math.max(
+      Math.round(height * 0.46),
+      dateBottom ? dateBottom + Math.round(height * 0.05) : Math.round(height * 0.46),
+    )
     const zoneBottom = titleStartY - Math.round(height * 0.06)
     let topY = Math.round((zoneTop + zoneBottom) * 0.58)
     topY = Math.max(zoneTop, Math.min(topY, zoneBottom - serieBlock))
-    if (serieLines.length) {
-      ctx.font = `500 ${serieSize}px Roboto, system-ui, sans-serif`
-      for (const line of serieLines) {
-        ctx.fillText(line, textX, topY)
-        topY += serieSize * 1.08
-      }
-    }
-    if (dateLabel) {
-      ctx.font = `400 ${dateSize}px Roboto, system-ui, sans-serif`
-      ctx.fillText(dateLabel, textX, topY + dateSize * 0.35)
+    ctx.font = `500 ${serieSize}px Roboto, system-ui, sans-serif`
+    for (const line of serieLines) {
+      ctx.fillText(line, textX, topY)
+      topY += serieSize * 1.08
     }
   }
 

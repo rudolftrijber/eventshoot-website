@@ -14,7 +14,7 @@ import {
   requireLogin,
   sanitizeGuestPatchForClient,
 } from '../permissions.js'
-import type { GastStatus } from '../types.js'
+import { MAX_INTERVIEW_TITLE_CHARS, type GastStatus } from '../types.js'
 
 function parseBody(req: VercelRequest): Record<string, unknown> {
   return typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {})
@@ -73,7 +73,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (body.introTekst !== undefined) patch.introTekst = String(body.introTekst)
       if (body.outroTekst !== undefined) patch.outroTekst = String(body.outroTekst)
       if (body.serieNaam !== undefined) patch.serieNaam = String(body.serieNaam)
-      if (body.interviewTitel !== undefined) patch.interviewTitel = String(body.interviewTitel).trim().slice(0, 30)
+      if (body.interviewTitel !== undefined) patch.interviewTitel = String(body.interviewTitel).trim().slice(0, MAX_INTERVIEW_TITLE_CHARS)
       if (body.screenshot16x9 !== undefined) patch.screenshot16x9 = String(body.screenshot16x9).trim()
       if (body.screenshot9x16 !== undefined) patch.screenshot9x16 = String(body.screenshot9x16).trim()
       if (body.screenshot4x5 !== undefined) patch.screenshot4x5 = String(body.screenshot4x5).trim()

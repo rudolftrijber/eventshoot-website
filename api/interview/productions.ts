@@ -5,7 +5,7 @@ import {
   ensureSchema,
   fetchProducties,
 } from './database.js'
-import type { Productie } from './types.js'
+import { MAX_GENERAL_TITLE_CHARS, type Productie } from './types.js'
 
 function uid(): string {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 7)
@@ -47,7 +47,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         crew4: String(body.crew4 || 'N.V.T.'),
         crew5: String(body.crew5 || 'N.V.T.'),
         vragen,
-        generalTitel: String(body.generalTitel || '').trim().slice(0, 30),
+        generalTitel: String(body.generalTitel || '').trim().slice(0, MAX_GENERAL_TITLE_CHARS),
         png16x9: String(body.png16x9 || '').trim(),
         png9x16: String(body.png9x16 || '').trim(),
         png4x5: String(body.png4x5 || '').trim(),

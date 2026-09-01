@@ -9,8 +9,8 @@ export type InterviewRole = 'crew' | 'client'
 
 export type PngRatioId = '16x9' | '9x16' | '4x5'
 
-export const MAX_GENERAL_TITLE_CHARS = 30
-export const MAX_INTERVIEW_TITLE_CHARS = 30
+export const MAX_GENERAL_TITLE_CHARS = 50
+export const MAX_INTERVIEW_TITLE_CHARS = 50
 export const MAX_PNG_BYTES = 3 * 1024 * 1024
 
 export const PNG_RATIOS: Array<{ id: PngRatioId; label: string; ratio: number }> = [

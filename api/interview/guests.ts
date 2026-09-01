@@ -13,7 +13,7 @@ import {
   sanitizeGuestCreateForClient,
 } from './permissions.js'
 import { isClient } from './auth.js'
-import type { Gast } from './types.js'
+import { MAX_INTERVIEW_TITLE_CHARS, type Gast } from './types.js'
 
 function uid(): string {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 7)
@@ -68,7 +68,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         introTekst: String(body.introTekst || '').trim(),
         outroTekst: String(body.outroTekst || '').trim(),
         serieNaam: String(body.serieNaam || '').trim(),
-        interviewTitel: String(body.interviewTitel || '').trim().slice(0, 30),
+        interviewTitel: String(body.interviewTitel || '').trim().slice(0, MAX_INTERVIEW_TITLE_CHARS),
         screenshot16x9: String(body.screenshot16x9 || '').trim(),
         screenshot9x16: String(body.screenshot9x16 || '').trim(),
         screenshot4x5: String(body.screenshot4x5 || '').trim(),

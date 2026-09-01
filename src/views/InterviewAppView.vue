@@ -1682,9 +1682,9 @@ watch(() => store.role, (role) => {
                 v-model="fInterviewTitel"
                 class="ia-input ia-input--serie"
                 type="text"
-                maxlength="30"
+                :maxlength="MAX_INTERVIEW_TITLE_CHARS"
                 autocomplete="off"
-                placeholder="max. 30 characters"
+                :placeholder="`max. ${MAX_INTERVIEW_TITLE_CHARS} characters`"
                 :disabled="guestFormLocked"
               />
               <div class="ia-charcount" :class="{ warn: interviewTitelOverLimit }">
@@ -2295,14 +2295,14 @@ watch(() => store.role, (role) => {
                   <input
                     v-model="pGeneralTitel"
                     class="ia-input"
-                    maxlength="30"
+                    :maxlength="MAX_GENERAL_TITLE_CHARS"
                     placeholder="e.g. Ronde Tafel"
                   />
                   <div class="ia-charcount" :class="{ warn: generalTitelOverLimit }">
                     {{ pGeneralTitel.length }} / {{ MAX_GENERAL_TITLE_CHARS }} characters
                   </div>
                   <p class="ia-hint" style="margin:0 0 0.85rem">
-                    Comes on every thumbnail of this production, under the logo.
+                    Comes on every thumbnail of this production. The date sits directly under the logo.
                   </p>
                   <div class="ia-png-grid" :class="{ 'ia-png-grid--single': !SHOW_PORTRAIT_THUMBNAIL_RATIOS }">
                     <RatioPngUpload v-model="pPng16x9" kind="production-png" ratio="16x9" />
