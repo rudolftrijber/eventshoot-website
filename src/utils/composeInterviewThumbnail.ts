@@ -406,29 +406,36 @@ export async function composeInterviewThumbnail(input: {
     ctx,
     interviewTitel,
     titleMaxWidth,
-    Math.min(Math.round(height * (66 / 1080)), titleCap),
+    Math.min(Math.round(height * (60 / 1080)), titleCap),
     '700',
     2,
   )
-  const usedSubSize = Math.max(18, Math.round(usedTitleSize / 1.6))
+  let usedSubSize = Math.max(16, Math.round(usedTitleSize / 1.75))
 
-  const creditParts = [input.naam.trim(), input.functie.trim()].filter(Boolean)
+  const creditParts = [
+    input.naam.trim(),
+    input.functie.trim(),
+    (input.organisatie || '').trim(),
+  ].filter(Boolean)
   const credit = creditParts.length ? `met ${creditParts.join(', ')}` : ''
-  ctx.font = `400 ${usedSubSize}px Roboto, system-ui, sans-serif`
-  const creditLines = credit ? wrapText(ctx, credit, titleMaxWidth) : []
-
-  const org = (input.organisatie || '').trim()
-  ctx.font = `400 ${usedSubSize}px Roboto, system-ui, sans-serif`
-  const orgLines = org ? wrapText(ctx, org, titleMaxWidth) : []
+  let creditLines: string[] = []
+  if (credit) {
+    ctx.font = `400 ${usedSubSize}px Roboto, system-ui, sans-serif`
+    while (usedSubSize > 16 && ctx.measureText(credit).width > titleMaxWidth) {
+      usedSubSize -= 1
+      ctx.font = `400 ${usedSubSize}px Roboto, system-ui, sans-serif`
+    }
+    creditLines = ctx.measureText(credit).width <= titleMaxWidth
+      ? [credit]
+      : wrapText(ctx, credit, titleMaxWidth)
+  }
 
   const titleBlock = titleLines.length * usedTitleSize * titleLeading
   const creditBlock = creditLines.length * usedSubSize * subLeading
-  const orgBlock = orgLines.length * usedSubSize * subLeading
   const gap = usedSubSize / 1.6
   let y = titleBandBottom
-  if (orgLines.length) y -= orgBlock
-  if (creditLines.length) y -= creditBlock + (orgLines.length ? gap * 0.6 : 0)
-  if (titleLines.length) y -= titleBlock + ((creditLines.length || orgLines.length) ? gap : 0)
+  if (creditLines.length) y -= creditBlock
+  if (titleLines.length) y -= titleBlock + (creditLines.length ? gap : 0)
   const titleStartY = y
 
   ctx.font = `700 ${usedTitleSize}px Roboto, system-ui, sans-serif`
@@ -441,15 +448,6 @@ export async function composeInterviewThumbnail(input: {
     y += gap
     ctx.font = `400 ${usedSubSize}px Roboto, system-ui, sans-serif`
     for (const line of creditLines) {
-      y += usedSubSize * subLeading
-      ctx.fillText(line, textX, y)
-    }
-  }
-
-  if (orgLines.length) {
-    y += gap * 0.6
-    ctx.font = `400 ${usedSubSize}px Roboto, system-ui, sans-serif`
-    for (const line of orgLines) {
       y += usedSubSize * subLeading
       ctx.fillText(line, textX, y)
     }
@@ -478,7 +476,7 @@ export async function composeInterviewThumbnail(input: {
   }
 
   if (generalTitel) {
-    const serieY = Math.round(height * 0.52)
+    const serieY = Math.round(height * 0.56)
     const serieField = minFieldWidth(overlay, serieY - 20, serieY + 50)
     const serieMaxWidth = Math.max(140, serieField - textX - Math.round(margin * 0.45))
     const serieCap = sizeForCharBudget(ctx, serieMaxWidth, 18, '500')
@@ -486,7 +484,7 @@ export async function composeInterviewThumbnail(input: {
       ctx,
       generalTitel,
       serieMaxWidth,
-      Math.min(Math.round(height * (40 / 1080)), serieCap),
+      Math.min(Math.round(height * (36 / 1080)), serieCap),
       '500',
       2,
     )
@@ -494,11 +492,11 @@ export async function composeInterviewThumbnail(input: {
     const serieLines = fitted.lines
     const serieBlock = serieLines.length * serieSize * 1.08
     const zoneTop = Math.max(
-      Math.round(height * 0.46),
-      dateBottom ? dateBottom + Math.round(height * 0.05) : Math.round(height * 0.46),
+      Math.round(height * 0.50),
+      dateBottom ? dateBottom + Math.round(height * 0.06) : Math.round(height * 0.50),
     )
-    const zoneBottom = titleStartY - Math.round(height * 0.06)
-    let topY = Math.round((zoneTop + zoneBottom) * 0.58)
+    const zoneBottom = titleStartY - Math.round(height * 0.045)
+    let topY = Math.round((zoneTop + zoneBottom) * 0.72)
     topY = Math.max(zoneTop, Math.min(topY, zoneBottom - serieBlock))
     ctx.font = `500 ${serieSize}px Roboto, system-ui, sans-serif`
     for (const line of serieLines) {
