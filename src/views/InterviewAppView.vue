@@ -664,6 +664,16 @@ async function handleLogin() {
   if (!apiConfigured.value) return
   loginError.value = ''
   try {
+    if (skipAuthMode.value) {
+      const status = await store.checkAuth()
+      if (status.skipAuth && store.authenticated) {
+        store.idleLoggedOut = false
+        await store.sync()
+        store.startPolling()
+        store.startIdleWatch()
+      }
+      return
+    }
     await store.login(password.value, loginIdentity.value)
     password.value = ''
   } catch (e) {
@@ -1385,6 +1395,7 @@ onMounted(async () => {
     if (store.authenticated) {
       await store.sync()
       store.startPolling()
+      store.startIdleWatch()
     }
   } catch (e) {
     apiConfigHint.value = e instanceof Error ? e.message : 'API unreachable'
@@ -1393,6 +1404,7 @@ onMounted(async () => {
 
 onUnmounted(() => {
   store.stopPolling()
+  store.stopIdleWatch()
 })
 
 watch(pDatum, (newStart, oldStart) => {
@@ -1496,6 +1508,7 @@ watch(() => store.role, (role) => {
             <div class="ia-login__card">
               <p v-if="devBuildStamp" class="ia-dev-badge">Local · build {{ devBuildStamp }}</p>
               <p class="ia-login__intro">Crew: choose your name and password. Clients: choose Client and use the production password.</p>
+              <p v-if="store.idleLoggedOut" class="ia-login__idle">You were logged out after 10 minutes without activity. Log in again to continue.</p>
               <p v-if="apiConfigHint" class="ia-error ia-error--block ia-error--pre">{{ apiConfigHint }}</p>
               <label class="ia-label" for="login-identity">Who are you?</label>
               <select id="login-identity" v-model="loginIdentity" class="ia-select ia-login__identity">

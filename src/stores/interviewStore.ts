@@ -3,6 +3,8 @@ import { computed, ref } from 'vue'
 import type { Gast, GastStatus, InterviewRole, InterviewSettings, Productie, TabId } from '@/types/interview'
 
 const POLL_MS = 3000
+const IDLE_MS = 10 * 60 * 1000
+const IDLE_ACTIVITY_EVENTS = ['pointerdown', 'keydown', 'touchstart', 'scroll', 'mousemove'] as const
 
 async function api<T>(url: string, options?: RequestInit): Promise<T> {
   let res: Response
@@ -48,6 +50,10 @@ export const useInterviewStore = defineStore('interview', () => {
   const activeTab = ref<TabId>('productions')
   const activeGuestId = ref<string | null>(null)
   const pollTimer = ref<ReturnType<typeof setInterval> | null>(null)
+  const idleTimer = ref<ReturnType<typeof setTimeout> | null>(null)
+  const idleLoggedOut = ref(false)
+  const idleWatching = ref(false)
+  let lastActivityAt = 0
 
   const activeProductions = computed(() => productions.value.filter((p) => !p.archivedAt))
   const archivedProductions = computed(() => productions.value.filter((p) => p.archivedAt))
@@ -97,20 +103,40 @@ export const useInterviewStore = defineStore('interview', () => {
     role.value = data.role || 'crew'
     crewName.value = data.crewName || null
     clientProductionIds.value = data.productionIds || []
+    idleLoggedOut.value = false
     await sync()
     startPolling()
+    startIdleWatch()
   }
 
-  async function logout() {
-    await api('/api/interview-login', {
-      method: 'POST',
-      body: JSON.stringify({ action: 'logout' }),
-    })
+  function clearLocalSession() {
     authenticated.value = false
     role.value = null
     crewName.value = null
     clientProductionIds.value = []
+    guests.value = []
+    productions.value = []
+    activeGuestId.value = null
     stopPolling()
+    stopIdleWatch()
+  }
+
+  async function logout() {
+    clearLocalSession()
+    try {
+      await api('/api/interview-login', {
+        method: 'POST',
+        body: JSON.stringify({ action: 'logout' }),
+      })
+    } catch {
+      // Local logout still applies if the network call fails.
+    }
+  }
+
+  async function logoutDueToIdle() {
+    if (!authenticated.value) return
+    idleLoggedOut.value = true
+    await logout()
   }
 
   async function sync() {
@@ -131,7 +157,9 @@ export const useInterviewStore = defineStore('interview', () => {
       if (data.productionIds) clientProductionIds.value = data.productionIds
     } catch (e) {
       error.value = e instanceof Error ? e.message : 'Sync failed'
-      if (error.value === 'Not logged in') authenticated.value = false
+      if (error.value === 'Not logged in') {
+        clearLocalSession()
+      }
     } finally {
       loading.value = false
     }
@@ -147,6 +175,58 @@ export const useInterviewStore = defineStore('interview', () => {
       clearInterval(pollTimer.value)
       pollTimer.value = null
     }
+  }
+
+  function resetIdleTimer() {
+    if (idleTimer.value) clearTimeout(idleTimer.value)
+    idleTimer.value = setTimeout(() => {
+      void logoutDueToIdle()
+    }, IDLE_MS)
+  }
+
+  function noteActivity() {
+    if (!authenticated.value) return
+    lastActivityAt = Date.now()
+    resetIdleTimer()
+  }
+
+  function onVisibilityChange() {
+    if (typeof document === 'undefined' || document.hidden) return
+    if (!authenticated.value) return
+    if (lastActivityAt && Date.now() - lastActivityAt >= IDLE_MS) {
+      void logoutDueToIdle()
+      return
+    }
+    noteActivity()
+  }
+
+  function startIdleWatch() {
+    if (typeof window === 'undefined') return
+    stopIdleWatch()
+    idleWatching.value = true
+    lastActivityAt = Date.now()
+    resetIdleTimer()
+    for (const event of IDLE_ACTIVITY_EVENTS) {
+      window.addEventListener(event, noteActivity, { capture: true, passive: true })
+    }
+    document.addEventListener('visibilitychange', onVisibilityChange)
+  }
+
+  function stopIdleWatch() {
+    if (idleTimer.value) {
+      clearTimeout(idleTimer.value)
+      idleTimer.value = null
+    }
+    if (typeof window === 'undefined') {
+      idleWatching.value = false
+      return
+    }
+    if (!idleWatching.value) return
+    for (const event of IDLE_ACTIVITY_EVENTS) {
+      window.removeEventListener(event, noteActivity, { capture: true })
+    }
+    document.removeEventListener('visibilitychange', onVisibilityChange)
+    idleWatching.value = false
   }
 
   async function createGuest(payload: Partial<Gast>) {
@@ -323,12 +403,15 @@ export const useInterviewStore = defineStore('interview', () => {
     recordedGuests,
     activeGuest,
     productieNames,
+    idleLoggedOut,
     checkAuth,
     login,
     logout,
     sync,
     startPolling,
     stopPolling,
+    startIdleWatch,
+    stopIdleWatch,
     createGuest,
     updateGuest,
     finalizeGuest,
