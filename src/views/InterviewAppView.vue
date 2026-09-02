@@ -321,7 +321,7 @@ function thumbDownloadName(ratio: PngRatioId): string {
 }
 
 function generateHint(ratio: PngRatioId): string {
-  if (!stillUrlFor(ratio)) return 'Upload a JPG still first'
+  if (!stillUrlFor(ratio)) return 'Upload a still first'
   const overlay = overlayUrlFor(ratio)
   if (!overlay) return 'Upload a PNG overlay on the production first'
   if (interviewUploadUnavailable(overlay)) {
@@ -1677,7 +1677,8 @@ watch(() => store.role, (role) => {
               <div class="ia-form-divider" role="separator" aria-hidden="true" />
               <h3 class="ia-form-section-title">Interview titel &amp; screenshots</h3>
               <p class="ia-hint" style="margin:0 0 0.75rem">
-                Stills from the recording (JPG). These become the background of the thumbnail.
+                Stills from the recording. After upload you can move and zoom the photo in the frame, then confirm.
+                Generate thumbnail adds the PNG overlay and titles on top.
               </p>
               <label class="ia-label">Serie titel</label>
               <input
@@ -1708,6 +1709,7 @@ watch(() => store.role, (role) => {
                   v-model="fScreenshot16x9"
                   kind="guest-screenshot"
                   ratio="16x9"
+                  :overlay-url="overlayUrlFor('16x9')"
                   :disabled="guestFormLocked"
                 >
                   <template #actions>
@@ -1742,6 +1744,7 @@ watch(() => store.role, (role) => {
                   v-model="fScreenshot9x16"
                   kind="guest-screenshot"
                   ratio="9x16"
+                  :overlay-url="overlayUrlFor('9x16')"
                   :disabled="guestFormLocked"
                 >
                   <template #actions>
@@ -1776,6 +1779,7 @@ watch(() => store.role, (role) => {
                   v-model="fScreenshot4x5"
                   kind="guest-screenshot"
                   ratio="4x5"
+                  :overlay-url="overlayUrlFor('4x5')"
                   :disabled="guestFormLocked"
                 >
                   <template #actions>

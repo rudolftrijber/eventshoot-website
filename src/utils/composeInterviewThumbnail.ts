@@ -54,6 +54,40 @@ function drawCover(
   ctx.drawImage(img, (width - dw) / 2, (height - dh) / 2, dw, dh)
 }
 
+/** Map a preview-frame crop onto the output still size and export JPEG. */
+export function cropStillToJpeg(
+  img: HTMLImageElement,
+  ratio: PngRatioId,
+  preview: {
+    width: number
+    height: number
+    offsetX: number
+    offsetY: number
+    drawWidth: number
+    drawHeight: number
+  },
+  quality = 0.9,
+): string {
+  if (!preview.width || !preview.height) throw new Error('Crop frame is not ready')
+  const { width, height } = THUMBNAIL_SIZE[ratio]
+  const canvas = document.createElement('canvas')
+  canvas.width = width
+  canvas.height = height
+  const ctx = canvas.getContext('2d')
+  if (!ctx) throw new Error('Could not create crop canvas')
+  const sx = width / preview.width
+  ctx.fillStyle = '#111'
+  ctx.fillRect(0, 0, width, height)
+  ctx.drawImage(
+    img,
+    preview.offsetX * sx,
+    preview.offsetY * sx,
+    preview.drawWidth * sx,
+    preview.drawHeight * sx,
+  )
+  return canvas.toDataURL('image/jpeg', quality)
+}
+
 function prepareOverlay(
   img: HTMLImageElement,
   width: number,

@@ -3,13 +3,16 @@ import { computed, ref, watch } from 'vue'
 import { useInterviewStore } from '@/stores/interviewStore'
 import { MAX_PNG_BYTES, PNG_RATIOS, type PngRatioId } from '@/types/interview'
 import { interviewUploadUnavailable, stripImageCacheBust } from '@/utils/interviewUploads'
+import ScreenshotCropEditor from '@/components/interview/ScreenshotCropEditor.vue'
 
 const RATIO_TOLERANCE = 0.08
+const MAX_STILL_SOURCE_BYTES = 20 * 1024 * 1024
 
 const props = defineProps<{
   ratio: PngRatioId
   kind: 'production-png' | 'guest-screenshot'
   disabled?: boolean
+  overlayUrl?: string
 }>()
 
 const url = defineModel<string>({ default: '' })
@@ -18,6 +21,8 @@ const store = useInterviewStore()
 const busy = ref(false)
 const error = ref('')
 const broken = ref(false)
+const cropSrc = ref('')
+const cropOpen = ref(false)
 const inputId = `png-${props.kind}-${props.ratio}`
 
 watch(() => url.value, () => {
@@ -39,9 +44,13 @@ const slotLabel = computed(() =>
   isOverlay.value ? `PNG ${spec.label}` : `Screenshot ${spec.label}`,
 )
 const accept = computed(() =>
-  isOverlay.value ? 'image/png,.png' : 'image/jpeg,image/jpg,.jpg,.jpeg',
+  isOverlay.value
+    ? 'image/png,.png'
+    : 'image/jpeg,image/jpg,image/png,image/webp,.jpg,.jpeg,.png,.webp',
 )
-const idleHint = computed(() => (isOverlay.value ? 'PNG, transparent' : 'JPG still'))
+const idleHint = computed(() =>
+  isOverlay.value ? 'PNG, transparent' : 'Still — then position',
+)
 
 function isAllowedImage(file: File): boolean {
   const type = file.type.toLowerCase()
@@ -49,7 +58,16 @@ function isAllowedImage(file: File): boolean {
   if (isOverlay.value) {
     return type === 'image/png' || name.endsWith('.png')
   }
-  return type === 'image/jpeg' || type === 'image/jpg' || name.endsWith('.jpg') || name.endsWith('.jpeg')
+  return (
+    type === 'image/jpeg' ||
+    type === 'image/jpg' ||
+    type === 'image/png' ||
+    type === 'image/webp' ||
+    name.endsWith('.jpg') ||
+    name.endsWith('.jpeg') ||
+    name.endsWith('.png') ||
+    name.endsWith('.webp')
+  )
 }
 
 function readDataUrl(file: File): Promise<string> {
@@ -77,6 +95,18 @@ function imageSize(file: File): Promise<{ width: number; height: number }> {
   })
 }
 
+function closeCrop() {
+  if (cropSrc.value.startsWith('blob:')) URL.revokeObjectURL(cropSrc.value)
+  cropSrc.value = ''
+  cropOpen.value = false
+}
+
+function openCrop(src: string) {
+  if (cropSrc.value.startsWith('blob:')) URL.revokeObjectURL(cropSrc.value)
+  cropSrc.value = src
+  cropOpen.value = true
+}
+
 async function onPick(event: Event) {
   const input = event.target as HTMLInputElement
   const file = input.files?.[0]
@@ -85,25 +115,52 @@ async function onPick(event: Event) {
   if (!file) return
 
   if (!isAllowedImage(file)) {
-    error.value = isOverlay.value ? 'Use a transparent .png file' : 'Use a .jpg still'
-    return
-  }
-  if (file.size > MAX_PNG_BYTES) {
-    error.value = 'Image max 3 MB'
+    error.value = isOverlay.value ? 'Use a transparent .png file' : 'Use a photo or still (JPG, PNG or WebP)'
     return
   }
 
-  try {
-    const { width, height } = await imageSize(file)
-    const actual = width / height
-    const delta = Math.abs(actual - spec.ratio) / spec.ratio
-    if (delta > RATIO_TOLERANCE) {
-      error.value = `Must be ${spec.label} (this file is ${width}×${height})`
+  if (isOverlay.value) {
+    if (file.size > MAX_PNG_BYTES) {
+      error.value = 'Image max 3 MB'
       return
     }
+    try {
+      const { width, height } = await imageSize(file)
+      const actual = width / height
+      const delta = Math.abs(actual - spec.ratio) / spec.ratio
+      if (delta > RATIO_TOLERANCE) {
+        error.value = `Must be ${spec.label} (this file is ${width}×${height})`
+        return
+      }
 
-    busy.value = true
-    const dataUrl = await readDataUrl(file)
+      busy.value = true
+      const dataUrl = await readDataUrl(file)
+      const result = await store.uploadPng({
+        kind: props.kind,
+        ratio: props.ratio,
+        dataUrl,
+      })
+      url.value = result.url
+    } catch (e) {
+      error.value = e instanceof Error ? e.message : 'Upload failed'
+    } finally {
+      busy.value = false
+    }
+    return
+  }
+
+  if (file.size > MAX_STILL_SOURCE_BYTES) {
+    error.value = 'Image max 20 MB'
+    return
+  }
+  openCrop(URL.createObjectURL(file))
+}
+
+async function onCropConfirm(dataUrl: string) {
+  closeCrop()
+  error.value = ''
+  busy.value = true
+  try {
     const result = await store.uploadPng({
       kind: props.kind,
       ratio: props.ratio,
@@ -115,6 +172,12 @@ async function onPick(event: Event) {
   } finally {
     busy.value = false
   }
+}
+
+function adjustPosition() {
+  if (!previewSrc.value) return
+  error.value = ''
+  openCrop(previewSrc.value)
 }
 
 function onPreviewError() {
@@ -167,6 +230,15 @@ function removeFile() {
       </p>
       <p v-if="error" class="ia-hint ia-hint--warn" style="margin:0">{{ error }}</p>
       <button
+        v-if="url && !disabled && !isOverlay"
+        class="ia-btn ia-btn--small ia-btn--secondary"
+        type="button"
+        :disabled="busy"
+        @click="adjustPosition"
+      >
+        Adjust position
+      </button>
+      <button
         v-if="url && !disabled"
         class="ia-btn ia-btn--small ia-btn--secondary"
         type="button"
@@ -177,5 +249,13 @@ function removeFile() {
       <slot name="actions" />
     </div>
     <slot name="after" />
+    <ScreenshotCropEditor
+      v-if="cropOpen && cropSrc"
+      :src="cropSrc"
+      :ratio="ratio"
+      :overlay-url="overlayUrl"
+      @confirm="onCropConfirm"
+      @cancel="closeCrop"
+    />
   </div>
 </template>
