@@ -2,7 +2,7 @@
 import { onMounted, onUnmounted, ref } from 'vue'
 import { useSeo } from '@/composables/useSeo'
 
-const SCRIPT_SRC = 'https://luteijnmedia.bbvms.com/p/dsr/c/7388873.js'
+const SCRIPT_SRC = 'https://luteijnmedia.bbvms.com/p/dsr/c/7387338.js'
 const host = ref<HTMLElement | null>(null)
 let scriptEl: HTMLScriptElement | null = null
 
