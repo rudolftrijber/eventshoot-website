@@ -328,8 +328,6 @@ function generateHint(ratio: PngRatioId): string {
     return 'Replace the PNG overlay on the production first (not on this site)'
   }
   if (!fInterviewTitel.value.trim()) return 'Fill in Interview titel first'
-  if (!fNaam.value.trim()) return 'Enter a name first'
-  if (!fFunctie.value.trim()) return 'Fill in Role first'
   return ''
 }
 

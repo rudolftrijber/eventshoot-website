@@ -396,8 +396,6 @@ export async function composeInterviewThumbnail(input: {
   if (!input.stillUrl?.trim()) throw new Error('A JPG still is required')
   if (!input.overlayUrl?.trim()) throw new Error('A transparent PNG overlay is required')
   if (!input.interviewTitel?.trim()) throw new Error('Interview titel is required')
-  if (!input.naam?.trim()) throw new Error('Name is required')
-  if (!input.functie?.trim()) throw new Error('Role is required')
 
   const { width, height } = THUMBNAIL_SIZE[input.ratio]
   await document.fonts.ready
@@ -446,12 +444,10 @@ export async function composeInterviewThumbnail(input: {
   )
   let usedSubSize = Math.max(16, Math.round(usedTitleSize / 1.75))
 
-  const creditParts = [
-    input.naam.trim(),
-    input.functie.trim(),
-    (input.organisatie || '').trim(),
-  ].filter(Boolean)
-  const credit = creditParts.length ? `met ${creditParts.join(', ')}` : ''
+  const naam = (input.naam || '').trim()
+  const functie = (input.functie || '').trim()
+  const creditParts = [naam, functie, (input.organisatie || '').trim()].filter(Boolean)
+  const credit = naam || functie ? `met ${creditParts.join(', ')}` : ''
   let creditLines: string[] = []
   if (credit) {
     ctx.font = `400 ${usedSubSize}px Roboto, system-ui, sans-serif`
