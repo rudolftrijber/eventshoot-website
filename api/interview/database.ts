@@ -197,7 +197,7 @@ function rowToGast(row: Record<string, unknown>): Gast {
     status: normalizeGastStatus(String(row.status)),
     regienummer: row.regienummer ? String(row.regienummer) : '',
     datum: formatDateValue(row.datum),
-    tijd: row.tijd ? String(row.tijd) : '',
+    tijd: formatTimeValue(row.tijd),
     createdAt: String(row.created_at),
     updatedAt: String(row.updated_at),
   }
@@ -289,7 +289,7 @@ export async function createGuest(data: Omit<Gast, 'createdAt' | 'updatedAt'>): 
       ${data.thumbnail16x9 || ''}, ${data.thumbnail9x16 || ''}, ${data.thumbnail4x5 || ''},
       ${JSON.stringify(data.questions)}::jsonb,
       ${Boolean(data.intakeComplete)}, ${data.status}, ${data.regienummer || null},
-      ${toDateParam(data.datum)}, ${data.tijd || null}
+      ${toDateParam(data.datum)}, ${formatTimeValue(data.tijd) || null}
     )
     RETURNING *
   `
@@ -327,7 +327,7 @@ export async function updateGuest(id: string, patch: Partial<Gast>): Promise<Gas
       status = ${next.status},
       regienummer = ${next.regienummer || null},
       datum = ${toDateParam(next.datum)},
-      tijd = ${next.tijd || null},
+      tijd = ${formatTimeValue(next.tijd) || null},
       updated_at = NOW()
     WHERE id = ${id}
     RETURNING *

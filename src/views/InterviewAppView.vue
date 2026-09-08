@@ -83,6 +83,8 @@ const fType = ref('')
 const fNaam = ref('')
 const fFunctie = ref('')
 const fOrganisatie = ref('')
+const fDatum = ref('')
+const fTijd = ref('')
 const fPlanning = ref('')
 const fGedeeld = ref(false)
 const fUseIntro = ref(false)
@@ -249,9 +251,10 @@ const dayGuests = computed(() => {
   const q = searchBox.value.toLowerCase()
   return [...store.guests]
     .filter((g) => g.productieNaam === prod.naam)
-    .filter((g) => !q || [g.naam, g.functie, g.organisatie, g.regienummer, g.type].join(' ').toLowerCase().includes(q))
+    .filter((g) => !q || [g.naam, g.functie, g.organisatie, g.regienummer, g.type, g.datum, g.tijd].join(' ').toLowerCase().includes(q))
     .sort((a, b) =>
-      (parseInt(a.regienummer) || 9999) - (parseInt(b.regienummer) || 9999)
+      guestScheduleSortKey(a).localeCompare(guestScheduleSortKey(b))
+      || (parseInt(a.regienummer) || 9999) - (parseInt(b.regienummer) || 9999)
       || a.naam.localeCompare(b.naam, 'nl'),
     )
 })
@@ -290,9 +293,25 @@ const presenterProduction = computed(() => {
 })
 
 const presenterProductionDate = computed(() => {
-  const datum = presenterProduction.value?.datum
-  return datum ? formatDisplayDate(datum) : ''
+  const datum = fDatum.value || presenterProduction.value?.datum || ''
+  if (!datum) return ''
+  return formatDisplayDateTime(datum, fTijd.value)
 })
+
+function guestScheduleSortKey(g: Gast): string {
+  const date = g.datum || workingProduction.value?.datum || '9999-99-99'
+  const time = (g.tijd || '99:99').padStart(5, '0')
+  return `${date}T${time}`
+}
+
+function formatGuestWhen(g: Gast): string {
+  const date = g.datum || workingProduction.value?.datum || ''
+  if (!date && !g.tijd) return ''
+  return formatDisplayDateTime(date, g.tijd || '')
+}
+
+const interviewDateMin = computed(() => presenterProduction.value?.datum || undefined)
+const interviewDateMax = computed(() => presenterProduction.value?.eindDatum || undefined)
 
 const presenterSerieNaam = computed(() => (presenterProduction.value?.generalTitel || '').trim())
 
@@ -354,7 +373,10 @@ async function generateThumbnail(ratio: PngRatioId) {
       functie: fFunctie.value.trim(),
       organisatie: fOrganisatie.value.trim(),
       generalTitel: presenterSerieNaam.value,
-      dateLabel: formatThumbnailDate(presenterProduction.value?.datum || ''),
+      dateLabel: formatThumbnailDate(
+        fDatum.value || presenterProduction.value?.datum || '',
+        fTijd.value,
+      ),
     })
     setThumbnailUrl(ratio, dataUrl)
     try {
@@ -501,7 +523,10 @@ function backToKandidaten() {
 
 function openNewGuest() {
   clearForm()
-  if (workingProduction.value) fProductie.value = workingProduction.value.naam
+  if (workingProduction.value) {
+    fProductie.value = workingProduction.value.naam
+    fDatum.value = workingProduction.value.datum || ''
+  }
   store.setTab('candidate')
   guestView.value = 'form'
 }
@@ -914,6 +939,8 @@ function clearForm() {
   editingId.value = null
   fProductie.value = ''
   fType.value = ''
+  fDatum.value = ''
+  fTijd.value = ''
   fPlanning.value = ''
   fGedeeld.value = false
   fUseIntro.value = false
@@ -967,6 +994,8 @@ async function saveGuest() {
     functie,
     organisatie,
     planning: fPlanning.value.trim(),
+    datum: fDatum.value,
+    tijd: fTijd.value,
     gedeeld: fGedeeld.value,
     introTekst,
     outroTekst,
@@ -1000,6 +1029,8 @@ function loadForEdit(g: Gast) {
   editingId.value = g.id
   fProductie.value = sortedProductions.value.some((p) => p.naam === g.productieNaam) ? g.productieNaam : ''
   fType.value = g.type
+  fDatum.value = g.datum || store.productions.find((p) => p.naam === g.productieNaam)?.datum || ''
+  fTijd.value = g.tijd || ''
   fPlanning.value = g.planning
   fGedeeld.value = g.gedeeld
   fUseIntro.value = Boolean(g.introTekst?.trim())
@@ -1669,6 +1700,27 @@ watch(() => store.role, (role) => {
                   <div class="ia-charcount" :class="{ warn: organisatieOverLimit }">{{ fOrganisatie.length }} / {{ maxChars }} characters</div>
                 </div>
               </div>
+              <div class="ia-row ia-row--fields">
+                <div class="ia-field ia-field--datetime">
+                  <label class="ia-label">Date &amp; time</label>
+                  <div class="ia-prod-form__datetime">
+                    <input
+                      v-model="fDatum"
+                      class="ia-input"
+                      type="date"
+                      :min="interviewDateMin"
+                      :max="interviewDateMax"
+                      :disabled="guestFormLocked"
+                    />
+                    <input
+                      v-model="fTijd"
+                      class="ia-input"
+                      type="time"
+                      :disabled="guestFormLocked"
+                    />
+                  </div>
+                </div>
+              </div>
               <label class="ia-label">Schedule / time slot (optional)</label>
               <input v-model="fPlanning" class="ia-input" placeholder="e.g. interview after the keynote" :disabled="guestFormLocked" />
 
@@ -2057,6 +2109,7 @@ watch(() => store.role, (role) => {
             <div v-if="intGuest" class="ia-card ia-int-full">
               <div class="ia-int-full__head">
                 <div class="ia-int-full__regie">Crew #{{ intGuest.regienummer || '—' }}</div>
+                <div v-if="formatGuestWhen(intGuest)" class="ia-int-full__when">{{ formatGuestWhen(intGuest) }}</div>
                 <div class="ia-int-full__naam">{{ intGuest.naam }}</div>
                 <div class="ia-int-full__functie">{{ intGuest.functie }}</div>
                 <div v-if="intGuest.organisatie" class="ia-int-full__functie">{{ intGuest.organisatie }}</div>
@@ -2441,6 +2494,7 @@ watch(() => store.role, (role) => {
                   <thead>
                     <tr>
                       <th v-if="store.isCrew">Crew #</th>
+                      <th>Time</th>
                       <th>Name</th>
                       <th>Role</th>
                       <th>Organization</th>
@@ -2457,6 +2511,7 @@ watch(() => store.role, (role) => {
                       @click="(editingCandidates || store.isClient) && loadForEdit(g)"
                     >
                       <td v-if="store.isCrew">{{ g.regienummer || '—' }}</td>
+                      <td>{{ formatGuestWhen(g) || '—' }}</td>
                       <td>
                         <div>{{ g.naam }}</div>
                         <small v-if="g.planning" style="color:var(--color-text-muted)">{{ g.planning }}</small>

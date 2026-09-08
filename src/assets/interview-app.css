@@ -843,6 +843,11 @@
   margin-top: 0;
 }
 
+.ia-field--datetime {
+  flex: 1 1 280px;
+  max-width: 22rem;
+}
+
 .ia-row > * {
   flex: 1;
   min-width: 140px;
@@ -1429,6 +1434,11 @@
   font-size: 0.72rem;
   color: rgba(255, 255, 255, 0.8);
   letter-spacing: 0.02em;
+}
+
+.ia-int-full__when {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.88);
 }
 
 .ia-int-full__naam {

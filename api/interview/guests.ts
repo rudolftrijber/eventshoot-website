@@ -79,8 +79,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         intakeComplete,
         status: 'Entered',
         regienummer: '',
-        datum: '',
-        tijd: '',
+        datum: String(body.datum || '').trim(),
+        tijd: String(body.tijd || '').trim(),
       }
       if (!guest.naam) {
         res.status(400).json({ error: 'Name is required' })

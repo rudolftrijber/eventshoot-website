@@ -72,7 +72,7 @@ export function sanitizeGuestPatchForClient(
   patch: Record<string, unknown>,
 ): Record<string, unknown> | string {
   const blocked = [
-    'status', 'regienummer', 'datum', 'tijd', 'action',
+    'status', 'regienummer', 'action',
   ]
   for (const key of blocked) {
     if (patch[key] !== undefined) return 'Clients cannot change crew fields'
