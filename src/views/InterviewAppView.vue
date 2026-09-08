@@ -1708,8 +1708,8 @@ watch(() => store.role, (role) => {
                   />
                 </div>
                 <div class="ia-field ia-field--notes">
-                  <label class="ia-label">Opmerkingen</label>
-                  <input v-model="fPlanning" class="ia-input" placeholder="optioneel" :disabled="guestFormLocked" />
+                  <label class="ia-label">Remarks</label>
+                  <input v-model="fPlanning" class="ia-input" placeholder="optional" :disabled="guestFormLocked" />
                 </div>
               </div>
 
