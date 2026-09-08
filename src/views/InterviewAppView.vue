@@ -310,9 +310,6 @@ function formatGuestWhen(g: Gast): string {
   return formatDisplayDateTime(date, g.tijd || '')
 }
 
-const interviewDateMin = computed(() => presenterProduction.value?.datum || undefined)
-const interviewDateMax = computed(() => presenterProduction.value?.eindDatum || undefined)
-
 const presenterSerieNaam = computed(() => (presenterProduction.value?.generalTitel || '').trim())
 
 function overlayUrlFor(ratio: PngRatioId): string {
@@ -994,7 +991,7 @@ async function saveGuest() {
     functie,
     organisatie,
     planning: fPlanning.value.trim(),
-    datum: fDatum.value,
+    datum: presenterProduction.value?.datum || fDatum.value,
     tijd: fTijd.value,
     gedeeld: fGedeeld.value,
     introTekst,
@@ -1701,28 +1698,20 @@ watch(() => store.role, (role) => {
                 </div>
               </div>
               <div class="ia-row ia-row--fields">
-                <div class="ia-field ia-field--datetime">
-                  <label class="ia-label">Date &amp; time</label>
-                  <div class="ia-prod-form__datetime">
-                    <input
-                      v-model="fDatum"
-                      class="ia-input"
-                      type="date"
-                      :min="interviewDateMin"
-                      :max="interviewDateMax"
-                      :disabled="guestFormLocked"
-                    />
-                    <input
-                      v-model="fTijd"
-                      class="ia-input"
-                      type="time"
-                      :disabled="guestFormLocked"
-                    />
-                  </div>
+                <div class="ia-field ia-field--time">
+                  <label class="ia-label">Time</label>
+                  <input
+                    v-model="fTijd"
+                    class="ia-input ia-input--time"
+                    type="time"
+                    :disabled="guestFormLocked"
+                  />
+                </div>
+                <div class="ia-field ia-field--notes">
+                  <label class="ia-label">Opmerkingen</label>
+                  <input v-model="fPlanning" class="ia-input" placeholder="optioneel" :disabled="guestFormLocked" />
                 </div>
               </div>
-              <label class="ia-label">Schedule / time slot (optional)</label>
-              <input v-model="fPlanning" class="ia-input" placeholder="e.g. interview after the keynote" :disabled="guestFormLocked" />
 
               <div class="ia-form-divider" role="separator" aria-hidden="true" />
               <h3 class="ia-form-section-title">Interview titel &amp; screenshots</h3>

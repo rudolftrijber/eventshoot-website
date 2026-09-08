@@ -848,6 +848,24 @@
   max-width: 22rem;
 }
 
+.ia-row > .ia-field--time {
+  flex: 0 0 7.25rem;
+  width: 7.25rem;
+  min-width: 7.25rem;
+  max-width: 7.25rem;
+}
+
+.ia-input--time {
+  width: 7.25rem;
+  max-width: 7.25rem;
+  padding-inline: 0.4rem;
+}
+
+.ia-row > .ia-field--notes {
+  flex: 1 1 12rem;
+  min-width: 12rem;
+}
+
 .ia-row > * {
   flex: 1;
   min-width: 140px;
