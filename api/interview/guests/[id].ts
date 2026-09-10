@@ -83,6 +83,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (body.questions !== undefined) {
         patch.questions = Array.isArray(body.questions) ? body.questions.map(String) : []
       }
+      if (body.moderator !== undefined) patch.moderator = String(body.moderator)
+      if (body.moderatorFunctie !== undefined) patch.moderatorFunctie = String(body.moderatorFunctie)
       if (body.intakeComplete !== undefined) patch.intakeComplete = Boolean(body.intakeComplete)
       if (body.status !== undefined) patch.status = String(body.status) as GastStatus
       if (body.regienummer !== undefined) patch.regienummer = String(body.regienummer)

@@ -9,6 +9,7 @@ import {
   DEFAULT_SUPERVISOR,
   GAST_TYPES,
   intakeLockApplies,
+  lastModeratorForProduction,
   MAX_GENERAL_TITLE_CHARS,
   MAX_INTERVIEW_TITLE_CHARS,
   PRODUCTIE_STATUSES,
@@ -101,6 +102,9 @@ const fThumbnail4x5 = ref('')
 const thumbnailBusy = ref<PngRatioId | null>(null)
 const fIntakeComplete = ref(false)
 const fQuestions = ref<string[]>(['', '', '', ''])
+const fModerator = ref('')
+const fModeratorFunctie = ref('')
+const moderatorCarriedOver = ref(false)
 
 // Productie form
 const editingProdId = ref<string | null>(null)
@@ -251,7 +255,7 @@ const dayGuests = computed(() => {
   const q = searchBox.value.toLowerCase()
   return [...store.guests]
     .filter((g) => g.productieNaam === prod.naam)
-    .filter((g) => !q || [g.naam, g.functie, g.organisatie, g.regienummer, g.type, g.datum, g.tijd].join(' ').toLowerCase().includes(q))
+    .filter((g) => !q || [g.naam, g.functie, g.organisatie, g.moderator, g.moderatorFunctie, g.regienummer, g.type, g.datum, g.tijd].join(' ').toLowerCase().includes(q))
     .sort((a, b) =>
       guestScheduleSortKey(a).localeCompare(guestScheduleSortKey(b))
       || (parseInt(a.regienummer) || 9999) - (parseInt(b.regienummer) || 9999)
@@ -266,6 +270,8 @@ const maxChars = computed(() => store.settings.maxChars)
 const naamOverLimit = computed(() => fNaam.value.length > maxChars.value)
 const functieOverLimit = computed(() => fFunctie.value.length > maxChars.value)
 const organisatieOverLimit = computed(() => fOrganisatie.value.length > maxChars.value)
+const moderatorOverLimit = computed(() => fModerator.value.length > maxChars.value)
+const moderatorFunctieOverLimit = computed(() => fModeratorFunctie.value.length > maxChars.value)
 const interviewTitelOverLimit = computed(() => fInterviewTitel.value.length > MAX_INTERVIEW_TITLE_CHARS)
 const generalTitelOverLimit = computed(() => pGeneralTitel.value.length > MAX_GENERAL_TITLE_CHARS)
 const introOverLimit = computed(() => fIntroTekst.value.length > MAX_INTRO_OUTRO_CHARS)
@@ -518,11 +524,19 @@ function backToKandidaten() {
   if (store.activeTab === 'candidate') store.setTab('production')
 }
 
+function applyModeratorCarryover(productieNaam: string) {
+  const last = lastModeratorForProduction(store.guests, productieNaam)
+  fModerator.value = last.moderator
+  fModeratorFunctie.value = last.moderatorFunctie
+  moderatorCarriedOver.value = Boolean(last.moderator)
+}
+
 function openNewGuest() {
   clearForm()
   if (workingProduction.value) {
     fProductie.value = workingProduction.value.naam
     fDatum.value = workingProduction.value.datum || ''
+    applyModeratorCarryover(workingProduction.value.naam)
   }
   store.setTab('candidate')
   guestView.value = 'form'
@@ -661,7 +675,7 @@ function showToast(msg: string) {
 async function copyQuestions(
   questions: string[],
   title?: string,
-  extras?: { intro?: string; outro?: string },
+  extras?: { intro?: string; outro?: string; moderator?: string; moderatorFunctie?: string },
 ) {
   const text = formatQuestionsForCopy(questions, title, extras)
   if (!text) {
@@ -954,6 +968,9 @@ function clearForm() {
   fNaam.value = ''
   fFunctie.value = ''
   fOrganisatie.value = ''
+  fModerator.value = ''
+  fModeratorFunctie.value = ''
+  moderatorCarriedOver.value = false
   fIntakeComplete.value = false
   resetQuestions(fQuestions)
   resetGuestAi()
@@ -963,9 +980,17 @@ async function saveGuest() {
   const naam = fNaam.value.trim()
   const functie = fFunctie.value.trim()
   const organisatie = fOrganisatie.value.trim()
+  const moderator = fModerator.value.trim()
+  const moderatorFunctie = fModeratorFunctie.value.trim()
   if (!naam) { showToast('Enter a name'); return }
-  if (naam.length > maxChars.value || functie.length > maxChars.value || organisatie.length > maxChars.value) {
-    showToast(`Name, role and organization max. ${maxChars.value} characters`)
+  if (
+    naam.length > maxChars.value
+    || functie.length > maxChars.value
+    || organisatie.length > maxChars.value
+    || moderator.length > maxChars.value
+    || moderatorFunctie.length > maxChars.value
+  ) {
+    showToast(`Name, role, organization and moderator max. ${maxChars.value} characters`)
     return
   }
   const interviewTitel = fInterviewTitel.value.trim()
@@ -990,6 +1015,8 @@ async function saveGuest() {
     naam,
     functie,
     organisatie,
+    moderator,
+    moderatorFunctie,
     planning: fPlanning.value.trim(),
     datum: presenterProduction.value?.datum || fDatum.value,
     tijd: fTijd.value,
@@ -1045,6 +1072,9 @@ function loadForEdit(g: Gast) {
   fNaam.value = g.naam
   fFunctie.value = g.functie
   fOrganisatie.value = g.organisatie || ''
+  fModerator.value = g.moderator || ''
+  fModeratorFunctie.value = g.moderatorFunctie || ''
+  moderatorCarriedOver.value = false
   resetQuestions(fQuestions, g.questions)
   resetGuestAi()
   store.selectGuest(g.id)
@@ -1850,6 +1880,41 @@ watch(() => store.role, (role) => {
                 </RatioPngUpload>
               </div>
 
+              <div class="ia-form-divider" role="separator" aria-hidden="true" />
+              <h3 class="ia-form-section-title">Moderator</h3>
+              <div class="ia-row">
+                <div>
+                  <label class="ia-label" for="fModerator">Moderator</label>
+                  <input
+                    id="fModerator"
+                    v-model="fModerator"
+                    class="ia-input"
+                    placeholder="First and last name"
+                    :disabled="guestFormLocked"
+                  />
+                  <div class="ia-charcount" :class="{ warn: moderatorOverLimit }">{{ fModerator.length }} / {{ maxChars }} characters</div>
+                </div>
+                <div>
+                  <label class="ia-label" for="fModeratorFunctie">Moderator role</label>
+                  <input
+                    id="fModeratorFunctie"
+                    v-model="fModeratorFunctie"
+                    class="ia-input"
+                    placeholder="e.g. Host, presenter"
+                    :disabled="guestFormLocked"
+                  />
+                  <div class="ia-charcount" :class="{ warn: moderatorFunctieOverLimit }">{{ fModeratorFunctie.length }} / {{ maxChars }} characters</div>
+                </div>
+              </div>
+              <p class="ia-hint">
+                <template v-if="moderatorCarriedOver">
+                  Copied from the previous interview in this production. Change it if this interview has a different moderator.
+                </template>
+                <template v-else>
+                  Usually the same person for the whole production. You can change it per interview.
+                </template>
+              </p>
+
               <div class="ia-question-head">
                 <label class="ia-label ia-label--inline">Interview questions (max. 10)</label>
                 <div class="ia-question-head__actions">
@@ -1864,6 +1929,8 @@ watch(() => store.role, (role) => {
                       {
                         intro: fUseIntro ? fIntroTekst : '',
                         outro: fUseOutro ? fOutroTekst : '',
+                        moderator: fModerator,
+                        moderatorFunctie: fModeratorFunctie,
                       },
                     )"
                   >
@@ -2087,6 +2154,11 @@ watch(() => store.role, (role) => {
                 <div class="ia-cam-full__functie">{{ camGuest.functie }}</div>
                 <div v-if="camGuest.organisatie" class="ia-cam-full__functie">{{ camGuest.organisatie }}</div>
               </div>
+              <div v-if="camGuest.moderator" class="ia-cam-full__moderator">
+                <div class="ia-cam-full__moderator-label">Moderator</div>
+                <div class="ia-cam-full__moderator-naam">{{ camGuest.moderator }}</div>
+                <div v-if="camGuest.moderatorFunctie" class="ia-cam-full__moderator-rol">{{ camGuest.moderatorFunctie }}</div>
+              </div>
               <div class="ia-cam-full__number">{{ camGuest.regienummer }}</div>
               <div class="ia-actions">
                 <button class="ia-btn ia-btn--accent" type="button" @click="goToInterviewer">Show interview questions →</button>
@@ -2102,6 +2174,9 @@ watch(() => store.role, (role) => {
                 <div class="ia-int-full__naam">{{ intGuest.naam }}</div>
                 <div class="ia-int-full__functie">{{ intGuest.functie }}</div>
                 <div v-if="intGuest.organisatie" class="ia-int-full__functie">{{ intGuest.organisatie }}</div>
+                <div v-if="intGuest.moderator" class="ia-int-full__moderator">
+                  Moderator: {{ intGuest.moderator }}<template v-if="intGuest.moderatorFunctie">, {{ intGuest.moderatorFunctie }}</template>
+                </div>
               </div>
               <div v-if="intGuest.gedeeld" class="ia-int-full__warn">
                 Note: these questions were shared with the guest in advance

@@ -559,7 +559,7 @@ export default {
     h2Data: 'Personal data via the website',
     pData: 'Eventshoot.nl processes personal data that you actively provide via the contact form or by email. This includes your name, email address and phone number.',
     h2Interview: 'Event Interview App',
-    pInterview: 'For interview production at events we process data entered by crew or the client in the Event Interview App: name, role or job title, guest type, scheduling notes, interview questions and recording status. Access is password-protected and limited to Eventshoot.nl crew and the relevant client. The client is responsible for informing participants that filming and interviews take place.',
+    pInterview: 'For interview production at events we process data entered by crew or the client in the Event Interview App: name, role or job title, guest type, scheduling notes, moderator and moderator role, interview questions and recording status. Access is password-protected and limited to Eventshoot.nl crew and the relevant client. The client is responsible for informing participants that filming and interviews take place.',
     h2Purpose: 'Purpose of processing',
     pPurpose: 'We process personal data solely to answer enquiries and to enter into or perform assignments, including planning and running interviews at events.',
     h2Retention: 'Retention period',

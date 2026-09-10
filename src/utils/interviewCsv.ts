@@ -19,6 +19,8 @@ export function guestsToCSV(list: Gast[]): string {
     naam: 'Jane Smith',
     functie: 'Director of Innovation',
     organisatie: 'Acme BV',
+    moderator: 'Rolf Trijber',
+    moderatorFunctie: 'Host',
     planning: 'interview before lunch',
     gedeeld: false,
     introTekst: '',
@@ -44,6 +46,8 @@ export function guestsToCSV(list: Gast[]): string {
       r.naam,
       r.functie,
       'organisatie' in r ? r.organisatie : '',
+      'moderator' in r ? r.moderator : '',
+      'moderatorFunctie' in r ? r.moderatorFunctie : '',
       'planning' in r ? r.planning : '',
       ('gedeeld' in r && r.gedeeld) ? 'yes' : 'no',
       q[0], q[1], q[2], q[3], q[4], q[5], q[6], q[7], q[8], q[9],
@@ -63,6 +67,8 @@ const CLIENT_TEMPLATE_EXAMPLE = {
   naam: 'Jane Smith',
   functie: 'Director of Innovation',
   organisatie: 'Acme BV',
+  moderator: 'Rolf Trijber',
+  moderatorFunctie: 'Host',
   planning: 'interview after keynote, around 12:30',
   gedeeld: true,
   questions: [
@@ -81,6 +87,8 @@ function clientExampleRow(): string[] {
     CLIENT_TEMPLATE_EXAMPLE.naam,
     CLIENT_TEMPLATE_EXAMPLE.functie,
     CLIENT_TEMPLATE_EXAMPLE.organisatie,
+    CLIENT_TEMPLATE_EXAMPLE.moderator,
+    CLIENT_TEMPLATE_EXAMPLE.moderatorFunctie,
     CLIENT_TEMPLATE_EXAMPLE.planning,
     CLIENT_TEMPLATE_EXAMPLE.gedeeld ? 'yes' : 'no',
     q[0], q[1], q[2], q[3], q[4], q[5], q[6], q[7], q[8], q[9],
@@ -106,11 +114,12 @@ export function clientTemplateCSV(): string {
 }
 
 export function lowerthirdCSV(list: Gast[]): string {
-  const headers = ['crew_number', 'date', 'time', 'name', 'role', 'organization', 'production', 'status']
+  const headers = ['crew_number', 'date', 'time', 'name', 'role', 'organization', 'moderator', 'moderator_role', 'production', 'status']
   const lines = [headers.join(',')]
   list.forEach((g) => {
     lines.push([
-      g.regienummer, g.datum, g.tijd, g.naam, g.functie, g.organisatie || '', g.productieNaam, g.status,
+      g.regienummer, g.datum, g.tijd, g.naam, g.functie, g.organisatie || '',
+      g.moderator || '', g.moderatorFunctie || '', g.productieNaam, g.status,
     ].map(toCSVField).join(','))
   })
   return lines.join('\r\n')
@@ -172,6 +181,8 @@ export function csvRowToGuestPayload(row: Record<string, string>) {
     naam: row.name || row.naam || '',
     functie: row.role || row.functie || '',
     organisatie: row.organization || row.organisation || row.organisatie || '',
+    moderator: row.moderator || '',
+    moderatorFunctie: row.moderator_role || row.moderator_functie || row.moderatorfunctie || '',
     planning: row.planning || '',
     gedeeld: /^(yes|ja|true|1)$/i.test(sharedRaw),
     questions,
@@ -226,13 +237,18 @@ export function productionStartSortKey(p: { datum?: string; startTijd?: string }
 export function formatQuestionsForCopy(
   questions: string[],
   title?: string,
-  extras?: { intro?: string; outro?: string },
+  extras?: { intro?: string; outro?: string; moderator?: string; moderatorFunctie?: string },
 ): string {
   const lines = questions.map((q) => q.trim()).filter(Boolean)
-  if (!lines.length && !extras?.intro?.trim() && !extras?.outro?.trim()) return ''
+  const moderator = (extras?.moderator || '').trim()
+  const moderatorFunctie = (extras?.moderatorFunctie || '').trim()
+  if (!lines.length && !extras?.intro?.trim() && !extras?.outro?.trim() && !moderator) return ''
   const parts: string[] = []
   const heading = (title || '').trim()
   if (heading) parts.push(heading)
+  if (moderator) {
+    parts.push(`Moderator: ${moderator}${moderatorFunctie ? `, ${moderatorFunctie}` : ''}`)
+  }
   const intro = (extras?.intro || '').trim()
   if (intro) parts.push(`Intro:\n${intro}`)
   if (lines.length) parts.push(lines.map((q, i) => `${i + 1}. ${q}`).join('\n'))

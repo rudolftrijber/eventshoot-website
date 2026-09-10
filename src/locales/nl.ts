@@ -559,7 +559,7 @@ export default {
     h2Data: 'Persoonsgegevens via de website',
     pData: 'Eventshoot.nl verwerkt persoonsgegevens die je zelf actief verstrekt via het contactformulier of per e-mail. Dit betreft naam, e-mailadres en telefoonnummer.',
     h2Interview: 'Event Interview App',
-    pInterview: 'Voor interviewproductie op events verwerken wij gegevens die crew of opdrachtgever invoert in de Event Interview App: naam, functie of rol, type gast, planning, interviewvragen en status van de opname. Toegang is beveiligd met een wachtwoord en beperkt tot crew van Eventshoot.nl en de betreffende opdrachtgever. De opdrachtgever is verantwoordelijk voor het informeren van deelnemers dat er gefilmd en geïnterviewd wordt.',
+    pInterview: 'Voor interviewproductie op events verwerken wij gegevens die crew of opdrachtgever invoert in de Event Interview App: naam, functie of rol, type gast, planning, moderator en functie van de moderator, interviewvragen en status van de opname. Toegang is beveiligd met een wachtwoord en beperkt tot crew van Eventshoot.nl en de betreffende opdrachtgever. De opdrachtgever is verantwoordelijk voor het informeren van deelnemers dat er gefilmd en geïnterviewd wordt.',
     h2Purpose: 'Doel van de verwerking',
     pPurpose: 'Wij verwerken persoonsgegevens uitsluitend voor het beantwoorden van vragen en het aangaan of uitvoeren van opdrachten, inclusief planning en uitvoering van interviews op events.',
     h2Retention: 'Bewaarperiode',

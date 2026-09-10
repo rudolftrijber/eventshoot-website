@@ -1,7 +1,7 @@
-production,type,name,role,planning,shared,question1,question2,question3,question4,question5,question6,question7
-Industry Congress 2026,Keynote speaker,Jane Smith,Director of Innovation,"interview after keynote, around 12:30",yes,What was your most important insight from today?,What will you take back to your organisation?,What was the highlight of the congress?,Any message for participants?,,,
-,,,,,,,,,,,,
-,,,,,,,,,,,,
-,,,,,,,,,,,,
-,,,,,,,,,,,,
-,,,,,,,,,,,,
+production,type,name,role,organization,moderator,moderator_role,planning,shared,question1,question2,question3,question4,question5,question6,question7,question8,question9,question10
+Industry Congress 2026,Keynote speaker,Jane Smith,Director of Innovation,Acme BV,Rolf Trijber,Host,"interview after keynote, around 12:30",yes,What was your most important insight from today?,What will you take back to your organisation?,What was the highlight of the congress?,Any message for participants?,,,,,,
+,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,

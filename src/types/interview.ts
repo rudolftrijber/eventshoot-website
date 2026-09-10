@@ -79,6 +79,10 @@ export interface Gast {
   thumbnail9x16: string
   thumbnail4x5: string
   questions: string[]
+  /** Interviewer / host for this recording. Carried over to the next interview in the same production. */
+  moderator: string
+  /** Role or job title of the moderator */
+  moderatorFunctie: string
   intakeComplete: boolean
   status: GastStatus
   regienummer: string
@@ -157,13 +161,30 @@ export function normalizeProductieStatus(value: string): ProductieStatus {
 }
 
 export const CSV_HEADERS = [
-  'production', 'type', 'name', 'role', 'organization', 'planning', 'shared',
+  'production', 'type', 'name', 'role', 'organization', 'moderator', 'moderator_role', 'planning', 'shared',
   'question1', 'question2', 'question3', 'question4', 'question5', 'question6', 'question7', 'question8', 'question9', 'question10',
   'status', 'crew_number', 'date', 'time',
 ] as const
 
 /** Client template columns — without crew fields */
 export const CLIENT_CSV_HEADERS = [
-  'production', 'type', 'name', 'role', 'organization', 'planning', 'shared',
+  'production', 'type', 'name', 'role', 'organization', 'moderator', 'moderator_role', 'planning', 'shared',
   'question1', 'question2', 'question3', 'question4', 'question5', 'question6', 'question7', 'question8', 'question9', 'question10',
 ] as const
+
+/** Carry-over: newest interview in this production that already has a moderator. */
+export function lastModeratorForProduction(
+  guests: Array<Pick<Gast, 'productieNaam' | 'moderator' | 'moderatorFunctie' | 'createdAt'>>,
+  productieNaam: string,
+): { moderator: string; moderatorFunctie: string } {
+  const name = productieNaam.trim()
+  if (!name) return { moderator: '', moderatorFunctie: '' }
+  const matches = guests
+    .filter((g) => g.productieNaam === name && String(g.moderator || '').trim())
+    .sort((a, b) => String(b.createdAt || '').localeCompare(String(a.createdAt || '')))
+  const last = matches[0]
+  return {
+    moderator: last?.moderator?.trim() || '',
+    moderatorFunctie: last?.moderatorFunctie?.trim() || '',
+  }
+}

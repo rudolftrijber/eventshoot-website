@@ -76,6 +76,10 @@ export interface Gast {
   thumbnail9x16: string
   thumbnail4x5: string
   questions: string[]
+  /** Interviewer / host for this recording. Carried over to the next interview in the same production. */
+  moderator: string
+  /** Role or job title of the moderator */
+  moderatorFunctie: string
   intakeComplete: boolean
   status: GastStatus
   regienummer: string

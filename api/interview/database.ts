@@ -109,6 +109,8 @@ async function initSchema(): Promise<void> {
   await sql`ALTER TABLE interview_gasten ADD COLUMN IF NOT EXISTS thumbnail_16x9 TEXT NOT NULL DEFAULT ''`
   await sql`ALTER TABLE interview_gasten ADD COLUMN IF NOT EXISTS thumbnail_9x16 TEXT NOT NULL DEFAULT ''`
   await sql`ALTER TABLE interview_gasten ADD COLUMN IF NOT EXISTS thumbnail_4x5 TEXT NOT NULL DEFAULT ''`
+  await sql`ALTER TABLE interview_gasten ADD COLUMN IF NOT EXISTS moderator TEXT NOT NULL DEFAULT ''`
+  await sql`ALTER TABLE interview_gasten ADD COLUMN IF NOT EXISTS moderator_functie TEXT NOT NULL DEFAULT ''`
   await sql`
     CREATE TABLE IF NOT EXISTS interview_rate_limits (
       bucket_key TEXT PRIMARY KEY,
@@ -193,6 +195,8 @@ function rowToGast(row: Record<string, unknown>): Gast {
     thumbnail9x16: String(row.thumbnail_9x16 || ''),
     thumbnail4x5: String(row.thumbnail_4x5 || ''),
     questions: Array.isArray(row.questions) ? row.questions.map(String) : [],
+    moderator: String(row.moderator || ''),
+    moderatorFunctie: String(row.moderator_functie || ''),
     intakeComplete: Boolean(row.intake_complete),
     status: normalizeGastStatus(String(row.status)),
     regienummer: row.regienummer ? String(row.regienummer) : '',
@@ -278,7 +282,7 @@ export async function createGuest(data: Omit<Gast, 'createdAt' | 'updatedAt'>): 
       intro_tekst, outro_tekst, serie_naam, interview_titel,
       screenshot_16x9, screenshot_9x16, screenshot_4x5,
       thumbnail_16x9, thumbnail_9x16, thumbnail_4x5,
-      questions, intake_complete, status, regienummer, datum, tijd
+      questions, moderator, moderator_functie, intake_complete, status, regienummer, datum, tijd
     ) VALUES (
       ${data.id}, ${data.productieNaam}, ${data.type}, ${data.naam}, ${data.functie},
       ${data.organisatie || ''},
@@ -288,6 +292,7 @@ export async function createGuest(data: Omit<Gast, 'createdAt' | 'updatedAt'>): 
       ${data.screenshot16x9 || ''}, ${data.screenshot9x16 || ''}, ${data.screenshot4x5 || ''},
       ${data.thumbnail16x9 || ''}, ${data.thumbnail9x16 || ''}, ${data.thumbnail4x5 || ''},
       ${JSON.stringify(data.questions)}::jsonb,
+      ${data.moderator || ''}, ${data.moderatorFunctie || ''},
       ${Boolean(data.intakeComplete)}, ${data.status}, ${data.regienummer || null},
       ${toDateParam(data.datum)}, ${formatTimeValue(data.tijd) || null}
     )
@@ -323,6 +328,8 @@ export async function updateGuest(id: string, patch: Partial<Gast>): Promise<Gas
       thumbnail_9x16 = ${next.thumbnail9x16 || ''},
       thumbnail_4x5 = ${next.thumbnail4x5 || ''},
       questions = ${JSON.stringify(next.questions)}::jsonb,
+      moderator = ${next.moderator || ''},
+      moderator_functie = ${next.moderatorFunctie || ''},
       intake_complete = ${Boolean(next.intakeComplete)},
       status = ${next.status},
       regienummer = ${next.regienummer || null},

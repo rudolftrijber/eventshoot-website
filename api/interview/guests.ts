@@ -76,6 +76,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         thumbnail9x16: String(body.thumbnail9x16 || '').trim(),
         thumbnail4x5: String(body.thumbnail4x5 || '').trim(),
         questions,
+        moderator: String(body.moderator || '').trim(),
+        moderatorFunctie: String(body.moderatorFunctie || '').trim(),
         intakeComplete,
         status: 'Entered',
         regienummer: '',

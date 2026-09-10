@@ -1402,6 +1402,30 @@
   margin-top: 0.4rem;
 }
 
+.ia-cam-full__moderator {
+  margin: 0.15rem 0 0.2rem;
+  line-height: 1.25;
+}
+
+.ia-cam-full__moderator-label {
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.ia-cam-full__moderator-naam {
+  font-size: clamp(1.05rem, 4vw, 1.45rem);
+  font-weight: 600;
+  color: #fff;
+}
+
+.ia-cam-full__moderator-rol {
+  font-size: clamp(0.9rem, 3.4vw, 1.15rem);
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.88);
+}
+
 .ia-cam-full__number {
   font-size: min(48vw, 34dvh, 18rem);
   font-weight: 800;
@@ -1469,6 +1493,13 @@
   font-size: clamp(1.1rem, 4.2vw, 1.55rem);
   font-weight: 500;
   color: rgba(255, 255, 255, 0.92);
+}
+
+.ia-int-full__moderator {
+  margin-top: 0.35rem;
+  font-size: clamp(0.85rem, 3.2vw, 1.05rem);
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.78);
 }
 
 .interview-app--crew-focus .ia-int-full__warn {
