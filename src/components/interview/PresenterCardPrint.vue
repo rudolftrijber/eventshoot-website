@@ -27,8 +27,8 @@ const serie = computed(() => (props.serieNaam || '').trim())
 const panel1Questions = computed(() => {
   const all = questions.value
   if (!all.length) return []
-  // Keep first panel readable with larger type
-  const max = intro.value ? 4 : 5
+  // Keep first panel inside the 13 cm cut, with room for the inner margin
+  const max = intro.value ? 3 : 4
   return all.slice(0, Math.min(max, all.length))
 })
 
@@ -263,7 +263,7 @@ function printCard() {
   width: 210mm;
   min-height: 297mm;
   margin: 0 auto;
-  padding: 10mm 5mm;
+  padding: 12mm 8mm;
   box-sizing: border-box;
   background: #fff;
   color: #111;
@@ -292,8 +292,8 @@ function printCard() {
 
 .pc-logo {
   position: absolute;
-  top: 4mm;
-  right: 5mm;
+  top: 7mm;
+  right: 8mm;
   width: 42mm;
   height: auto;
   z-index: 2;
@@ -302,8 +302,8 @@ function printCard() {
 
 .pc-panel__inner {
   height: 100%;
-  padding: 5mm 8mm 5mm 7mm;
-  padding-right: 50mm; /* room for logo */
+  padding: 8mm 10mm 9mm 10mm;
+  padding-right: 52mm; /* room for logo */
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -432,7 +432,7 @@ function printCard() {
     min-height: auto !important;
     margin: 0 !important;
     padding: 0 !important;
-    gap: 6mm;
+    gap: 8mm;
     background: #fff !important;
     border-radius: 0 !important;
     box-shadow: none !important;
@@ -468,7 +468,7 @@ function printCard() {
 @media print {
   @page {
     size: A4 portrait;
-    margin: 8mm;
+    margin: 10mm;
   }
 
   html,
