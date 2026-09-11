@@ -6,7 +6,14 @@ import {
   normalizeGastStatus,
   normalizeProductieStatus,
 } from './types.js'
-import { hashClientPassword, verifyClientPassword, clientPasswordNeedsRehash, encryptClientPassword, decryptClientPassword } from './auth.js'
+import { timingSafeEqual } from 'crypto'
+import {
+  clientPasswordLookup,
+  clientPasswordNeedsRehash,
+  decryptClientPassword,
+  hashClientPassword,
+  verifyClientPassword,
+} from './auth.js'
 
 let schemaReady: Promise<void> | null = null
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -83,6 +90,13 @@ async function initSchema(): Promise<void> {
   await sql`CREATE INDEX IF NOT EXISTS interview_gasten_productie_idx ON interview_gasten (productie_naam)`
   await sql`ALTER TABLE interview_producties ADD COLUMN IF NOT EXISTS client_password_hash TEXT`
   await sql`ALTER TABLE interview_producties ADD COLUMN IF NOT EXISTS client_password_enc TEXT`
+  await sql`ALTER TABLE interview_producties ADD COLUMN IF NOT EXISTS client_password_lookup TEXT`
+  await sql`
+    CREATE INDEX IF NOT EXISTS interview_producties_pw_lookup_idx
+    ON interview_producties (client_password_lookup)
+    WHERE client_password_lookup IS NOT NULL
+  `
+  await migrateClientPasswordLookups(sql)
   await sql`ALTER TABLE interview_producties ADD COLUMN IF NOT EXISTS locatie TEXT NOT NULL DEFAULT ''`
   await sql`ALTER TABLE interview_producties ADD COLUMN IF NOT EXISTS land TEXT NOT NULL DEFAULT ''`
   await sql`ALTER TABLE interview_producties ADD COLUMN IF NOT EXISTS start_tijd TEXT NOT NULL DEFAULT ''`
@@ -120,6 +134,24 @@ async function initSchema(): Promise<void> {
   `
 }
 
+async function migrateClientPasswordLookups(sql: Awaited<ReturnType<typeof getSql>>): Promise<void> {
+  const rows = await sql`
+    SELECT id, client_password_enc, client_password_lookup
+    FROM interview_producties
+    WHERE client_password_enc IS NOT NULL AND client_password_enc <> ''
+  ` as Array<{ id: string; client_password_enc?: string | null; client_password_lookup?: string | null }>
+  for (const row of rows) {
+    const existingLookup = row.client_password_lookup || ''
+    const derivedLookup = existingLookup || clientPasswordLookup(decryptClientPassword(row.client_password_enc))
+    if (!derivedLookup) continue
+    await sql`
+      UPDATE interview_producties
+      SET client_password_lookup = ${derivedLookup}, client_password_enc = NULL, updated_at = NOW()
+      WHERE id = ${row.id}
+    `
+  }
+}
+
 function formatDateValue(value: unknown): string {
   if (!value) return ''
   if (value instanceof Date) return value.toISOString().slice(0, 10)
@@ -145,7 +177,6 @@ function formatTimeValue(value: unknown): string {
 
 function rowToProductie(row: Record<string, unknown>): Productie {
   const hash = row.client_password_hash ? String(row.client_password_hash) : ''
-  const stored = decryptClientPassword(row.client_password_enc ? String(row.client_password_enc) : '')
   return {
     id: String(row.id),
     naam: String(row.naam),
@@ -168,7 +199,6 @@ function rowToProductie(row: Record<string, unknown>): Productie {
     vragen: Array.isArray(row.vragen) ? row.vragen.map(String) : [],
     archivedAt: row.archived_at ? String(row.archived_at) : null,
     hasClientPassword: Boolean(hash),
-    clientPasswordStored: stored || undefined,
     createdAt: String(row.created_at),
     updatedAt: String(row.updated_at),
   }
@@ -226,12 +256,26 @@ export async function updateSettings(maxChars: number): Promise<InterviewSetting
 
 export async function fetchProductiesByClientPassword(password: string): Promise<Productie[]> {
   const sql = await getSql()
-  const rows = await sql`
-    SELECT * FROM interview_producties
-    WHERE archived_at IS NULL AND client_password_hash IS NOT NULL
-  `
+  const lookup = clientPasswordLookup(password)
+  let candidateRows: unknown[] = []
+  if (lookup) {
+    candidateRows = await sql`
+      SELECT * FROM interview_producties
+      WHERE archived_at IS NULL AND client_password_lookup = ${lookup}
+    `
+  }
+  if (!candidateRows.length) {
+    candidateRows = await sql`
+      SELECT * FROM interview_producties
+      WHERE archived_at IS NULL
+        AND client_password_hash IS NOT NULL
+        AND (client_password_lookup IS NULL OR client_password_lookup = '')
+      LIMIT 25
+    `
+  }
+
   const matched: Array<{ productie: Productie; hash: string; id: string }> = []
-  for (const row of rows) {
+  for (const row of candidateRows) {
     const record = row as Record<string, unknown>
     const hash = record.client_password_hash ? String(record.client_password_hash) : ''
     if (!hash || !verifyClientPassword(password, hash)) continue
@@ -242,22 +286,54 @@ export async function fetchProductiesByClientPassword(password: string): Promise
     })
   }
 
-  // Upgrade legacy HMAC hashes to scrypt after a successful login.
   const nextHash = matched.some((m) => clientPasswordNeedsRehash(m.hash))
     ? hashClientPassword(password)
     : null
-  if (nextHash) {
-    for (const item of matched) {
-      if (!clientPasswordNeedsRehash(item.hash)) continue
+  const nextLookup = lookup || clientPasswordLookup(password)
+  for (const item of matched) {
+    const upgradedHash = nextHash && clientPasswordNeedsRehash(item.hash) ? nextHash : null
+    if (upgradedHash) {
       await sql`
         UPDATE interview_producties
-        SET client_password_hash = ${nextHash}, updated_at = NOW()
+        SET
+          client_password_hash = ${upgradedHash},
+          client_password_lookup = ${nextLookup || null},
+          client_password_enc = NULL,
+          updated_at = NOW()
+        WHERE id = ${item.id}
+      `
+    } else if (nextLookup) {
+      await sql`
+        UPDATE interview_producties
+        SET client_password_lookup = ${nextLookup}, client_password_enc = NULL, updated_at = NOW()
         WHERE id = ${item.id}
       `
     }
   }
 
   return matched.map((m) => m.productie)
+}
+
+export async function clientSessionCredValid(productionIds: string[], cred: string): Promise<boolean> {
+  if (!cred || !productionIds.length) return false
+  await ensureSchema()
+  const sql = await getSql()
+  const ids = productionIds.filter(Boolean).slice(0, 50)
+  for (const id of ids) {
+    const rows = await sql`
+      SELECT client_password_lookup FROM interview_producties
+      WHERE id = ${id} AND archived_at IS NULL
+    `
+    const lookup = String((rows[0] as { client_password_lookup?: string } | undefined)?.client_password_lookup || '')
+    if (lookup && lookup.length === cred.length) {
+      try {
+        if (timingSafeEqual(Buffer.from(lookup), Buffer.from(cred))) return true
+      } catch {
+        // length mismatch already guarded
+      }
+    }
+  }
+  return false
 }
 
 export async function fetchProducties(includeArchived = false): Promise<Productie[]> {
@@ -354,13 +430,13 @@ export async function createProductie(
 ): Promise<Productie> {
   const sql = await getSql()
   const hash = clientPassword?.trim() ? hashClientPassword(clientPassword.trim()) : null
-  const enc = clientPassword?.trim() ? encryptClientPassword(clientPassword.trim()) : null
+  const lookup = clientPassword?.trim() ? clientPasswordLookup(clientPassword.trim()) : null
   const rows = await sql`
     INSERT INTO interview_producties (
       id, naam, general_titel, png_16x9, png_9x16, png_4x5,
       datum, start_tijd, eind_datum, eind_tijd, status,
       locatie, land, supervisor, crew2, crew3, crew4, crew5,
-      vragen, client_password_hash, client_password_enc
+      vragen, client_password_hash, client_password_lookup, client_password_enc
     )
     VALUES (
       ${data.id}, ${data.naam}, ${data.generalTitel || ''},
@@ -371,7 +447,7 @@ export async function createProductie(
       ${normalizeCrewMember(data.supervisor, DEFAULT_SUPERVISOR)},
       ${normalizeCrewMember(data.crew2)}, ${normalizeCrewMember(data.crew3)},
       ${normalizeCrewMember(data.crew4)}, ${normalizeCrewMember(data.crew5)},
-      ${JSON.stringify(data.vragen)}::jsonb, ${hash}, ${enc}
+      ${JSON.stringify(data.vragen)}::jsonb, ${hash}, ${lookup || null}, NULL
     )
     RETURNING *
   `
@@ -386,16 +462,16 @@ export async function updateProductie(id: string, patch: Partial<Productie>): Pr
   const next = { ...current, ...patch, id }
 
   let clientPasswordHash: string | null | undefined
-  let clientPasswordEnc: string | null | undefined
+  let clientPasswordLookupValue: string | null | undefined
   if ('clientPassword' in patch) {
     const raw = String((patch as { clientPassword?: string }).clientPassword ?? '').trim()
     clientPasswordHash = raw ? hashClientPassword(raw) : null
-    clientPasswordEnc = raw ? encryptClientPassword(raw) : null
+    clientPasswordLookupValue = raw ? clientPasswordLookup(raw) : null
   }
   const currentHash = (existing[0] as { client_password_hash?: string | null }).client_password_hash || null
-  const currentEnc = (existing[0] as { client_password_enc?: string | null }).client_password_enc || null
+  const currentLookup = (existing[0] as { client_password_lookup?: string | null }).client_password_lookup || null
   const nextHash = clientPasswordHash !== undefined ? clientPasswordHash : currentHash
-  const nextEnc = clientPasswordEnc !== undefined ? clientPasswordEnc : currentEnc
+  const nextLookup = clientPasswordLookupValue !== undefined ? clientPasswordLookupValue : currentLookup
 
   const rows = await sql`
     UPDATE interview_producties SET
@@ -419,7 +495,8 @@ export async function updateProductie(id: string, patch: Partial<Productie>): Pr
       vragen = ${JSON.stringify(next.vragen)}::jsonb,
       archived_at = ${next.archivedAt},
       client_password_hash = ${nextHash},
-      client_password_enc = ${nextEnc},
+      client_password_lookup = ${nextLookup},
+      client_password_enc = NULL,
       updated_at = NOW()
     WHERE id = ${id}
     RETURNING *

@@ -11,6 +11,14 @@ import {
   sanitizeProductionPatchForClient,
 } from '../permissions.js'
 import { MAX_GENERAL_TITLE_CHARS, type ProductieStatus } from '../types.js'
+import {
+  clipText,
+  MAX_PASSWORD_LEN,
+  MAX_SHORT_TEXT,
+  MIN_CLIENT_PASSWORD_LEN,
+  sanitizeImageUrl,
+  sanitizeQuestions,
+} from '../sanitize.js'
 
 function parseBody(req: VercelRequest): Record<string, unknown> {
   return typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {})
@@ -27,7 +35,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     await ensureSchema()
 
     if (req.method === 'PATCH') {
-      const ctx = requireLogin(req, res)
+      const ctx = await requireLogin(req, res)
       if (!ctx) return
 
       const body = parseBody(req)
@@ -39,7 +47,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           return
         }
         if (body.vragen !== undefined) {
-          patch.vragen = Array.isArray(body.vragen) ? body.vragen.map(String) : []
+          patch.vragen = sanitizeQuestions(body.vragen)
         }
         const sanitized = sanitizeProductionPatchForClient(ctx, id, patch)
         if (typeof sanitized === 'string') {
@@ -48,25 +56,32 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
         patch = sanitized
       } else if (isCrew(ctx)) {
-        if (body.naam !== undefined) patch.naam = String(body.naam)
-        if (body.generalTitel !== undefined) patch.generalTitel = String(body.generalTitel).trim().slice(0, MAX_GENERAL_TITLE_CHARS)
-        if (body.png16x9 !== undefined) patch.png16x9 = String(body.png16x9).trim()
-        if (body.png9x16 !== undefined) patch.png9x16 = String(body.png9x16).trim()
-        if (body.png4x5 !== undefined) patch.png4x5 = String(body.png4x5).trim()
-        if (body.datum !== undefined) patch.datum = String(body.datum)
-        if (body.startTijd !== undefined) patch.startTijd = String(body.startTijd)
-        if (body.eindDatum !== undefined) patch.eindDatum = String(body.eindDatum)
-        if (body.eindTijd !== undefined) patch.eindTijd = String(body.eindTijd)
+        if (body.naam !== undefined) patch.naam = clipText(body.naam, MAX_SHORT_TEXT)
+        if (body.generalTitel !== undefined) patch.generalTitel = clipText(body.generalTitel, MAX_GENERAL_TITLE_CHARS)
+        if (body.png16x9 !== undefined) patch.png16x9 = sanitizeImageUrl(body.png16x9)
+        if (body.png9x16 !== undefined) patch.png9x16 = sanitizeImageUrl(body.png9x16)
+        if (body.png4x5 !== undefined) patch.png4x5 = sanitizeImageUrl(body.png4x5)
+        if (body.datum !== undefined) patch.datum = clipText(body.datum, 20)
+        if (body.startTijd !== undefined) patch.startTijd = clipText(body.startTijd, 20)
+        if (body.eindDatum !== undefined) patch.eindDatum = clipText(body.eindDatum, 20)
+        if (body.eindTijd !== undefined) patch.eindTijd = clipText(body.eindTijd, 20)
         if (body.status !== undefined) patch.status = String(body.status) as ProductieStatus
-        if (body.locatie !== undefined) patch.locatie = String(body.locatie)
-        if (body.land !== undefined) patch.land = String(body.land)
-        if (body.supervisor !== undefined) patch.supervisor = String(body.supervisor)
-        if (body.crew2 !== undefined) patch.crew2 = String(body.crew2)
-        if (body.crew3 !== undefined) patch.crew3 = String(body.crew3)
-        if (body.crew4 !== undefined) patch.crew4 = String(body.crew4)
-        if (body.crew5 !== undefined) patch.crew5 = String(body.crew5)
-        if (body.vragen !== undefined) patch.vragen = Array.isArray(body.vragen) ? body.vragen.map(String) : []
-        if (body.clientPassword !== undefined) patch.clientPassword = String(body.clientPassword)
+        if (body.locatie !== undefined) patch.locatie = clipText(body.locatie, MAX_SHORT_TEXT)
+        if (body.land !== undefined) patch.land = clipText(body.land, MAX_SHORT_TEXT)
+        if (body.supervisor !== undefined) patch.supervisor = clipText(body.supervisor, MAX_SHORT_TEXT)
+        if (body.crew2 !== undefined) patch.crew2 = clipText(body.crew2, MAX_SHORT_TEXT)
+        if (body.crew3 !== undefined) patch.crew3 = clipText(body.crew3, MAX_SHORT_TEXT)
+        if (body.crew4 !== undefined) patch.crew4 = clipText(body.crew4, MAX_SHORT_TEXT)
+        if (body.crew5 !== undefined) patch.crew5 = clipText(body.crew5, MAX_SHORT_TEXT)
+        if (body.vragen !== undefined) patch.vragen = sanitizeQuestions(body.vragen)
+        if (body.clientPassword !== undefined) {
+          const raw = String(body.clientPassword).trim()
+          if (raw && (raw.length < MIN_CLIENT_PASSWORD_LEN || raw.length > MAX_PASSWORD_LEN)) {
+            res.status(400).json({ error: `Client password must be ${MIN_CLIENT_PASSWORD_LEN}–${MAX_PASSWORD_LEN} characters` })
+            return
+          }
+          patch.clientPassword = raw
+        }
 
         if (body.action === 'archive') {
           patch.archivedAt = new Date().toISOString()
@@ -89,7 +104,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     if (req.method === 'DELETE') {
-      if (!requireCrew(req, res)) return
+      if (!await requireCrew(req, res)) return
       const ok = await deleteProductie(id)
       if (!ok) {
         res.status(404).json({ error: 'Production not found' })

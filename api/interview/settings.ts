@@ -7,7 +7,7 @@ function parseBody(req: VercelRequest): Record<string, unknown> {
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  if (!requireCrew(req, res)) return
+  if (!await requireCrew(req, res)) return
 
   try {
     await ensureSchema()

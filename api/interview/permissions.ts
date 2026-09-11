@@ -1,23 +1,36 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import type { Gast, Productie } from './types.js'
 import { getAuthContext, intakeLockApplies, isClient, isCrew, type AuthContext } from './auth.js'
-import { getSessionToken } from './session.js'
+import { clientSessionCredValid } from './database.js'
+import { originAllowed } from './sanitize.js'
+import { getSessionPayload, getSessionToken } from './session.js'
 
 export function resolveAuth(req: VercelRequest): AuthContext {
   return getAuthContext(req, getSessionToken(req))
 }
 
-export function requireLogin(req: VercelRequest, res: VercelResponse): AuthContext | null {
+export async function requireLogin(req: VercelRequest, res: VercelResponse): Promise<AuthContext | null> {
+  if (!originAllowed(req)) {
+    res.status(403).json({ error: 'Forbidden' })
+    return null
+  }
   const ctx = resolveAuth(req)
   if (!ctx.authenticated) {
     res.status(401).json({ error: 'Not logged in' })
     return null
   }
+  if (!ctx.skipAuth && ctx.role === 'client') {
+    const payload = getSessionPayload(req)
+    if (!payload || !(await clientSessionCredValid(payload.productionIds, payload.cred))) {
+      res.status(401).json({ error: 'Not logged in' })
+      return null
+    }
+  }
   return ctx
 }
 
-export function requireCrew(req: VercelRequest, res: VercelResponse): AuthContext | null {
-  const ctx = requireLogin(req, res)
+export async function requireCrew(req: VercelRequest, res: VercelResponse): Promise<AuthContext | null> {
+  const ctx = await requireLogin(req, res)
   if (!ctx) return null
   if (!isCrew(ctx)) {
     res.status(403).json({ error: 'Crew access only' })
@@ -28,10 +41,11 @@ export function requireCrew(req: VercelRequest, res: VercelResponse): AuthContex
 
 export function filterProductionsForAuth(ctx: AuthContext, list: Productie[]): Productie[] {
   const scoped = isCrew(ctx) ? list : list.filter((p) => ctx.productionIds.includes(p.id))
-  if (isCrew(ctx)) return scoped
-  // Never send recoverable client passwords to clients
   return scoped.map((p) => {
-    const { clientPasswordStored: _omit, ...rest } = p
+    const { clientPassword: _pw, clientPasswordStored: _omit, ...rest } = p as Productie & {
+      clientPassword?: string
+      clientPasswordStored?: string
+    }
     return rest
   })
 }
@@ -59,9 +73,6 @@ export function productionNameAllowed(
 export function guestEditableByClient(guest: Gast, patch: Record<string, unknown>): string | null {
   if (!guest.intakeComplete) return null
 
-  // Unlock may arrive alone or together with field edits (intro/outro/questions).
-  // The candidate form always sends a full payload, so requiring a solitary
-  // intakeComplete=false patch made Save fail after unchecking the lock.
   if (patch.intakeComplete === false) return null
 
   return 'Intake complete — unlock before editing'

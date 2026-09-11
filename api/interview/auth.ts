@@ -1,4 +1,4 @@
-import { createCipheriv, createDecipheriv, createHash, createHmac, randomBytes, scryptSync, timingSafeEqual } from 'crypto'
+import { createDecipheriv, createHash, createHmac, randomBytes, scryptSync, timingSafeEqual } from 'crypto'
 import type { VercelRequest } from '@vercel/node'
 
 export type InterviewRole = 'crew' | 'client'
@@ -8,6 +8,8 @@ export interface SessionPayload {
   productionIds: string[]
   /** Set when a named crew member logs in */
   crewName?: string
+  /** HMAC of current credentials; changes when a password is rotated. */
+  cred: string
   nonce: string
   /** Unix timestamp (seconds) when the session expires. */
   exp: number
@@ -22,7 +24,7 @@ export interface AuthContext {
 }
 
 const INTAKE_LOCK_TYPES = new Set(['Keynote speaker', 'Executive', 'Sponsor'])
-export const SESSION_TTL_SEC = 60 * 60 * 24 * 7
+export const SESSION_TTL_SEC = 60 * 60 * 24
 const SCRYPT_PARAMS = { N: 16384, r: 8, p: 1, maxmem: 64 * 1024 * 1024 } as const
 const SCRYPT_KEYLEN = 64
 
@@ -62,6 +64,13 @@ export function hashClientPassword(password: string): string {
   return `scrypt:${salt.toString('hex')}:${derived.toString('hex')}`
 }
 
+/** Fast index for client login; always followed by scrypt verify. */
+export function clientPasswordLookup(password: string): string {
+  const secret = getSecret()
+  if (!secret || !password) return ''
+  return createHmac('sha256', secret).update(`client-lookup:${password}`).digest('hex')
+}
+
 function verifyLegacyClientPassword(password: string, hash: string): boolean {
   if (!getSecret()) return false
   const expected = sign(`client:${password}`)
@@ -92,28 +101,23 @@ export function clientPasswordNeedsRehash(hash: string): boolean {
   return Boolean(hash) && !hash.startsWith('scrypt:')
 }
 
-function clientPasswordEncKey(): Buffer {
-  return createHash('sha256').update(`client-pw:${getSecret() || 'interview-fallback'}`).digest()
+function clientPasswordEncKey(): Buffer | null {
+  const secret = getSecret()
+  if (!secret) return null
+  return createHash('sha256').update(`client-pw:${secret}`).digest()
 }
 
-/** Reversible store so crew can rediscover the shared client password. */
-export function encryptClientPassword(password: string): string {
-  const iv = randomBytes(12)
-  const cipher = createCipheriv('aes-256-gcm', clientPasswordEncKey(), iv)
-  const enc = Buffer.concat([cipher.update(password, 'utf8'), cipher.final()])
-  const tag = cipher.getAuthTag()
-  return `enc:${iv.toString('hex')}:${tag.toString('hex')}:${enc.toString('hex')}`
-}
-
+/** One-time migration of previously recoverable passwords. Do not store new ciphertext. */
 export function decryptClientPassword(payload: string | null | undefined): string {
-  if (!payload || !payload.startsWith('enc:')) return ''
+  const key = clientPasswordEncKey()
+  if (!key || !payload || !payload.startsWith('enc:')) return ''
   const parts = payload.split(':')
   if (parts.length !== 4) return ''
   try {
     const iv = Buffer.from(parts[1], 'hex')
     const tag = Buffer.from(parts[2], 'hex')
     const data = Buffer.from(parts[3], 'hex')
-    const decipher = createDecipheriv('aes-256-gcm', clientPasswordEncKey(), iv)
+    const decipher = createDecipheriv('aes-256-gcm', key, iv)
     decipher.setAuthTag(tag)
     return Buffer.concat([decipher.update(data), decipher.final()]).toString('utf8')
   } catch {
@@ -175,8 +179,18 @@ export function verifyCrewMemberLogin(crewName: string, password: string): boole
   if (!(CREW_LOGIN_NAMES as readonly string[]).includes(crewName)) return false
   const personal = parseCrewPasswordMap()[crewName]
   if (personal) return safeEqualString(password, personal)
-  // Only if this person has no personal password yet
   return verifyCrewPassword(password)
+}
+
+export function crewSessionCred(crewName: string): string {
+  const personal = parseCrewPasswordMap()[crewName] || ''
+  const shared = process.env.INTERVIEW_APP_PASSWORD || ''
+  return sign(`crew-cred:${crewName}:${personal || shared}`)
+}
+
+export function verifyCrewSessionCred(crewName: string, cred: string): boolean {
+  if (!crewName || !cred) return false
+  return safeEqualHex(cred, crewSessionCred(crewName))
 }
 
 export function createSessionToken(payload: Omit<SessionPayload, 'nonce' | 'exp'> & { nonce?: string; exp?: number }): string {
@@ -184,6 +198,7 @@ export function createSessionToken(payload: Omit<SessionPayload, 'nonce' | 'exp'
     role: payload.role,
     productionIds: payload.productionIds || [],
     crewName: payload.crewName || undefined,
+    cred: payload.cred,
     nonce: payload.nonce || randomBytes(16).toString('hex'),
     exp: payload.exp ?? Math.floor(Date.now() / 1000) + SESSION_TTL_SEC,
   }
@@ -207,7 +222,11 @@ export function parseSessionToken(token: string | null): SessionPayload | null {
     const payload = JSON.parse(fromBase64Url(encoded)) as SessionPayload
     if (payload.role !== 'crew' && payload.role !== 'client') return null
     if (!Array.isArray(payload.productionIds)) payload.productionIds = []
+    if (typeof payload.cred !== 'string' || !payload.cred) return null
     if (typeof payload.exp !== 'number' || payload.exp < Math.floor(Date.now() / 1000)) return null
+    if (payload.role === 'crew') {
+      if (!payload.crewName || !verifyCrewSessionCred(payload.crewName, payload.cred)) return null
+    }
     return payload
   } catch {
     return null
@@ -215,8 +234,8 @@ export function parseSessionToken(token: string | null): SessionPayload | null {
 }
 
 export function skipAuth(): boolean {
-  // Never allow auth bypass on Vercel Production.
-  if (process.env.VERCEL_ENV === 'production') return false
+  // Never bypass auth on any Vercel deployment (production or preview).
+  if (process.env.VERCEL) return false
   const v = process.env.INTERVIEW_SKIP_AUTH || ''
   return v === '1' || v === 'true'
 }
@@ -252,9 +271,11 @@ export function clientProductionFilter(ctx: AuthContext, productionIds: string[]
 }
 
 export function getRequestIp(req: VercelRequest): string {
-  const forwarded = String(req.headers['x-forwarded-for'] || '').split(',')[0]?.trim()
-  if (forwarded) return forwarded
+  const vercel = String(req.headers['x-vercel-forwarded-for'] || '').split(',')[0]?.trim()
+  if (vercel) return vercel
   const realIp = String(req.headers['x-real-ip'] || '').trim()
   if (realIp) return realIp
+  const forwarded = String(req.headers['x-forwarded-for'] || '').split(',')[0]?.trim()
+  if (forwarded && !process.env.VERCEL) return forwarded
   return 'unknown'
 }

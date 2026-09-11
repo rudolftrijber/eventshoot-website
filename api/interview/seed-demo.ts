@@ -3,7 +3,7 @@ import { requireCrew } from './permissions.js'
 import { seedDemoData } from './demoSeed.js'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  if (!requireCrew(req, res)) return
+  if (!await requireCrew(req, res)) return
 
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'Method not allowed' })

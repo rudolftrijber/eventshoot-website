@@ -10,7 +10,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return
   }
 
-  const ctx = requireLogin(req, res)
+    const ctx = await requireLogin(req, res)
   if (!ctx) return
 
   try {

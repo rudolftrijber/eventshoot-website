@@ -61,6 +61,7 @@ const store = useInterviewStore()
 
 const devBuildStamp = import.meta.env.DEV ? '13 jul 09:50 · compact buttons' : ''
 const skipAuthMode = ref(false)
+const justSetClientPassword = ref('')
 const password = ref('')
 const loginIdentity = ref('') // '' = client, otherwise crew name
 const showPassword = ref(false)
@@ -649,6 +650,9 @@ function toggleEditCandidates() {
 }
 
 function enterProduction(p: Productie) {
+  if (manualProductieId.value !== p.id) {
+    justSetClientPassword.value = ''
+  }
   isNewProduction.value = false
   manualProductieId.value = p.id
   pickProductieId.value = p.id
@@ -1141,6 +1145,7 @@ async function saveProductie() {
     if (pClientPassword.value.trim()) {
       payload.clientPassword = pClientPassword.value.trim()
     }
+    const newClientPassword = pClientPassword.value.trim()
     const saved = await store.saveProduction(payload)
     if (!store.activeProductions.some((p) => p.id === saved.id)) {
       showToast('Save failed — production not visible after save')
@@ -1152,6 +1157,7 @@ async function saveProductie() {
     editingQuestions.value = false
     editingCandidates.value = false
     enterProduction(saved)
+    justSetClientPassword.value = newClientPassword
   } catch (e) {
     showToast(e instanceof Error ? e.message : 'Save failed')
   }
@@ -1179,6 +1185,7 @@ function clearProductieForm() {
   pClientPassword.value = ''
   showPClientPassword.value = false
   editingProdHasClientPassword.value = false
+  justSetClientPassword.value = ''
   resetQuestions(pQuestions)
   resetProdAi()
 }
@@ -1202,8 +1209,8 @@ function editProductie(p: Productie) {
   pCrew3.value = p.crew3 || DEFAULT_CREW_SLOT
   pCrew4.value = p.crew4 || DEFAULT_CREW_SLOT
   pCrew5.value = p.crew5 || DEFAULT_CREW_SLOT
-  pClientPassword.value = p.clientPasswordStored || ''
-  showPClientPassword.value = Boolean(p.clientPasswordStored)
+  pClientPassword.value = ''
+  showPClientPassword.value = false
   editingProdHasClientPassword.value = Boolean(p.hasClientPassword)
   resetQuestions(pQuestions, p.vragen)
 }
@@ -1215,6 +1222,7 @@ async function removeClientAccess() {
     editingProdHasClientPassword.value = false
     pClientPassword.value = ''
     showPClientPassword.value = false
+    justSetClientPassword.value = ''
     showToast('Client access removed')
   } catch (e) {
     showToast(e instanceof Error ? e.message : 'Failed')
@@ -1436,17 +1444,13 @@ onMounted(async () => {
   try {
     const status = await store.checkAuth()
     skipAuthMode.value = Boolean(status.skipAuth)
-    if (status.configured === false && status.missing?.length) {
+    if (status.configured === false) {
       apiConfigHint.value = status.skipAuth
         ? [
             'Database missing locally. Add POSTGRES_URL to .env.local:',
             'Vercel dashboard → Project → Settings → Environment Variables → POSTGRES_URL → copy value',
           ].join('\n')
-        : [
-            'Login does not work locally yet. Create .env.local with:',
-            status.missing.join(', '),
-            'Or set INTERVIEW_SKIP_AUTH=true and add POSTGRES_URL only.',
-          ].join('\n')
+        : 'Login is not configured on this server.'
     }
     if (store.authenticated) {
       await store.sync()
@@ -1658,7 +1662,7 @@ watch(() => store.role, (role) => {
             </div>
           </header>
 
-      <p v-if="skipAuthMode && !crewFocusMode" class="ia-skip-auth-banner">Finetune mode: password is off. Local only or set intentionally on Vercel.</p>
+      <p v-if="skipAuthMode && !crewFocusMode" class="ia-skip-auth-banner">Finetune mode: password is off. Local only.</p>
       <p v-else-if="store.isCrew && store.crewName && !crewFocusMode" class="ia-crew-banner">Crew · {{ store.crewName }}</p>
       <p v-else-if="store.isClient && !crewFocusMode" class="ia-client-banner">Client view — open a production, set Participant defaults, add candidates, and mark intake complete.</p>
 
@@ -2216,12 +2220,12 @@ watch(() => store.role, (role) => {
                   <h2 class="ia-section-title" style="margin:0">{{ productionHeading }}</h2>
                   <p v-if="!showProdForm" class="ia-hint" style="margin:0.35rem 0 0">{{ productionMeta }}</p>
                   <p
-                    v-if="store.isCrew && !isNewProduction && !showProdForm && workingProduction?.hasClientPassword"
+                    v-if="store.isCrew && !isNewProduction && !showProdForm && (workingProduction?.hasClientPassword || justSetClientPassword)"
                     class="ia-client-pw"
                   >
                     <span class="ia-client-pw__label">Client password</span>
-                    <code v-if="workingProduction.clientPasswordStored" class="ia-client-pw__value">{{ workingProduction.clientPasswordStored }}</code>
-                    <span v-else class="ia-client-pw__missing">Password active, but not recoverable. Open edit, generate a new one, and save.</span>
+                    <code v-if="justSetClientPassword" class="ia-client-pw__value">{{ justSetClientPassword }}</code>
+                    <span v-else class="ia-client-pw__missing">Password is set. It cannot be shown again. Open edit to generate a new one and copy it immediately.</span>
                   </p>
                 </div>
                 <button
@@ -2362,12 +2366,12 @@ watch(() => store.role, (role) => {
                         <EyeIcon v-else class="ia-password-wrap__icon" />
                       </button>
                     </div>
-                    <p v-if="editingProdHasClientPassword && workingProduction?.clientPasswordStored" class="ia-client-pw ia-client-pw--form">
-                      <span class="ia-client-pw__label">Current</span>
-                      <code class="ia-client-pw__value">{{ workingProduction.clientPasswordStored }}</code>
+                    <p v-if="justSetClientPassword" class="ia-client-pw ia-client-pw--form">
+                      <span class="ia-client-pw__label">Copy now</span>
+                      <code class="ia-client-pw__value">{{ justSetClientPassword }}</code>
                     </p>
                     <p v-else-if="editingProdHasClientPassword" class="ia-hint ia-hint--warn">
-                      A client password is active, but older passwords cannot be recovered. Generate or type a new one, save, and share that with the client. After that it stays visible here.
+                      A client password is set and cannot be shown again. Generate or type a new one, save, and copy it immediately.
                     </p>
                     <div class="ia-actions ia-actions--tight">
                       <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="generateClientPassword">

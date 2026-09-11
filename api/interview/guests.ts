@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { intakeLockApplies } from './auth.js'
+import { isClient, intakeLockApplies } from './auth.js'
 import {
   createGuest,
   ensureSchema,
@@ -12,7 +12,14 @@ import {
   requireLogin,
   sanitizeGuestCreateForClient,
 } from './permissions.js'
-import { isClient } from './auth.js'
+import {
+  clipText,
+  MAX_LONG_TEXT,
+  MAX_MEDIUM_TEXT,
+  MAX_SHORT_TEXT,
+  sanitizeImageUrl,
+  sanitizeQuestions,
+} from './sanitize.js'
 import { MAX_INTERVIEW_TITLE_CHARS, type Gast } from './types.js'
 
 function uid(): string {
@@ -24,7 +31,7 @@ function parseBody(req: VercelRequest): Record<string, unknown> {
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  const ctx = requireLogin(req, res)
+  const ctx = await requireLogin(req, res)
   if (!ctx) return
 
   try {
@@ -53,36 +60,36 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return
       }
 
-      const questions = Array.isArray(body.questions) ? body.questions.map(String) : []
-      const type = String(body.type || '')
+      const questions = sanitizeQuestions(body.questions)
+      const type = clipText(body.type, 40)
       const intakeComplete = Boolean(body.intakeComplete) && intakeLockApplies(type)
       const guest: Omit<Gast, 'createdAt' | 'updatedAt'> = {
         id: uid(),
-        productieNaam,
+        productieNaam: clipText(productieNaam, MAX_SHORT_TEXT),
         type,
-        naam: String(body.naam || '').trim(),
-        functie: String(body.functie || '').trim(),
-        organisatie: String(body.organisatie || '').trim(),
-        planning: String(body.planning || ''),
+        naam: clipText(body.naam, MAX_SHORT_TEXT),
+        functie: clipText(body.functie, MAX_SHORT_TEXT),
+        organisatie: clipText(body.organisatie, MAX_SHORT_TEXT),
+        planning: clipText(body.planning, MAX_MEDIUM_TEXT),
         gedeeld: Boolean(body.gedeeld),
-        introTekst: String(body.introTekst || '').trim(),
-        outroTekst: String(body.outroTekst || '').trim(),
-        serieNaam: String(body.serieNaam || '').trim(),
-        interviewTitel: String(body.interviewTitel || '').trim().slice(0, MAX_INTERVIEW_TITLE_CHARS),
-        screenshot16x9: String(body.screenshot16x9 || '').trim(),
-        screenshot9x16: String(body.screenshot9x16 || '').trim(),
-        screenshot4x5: String(body.screenshot4x5 || '').trim(),
-        thumbnail16x9: String(body.thumbnail16x9 || '').trim(),
-        thumbnail9x16: String(body.thumbnail9x16 || '').trim(),
-        thumbnail4x5: String(body.thumbnail4x5 || '').trim(),
+        introTekst: clipText(body.introTekst, MAX_LONG_TEXT),
+        outroTekst: clipText(body.outroTekst, MAX_LONG_TEXT),
+        serieNaam: clipText(body.serieNaam, MAX_MEDIUM_TEXT),
+        interviewTitel: clipText(body.interviewTitel, MAX_INTERVIEW_TITLE_CHARS),
+        screenshot16x9: sanitizeImageUrl(body.screenshot16x9),
+        screenshot9x16: sanitizeImageUrl(body.screenshot9x16),
+        screenshot4x5: sanitizeImageUrl(body.screenshot4x5),
+        thumbnail16x9: sanitizeImageUrl(body.thumbnail16x9),
+        thumbnail9x16: sanitizeImageUrl(body.thumbnail9x16),
+        thumbnail4x5: sanitizeImageUrl(body.thumbnail4x5),
         questions,
-        moderator: String(body.moderator || '').trim(),
-        moderatorFunctie: String(body.moderatorFunctie || '').trim(),
+        moderator: clipText(body.moderator, MAX_SHORT_TEXT),
+        moderatorFunctie: clipText(body.moderatorFunctie, MAX_SHORT_TEXT),
         intakeComplete,
         status: 'Entered',
         regienummer: '',
-        datum: String(body.datum || '').trim(),
-        tijd: String(body.tijd || '').trim(),
+        datum: clipText(body.datum, 20),
+        tijd: clipText(body.tijd, 20),
       }
       if (!guest.naam) {
         res.status(400).json({ error: 'Name is required' })

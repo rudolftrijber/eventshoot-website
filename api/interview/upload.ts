@@ -2,11 +2,15 @@ import { mkdir, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { v2 as cloudinary } from 'cloudinary'
+import { getRequestIp, isCrew } from './auth.js'
 import { requireLogin } from './permissions.js'
+import { consumeRateLimit, rateLimited } from './rateLimit.js'
 import { isPngRatioId, parseDataUrlImage, assertImageRatio, type ScreenshotExt } from './png.js'
 
 const KINDS = ['production-png', 'guest-screenshot', 'guest-thumbnail'] as const
 type UploadKind = (typeof KINDS)[number]
+const UPLOAD_MAX_HITS = 30
+const UPLOAD_WINDOW_MS = 15 * 60 * 1000
 
 /** Vercel cannot write to /public. If Cloudinary fails, small files stay as data URLs. */
 const DATA_URL_MAX_BYTES = 700 * 1024
@@ -92,18 +96,29 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return
   }
 
-  const ctx = requireLogin(req, res)
+  const ctx = await requireLogin(req, res)
   if (!ctx) return
+
+  const ip = getRequestIp(req)
+  const limit = await consumeRateLimit(`upload:${ctx.role || 'unknown'}:${ip}`, UPLOAD_MAX_HITS, UPLOAD_WINDOW_MS)
+  if (!limit.ok) {
+    rateLimited(res, limit.retryAfterSec, 'Too many uploads. Try again later.')
+    return
+  }
 
   try {
     const body = parseBody(req)
     const kind = String(body.kind || '') as UploadKind
     const ratio = String(body.ratio || '')
     const dataUrl = String(body.dataUrl || '')
-    const filename = typeof body.filename === 'string' ? body.filename : ''
+    const filename = typeof body.filename === 'string' ? body.filename.slice(0, 120) : ''
 
     if (!KINDS.includes(kind)) {
       res.status(400).json({ error: 'Unknown upload type' })
+      return
+    }
+    if (kind === 'production-png' && !isCrew(ctx)) {
+      res.status(403).json({ error: 'Crew access only' })
       return
     }
     if (!isPngRatioId(ratio)) {

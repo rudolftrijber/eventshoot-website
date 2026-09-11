@@ -1,13 +1,17 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import {
+  clientPasswordLookup,
   createSessionToken,
+  crewSessionCred,
   getAuthContext,
   getRequestIp,
   hasCrewAuthConfigured,
+  parseSessionToken,
   verifyCrewMemberLogin,
 } from './interview/auth.js'
-import { ensureSchema, fetchProductiesByClientPassword } from './interview/database.js'
+import { clientSessionCredValid, ensureSchema, fetchProductiesByClientPassword } from './interview/database.js'
 import { consumeRateLimit, rateLimited } from './interview/rateLimit.js'
+import { MAX_PASSWORD_LEN, originAllowed } from './interview/sanitize.js'
 import {
   clearSessionCookie,
   getSessionToken,
@@ -22,31 +26,37 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     if (req.method === 'GET') {
       const token = getSessionToken(req)
-      const ctx = getAuthContext(req, token)
+      let ctx = getAuthContext(req, token)
+      if (ctx.authenticated && !ctx.skipAuth && ctx.role === 'client') {
+        const payload = parseSessionToken(token)
+        if (!payload || !(await clientSessionCredValid(payload.productionIds, payload.cred))) {
+          ctx = { authenticated: false, role: null, productionIds: [], crewName: null, skipAuth: false }
+        }
+      }
       const authSkipped = skipAuth()
       const hasSecret = Boolean(process.env.INTERVIEW_SESSION_SECRET)
       const hasCrewAuth = hasCrewAuthConfigured()
       const hasDb = Boolean(process.env.POSTGRES_URL || process.env.POSTGRES_URL_NON_POOLING)
+      const configured = authSkipped ? hasDb : hasSecret && hasCrewAuth && hasDb
       res.status(200).json({
         authenticated: ctx.authenticated,
         role: ctx.role,
         productionIds: ctx.productionIds,
         crewName: ctx.crewName,
         skipAuth: authSkipped,
-        configured: authSkipped ? hasDb : hasSecret && hasCrewAuth && hasDb,
-        missing: authSkipped
-          ? [!hasDb && 'POSTGRES_URL'].filter(Boolean)
-          : [
-              !hasCrewAuth && 'INTERVIEW_CREW_PASSWORDS (or INTERVIEW_APP_PASSWORD)',
-              !hasSecret && 'INTERVIEW_SESSION_SECRET',
-              !hasDb && 'POSTGRES_URL',
-            ].filter(Boolean),
+        configured,
+        missing: authSkipped && !hasDb ? ['POSTGRES_URL'] : [],
       })
       return
     }
 
     if (req.method !== 'POST') {
       res.status(405).json({ error: 'Method not allowed' })
+      return
+    }
+
+    if (!originAllowed(req)) {
+      res.status(403).json({ error: 'Forbidden' })
       return
     }
 
@@ -61,7 +71,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (action === 'login') {
       if (!process.env.INTERVIEW_SESSION_SECRET) {
-        res.status(500).json({ error: 'Server not configured (INTERVIEW_SESSION_SECRET)' })
+        res.status(500).json({ error: 'Server not configured' })
         return
       }
 
@@ -74,7 +84,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       const password = String(body?.password || '')
       const crewName = String(body?.crewName || '').trim()
-      if (!password) {
+      if (!password || password.length > MAX_PASSWORD_LEN) {
         res.status(401).json({ error: 'Incorrect password' })
         return
       }
@@ -84,7 +94,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           res.status(401).json({ error: 'Incorrect password' })
           return
         }
-        const token = createSessionToken({ role: 'crew', productionIds: [], crewName })
+        const token = createSessionToken({
+          role: 'crew',
+          productionIds: [],
+          crewName,
+          cred: crewSessionCred(crewName),
+        })
         setSessionCookie(res, token)
         res.status(200).json({ ok: true, role: 'crew', crewName })
         return
@@ -92,7 +107,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       await ensureSchema()
       const productions = await fetchProductiesByClientPassword(password)
-      if (!productions.length) {
+      const lookup = clientPasswordLookup(password)
+      if (!productions.length || !lookup) {
         res.status(401).json({ error: 'Incorrect password' })
         return
       }
@@ -100,6 +116,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const token = createSessionToken({
         role: 'client',
         productionIds: productions.map((p) => p.id),
+        cred: lookup,
       })
       setSessionCookie(res, token)
       res.status(200).json({

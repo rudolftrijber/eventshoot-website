@@ -11,6 +11,15 @@ const COOKIE_NAME = 'interview_session'
 
 export { skipAuth, verifyCrewPassword as verifyPassword, SESSION_TTL_SEC }
 
+function cookieSecure(): string {
+  return process.env.VERCEL ? '; Secure' : ''
+}
+
+function cookieParts(path: string, token: string, maxAge: number): string {
+  const value = token ? encodeURIComponent(token) : ''
+  return `${COOKIE_NAME}=${value}; HttpOnly; Path=${path}; Max-Age=${maxAge}; SameSite=Lax${cookieSecure()}`
+}
+
 export function getSessionToken(req: VercelRequest): string | null {
   const cookie = req.headers.cookie
   if (!cookie) return null
@@ -23,19 +32,17 @@ export function isAuthenticated(req: VercelRequest): boolean {
 }
 
 export function setSessionCookie(res: VercelResponse, token: string): void {
-  const secure = process.env.VERCEL_ENV === 'production' ? '; Secure' : ''
-  res.setHeader(
-    'Set-Cookie',
-    `${COOKIE_NAME}=${encodeURIComponent(token)}; HttpOnly; Path=/; Max-Age=${SESSION_TTL_SEC}; SameSite=Lax${secure}`,
-  )
+  res.setHeader('Set-Cookie', [
+    cookieParts('/', '', 0),
+    cookieParts('/api', token, SESSION_TTL_SEC),
+  ])
 }
 
 export function clearSessionCookie(res: VercelResponse): void {
-  const secure = process.env.VERCEL_ENV === 'production' ? '; Secure' : ''
-  res.setHeader(
-    'Set-Cookie',
-    `${COOKIE_NAME}=; HttpOnly; Path=/; Max-Age=0; SameSite=Lax${secure}`,
-  )
+  res.setHeader('Set-Cookie', [
+    cookieParts('/', '', 0),
+    cookieParts('/api', '', 0),
+  ])
 }
 
 export function requireAuth(req: VercelRequest, res: VercelResponse): boolean {

@@ -1,4 +1,4 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node'
+import type { VercelResponse } from '@vercel/node'
 import { getSql, ensureSchema } from './database.js'
 
 export type RateLimitResult = {
@@ -9,6 +9,7 @@ export type RateLimitResult = {
 
 /**
  * Sliding fixed-window rate limit stored in Postgres (works across serverless instances).
+ * Increment happens in one UPSERT so concurrent requests cannot skip the cap.
  */
 export async function consumeRateLimit(
   bucketKey: string,
@@ -17,47 +18,32 @@ export async function consumeRateLimit(
 ): Promise<RateLimitResult> {
   await ensureSchema()
   const sql = await getSql()
-  const now = Date.now()
+  const windowSec = Math.max(1, Math.ceil(windowMs / 1000))
   const rows = await sql`
-    SELECT hits, window_start FROM interview_rate_limits WHERE bucket_key = ${bucketKey}
+    INSERT INTO interview_rate_limits (bucket_key, hits, window_start)
+    VALUES (${bucketKey}, 1, NOW())
+    ON CONFLICT (bucket_key) DO UPDATE SET
+      hits = CASE
+        WHEN interview_rate_limits.window_start <= NOW() - make_interval(secs => ${windowSec}) THEN 1
+        ELSE interview_rate_limits.hits + 1
+      END,
+      window_start = CASE
+        WHEN interview_rate_limits.window_start <= NOW() - make_interval(secs => ${windowSec}) THEN NOW()
+        ELSE interview_rate_limits.window_start
+      END
+    RETURNING hits, window_start
   `
   const row = rows[0] as { hits: number; window_start: string | Date } | undefined
-
-  if (!row) {
-    await sql`
-      INSERT INTO interview_rate_limits (bucket_key, hits, window_start)
-      VALUES (${bucketKey}, 1, NOW())
-      ON CONFLICT (bucket_key) DO UPDATE SET hits = 1, window_start = NOW()
-    `
-    return { ok: true, remaining: maxHits - 1, retryAfterSec: 0 }
-  }
-
-  const windowStart = row.window_start instanceof Date
-    ? row.window_start.getTime()
-    : new Date(row.window_start).getTime()
-  const elapsed = now - windowStart
-
-  if (Number.isNaN(windowStart) || elapsed >= windowMs) {
-    await sql`
-      UPDATE interview_rate_limits
-      SET hits = 1, window_start = NOW()
-      WHERE bucket_key = ${bucketKey}
-    `
-    return { ok: true, remaining: maxHits - 1, retryAfterSec: 0 }
-  }
-
-  const hits = Number(row.hits) || 0
-  if (hits >= maxHits) {
+  const hits = Number(row?.hits) || 1
+  if (hits > maxHits) {
+    const windowStart = row?.window_start instanceof Date
+      ? row.window_start.getTime()
+      : new Date(String(row?.window_start || '')).getTime()
+    const elapsed = Number.isNaN(windowStart) ? 0 : Date.now() - windowStart
     const retryAfterSec = Math.max(1, Math.ceil((windowMs - elapsed) / 1000))
     return { ok: false, remaining: 0, retryAfterSec }
   }
-
-  await sql`
-    UPDATE interview_rate_limits
-    SET hits = ${hits + 1}
-    WHERE bucket_key = ${bucketKey}
-  `
-  return { ok: true, remaining: Math.max(0, maxHits - hits - 1), retryAfterSec: 0 }
+  return { ok: true, remaining: Math.max(0, maxHits - hits), retryAfterSec: 0 }
 }
 
 export function rateLimited(
@@ -69,6 +55,6 @@ export function rateLimited(
   res.status(429).json({ error: message })
 }
 
-export function rateLimitKeyFromRequest(req: VercelRequest, prefix: string, ip: string): string {
+export function rateLimitKeyFromRequest(prefix: string, ip: string): string {
   return `${prefix}:${ip}`
 }
