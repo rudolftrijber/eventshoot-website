@@ -27,8 +27,8 @@ const serie = computed(() => (props.serieNaam || '').trim())
 const panel1Questions = computed(() => {
   const all = questions.value
   if (!all.length) return []
-  // Keep first panel inside the 13 cm cut, with room for the inner margin
-  const max = intro.value ? 3 : 4
+  // Full-width body text; logo only sits in the header row
+  const max = intro.value ? 4 : 5
   return all.slice(0, Math.min(max, all.length))
 })
 
@@ -104,13 +104,6 @@ function printCard() {
       <div class="pc-sheet">
         <!-- Panel 1 -->
         <article class="pc-panel">
-          <img
-            class="pc-logo"
-            src="/images/logos/ES_logo_pos.png"
-            alt="Eventshoot.nl"
-            width="160"
-            height="36"
-          />
           <div class="pc-crop" aria-hidden="true">
             <span class="pc-crop__mark pc-crop__mark--tl" />
             <span class="pc-crop__mark pc-crop__mark--tr" />
@@ -119,11 +112,21 @@ function printCard() {
           </div>
           <div class="pc-panel__inner">
             <header class="pc-head">
-              <p v-if="productieNaam || productieDatum" class="pc-prod">
-                <span v-if="productieNaam">{{ productieNaam }}</span>
-                <span v-if="productieNaam && productieDatum"> · </span>
-                <span v-if="productieDatum">{{ productieDatum }}</span>
-              </p>
+              <div class="pc-head__top">
+                <p v-if="productieNaam || productieDatum" class="pc-prod">
+                  <span v-if="productieNaam">{{ productieNaam }}</span>
+                  <span v-if="productieNaam && productieDatum"> · </span>
+                  <span v-if="productieDatum">{{ productieDatum }}</span>
+                </p>
+                <p v-else class="pc-prod">&nbsp;</p>
+                <img
+                  class="pc-logo"
+                  src="/images/logos/ES_logo_pos.png"
+                  alt="Eventshoot.nl"
+                  width="160"
+                  height="36"
+                />
+              </div>
               <p v-if="serie" class="pc-serie">{{ serie }}</p>
               <h1 class="pc-name">{{ naam || 'Name' }}</h1>
               <p v-if="functie" class="pc-role">{{ functie }}</p>
@@ -150,13 +153,6 @@ function printCard() {
 
         <!-- Panel 2 -->
         <article v-if="showPanel2" class="pc-panel">
-          <img
-            class="pc-logo"
-            src="/images/logos/ES_logo_pos.png"
-            alt="Eventshoot.nl"
-            width="160"
-            height="36"
-          />
           <div class="pc-crop" aria-hidden="true">
             <span class="pc-crop__mark pc-crop__mark--tl" />
             <span class="pc-crop__mark pc-crop__mark--tr" />
@@ -164,8 +160,21 @@ function printCard() {
             <span class="pc-crop__mark pc-crop__mark--br" />
           </div>
           <div class="pc-panel__inner">
+            <header class="pc-head">
+              <div class="pc-head__top">
+                <div v-if="panel2Questions.length" class="pc-label">Questions (continued)</div>
+                <div v-else class="pc-label">Outro</div>
+                <img
+                  class="pc-logo"
+                  src="/images/logos/ES_logo_pos.png"
+                  alt="Eventshoot.nl"
+                  width="160"
+                  height="36"
+                />
+              </div>
+            </header>
+
             <div v-if="panel2Questions.length" class="pc-block">
-              <div class="pc-label">Questions (continued)</div>
               <ol class="pc-questions">
                 <li v-for="(q, i) in panel2Questions" :key="i">
                   <span class="pc-qnum">{{ panel1Questions.length + i + 1 }}.</span>
@@ -175,7 +184,7 @@ function printCard() {
             </div>
 
             <div v-if="outro" class="pc-block">
-              <div class="pc-label">Outro</div>
+              <div v-if="panel2Questions.length" class="pc-label">Outro</div>
               <p class="pc-text">{{ outro }}</p>
             </div>
           </div>
@@ -291,19 +300,16 @@ function printCard() {
 }
 
 .pc-logo {
-  position: absolute;
-  top: 7mm;
-  right: 8mm;
-  width: 42mm;
+  position: static;
+  flex: 0 0 auto;
+  width: 38mm;
   height: auto;
-  z-index: 2;
   display: block;
 }
 
 .pc-panel__inner {
   height: 100%;
-  padding: 8mm 10mm 9mm 10mm;
-  padding-right: 52mm; /* room for logo */
+  padding: 7mm 8mm 8mm 8mm;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -311,6 +317,34 @@ function printCard() {
   overflow: hidden;
   background: #fff;
   color: #111;
+}
+
+.pc-head {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+}
+
+.pc-head__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 6mm;
+}
+
+.pc-head__top .pc-prod,
+.pc-head__top .pc-label {
+  min-width: 0;
+  flex: 1 1 auto;
+  margin-bottom: 0;
+}
+
+.pc-block,
+.pc-text,
+.pc-questions {
+  width: 100%;
+  max-width: none;
 }
 
 .pc-crop__mark {
@@ -394,6 +428,11 @@ function printCard() {
   font-size: 12.5pt;
   line-height: 1.3;
   color: #111;
+}
+
+.pc-questions li > span:last-child {
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .pc-qnum {
