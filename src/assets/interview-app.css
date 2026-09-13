@@ -1729,13 +1729,41 @@
 
 .ia-question-row .ia-textarea {
   flex: 1;
+  min-width: 0;
 }
 
-.ia-question-row .ia-iconbtn--delete {
+.ia-question-row__num {
+  flex: 0 0 1.6rem;
+  min-height: 2.5rem;
+  padding-top: 0.55rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-accent);
+  text-align: center;
+  line-height: 1.2;
+}
+
+.ia-question-row__tools {
+  display: flex;
   flex-shrink: 0;
-  min-width: 2.5rem;
+  align-items: flex-start;
+  gap: 0.1rem;
+}
+
+.ia-question-row .ia-iconbtn--delete,
+.ia-question-row .ia-iconbtn--move {
+  flex-shrink: 0;
+  min-width: 2.25rem;
   min-height: 2.5rem;
   align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ia-question-row .ia-iconbtn--move svg {
+  width: 1.15rem;
+  height: 1.15rem;
 }
 
 .ia-iconbtn:disabled {

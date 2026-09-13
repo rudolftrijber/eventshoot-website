@@ -38,7 +38,7 @@ import {
   triggerImageDownload,
   withImageCacheBust,
 } from '@/utils/interviewUploads'
-import '@/assets/interview-app.css?v=copy-all'
+import '@/assets/interview-app.css?v=question-order'
 import '@/assets/interview-app-buttons.css'
 import {
   EyeIcon,
@@ -52,6 +52,7 @@ import {
   PencilSquareIcon,
 } from '@heroicons/vue/24/outline'
 import { PencilSquareIcon as PencilSquareSolidIcon } from '@heroicons/vue/24/solid'
+import InterviewQuestionRow from '@/components/interview/InterviewQuestionRow.vue'
 import ParticipantDefaultsCard from '@/components/interview/ParticipantDefaultsCard.vue'
 import RatioPngUpload from '@/components/interview/RatioPngUpload.vue'
 import ShortQuestionsTip from '@/components/interview/ShortQuestionsTip.vue'
@@ -667,6 +668,7 @@ function enterProduction(p: Productie) {
 
 const addFQ = () => addQuestion(fQuestions)
 const removeFQ = (i: number) => removeQuestion(fQuestions, i)
+const moveFQ = (i: number, dir: -1 | 1) => moveQuestion(fQuestions, i, dir)
 const addPQ = () => addQuestion(pQuestions)
 const removePQ = (i: number) => removeQuestion(pQuestions, i)
 
@@ -736,6 +738,15 @@ function removeQuestion(list: { value: string[] }, idx: number) {
     return
   }
   list.value.splice(idx, 1)
+}
+
+function moveQuestion(list: { value: string[] }, idx: number, dir: -1 | 1) {
+  const to = idx + dir
+  if (to < 0 || to >= list.value.length) return
+  const next = [...list.value]
+  const [item] = next.splice(idx, 1)
+  next.splice(to, 0, item)
+  list.value = next
 }
 
 function resetQuestions(list: { value: string[] }, values?: string[]) {
@@ -2069,16 +2080,17 @@ watch(() => store.role, (role) => {
                   </button>
                 </div>
               </div>
-              <div v-for="(q, i) in fQuestions" :key="`guest-q-${i}-${fQuestions.length}`" class="ia-question-row">
-                <textarea v-model="fQuestions[i]" class="ia-textarea" rows="1" :placeholder="`Question ${i + 1}`" :disabled="guestFormLocked" />
-                <button
-                  class="ia-iconbtn ia-iconbtn--delete"
-                  type="button"
-                  title="Remove question"
-                  :disabled="fQuestions.length <= 1 || guestFormLocked"
-                  @click.stop="removeFQ(i)"
-                >🗑️</button>
-              </div>
+              <p class="ia-hint">Use the arrows to set the order. Save the interview to keep it.</p>
+              <InterviewQuestionRow
+                v-for="(_, i) in fQuestions"
+                :key="`guest-q-${i}`"
+                v-model="fQuestions[i]"
+                :index="i"
+                :total="fQuestions.length"
+                :disabled="guestFormLocked"
+                @move="moveFQ"
+                @remove="removeFQ"
+              />
               <div class="ia-actions">
                 <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" :disabled="guestFormLocked" @click="addFQ">+ Question</button>
               </div>

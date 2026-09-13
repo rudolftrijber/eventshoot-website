@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ClipboardDocumentIcon, SparklesIcon } from '@heroicons/vue/24/outline'
+import InterviewQuestionRow from '@/components/interview/InterviewQuestionRow.vue'
 import ShortQuestionsTip from '@/components/interview/ShortQuestionsTip.vue'
 import { copyTextToClipboard, formatQuestionsForCopy } from '@/utils/interviewCsv'
 import { ref } from 'vue'
@@ -48,6 +49,15 @@ async function copyAll() {
     copyHint.value = ok ? 'Copied' : 'Copy failed'
   }
   setTimeout(() => { copyHint.value = '' }, 2000)
+}
+
+function moveQuestion(idx: number, dir: -1 | 1) {
+  const to = idx + dir
+  if (to < 0 || to >= questions.value.length) return
+  const next = [...questions.value]
+  const [item] = next.splice(idx, 1)
+  next.splice(to, 0, item)
+  questions.value = next
 }
 </script>
 
@@ -165,16 +175,16 @@ async function copyAll() {
         </button>
       </div>
     </div>
-    <div v-for="(q, i) in questions" :key="`dq-${i}-${questions.length}`" class="ia-question-row">
-      <textarea v-model="questions[i]" class="ia-textarea" rows="1" :placeholder="`Question ${i + 1}`" />
-      <button
-        class="ia-iconbtn ia-iconbtn--delete"
-        type="button"
-        title="Remove question"
-        :disabled="questions.length <= 1"
-        @click.stop="emit('removeQuestion', i)"
-      >🗑️</button>
-    </div>
+    <p class="ia-hint">Use the arrows to set the order. Save defaults to keep it.</p>
+    <InterviewQuestionRow
+      v-for="(_, i) in questions"
+      :key="`dq-${i}`"
+      v-model="questions[i]"
+      :index="i"
+      :total="questions.length"
+      @move="moveQuestion"
+      @remove="(idx) => emit('removeQuestion', idx)"
+    />
     <div class="ia-actions">
       <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="emit('addQuestion')">+ Question</button>
       <button
