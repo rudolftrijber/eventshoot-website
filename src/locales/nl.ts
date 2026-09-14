@@ -568,6 +568,8 @@ export default {
     pThird: 'Wij verkopen jouw gegevens niet aan derden en verstrekken deze uitsluitend indien dit nodig is voor de uitvoering van onze overeenkomst (bijvoorbeeld hosting of technische diensten) of om te voldoen aan een wettelijke verplichting.',
     h2Disclaimer: 'Disclaimer',
     pDisclaimer: 'Aan de informatie op deze website en in de Event Interview App kunnen geen rechten worden ontleend. Eventshoot.nl BV is niet aansprakelijk voor schade die voortvloeit uit het gebruik van of het vertrouwen op die inhoud.',
+    h2Copyright: 'Copyright',
+    pCopyright: 'Foto\'s, video en overig materiaal van Eventshoot.nl BV zijn auteursrechtelijk beschermd. Geleverd materiaal mag je gebruiken voor het afgesproken doel. Verdere publicatie of doorgeven aan derden mag alleen met voorafgaande schriftelijke toestemming.',
     h2Questions: 'Vragen?',
     pQuestionsBefore: 'Stuur een e-mail naar',
   },

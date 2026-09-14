@@ -568,6 +568,8 @@ export default {
     pThird: 'We do not sell your data to third parties and only share it when necessary to perform our agreement (for example hosting or technical services) or to comply with a legal obligation.',
     h2Disclaimer: 'Disclaimer',
     pDisclaimer: 'No rights can be derived from the information on this website or in the Event Interview App. Eventshoot.nl BV is not liable for damage arising from the use of, or reliance on, that content.',
+    h2Copyright: 'Copyright',
+    pCopyright: 'Photographs, video and other materials produced by Eventshoot.nl BV are protected by copyright. Delivered files may be used for the agreed purpose. Further publication or transfer to third parties requires prior written permission.',
     h2Questions: 'Questions?',
     pQuestionsBefore: 'Send an email to',
   },

@@ -1,10 +1,18 @@
 <script setup lang="ts">
+import { nextTick, onMounted } from 'vue'
 import { usePageSeo } from '@/composables/usePageSeo'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 
 usePageSeo('privacy', { url: 'https://eventshoot.nl/privacy' })
+
+onMounted(async () => {
+  const id = window.location.hash.replace('#', '')
+  if (!id) return
+  await nextTick()
+  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+})
 </script>
 
 <template>
@@ -39,6 +47,9 @@ usePageSeo('privacy', { url: 'https://eventshoot.nl/privacy' })
 
         <h2>{{ t('privacyPage.h2Disclaimer') }}</h2>
         <p>{{ t('privacyPage.pDisclaimer') }}</p>
+
+        <h2 id="copyright">{{ t('privacyPage.h2Copyright') }}</h2>
+        <p>{{ t('privacyPage.pCopyright') }}</p>
 
         <h2>{{ t('privacyPage.h2Questions') }}</h2>
         <p>
@@ -75,6 +86,7 @@ usePageSeo('privacy', { url: 'https://eventshoot.nl/privacy' })
   font-weight: 700;
   margin: 2rem 0 0.75rem;
   color: #fff;
+  scroll-margin-top: 8rem;
 }
 
 .privacy__inner p {

@@ -38,7 +38,7 @@ import {
   triggerImageDownload,
   withImageCacheBust,
 } from '@/utils/interviewUploads'
-import '@/assets/interview-app.css?v=question-order'
+import '@/assets/interview-app.css?v=footer-sticky'
 import '@/assets/interview-app-buttons.css'
 import {
   EyeIcon,
@@ -726,6 +726,9 @@ async function handleLogin() {
 
 const MAX_QUESTIONS = 10
 const MAX_INTRO_OUTRO_CHARS = 350
+const APP_MOTTO = 'Your event is a goldmine of content.'
+const tickerItems = [APP_MOTTO, APP_MOTTO, APP_MOTTO, APP_MOTTO, APP_MOTTO, APP_MOTTO]
+const footerYear = new Date().getFullYear()
 
 function addQuestion(list: { value: string[] }) {
   if (list.value.length >= MAX_QUESTIONS) { showToast(`Maximum ${MAX_QUESTIONS} questions`); return }
@@ -2738,10 +2741,33 @@ watch(() => store.role, (role) => {
       </div>
     </template>
 
-    <!-- Shared footer on all pages -->
+    <!-- Shared footer: ticker stays on screen, no separate copyright page -->
     <footer v-if="!crewFocusMode" class="ia-app-footer">
-      <p class="ia-app-motto">Your event is a goldmine of content</p>
-      <a class="ia-app-privacy" href="/privacy/" target="_blank" rel="noopener noreferrer">Privacy</a>
+      <p class="ia-app-motto-sr">{{ APP_MOTTO }}</p>
+      <div class="ia-ticker" aria-hidden="true">
+        <div class="ia-ticker__track">
+          <div class="ia-ticker__group">
+            <template v-for="(item, i) in tickerItems" :key="`a-${i}`">
+              <span class="ia-ticker__item">{{ item }}</span>
+              <span class="ia-ticker__sep">★</span>
+            </template>
+          </div>
+          <div class="ia-ticker__group">
+            <template v-for="(item, i) in tickerItems" :key="`b-${i}`">
+              <span class="ia-ticker__item">{{ item }}</span>
+              <span class="ia-ticker__sep">★</span>
+            </template>
+          </div>
+        </div>
+      </div>
+      <p class="ia-ticker__static">{{ APP_MOTTO }}</p>
+      <nav class="ia-app-footer__links" aria-label="Legal and contact">
+        <a href="/privacy/" target="_blank" rel="noopener noreferrer">Privacy</a>
+        <span aria-hidden="true">·</span>
+        <span>© Eventshoot.nl BV {{ footerYear }}</span>
+        <span aria-hidden="true">·</span>
+        <a href="/kennismaken/" target="_blank" rel="noopener noreferrer">Contact</a>
+      </nav>
     </footer>
 
     <div v-if="toast" class="ia-toast">{{ toast }}</div>
