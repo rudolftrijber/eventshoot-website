@@ -6,22 +6,16 @@
   --color-bg-card: rgba(0, 0, 0, 0.35);
   --color-text: #ffffff;
   --color-text-muted: rgba(255, 255, 255, 0.75);
-  --ia-footer-height: 4.75rem;
 
   position: relative;
   z-index: 0;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  padding-bottom: var(--ia-footer-height);
   background: transparent;
   color: #ffffff;
   font-family: var(--font-base);
   font-size: 0.8125rem;
-}
-
-.interview-app--crew-focus {
-  padding-bottom: 0;
 }
 
 .interview-app--fullscreen {
@@ -63,20 +57,14 @@
 }
 
 .ia-app-footer {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 40;
   width: 100%;
   flex-shrink: 0;
-  margin-top: 0;
-  padding: 1.1rem 1.25rem 1.15rem;
+  margin-top: auto;
+  padding: 1.5rem 1.25rem 2.25rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0.45rem;
-  background: transparent;
 }
 
 .ia-login__card h1 {

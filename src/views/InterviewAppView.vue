@@ -38,7 +38,7 @@ import {
   triggerImageDownload,
   withImageCacheBust,
 } from '@/utils/interviewUploads'
-import '@/assets/interview-app.css?v=footer-calm'
+import '@/assets/interview-app.css?v=footer-flow'
 import '@/assets/interview-app-buttons.css'
 import {
   EyeIcon,
