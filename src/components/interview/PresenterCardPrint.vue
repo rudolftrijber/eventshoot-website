@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onUnmounted, watch } from 'vue'
+import { computed, nextTick, onUnmounted, ref, watch } from 'vue'
 
 const props = defineProps<{
   open: boolean
@@ -23,28 +23,150 @@ const intro = computed(() => (props.introTekst || '').trim())
 const outro = computed(() => (props.outroTekst || '').trim())
 const serie = computed(() => (props.serieNaam || '').trim())
 
-/** First cut panel: identity + intro + first questions */
-const panel1Questions = computed(() => {
-  const all = questions.value
-  if (!all.length) return []
-  // Full-width body text; logo only sits in the header row
-  const max = intro.value ? 4 : 5
-  return all.slice(0, Math.min(max, all.length))
-})
+type CardPanel = {
+  kind: 'first' | 'continued'
+  questions: string[]
+  questionOffset: number
+  showIntro: boolean
+  showOutro: boolean
+}
 
-/** Second cut panel: remaining questions + outro */
-const panel2Questions = computed(() => {
-  const all = questions.value
-  if (all.length <= panel1Questions.value.length) return []
-  return all.slice(panel1Questions.value.length)
-})
+const packedPanels = ref<CardPanel[]>([])
+const innerEls: (HTMLElement | null)[] = []
+let fillPromise: Promise<void> | null = null
+let fillToken = 0
 
-const showPanel2 = computed(() => panel2Questions.value.length > 0 || Boolean(outro.value))
+function setInnerRef(index: number, el: unknown) {
+  innerEls[index] = el instanceof HTMLElement ? el : null
+}
+
+function clonePanels(list: CardPanel[]): CardPanel[] {
+  return list.map((panel) => ({
+    ...panel,
+    questions: [...panel.questions],
+  }))
+}
+
+function withOffsets(list: CardPanel[]): CardPanel[] {
+  let offset = 0
+  return list.map((panel) => {
+    const next = { ...panel, questionOffset: offset }
+    offset += panel.questions.length
+    return next
+  })
+}
+
+function firstPanel(): CardPanel {
+  return {
+    kind: 'first',
+    questions: [],
+    questionOffset: 0,
+    showIntro: Boolean(intro.value),
+    showOutro: false,
+  }
+}
+
+function panelOverflows(index: number): boolean {
+  const el = innerEls[index]
+  if (!el) return false
+  return el.scrollHeight > el.clientHeight + 1
+}
+
+async function waitLayout() {
+  await nextTick()
+  await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
+}
+
+async function waitForInner(index: number) {
+  for (let attempt = 0; attempt < 8; attempt++) {
+    await waitLayout()
+    if (innerEls[index]) return
+  }
+}
+
+async function fillPanels() {
+  const token = ++fillToken
+  if (!props.open) {
+    packedPanels.value = withOffsets([firstPanel()])
+    return
+  }
+
+  const result: CardPanel[] = [firstPanel()]
+  packedPanels.value = withOffsets(clonePanels(result))
+  await waitForInner(0)
+  if (token !== fillToken) return
+
+  for (const question of questions.value) {
+    const index = result.length - 1
+    result[index].questions.push(question)
+    packedPanels.value = withOffsets(clonePanels(result))
+    await waitForInner(index)
+    if (token !== fillToken) return
+    if (!panelOverflows(index)) continue
+
+    result[index].questions.pop()
+    result.push({
+      kind: 'continued',
+      questions: [question],
+      questionOffset: 0,
+      showIntro: false,
+      showOutro: false,
+    })
+    packedPanels.value = withOffsets(clonePanels(result))
+    await waitForInner(result.length - 1)
+    if (token !== fillToken) return
+  }
+
+  if (!outro.value) return
+
+  const index = result.length - 1
+  result[index].showOutro = true
+  packedPanels.value = withOffsets(clonePanels(result))
+  await waitForInner(index)
+  if (token !== fillToken) return
+  if (!panelOverflows(index)) return
+
+  result[index].showOutro = false
+  result.push({
+    kind: 'continued',
+    questions: [],
+    questionOffset: 0,
+    showIntro: false,
+    showOutro: true,
+  })
+  packedPanels.value = withOffsets(clonePanels(result))
+}
+
+const sheets = computed(() => {
+  const list = packedPanels.value
+  const out: CardPanel[][] = []
+  for (let i = 0; i < list.length; i += 2) out.push(list.slice(i, i + 2))
+  return out
+})
 
 watch(
   () => props.open,
   (open) => {
     document.body.classList.toggle('ia-presenter-print-open', open)
+  },
+  { immediate: true },
+)
+
+watch(
+  () => [
+    props.open,
+    questions.value.join('\n'),
+    intro.value,
+    outro.value,
+    props.naam,
+    props.functie,
+    props.organisatie,
+    props.productieNaam,
+    props.productieDatum,
+    props.serieNaam,
+  ],
+  () => {
+    fillPromise = fillPanels()
   },
   { immediate: true },
 )
@@ -67,7 +189,8 @@ function pdfFileBaseName(): string {
     .trim()
 }
 
-function printCard() {
+async function printCard() {
+  if (fillPromise) await fillPromise
   previousTitle = document.title
   document.title = pdfFileBaseName()
   const restore = () => {
@@ -78,7 +201,6 @@ function printCard() {
     window.removeEventListener('afterprint', restore)
   }
   window.addEventListener('afterprint', restore)
-  // Small delay so the browser paints the print layout cleanly
   requestAnimationFrame(() => window.print())
 }
 </script>
@@ -100,18 +222,20 @@ function printCard() {
         </div>
       </div>
 
-      <!-- One printable sheet: up to two stacked cut panels -->
-      <div class="pc-sheet">
-        <!-- Panel 1 -->
-        <article class="pc-panel">
+      <div v-for="(sheet, sheetIndex) in sheets" :key="sheetIndex" class="pc-sheet">
+        <article
+          v-for="(panel, panelIndex) in sheet"
+          :key="`${sheetIndex}-${panel.kind}-${panel.questionOffset}-${panel.questions.length}`"
+          class="pc-panel"
+        >
           <div class="pc-crop" aria-hidden="true">
             <span class="pc-crop__mark pc-crop__mark--tl" />
             <span class="pc-crop__mark pc-crop__mark--tr" />
             <span class="pc-crop__mark pc-crop__mark--bl" />
             <span class="pc-crop__mark pc-crop__mark--br" />
           </div>
-          <div class="pc-panel__inner">
-            <header class="pc-head">
+          <div class="pc-panel__inner" :ref="(el) => setInnerRef(sheetIndex * 2 + panelIndex, el)">
+            <header v-if="panel.kind === 'first'" class="pc-head">
               <div class="pc-head__top">
                 <p v-if="productieNaam || productieDatum" class="pc-prod">
                   <span v-if="productieNaam">{{ productieNaam }}</span>
@@ -132,37 +256,9 @@ function printCard() {
               <p v-if="functie" class="pc-role">{{ functie }}</p>
               <p v-if="organisatie" class="pc-org">{{ organisatie }}</p>
             </header>
-
-            <div v-if="intro" class="pc-block">
-              <div class="pc-label">Intro</div>
-              <p class="pc-text">{{ intro }}</p>
-            </div>
-
-            <div v-if="panel1Questions.length" class="pc-block">
-              <div class="pc-label">Questions</div>
-              <ol class="pc-questions">
-                <li v-for="(q, i) in panel1Questions" :key="i">
-                  <span class="pc-qnum">{{ i + 1 }}.</span>
-                  <span>{{ q }}</span>
-                </li>
-              </ol>
-            </div>
-            <p v-else-if="!intro" class="pc-empty">No questions yet</p>
-          </div>
-        </article>
-
-        <!-- Panel 2 -->
-        <article v-if="showPanel2" class="pc-panel">
-          <div class="pc-crop" aria-hidden="true">
-            <span class="pc-crop__mark pc-crop__mark--tl" />
-            <span class="pc-crop__mark pc-crop__mark--tr" />
-            <span class="pc-crop__mark pc-crop__mark--bl" />
-            <span class="pc-crop__mark pc-crop__mark--br" />
-          </div>
-          <div class="pc-panel__inner">
-            <header class="pc-head">
+            <header v-else class="pc-head">
               <div class="pc-head__top">
-                <div v-if="panel2Questions.length" class="pc-label">Questions (continued)</div>
+                <div v-if="panel.questions.length" class="pc-label">Questions (continued)</div>
                 <div v-else class="pc-label">Outro</div>
                 <img
                   class="pc-logo"
@@ -174,24 +270,33 @@ function printCard() {
               </div>
             </header>
 
-            <div v-if="panel2Questions.length" class="pc-block">
+            <div v-if="panel.showIntro && intro" class="pc-block">
+              <div class="pc-label">Intro</div>
+              <p class="pc-text">{{ intro }}</p>
+            </div>
+
+            <div v-if="panel.questions.length" class="pc-block">
+              <div v-if="panel.kind === 'first'" class="pc-label">Questions</div>
               <ol class="pc-questions">
-                <li v-for="(q, i) in panel2Questions" :key="i">
-                  <span class="pc-qnum">{{ panel1Questions.length + i + 1 }}.</span>
+                <li v-for="(q, i) in panel.questions" :key="i">
+                  <span class="pc-qnum">{{ panel.questionOffset + i + 1 }}.</span>
                   <span>{{ q }}</span>
                 </li>
               </ol>
             </div>
+            <p v-else-if="panel.kind === 'first' && !intro" class="pc-empty">No questions yet</p>
 
-            <div v-if="outro" class="pc-block">
-              <div v-if="panel2Questions.length" class="pc-label">Outro</div>
+            <div v-if="panel.showOutro && outro" class="pc-block">
+              <div v-if="panel.questions.length" class="pc-label">Outro</div>
               <p class="pc-text">{{ outro }}</p>
             </div>
           </div>
         </article>
       </div>
 
-      <p class="pc-cut-hint no-print">Cut along each dashed line (19 × 13 cm). Stick onto the pre-printed presenter cards.</p>
+      <p class="pc-cut-hint no-print">
+        Cut along each dashed line (19 × 13 cm). A third card prints on the next page when the questions do not fit on two.
+      </p>
     </div>
   </Teleport>
 </template>
@@ -283,6 +388,10 @@ function printCard() {
   align-items: center;
   justify-content: flex-start;
   gap: 8mm;
+}
+
+.pc-sheet + .pc-sheet {
+  margin-top: 10mm;
 }
 
 /* Cut panel: max 19 × 13 cm */
@@ -475,6 +584,12 @@ function printCard() {
     background: #fff !important;
     border-radius: 0 !important;
     box-shadow: none !important;
+  }
+
+  .pc-sheet + .pc-sheet {
+    break-before: page;
+    page-break-before: always;
+    margin-top: 0 !important;
   }
 
   .pc-panel,
