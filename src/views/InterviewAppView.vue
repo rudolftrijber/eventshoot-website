@@ -38,7 +38,7 @@ import {
   triggerImageDownload,
   withImageCacheBust,
 } from '@/utils/interviewUploads'
-import '@/assets/interview-app.css?v=footer-flow'
+import '@/assets/interview-app.css?v=footer-legal'
 import '@/assets/interview-app-buttons.css'
 import {
   EyeIcon,
@@ -2742,12 +2742,22 @@ watch(() => store.role, (role) => {
 
     <footer v-if="!crewFocusMode" class="ia-app-footer">
       <p class="ia-app-motto">{{ APP_MOTTO }}</p>
-      <nav class="ia-app-footer__links" aria-label="Legal and contact">
-        <a href="/privacy/" target="_blank" rel="noopener noreferrer">Privacy</a>
-        <span aria-hidden="true">·</span>
-        <span>© Eventshoot.nl BV {{ footerYear }}</span>
-        <span aria-hidden="true">·</span>
-        <a href="/kennismaken/" target="_blank" rel="noopener noreferrer">Contact</a>
+      <nav class="ia-app-footer__legal" aria-label="Legal">
+        <p>
+          &copy; Eventshoot.nl BV &ndash; {{ footerYear }}
+          &nbsp;&middot;&nbsp;
+          <a href="/privacy/" target="_blank" rel="noopener noreferrer">Privacy &amp; Disclaimer</a>
+          &nbsp;&middot;&nbsp;
+          <a
+            href="/DATA_EVENTSHOOT/FILES/general_terms_eventshoot.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+          >Terms &amp; Conditions</a>
+          &nbsp;&middot;&nbsp;
+          KvK 64222519
+          &nbsp;&middot;&nbsp;
+          VAT NL855572735B01
+        </p>
       </nav>
     </footer>
 
