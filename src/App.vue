@@ -10,6 +10,7 @@ import { reinitElfsightWidgets } from '@/lib/elfsight'
 
 const route = useRoute()
 const hideLayout = computed(() => Boolean(route.meta.hideLayout))
+const hideRolfContact = computed(() => Boolean(route.meta.hideRolfContact))
 
 watch(
   () => route.fullPath,
@@ -29,7 +30,7 @@ watch(
 
   <NavBar v-if="!hideLayout" />
   <RouterView />
-  <RolfContact v-if="!hideLayout" />
+  <RolfContact v-if="!hideLayout && !hideRolfContact" />
   <FooterSection v-if="!hideLayout" />
 </template>
 

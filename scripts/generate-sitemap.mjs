@@ -27,6 +27,7 @@ const STATIC_PAGES = [
   { path: '/voor/bedrijven', priority: '0.8', changefreq: 'monthly' },
   { path: '/privacy', priority: '0.3', changefreq: 'yearly' },
   { path: '/gallery', priority: '0.4', changefreq: 'yearly' },
+  { path: '/video', priority: '0.4', changefreq: 'monthly' },
 ]
 
 const client = createClient({

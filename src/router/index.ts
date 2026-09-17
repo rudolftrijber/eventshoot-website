@@ -26,6 +26,7 @@ const router = createRouter({
     { path: '/voor/bedrijven', name: 'voor-bedrijven', component: () => import('../views/VoorBedrijvenView.vue') },
     { path: '/gallery', name: 'gallery', component: () => import('../views/GalleryView.vue') },
     { path: '/privacy', name: 'privacy', component: () => import('../views/PrivacyView.vue') },
+    { path: '/video', name: 'video', component: () => import('../views/VideoView.vue'), meta: { hideRolfContact: true } },
     { path: '/test/video', name: 'test-video', component: () => import('../views/TestVideoView.vue') },
     { path: '/interview-app', name: 'interview-app', component: () => import('../views/InterviewAppView.vue'), meta: { hideLayout: true } },
     // Redirects voor oude URL's
