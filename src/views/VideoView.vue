@@ -40,14 +40,18 @@ onUnmounted(() => {
 
 <style scoped>
 .video-page {
-  padding-top: 7.5rem;
-  padding-bottom: 2.5rem;
+  /* Onder de vaste topbalk (36px) + navigatie (76px), boven de footer */
+  position: relative;
+  z-index: 1;
+  margin-top: 112px;
+  width: 100%;
   background: #000;
-  min-height: 100vh;
+  padding: 0 0 2.5rem;
 }
 
 .video-page__channel {
   width: 100%;
   max-width: 100%;
+  background: #000;
 }
 </style>
