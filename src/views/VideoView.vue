@@ -1,76 +1,53 @@
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import { useSeo } from '@/composables/useSeo'
 
-const PLAYER_BASE = 'https://luteijnmedia.bbvms.com/ch/1472.html?inheritDimensions=true'
-
-const iframeSrc = computed(() => {
-  if (typeof window === 'undefined') return PLAYER_BASE
-  return `${PLAYER_BASE}#!referrer=${encodeURIComponent(window.location.href)}&realReferrer=${encodeURIComponent(document.referrer)}`
-})
-
-function onPlayerLoad(event: Event) {
-  const el = event.target as HTMLIFrameElement
-  if (el.src.includes('#!referrer=')) return
-  el.src += `#!referrer=${encodeURIComponent(location.href)}&realReferrer=${encodeURIComponent(document.referrer)}`
-}
+const SCRIPT_SRC = 'https://luteijnmedia.bbvms.com/ch/1472.js'
+const CHANNEL_TARGET = 'eventshoot-video-channel'
+const host = ref<HTMLElement | null>(null)
+let scriptEl: HTMLScriptElement | null = null
 
 onMounted(() => {
   useSeo({
     title: 'Video | Eventshoot.nl',
-    description: 'Video van Eventshoot.nl, met header en footer van de site.',
+    description: 'Video van Eventshoot.nl.',
     url: 'https://eventshoot.nl/video',
   })
+
+  if (!host.value) return
+  host.value.innerHTML = ''
+
+  scriptEl = document.createElement('script')
+  scriptEl.type = 'text/javascript'
+  scriptEl.src = SCRIPT_SRC
+  scriptEl.async = true
+  scriptEl.setAttribute('data-target', `#${CHANNEL_TARGET}`)
+  host.value.appendChild(scriptEl)
+})
+
+onUnmounted(() => {
+  scriptEl?.remove()
+  scriptEl = null
+  if (host.value) host.value.innerHTML = ''
 })
 </script>
 
 <template>
-  <main>
-    <section class="video-page section">
-      <div class="container video-page__inner">
-        <div class="video-page__frame">
-          <iframe
-            class="video-page__player"
-            :src="iframeSrc"
-            title="Eventshoot.nl video"
-            width="720"
-            height="405"
-            frameborder="0"
-            allow="autoplay; fullscreen"
-            allowfullscreen
-            webkitallowfullscreen
-            mozallowfullscreen
-            @load="onPlayerLoad"
-          />
-        </div>
-      </div>
-    </section>
+  <main class="video-page">
+    <div :id="CHANNEL_TARGET" ref="host" class="video-page__channel" />
   </main>
 </template>
 
 <style scoped>
 .video-page {
-  padding-top: 9rem;
-  padding-bottom: 4rem;
+  padding-top: 7.5rem;
+  padding-bottom: 2.5rem;
+  background: #000;
+  min-height: 100vh;
 }
 
-.video-page__inner {
-  max-width: 960px;
-}
-
-.video-page__frame {
-  position: relative;
+.video-page__channel {
   width: 100%;
-  aspect-ratio: 16 / 9;
-  background: #111;
-  overflow: hidden;
-}
-
-.video-page__player {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  border: none;
+  max-width: 100%;
 }
 </style>
