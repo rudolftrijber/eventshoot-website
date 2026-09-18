@@ -13,6 +13,7 @@ import {
   MAX_GENERAL_TITLE_CHARS,
   MAX_INTERVIEW_TITLE_CHARS,
   PRODUCTIE_STATUSES,
+  SHOW_45_THUMBNAIL_RATIO,
   SHOW_PORTRAIT_THUMBNAIL_RATIOS,
   type PngRatioId,
 } from '@/types/interview'
@@ -38,7 +39,7 @@ import {
   triggerImageDownload,
   withImageCacheBust,
 } from '@/utils/interviewUploads'
-import '@/assets/interview-app.css?v=footer-app'
+import '@/assets/interview-app.css?v=thumb-45b'
 import '@/assets/interview-app-buttons.css'
 import {
   EyeIcon,
@@ -319,6 +320,12 @@ function formatGuestWhen(g: Gast): string {
 }
 
 const presenterSerieNaam = computed(() => (presenterProduction.value?.generalTitel || '').trim())
+
+const pngGridClass = computed(() => {
+  if (SHOW_PORTRAIT_THUMBNAIL_RATIOS) return ''
+  if (SHOW_45_THUMBNAIL_RATIO) return 'ia-png-grid--dual'
+  return 'ia-png-grid--single'
+})
 
 function overlayUrlFor(ratio: PngRatioId): string {
   const p = presenterProduction.value
@@ -1790,7 +1797,7 @@ watch(() => store.role, (role) => {
               <div class="ia-charcount" :class="{ warn: interviewTitelOverLimit }">
                 {{ fInterviewTitel.length }} / {{ MAX_INTERVIEW_TITLE_CHARS }} characters
               </div>
-              <div class="ia-png-grid" :class="{ 'ia-png-grid--single': !SHOW_PORTRAIT_THUMBNAIL_RATIOS }">
+              <div class="ia-png-grid" :class="pngGridClass">
                 <RatioPngUpload
                   v-model="fScreenshot16x9"
                   kind="guest-screenshot"
@@ -1861,7 +1868,7 @@ watch(() => store.role, (role) => {
                   </template>
                 </RatioPngUpload>
                 <RatioPngUpload
-                  v-if="SHOW_PORTRAIT_THUMBNAIL_RATIOS"
+                  v-if="SHOW_45_THUMBNAIL_RATIO"
                   v-model="fScreenshot4x5"
                   kind="guest-screenshot"
                   ratio="4x5"
@@ -2271,10 +2278,10 @@ watch(() => store.role, (role) => {
                   <span class="ia-thumb-preview__label">Serie titel</span>
                   {{ workingProduction.generalTitel }}
                 </p>
-                <div class="ia-png-grid ia-png-grid--preview">
+                <div class="ia-png-grid ia-png-grid--preview" :class="pngGridClass">
                   <figure
                     v-if="workingProduction.png16x9"
-                    class="ia-png-preview"
+                    class="ia-png-preview ia-png-preview--16x9"
                     :class="{ 'ia-png-preview--replace': store.isCrew }"
                     :role="store.isCrew ? 'button' : undefined"
                     :tabindex="store.isCrew ? 0 : undefined"
@@ -2296,7 +2303,7 @@ watch(() => store.role, (role) => {
                   </figure>
                   <figure
                     v-if="SHOW_PORTRAIT_THUMBNAIL_RATIOS && workingProduction.png9x16"
-                    class="ia-png-preview"
+                    class="ia-png-preview ia-png-preview--9x16"
                     :class="{ 'ia-png-preview--replace': store.isCrew }"
                     @click="store.isCrew && startReplaceProductionPng()"
                   >
@@ -2313,8 +2320,8 @@ watch(() => store.role, (role) => {
                     <figcaption>{{ productionPngMissing('9x16') ? '9:16 · tap to replace' : '9:16' }}</figcaption>
                   </figure>
                   <figure
-                    v-if="SHOW_PORTRAIT_THUMBNAIL_RATIOS && workingProduction.png4x5"
-                    class="ia-png-preview"
+                    v-if="SHOW_45_THUMBNAIL_RATIO && workingProduction.png4x5"
+                    class="ia-png-preview ia-png-preview--4x5"
                     :class="{ 'ia-png-preview--replace': store.isCrew }"
                     @click="store.isCrew && startReplaceProductionPng()"
                   >
@@ -2439,7 +2446,7 @@ watch(() => store.role, (role) => {
                 <div id="ia-png-overlays" class="ia-thumb-block">
                   <h3 class="ia-form-section-title">PNG overlays</h3>
                   <p class="ia-hint" style="margin:0 0 0.75rem">
-                    One transparent PNG per format, max 3 MB. No JPG: the overlay needs a transparent background.
+                    One transparent PNG per format (16:9 and 4:5), max 3 MB. No JPG: the overlay needs a transparent background.
                   </p>
                   <label class="ia-label">Serie titel</label>
                   <input
@@ -2454,10 +2461,10 @@ watch(() => store.role, (role) => {
                   <p class="ia-hint" style="margin:0 0 0.85rem">
                     Comes on every thumbnail of this production. The date sits directly under the logo.
                   </p>
-                  <div class="ia-png-grid" :class="{ 'ia-png-grid--single': !SHOW_PORTRAIT_THUMBNAIL_RATIOS }">
+                  <div class="ia-png-grid" :class="pngGridClass">
                     <RatioPngUpload v-model="pPng16x9" kind="production-png" ratio="16x9" />
                     <RatioPngUpload v-if="SHOW_PORTRAIT_THUMBNAIL_RATIOS" v-model="pPng9x16" kind="production-png" ratio="9x16" />
-                    <RatioPngUpload v-if="SHOW_PORTRAIT_THUMBNAIL_RATIOS" v-model="pPng4x5" kind="production-png" ratio="4x5" />
+                    <RatioPngUpload v-if="SHOW_45_THUMBNAIL_RATIO" v-model="pPng4x5" kind="production-png" ratio="4x5" />
                   </div>
                 </div>
 

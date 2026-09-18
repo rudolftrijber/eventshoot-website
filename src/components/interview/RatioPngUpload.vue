@@ -49,7 +49,7 @@ const accept = computed(() =>
     : 'image/jpeg,image/jpg,image/png,image/webp,.jpg,.jpeg,.png,.webp',
 )
 const idleHint = computed(() =>
-  isOverlay.value ? 'PNG, transparent' : 'Still — then position',
+  isOverlay.value ? 'PNG, transparent' : 'Still, then position',
 )
 
 function isAllowedImage(file: File): boolean {

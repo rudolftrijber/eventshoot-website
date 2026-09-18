@@ -19,8 +19,10 @@ export const PNG_RATIOS: Array<{ id: PngRatioId; label: string; ratio: number }>
   { id: '4x5', label: '4:5', ratio: 4 / 5 },
 ]
 
-/** Temporary: hide 9:16 and 4:5 slots until those formats are finetuned. */
+/** Temporary: hide 9:16 slots until that format is finetuned. */
 export const SHOW_PORTRAIT_THUMBNAIL_RATIOS = false
+/** LinkedIn 4:5, next to landscape 16:9. */
+export const SHOW_45_THUMBNAIL_RATIO = true
 
 export interface Productie {
   id: string
