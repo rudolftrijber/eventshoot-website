@@ -26,12 +26,10 @@ export function thumbnailFilename(ratio: PngRatioId, naam: string, isoDate: stri
   return `${slug}_${datePart}${suffix}.jpg`
 }
 
-export function formatThumbnailDate(iso: string, time?: string): string {
+export function formatThumbnailDate(iso: string): string {
   if (!iso || !/^\d{4}-\d{2}-\d{2}/.test(iso)) return ''
   const d = new Date(`${iso.slice(0, 10)}T12:00:00`)
-  const date = d.toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' })
-  const t = (time || '').trim()
-  return t ? `${date} · ${t}` : date
+  return d.toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' })
 }
 
 function loadImage(src: string): Promise<HTMLImageElement> {

@@ -387,7 +387,6 @@ async function generateThumbnail(ratio: PngRatioId) {
       generalTitel: presenterSerieNaam.value,
       dateLabel: formatThumbnailDate(
         fDatum.value || presenterProduction.value?.datum || '',
-        fTijd.value,
       ),
     })
     setThumbnailUrl(ratio, dataUrl)
