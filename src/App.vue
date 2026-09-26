@@ -11,6 +11,7 @@ import { reinitElfsightWidgets } from '@/lib/elfsight'
 const route = useRoute()
 const hideLayout = computed(() => Boolean(route.meta.hideLayout))
 const hideRolfContact = computed(() => Boolean(route.meta.hideRolfContact))
+const hideBackgroundVideo = computed(() => Boolean(route.meta.hideBackgroundVideo))
 
 watch(
   () => route.fullPath,
@@ -21,8 +22,9 @@ watch(
 </script>
 
 <template>
-  <div class="app-bg">
+  <div class="app-bg" :class="{ 'app-bg--solid': hideBackgroundVideo }">
     <BackgroundVideo
+      v-if="!hideBackgroundVideo"
       video-class="app-bg__video"
       src="/images/es_bokey_bckgrnd_v1-1080p.mp4"
     />
@@ -42,6 +44,10 @@ watch(
   z-index: -1;
   overflow: hidden;
   background: #0a1628;
+}
+
+.app-bg--solid {
+  background: #002d56; /* Leaseweb and other solid-bg routes */
 }
 
 .app-bg__video {
