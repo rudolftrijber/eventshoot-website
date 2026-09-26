@@ -48,7 +48,9 @@ onUnmounted(() => {
 
 <template>
   <main class="lw-channel-page">
-    <div :id="CHANNEL_TARGET" ref="host" class="lw-channel-page__host" />
+    <div class="lw-channel-page__box">
+      <div :id="CHANNEL_TARGET" ref="host" class="lw-channel-page__host" />
+    </div>
   </main>
 </template>
 
@@ -60,20 +62,26 @@ onUnmounted(() => {
   width: 100%;
   min-height: calc(100vh - 112px);
   background: #002d56;
-  padding: 0 0 2.5rem;
+  padding: 3.125rem 1.5rem 4.75rem;
+}
+
+.lw-channel-page__box {
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
 }
 
 .lw-channel-page__host {
   position: static;
   width: 100%;
-  max-width: 100%;
   height: auto;
   overflow: visible;
-  background: #002d56;
 }
 
 .lw-channel-page__host :deep(.bb-channel-wrapper) {
   position: static !important;
+  width: 100% !important;
+  max-width: 100% !important;
   height: auto !important;
   overflow: visible !important;
 }
