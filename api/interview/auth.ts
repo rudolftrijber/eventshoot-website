@@ -234,8 +234,9 @@ export function parseSessionToken(token: string | null): SessionPayload | null {
 }
 
 export const FLOOR_CREW_NAME = 'Floor'
+export const FLOOR_PATH_TOKEN = 'live'
 
-/** Unlisted set URL key. INTERVIEW_FLOOR_KEY, or a stable HMAC of the session secret. */
+/** Optional extra key. INTERVIEW_FLOOR_KEY, or a stable HMAC of the session secret. */
 export function getFloorKey(): string {
   const explicit = String(process.env.INTERVIEW_FLOOR_KEY || '').trim()
   if (explicit) return explicit.slice(0, 64)
@@ -245,9 +246,11 @@ export function getFloorKey(): string {
 }
 
 export function verifyFloorKey(key: string): boolean {
-  const expected = getFloorKey()
   const given = String(key || '').trim()
-  if (!expected || !given || given.length !== expected.length) return false
+  if (!given) return false
+  if (given === FLOOR_PATH_TOKEN) return true
+  const expected = getFloorKey()
+  if (!expected || given.length !== expected.length) return false
   try {
     return timingSafeEqual(Buffer.from(given), Buffer.from(expected))
   } catch {
@@ -256,8 +259,7 @@ export function verifyFloorKey(key: string): boolean {
 }
 
 export function floorAppPath(): string {
-  const key = getFloorKey()
-  return key ? `/interview-app/live/${key}` : ''
+  return '/interview-app/live'
 }
 
 export function skipAuth(): boolean {

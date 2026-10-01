@@ -63,7 +63,11 @@ import PresenterCardPrint from '@/components/interview/PresenterCardPrint.vue'
 const store = useInterviewStore()
 const route = useRoute()
 const floorMode = computed(() => Boolean(route.meta.floorMode))
-const floorKey = computed(() => String(route.params.floorKey || ''))
+const floorKey = computed(() => {
+  const raw = String(route.params.floorKey || '').trim()
+  if (!raw || raw === '…' || raw === '...') return 'live'
+  return raw
+})
 
 const devBuildStamp = import.meta.env.DEV ? '13 jul 09:50 · compact buttons' : ''
 const skipAuthMode = ref(false)
@@ -1516,7 +1520,7 @@ onMounted(async () => {
   if (!meta.parentElement) document.head.appendChild(meta)
 
   try {
-    if (floorMode.value && floorKey.value) {
+    if (floorMode.value) {
       const status = await store.checkAuth()
       skipAuthMode.value = Boolean(status.skipAuth)
       if (status.configured === false) {
@@ -1661,7 +1665,7 @@ watch(() => store.role, (role) => {
             <div class="ia-login__card">
               <p v-if="devBuildStamp" class="ia-dev-badge">Local · build {{ devBuildStamp }}</p>
               <p class="ia-login__intro">Crew: choose your name and password. Clients: choose Client and use the production password.</p>
-              <p v-if="floorMode" class="ia-hint">This is the set link. It should sign you in without a password. If that failed, log in once below.</p>
+              <p v-if="floorMode" class="ia-hint">Set link: this page signs crew in without a password. Bookmark https://eventshoot.nl/interview-app/live on the tablet.</p>
               <p v-if="store.idleLoggedOut" class="ia-login__idle">You were logged out after 10 minutes without activity. Log in again to continue.</p>
               <p v-if="apiConfigHint" class="ia-error ia-error--block ia-error--pre">{{ apiConfigHint }}</p>
               <label class="ia-label" for="login-identity">Who are you?</label>
