@@ -32,7 +32,6 @@ const router = createRouter({
     { path: '/leaseweb', name: 'leaseweb', component: LeasewebChannelView, meta: { hideRolfContact: true, hideBackgroundVideo: true } }, // channel 1499, height follows BB content
     { path: '/interview-app', name: 'interview-app', component: () => import('../views/InterviewAppView.vue'), meta: { hideLayout: true } },
     { path: '/interview-app/live', name: 'interview-app-live', component: () => import('../views/InterviewAppView.vue'), meta: { hideLayout: true, floorMode: true } },
-    { path: '/interview-app/live/', redirect: '/interview-app/live' },
     { path: '/interview-app/live/:floorKey', name: 'interview-app-live-key', component: () => import('../views/InterviewAppView.vue'), meta: { hideLayout: true, floorMode: true } },
     // Redirects voor oude URL's
     { path: '/portfolio', redirect: '/werk' },
