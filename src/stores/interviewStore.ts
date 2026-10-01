@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import type { Gast, GastStatus, InterviewRole, InterviewSettings, Productie, TabId } from '@/types/interview'
 
-const POLL_MS = 3000
+const POLL_MS = 10000
 const IDLE_MS = 10 * 60 * 1000
 const IDLE_ACTIVITY_EVENTS = ['pointerdown', 'keydown', 'touchstart', 'scroll', 'mousemove'] as const
 
@@ -42,6 +42,7 @@ export const useInterviewStore = defineStore('interview', () => {
   const role = ref<InterviewRole | null>(null)
   const crewName = ref<string | null>(null)
   const clientProductionIds = ref<string[]>([])
+  const floorPath = ref('')
   const loading = ref(false)
   const error = ref('')
   const guests = ref<Gast[]>([])
@@ -78,17 +79,19 @@ export const useInterviewStore = defineStore('interview', () => {
       skipAuth?: boolean
       configured?: boolean
       missing?: string[]
+      floorPath?: string
     }>('/api/interview-login')
     authenticated.value = Boolean(data.skipAuth || data.authenticated)
     role.value = data.skipAuth ? 'crew' : (data.role || null)
     crewName.value = data.skipAuth ? null : (data.crewName || null)
     clientProductionIds.value = data.productionIds || []
+    if (data.floorPath) floorPath.value = data.floorPath
     return data
   }
 
   async function login(password: string, selectedCrewName = '') {
     error.value = ''
-    const data = await api<{ ok: boolean; role?: InterviewRole; productionIds?: string[]; crewName?: string }>(
+    const data = await api<{ ok: boolean; role?: InterviewRole; productionIds?: string[]; crewName?: string; floorPath?: string }>(
       '/api/interview-login',
       {
         method: 'POST',
@@ -103,10 +106,30 @@ export const useInterviewStore = defineStore('interview', () => {
     role.value = data.role || 'crew'
     crewName.value = data.crewName || null
     clientProductionIds.value = data.productionIds || []
+    if (data.floorPath) floorPath.value = data.floorPath
     idleLoggedOut.value = false
     await sync()
     startPolling()
     startIdleWatch()
+  }
+
+  async function loginFloor(key: string) {
+    error.value = ''
+    const data = await api<{ ok: boolean; role?: InterviewRole; crewName?: string; floorPath?: string }>(
+      '/api/interview-login',
+      {
+        method: 'POST',
+        body: JSON.stringify({ action: 'floor', key }),
+      },
+    )
+    authenticated.value = true
+    role.value = data.role || 'crew'
+    crewName.value = data.crewName || 'Floor'
+    clientProductionIds.value = []
+    if (data.floorPath) floorPath.value = data.floorPath
+    idleLoggedOut.value = false
+    await sync()
+    startPolling()
   }
 
   function clearLocalSession() {
@@ -114,6 +137,7 @@ export const useInterviewStore = defineStore('interview', () => {
     role.value = null
     crewName.value = null
     clientProductionIds.value = []
+    floorPath.value = ''
     guests.value = []
     productions.value = []
     activeGuestId.value = null
@@ -139,8 +163,8 @@ export const useInterviewStore = defineStore('interview', () => {
     await logout()
   }
 
-  async function sync() {
-    loading.value = true
+  async function sync(opts?: { silent?: boolean }) {
+    if (!opts?.silent) loading.value = true
     error.value = ''
     try {
       const data = await api<{
@@ -161,13 +185,13 @@ export const useInterviewStore = defineStore('interview', () => {
         clearLocalSession()
       }
     } finally {
-      loading.value = false
+      if (!opts?.silent) loading.value = false
     }
   }
 
   function startPolling() {
     stopPolling()
-    pollTimer.value = setInterval(() => { void sync() }, POLL_MS)
+    pollTimer.value = setInterval(() => { void sync({ silent: true }) }, POLL_MS)
   }
 
   function stopPolling() {
@@ -389,6 +413,7 @@ export const useInterviewStore = defineStore('interview', () => {
     role,
     crewName,
     clientProductionIds,
+    floorPath,
     isCrew,
     isClient,
     loading,
@@ -406,6 +431,7 @@ export const useInterviewStore = defineStore('interview', () => {
     idleLoggedOut,
     checkAuth,
     login,
+    loginFloor,
     logout,
     sync,
     startPolling,

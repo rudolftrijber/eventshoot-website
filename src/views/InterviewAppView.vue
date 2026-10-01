@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { useInterviewStore } from '@/stores/interviewStore'
 import type { Gast, GuestView, Productie } from '@/types/interview'
 import {
@@ -60,6 +61,9 @@ import ShortQuestionsTip from '@/components/interview/ShortQuestionsTip.vue'
 import PresenterCardPrint from '@/components/interview/PresenterCardPrint.vue'
 
 const store = useInterviewStore()
+const route = useRoute()
+const floorMode = computed(() => Boolean(route.meta.floorMode))
+const floorKey = computed(() => String(route.params.floorKey || ''))
 
 const devBuildStamp = import.meta.env.DEV ? '13 jul 09:50 · compact buttons' : ''
 const skipAuthMode = ref(false)
@@ -652,10 +656,6 @@ function toggleEditQuestions() {
   editingQuestions.value = true
 }
 
-function toggleEditCandidates() {
-  editingCandidates.value = !editingCandidates.value
-}
-
 function enterProduction(p: Productie) {
   if (manualProductieId.value !== p.id) {
     justSetClientPassword.value = ''
@@ -682,6 +682,17 @@ function showToast(msg: string) {
   toast.value = msg
   if (toastTimer) clearTimeout(toastTimer)
   toastTimer = setTimeout(() => { toast.value = '' }, 2000)
+}
+
+async function copyFloorLink() {
+  const path = store.floorPath
+  if (!path) {
+    showToast('Set URL not available yet')
+    return
+  }
+  const url = `${window.location.origin}${path}`
+  const ok = await copyTextToClipboard(url)
+  showToast(ok ? 'Set URL copied. Bookmark this on the tablet.' : 'Copy failed')
 }
 
 async function copyQuestions(
@@ -716,12 +727,13 @@ async function handleLogin() {
         store.idleLoggedOut = false
         await store.sync()
         store.startPolling()
-        store.startIdleWatch()
+        if (!floorMode.value) store.startIdleWatch()
       }
       return
     }
     await store.login(password.value, loginIdentity.value)
     password.value = ''
+    if (floorMode.value) store.stopIdleWatch()
   } catch (e) {
     const msg = e instanceof Error ? e.message : 'Login failed'
     if (!msg.includes('.env.local') && !msg.includes('INTERVIEW_') && !msg.includes('POSTGRES_URL')) {
@@ -1072,6 +1084,23 @@ async function saveGuest() {
   }
 }
 
+async function deleteCurrentGuest() {
+  if (!editingId.value) return
+  if (fIntakeComplete.value && !store.isCrew) {
+    showToast('Intake complete — unlock before deleting')
+    return
+  }
+  try {
+    await store.deleteGuest(editingId.value)
+    showToast('Candidate deleted')
+    clearForm()
+    clearGuestOverlay()
+    store.setTab('production')
+  } catch (e) {
+    showToast(e instanceof Error ? e.message : 'Delete failed')
+  }
+}
+
 function loadForEdit(g: Gast) {
   editingId.value = g.id
   fProductie.value = sortedProductions.value.some((p) => p.naam === g.productieNaam) ? g.productieNaam : ''
@@ -1416,6 +1445,32 @@ function openGuestInterviewer(g: Gast) {
   guestView.value = 'interviewer'
 }
 
+function nameChecked(g: Gast) {
+  return g.status === 'Checked' || g.status === 'Recorded'
+}
+
+function onNameCheckClick(g: Gast, event: Event) {
+  event.preventDefault()
+  event.stopPropagation()
+  if (!store.isCrew) return
+  if (g.status === 'Entered') {
+    openGuestControle(g)
+    return
+  }
+  void store.updateGuest(g.id, { status: 'Entered' })
+}
+
+function onRecordedClick(g: Gast, event: Event) {
+  event.preventDefault()
+  event.stopPropagation()
+  if (!store.isCrew) return
+  if (g.status === 'Recorded') {
+    void store.updateGuest(g.id, { status: 'Checked' })
+    return
+  }
+  void store.updateGuest(g.id, { status: 'Recorded' })
+}
+
 function pillClass(status: Gast['status']) {
   const slug: Record<Gast['status'], string> = {
     Entered: 'entered',
@@ -1461,6 +1516,20 @@ onMounted(async () => {
   if (!meta.parentElement) document.head.appendChild(meta)
 
   try {
+    if (floorMode.value && floorKey.value) {
+      const status = await store.checkAuth()
+      skipAuthMode.value = Boolean(status.skipAuth)
+      if (status.configured === false) {
+        apiConfigHint.value = 'Login is not configured on this server.'
+      } else if (store.authenticated) {
+        await store.sync()
+        store.startPolling()
+      } else {
+        await store.loginFloor(floorKey.value)
+      }
+      return
+    }
+
     const status = await store.checkAuth()
     skipAuthMode.value = Boolean(status.skipAuth)
     if (status.configured === false) {
@@ -1477,7 +1546,12 @@ onMounted(async () => {
       store.startIdleWatch()
     }
   } catch (e) {
-    apiConfigHint.value = e instanceof Error ? e.message : 'API unreachable'
+    const msg = e instanceof Error ? e.message : 'API unreachable'
+    if (floorMode.value) {
+      loginError.value = msg
+    } else {
+      apiConfigHint.value = msg
+    }
   }
 })
 
@@ -1587,6 +1661,7 @@ watch(() => store.role, (role) => {
             <div class="ia-login__card">
               <p v-if="devBuildStamp" class="ia-dev-badge">Local · build {{ devBuildStamp }}</p>
               <p class="ia-login__intro">Crew: choose your name and password. Clients: choose Client and use the production password.</p>
+              <p v-if="floorMode" class="ia-hint">This is the set link. It should sign you in without a password. If that failed, log in once below.</p>
               <p v-if="store.idleLoggedOut" class="ia-login__idle">You were logged out after 10 minutes without activity. Log in again to continue.</p>
               <p v-if="apiConfigHint" class="ia-error ia-error--block ia-error--pre">{{ apiConfigHint }}</p>
               <label class="ia-label" for="login-identity">Who are you?</label>
@@ -1635,6 +1710,7 @@ watch(() => store.role, (role) => {
       <div class="ia-body">
         <div class="ia-shell">
           <header class="ia-shell__nav">
+            <p v-if="floorMode" class="ia-hint ia-hint--set">Set mode · stays signed in on this tablet</p>
             <div class="ia-tabs-wrap">
               <nav class="ia-tabs" aria-label="Interview app menu">
                 <button
@@ -2139,6 +2215,13 @@ watch(() => store.role, (role) => {
                   @click="saveGuest"
                 >Save</button>
                 <button class="ia-btn ia-btn--secondary" type="button" @click="handleNavBack">Cancel</button>
+                <button
+                  v-if="editingId && (!fIntakeComplete || store.isCrew)"
+                  class="ia-btn ia-btn--secondary"
+                  type="button"
+                  title="Delete this candidate"
+                  @click="deleteCurrentGuest"
+                >Delete</button>
                 <button v-if="store.isCrew" class="ia-iconbtn" type="button" title="Clear" @click="clearForm">🗑️</button>
               </div>
             </div>
@@ -2548,26 +2631,13 @@ watch(() => store.role, (role) => {
                     Save production details first, then add candidates.
                   </p>
                 </div>
-                <button
-                  v-if="!isNewProduction"
-                  class="ia-editbtn"
-                  :class="{ 'ia-editbtn--active': editingCandidates }"
-                  type="button"
-                  :title="editingCandidates ? 'Edit mode — tap to close' : 'View mode — tap to edit'"
-                  :aria-label="editingCandidates ? 'Edit mode — tap to close' : 'View mode — tap to edit'"
-                  :aria-pressed="editingCandidates"
-                  @click="toggleEditCandidates"
-                >
-                  <PencilSquareSolidIcon v-if="editingCandidates" class="ia-editbtn__icon" aria-hidden="true" />
-                  <PencilSquareIcon v-else class="ia-editbtn__icon" aria-hidden="true" />
-                </button>
               </div>
 
               <template v-if="isNewProduction">
                 <p class="ia-empty">Candidates become available after you save this production.</p>
               </template>
               <template v-else>
-                <div v-if="editingCandidates" class="ia-actions ia-actions--tight">
+                <div class="ia-actions ia-actions--tight">
                   <button class="ia-btn ia-btn--small ia-btn--accent" type="button" @click="openNewGuest">
                     + New candidate
                   </button>
@@ -2586,17 +2656,19 @@ watch(() => store.role, (role) => {
                       <th>Name</th>
                       <th>Role</th>
                       <th>Organization</th>
-                      <th>Status</th>
-                      <th></th>
+                      <th v-if="store.isCrew">Set</th>
+                      <th v-else>Status</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr
                       v-for="g in filteredGuests"
                       :key="g.id"
-                      class="data-row"
-                      :class="{ 'data-row--clickable': editingCandidates || store.isClient }"
-                      @click="(editingCandidates || store.isClient) && loadForEdit(g)"
+                      class="data-row data-row--clickable"
+                      role="button"
+                      tabindex="0"
+                      @click="loadForEdit(g)"
+                      @keyup.enter="loadForEdit(g)"
                     >
                       <td v-if="store.isCrew">{{ g.regienummer || '—' }}</td>
                       <td>{{ formatGuestWhen(g) || '—' }}</td>
@@ -2607,59 +2679,47 @@ watch(() => store.role, (role) => {
                       </td>
                       <td>{{ g.functie }}</td>
                       <td>{{ g.organisatie || '—' }}</td>
-                      <td @click.stop>
-                        <button
-                          v-if="store.isCrew"
-                          type="button"
-                          :class="pillClass(g.status)"
-                          :title="`Change status (now ${g.status})`"
-                          @click="cycleGuestStatusFromList(g)"
-                        >{{ g.status }}</button>
-                        <span v-else :class="pillClass(g.status)">{{ g.status }}</span>
+                      <td v-if="store.isCrew" class="ia-row-actions" @click.stop>
+                        <div class="ia-onset">
+                          <label class="ia-onset-check" :title="nameChecked(g) ? 'Name checked' : 'Name not checked — opens lower third'">
+                            <input
+                              type="checkbox"
+                              :checked="nameChecked(g)"
+                              :aria-label="nameChecked(g) ? 'Name checked' : 'Name not checked'"
+                              @click="onNameCheckClick(g, $event)"
+                            >
+                          </label>
+                          <button
+                            class="ia-iconbtn"
+                            :class="{ 'ia-iconbtn--muted': !guestHasQuestions(g) }"
+                            type="button"
+                            :title="guestHasQuestions(g) ? 'Camera' : 'No interview questions yet'"
+                            @click="openGuestCamera(g)"
+                          >📷</button>
+                          <button
+                            class="ia-iconbtn"
+                            :class="{ 'ia-iconbtn--muted': !guestHasQuestions(g) }"
+                            type="button"
+                            :title="guestHasQuestions(g) ? 'Interviewer' : 'No interview questions yet'"
+                            @click="openGuestInterviewer(g)"
+                          >🎤</button>
+                          <label class="ia-onset-check" :title="g.status === 'Recorded' ? 'Recorded' : 'Not recorded'">
+                            <input
+                              type="checkbox"
+                              :checked="g.status === 'Recorded'"
+                              :aria-label="g.status === 'Recorded' ? 'Recorded' : 'Not recorded'"
+                              @click="onRecordedClick(g, $event)"
+                            >
+                          </label>
+                        </div>
                       </td>
-                      <td class="ia-row-actions" @click.stop>
-                        <!-- Edit mode: candidate detail + delete -->
-                        <template v-if="editingCandidates">
-                          <button class="ia-iconbtn" type="button" title="Edit" @click="loadForEdit(g)">✏️</button>
-                          <button
-                            v-if="!g.intakeComplete || store.isCrew"
-                            class="ia-iconbtn"
-                            type="button"
-                            title="Delete"
-                            @click="store.deleteGuest(g.id)"
-                          >🗑️</button>
-                        </template>
-                        <!-- Production mode (crew): phase actions only -->
-                        <template v-else-if="store.isCrew">
-                          <button
-                            v-if="g.status === 'Entered'"
-                            class="ia-iconbtn"
-                            type="button"
-                            title="Check"
-                            @click="openGuestControle(g)"
-                          >✓</button>
-                          <template v-else-if="g.status === 'Checked'">
-                            <button
-                              class="ia-iconbtn"
-                              :class="{ 'ia-iconbtn--muted': !guestHasQuestions(g) }"
-                              type="button"
-                              :title="guestHasQuestions(g) ? 'Camera' : 'No interview questions yet'"
-                              @click="openGuestCamera(g)"
-                            >📷</button>
-                            <button
-                              class="ia-iconbtn"
-                              :class="{ 'ia-iconbtn--muted': !guestHasQuestions(g) }"
-                              type="button"
-                              :title="guestHasQuestions(g) ? 'Interviewer' : 'No interview questions yet'"
-                              @click="openGuestInterviewer(g)"
-                            >🎤</button>
-                          </template>
-                        </template>
+                      <td v-else>
+                        <span :class="pillClass(g.status)">{{ g.status }}</span>
                       </td>
                     </tr>
                   </tbody>
                 </table>
-                <p v-if="!filteredGuests.length" class="ia-empty">No candidates for this production yet.{{ editingCandidates ? ' Click + New candidate to add someone.' : ' Tap the pencil to manage candidates.' }}</p>
+                <p v-if="!filteredGuests.length" class="ia-empty">No candidates for this production yet. Click + New candidate to add someone.</p>
               </template>
             </div>
         </section>
@@ -2675,7 +2735,17 @@ watch(() => store.role, (role) => {
               <button class="ia-btn ia-btn--small ia-btn--accent" type="button" @click="openNewProductie">
                 + New production
               </button>
+              <button
+                v-if="store.floorPath"
+                class="ia-btn ia-btn--small"
+                type="button"
+                title="Copy the set URL that skips login on the tablet"
+                @click="copyFloorLink"
+              >
+                Copy set URL
+              </button>
             </div>
+            <p v-if="store.loading && !store.productions.length" class="ia-empty">Loading productions…</p>
             <div class="ia-prod-overview">
               <article
                 v-for="p in sortedActiveProductions"

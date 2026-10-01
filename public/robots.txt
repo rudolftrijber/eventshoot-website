@@ -1,6 +1,7 @@
 User-agent: *
 Allow: /
 Disallow: /leaseweb
+Disallow: /interview-app
 
 Sitemap: https://eventshoot.nl/sitemap.xml
 # LLM-vriendelijke sitesamenvatting: https://eventshoot.nl/llms.txt

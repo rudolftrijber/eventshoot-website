@@ -15,6 +15,8 @@ import {
   verifyClientPassword,
 } from './auth.js'
 
+const SCHEMA_VERSION = 1
+
 let schemaReady: Promise<void> | null = null
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let sqlClient: any = null
@@ -38,6 +40,21 @@ export async function ensureSchema(): Promise<void> {
 
 async function initSchema(): Promise<void> {
   const sql = await getSql()
+  await sql`
+    CREATE TABLE IF NOT EXISTS interview_schema_meta (
+      id INTEGER PRIMARY KEY DEFAULT 1 CHECK (id = 1),
+      version INTEGER NOT NULL DEFAULT 0
+    )
+  `
+  await sql`
+    INSERT INTO interview_schema_meta (id, version)
+    VALUES (1, 0)
+    ON CONFLICT (id) DO NOTHING
+  `
+  const metaRows = await sql`SELECT version FROM interview_schema_meta WHERE id = 1`
+  const version = Number((metaRows[0] as { version?: number } | undefined)?.version) || 0
+  if (version >= SCHEMA_VERSION) return
+
   await sql`
     CREATE TABLE IF NOT EXISTS interview_settings (
       id INTEGER PRIMARY KEY DEFAULT 1 CHECK (id = 1),
@@ -132,6 +149,7 @@ async function initSchema(): Promise<void> {
       window_start TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )
   `
+  await sql`UPDATE interview_schema_meta SET version = ${SCHEMA_VERSION} WHERE id = 1`
 }
 
 async function migrateClientPasswordLookups(sql: Awaited<ReturnType<typeof getSql>>): Promise<void> {
@@ -338,16 +356,32 @@ export async function clientSessionCredValid(productionIds: string[], cred: stri
 
 export async function fetchProducties(includeArchived = false): Promise<Productie[]> {
   const sql = await getSql()
+  const cols = sql.unsafe(`id, naam, general_titel, datum, start_tijd, eind_datum, eind_tijd, status,
+    locatie, land, supervisor, crew2, crew3, crew4, crew5, vragen, archived_at,
+    created_at, updated_at, client_password_hash,
+    CASE WHEN png_16x9 LIKE 'data:%' THEN '' ELSE COALESCE(png_16x9, '') END AS png_16x9,
+    CASE WHEN png_9x16 LIKE 'data:%' THEN '' ELSE COALESCE(png_9x16, '') END AS png_9x16,
+    CASE WHEN png_4x5 LIKE 'data:%' THEN '' ELSE COALESCE(png_4x5, '') END AS png_4x5`)
   const rows = includeArchived
-    ? await sql`SELECT * FROM interview_producties ORDER BY updated_at DESC`
-    : await sql`SELECT * FROM interview_producties WHERE archived_at IS NULL ORDER BY updated_at DESC`
-  return rows.map((row) => rowToProductie(row as Record<string, unknown>))
+    ? await sql`SELECT ${cols} FROM interview_producties ORDER BY updated_at DESC`
+    : await sql`SELECT ${cols} FROM interview_producties WHERE archived_at IS NULL ORDER BY updated_at DESC`
+  return rows.map((row: Record<string, unknown>) => rowToProductie(row))
 }
 
 export async function fetchGuests(): Promise<Gast[]> {
   const sql = await getSql()
-  const rows = await sql`SELECT * FROM interview_gasten ORDER BY created_at DESC`
-  return rows.map((row) => rowToGast(row as Record<string, unknown>))
+  const cols = sql.unsafe(`id, productie_naam, type, naam, functie, organisatie, planning, gedeeld,
+    intro_tekst, outro_tekst, serie_naam, interview_titel, questions,
+    moderator, moderator_functie, intake_complete, status, regienummer, datum, tijd,
+    created_at, updated_at,
+    CASE WHEN screenshot_16x9 LIKE 'data:%' THEN '' ELSE COALESCE(screenshot_16x9, '') END AS screenshot_16x9,
+    CASE WHEN screenshot_9x16 LIKE 'data:%' THEN '' ELSE COALESCE(screenshot_9x16, '') END AS screenshot_9x16,
+    CASE WHEN screenshot_4x5 LIKE 'data:%' THEN '' ELSE COALESCE(screenshot_4x5, '') END AS screenshot_4x5,
+    CASE WHEN thumbnail_16x9 LIKE 'data:%' THEN '' ELSE COALESCE(thumbnail_16x9, '') END AS thumbnail_16x9,
+    CASE WHEN thumbnail_9x16 LIKE 'data:%' THEN '' ELSE COALESCE(thumbnail_9x16, '') END AS thumbnail_9x16,
+    CASE WHEN thumbnail_4x5 LIKE 'data:%' THEN '' ELSE COALESCE(thumbnail_4x5, '') END AS thumbnail_4x5`)
+  const rows = await sql`SELECT ${cols} FROM interview_gasten ORDER BY created_at DESC`
+  return rows.map((row: Record<string, unknown>) => rowToGast(row))
 }
 
 export async function createGuest(data: Omit<Gast, 'createdAt' | 'updatedAt'>): Promise<Gast> {

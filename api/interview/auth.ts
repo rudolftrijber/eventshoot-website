@@ -233,6 +233,33 @@ export function parseSessionToken(token: string | null): SessionPayload | null {
   }
 }
 
+export const FLOOR_CREW_NAME = 'Floor'
+
+/** Unlisted set URL key. INTERVIEW_FLOOR_KEY, or a stable HMAC of the session secret. */
+export function getFloorKey(): string {
+  const explicit = String(process.env.INTERVIEW_FLOOR_KEY || '').trim()
+  if (explicit) return explicit.slice(0, 64)
+  const secret = getSecret()
+  if (!secret) return ''
+  return createHmac('sha256', secret).update('interview-floor-v1').digest('hex').slice(0, 24)
+}
+
+export function verifyFloorKey(key: string): boolean {
+  const expected = getFloorKey()
+  const given = String(key || '').trim()
+  if (!expected || !given || given.length !== expected.length) return false
+  try {
+    return timingSafeEqual(Buffer.from(given), Buffer.from(expected))
+  } catch {
+    return false
+  }
+}
+
+export function floorAppPath(): string {
+  const key = getFloorKey()
+  return key ? `/interview-app/live/${key}` : ''
+}
+
 export function skipAuth(): boolean {
   // Never bypass auth on any Vercel deployment (production or preview).
   if (process.env.VERCEL) return false

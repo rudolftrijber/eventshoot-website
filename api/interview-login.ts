@@ -3,11 +3,14 @@ import {
   clientPasswordLookup,
   createSessionToken,
   crewSessionCred,
+  FLOOR_CREW_NAME,
+  floorAppPath,
   getAuthContext,
   getRequestIp,
   hasCrewAuthConfigured,
   parseSessionToken,
   verifyCrewMemberLogin,
+  verifyFloorKey,
 } from './interview/auth.js'
 import { clientSessionCredValid, ensureSchema, fetchProductiesByClientPassword } from './interview/database.js'
 import { consumeRateLimit, rateLimited } from './interview/rateLimit.js'
@@ -21,6 +24,7 @@ import {
 
 const LOGIN_MAX_ATTEMPTS = 10
 const LOGIN_WINDOW_MS = 15 * 60 * 1000
+const FLOOR_MAX_ATTEMPTS = 40
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
@@ -38,6 +42,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const hasCrewAuth = hasCrewAuthConfigured()
       const hasDb = Boolean(process.env.POSTGRES_URL || process.env.POSTGRES_URL_NON_POOLING)
       const configured = authSkipped ? hasDb : hasSecret && hasCrewAuth && hasDb
+      const crewFloor = Boolean(ctx.authenticated && (ctx.skipAuth || ctx.role === 'crew'))
       res.status(200).json({
         authenticated: ctx.authenticated,
         role: ctx.role,
@@ -46,6 +51,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         skipAuth: authSkipped,
         configured,
         missing: authSkipped && !hasDb ? ['POSTGRES_URL'] : [],
+        floorPath: crewFloor ? floorAppPath() : '',
       })
       return
     }
@@ -66,6 +72,41 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (action === 'logout') {
       clearSessionCookie(res)
       res.status(200).json({ ok: true })
+      return
+    }
+
+    if (action === 'floor') {
+      if (!process.env.INTERVIEW_SESSION_SECRET) {
+        res.status(500).json({ error: 'Server not configured' })
+        return
+      }
+
+      const ip = getRequestIp(req)
+      const limit = await consumeRateLimit(`floor:${ip}`, FLOOR_MAX_ATTEMPTS, LOGIN_WINDOW_MS)
+      if (!limit.ok) {
+        rateLimited(res, limit.retryAfterSec, 'Too many live-link attempts. Try again later.')
+        return
+      }
+
+      const key = String(body?.key || '')
+      if (!verifyFloorKey(key)) {
+        res.status(401).json({ error: 'This live URL is not valid' })
+        return
+      }
+
+      const token = createSessionToken({
+        role: 'crew',
+        productionIds: [],
+        crewName: FLOOR_CREW_NAME,
+        cred: crewSessionCred(FLOOR_CREW_NAME),
+      })
+      setSessionCookie(res, token)
+      res.status(200).json({
+        ok: true,
+        role: 'crew',
+        crewName: FLOOR_CREW_NAME,
+        floorPath: floorAppPath(),
+      })
       return
     }
 
@@ -101,7 +142,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           cred: crewSessionCred(crewName),
         })
         setSessionCookie(res, token)
-        res.status(200).json({ ok: true, role: 'crew', crewName })
+        res.status(200).json({ ok: true, role: 'crew', crewName, floorPath: floorAppPath() })
         return
       }
 

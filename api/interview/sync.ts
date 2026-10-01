@@ -16,18 +16,26 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     await ensureSchema()
 
-    let guests = await fetchGuests()
-    let productions = await fetchProducties(true)
+    const [allGuests, allProductions, settings] = await Promise.all([
+      fetchGuests(),
+      fetchProducties(true),
+      fetchSettings(),
+    ])
+    let guests = allGuests
+    let productions = allProductions
 
     if (isCrew(ctx) && guests.length === 0 && productions.length === 0) {
       await seedDemoData()
-      guests = await fetchGuests()
-      productions = await fetchProducties(true)
+      const [seededGuests, seededProductions] = await Promise.all([
+        fetchGuests(),
+        fetchProducties(true),
+      ])
+      guests = seededGuests
+      productions = seededProductions
     }
 
     productions = filterProductionsForAuth(ctx, productions)
     guests = filterGuestsForAuth(ctx, guests, productions)
-    const settings = await fetchSettings()
 
     res.status(200).json({
       guests,

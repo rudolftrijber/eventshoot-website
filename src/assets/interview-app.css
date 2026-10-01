@@ -621,6 +621,14 @@
   color: #ffb020;
 }
 
+.ia-hint--set {
+  margin: 0 0 0.45rem;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
 .ia-intake-badge {
   display: inline-block;
   margin-top: 0.2rem;
@@ -716,6 +724,29 @@
 
 .ia-row-actions {
   white-space: nowrap;
+}
+
+.ia-onset {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.ia-onset-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0.2rem 0.35rem;
+  cursor: pointer;
+}
+
+.ia-onset-check input {
+  width: 1.15rem;
+  height: 1.15rem;
+  margin: 0;
+  accent-color: var(--color-accent);
+  cursor: pointer;
 }
 
 .ia-shell__main {
@@ -1028,7 +1059,7 @@
 }
 
 .ia-table tr.data-row {
-  cursor: default;
+  cursor: pointer;
 }
 
 .ia-table tr.data-row--clickable {
@@ -1079,6 +1110,8 @@
 .ia-table-toolbar {
   display: flex;
   justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 0.5rem;
   margin: 0.35rem 0 0.65rem;
 }
 
