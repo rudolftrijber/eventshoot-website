@@ -356,12 +356,10 @@ export async function clientSessionCredValid(productionIds: string[], cred: stri
 
 export async function fetchProducties(includeArchived = false): Promise<Productie[]> {
   const sql = await getSql()
-  const cols = sql.unsafe(`id, naam, general_titel, datum, start_tijd, eind_datum, eind_tijd, status,
+  const cols = sql.unsafe(`id, naam, general_titel, png_16x9, png_9x16, png_4x5,
+    datum, start_tijd, eind_datum, eind_tijd, status,
     locatie, land, supervisor, crew2, crew3, crew4, crew5, vragen, archived_at,
-    created_at, updated_at, client_password_hash,
-    CASE WHEN png_16x9 LIKE 'data:%' THEN '' ELSE COALESCE(png_16x9, '') END AS png_16x9,
-    CASE WHEN png_9x16 LIKE 'data:%' THEN '' ELSE COALESCE(png_9x16, '') END AS png_9x16,
-    CASE WHEN png_4x5 LIKE 'data:%' THEN '' ELSE COALESCE(png_4x5, '') END AS png_4x5`)
+    created_at, updated_at, client_password_hash`)
   const rows = includeArchived
     ? await sql`SELECT ${cols} FROM interview_producties ORDER BY updated_at DESC`
     : await sql`SELECT ${cols} FROM interview_producties WHERE archived_at IS NULL ORDER BY updated_at DESC`

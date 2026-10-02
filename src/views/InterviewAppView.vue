@@ -124,6 +124,7 @@ const pGeneralTitel = ref('')
 const pPng16x9 = ref('')
 const pPng9x16 = ref('')
 const pPng4x5 = ref('')
+const pngCleared = ref<Record<PngRatioId, boolean>>({ '16x9': false, '9x16': false, '4x5': false })
 const pDatum = ref('')
 const pStartTijd = ref('')
 const pEindDatum = ref('')
@@ -1177,9 +1178,6 @@ async function saveProductie() {
       id: editingProdId.value || undefined,
       naam,
       generalTitel,
-      png16x9: stripImageCacheBust(pPng16x9.value),
-      png9x16: stripImageCacheBust(pPng9x16.value),
-      png4x5: stripImageCacheBust(pPng4x5.value),
       datum,
       startTijd: pStartTijd.value,
       eindDatum: pEindDatum.value,
@@ -1194,6 +1192,15 @@ async function saveProductie() {
       crew5: pCrew5.value,
       vragen,
     }
+    const png16 = stripImageCacheBust(pPng16x9.value)
+    const png916 = stripImageCacheBust(pPng9x16.value)
+    const png45 = stripImageCacheBust(pPng4x5.value)
+    if (png16) payload.png16x9 = png16
+    else if (pngCleared.value['16x9']) payload.png16x9 = ''
+    if (png916) payload.png9x16 = png916
+    else if (pngCleared.value['9x16']) payload.png9x16 = ''
+    if (png45) payload.png4x5 = png45
+    else if (pngCleared.value['4x5']) payload.png4x5 = ''
     if (pClientPassword.value.trim()) {
       payload.clientPassword = pClientPassword.value.trim()
     }
@@ -1222,6 +1229,7 @@ function clearProductieForm() {
   pPng16x9.value = ''
   pPng9x16.value = ''
   pPng4x5.value = ''
+  pngCleared.value = { '16x9': false, '9x16': false, '4x5': false }
   pDatum.value = ''
   pStartTijd.value = ''
   pEindDatum.value = ''
@@ -1249,6 +1257,7 @@ function editProductie(p: Productie) {
   pPng16x9.value = stripImageCacheBust(p.png16x9 || '')
   pPng9x16.value = stripImageCacheBust(p.png9x16 || '')
   pPng4x5.value = stripImageCacheBust(p.png4x5 || '')
+  pngCleared.value = { '16x9': false, '9x16': false, '4x5': false }
   pDatum.value = p.datum
   pStartTijd.value = p.startTijd || ''
   pEindDatum.value = p.eindDatum || ''
@@ -2548,9 +2557,9 @@ watch(() => store.role, (role) => {
                     Comes on every thumbnail of this production. The date sits directly under the logo.
                   </p>
                   <div class="ia-png-grid" :class="pngGridClass">
-                    <RatioPngUpload v-model="pPng16x9" kind="production-png" ratio="16x9" />
-                    <RatioPngUpload v-if="SHOW_PORTRAIT_THUMBNAIL_RATIOS" v-model="pPng9x16" kind="production-png" ratio="9x16" />
-                    <RatioPngUpload v-if="SHOW_45_THUMBNAIL_RATIO" v-model="pPng4x5" kind="production-png" ratio="4x5" />
+                    <RatioPngUpload v-model="pPng16x9" kind="production-png" ratio="16x9" @cleared="pngCleared['16x9'] = true" />
+                    <RatioPngUpload v-if="SHOW_PORTRAIT_THUMBNAIL_RATIOS" v-model="pPng9x16" kind="production-png" ratio="9x16" @cleared="pngCleared['9x16'] = true" />
+                    <RatioPngUpload v-if="SHOW_45_THUMBNAIL_RATIO" v-model="pPng4x5" kind="production-png" ratio="4x5" @cleared="pngCleared['4x5'] = true" />
                   </div>
                 </div>
 

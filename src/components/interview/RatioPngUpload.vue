@@ -16,6 +16,9 @@ const props = defineProps<{
 }>()
 
 const url = defineModel<string>({ default: '' })
+const emit = defineEmits<{
+  cleared: []
+}>()
 
 const store = useInterviewStore()
 const busy = ref(false)
@@ -188,6 +191,7 @@ function removeFile() {
   url.value = ''
   error.value = ''
   broken.value = false
+  emit('cleared')
 }
 </script>
 

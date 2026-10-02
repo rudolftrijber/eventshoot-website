@@ -175,7 +175,17 @@ export const useInterviewStore = defineStore('interview', () => {
         productionIds?: string[]
       }>('/api/interview/sync')
       guests.value = data.guests
-      productions.value = data.productions
+      const previous = new Map(productions.value.map((p) => [p.id, p]))
+      productions.value = data.productions.map((p) => {
+        const prev = previous.get(p.id)
+        if (!prev) return p
+        return {
+          ...p,
+          png16x9: p.png16x9 || prev.png16x9,
+          png9x16: p.png9x16 || prev.png9x16,
+          png4x5: p.png4x5 || prev.png4x5,
+        }
+      })
       settings.value = data.settings
       if (data.role) role.value = data.role
       if (data.productionIds) clientProductionIds.value = data.productionIds

@@ -20,6 +20,14 @@ import {
   sanitizeQuestions,
 } from '../sanitize.js'
 
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: '8mb',
+    },
+  },
+}
+
 function parseBody(req: VercelRequest): Record<string, unknown> {
   return typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {})
 }
@@ -58,9 +66,30 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       } else if (isCrew(ctx)) {
         if (body.naam !== undefined) patch.naam = clipText(body.naam, MAX_SHORT_TEXT)
         if (body.generalTitel !== undefined) patch.generalTitel = clipText(body.generalTitel, MAX_GENERAL_TITLE_CHARS)
-        if (body.png16x9 !== undefined) patch.png16x9 = sanitizeImageUrl(body.png16x9)
-        if (body.png9x16 !== undefined) patch.png9x16 = sanitizeImageUrl(body.png9x16)
-        if (body.png4x5 !== undefined) patch.png4x5 = sanitizeImageUrl(body.png4x5)
+        if (body.png16x9 !== undefined) {
+          const next = sanitizeImageUrl(body.png16x9)
+          if (String(body.png16x9 || '').trim() && !next) {
+            res.status(400).json({ error: 'PNG 16:9 could not be saved. Use a PNG under 3 MB, or upload again after Cloudinary is working.' })
+            return
+          }
+          patch.png16x9 = next
+        }
+        if (body.png9x16 !== undefined) {
+          const next = sanitizeImageUrl(body.png9x16)
+          if (String(body.png9x16 || '').trim() && !next) {
+            res.status(400).json({ error: 'PNG 9:16 could not be saved. Use a PNG under 3 MB, or upload again after Cloudinary is working.' })
+            return
+          }
+          patch.png9x16 = next
+        }
+        if (body.png4x5 !== undefined) {
+          const next = sanitizeImageUrl(body.png4x5)
+          if (String(body.png4x5 || '').trim() && !next) {
+            res.status(400).json({ error: 'PNG 4:5 could not be saved. Use a PNG under 3 MB, or upload again after Cloudinary is working.' })
+            return
+          }
+          patch.png4x5 = next
+        }
         if (body.datum !== undefined) patch.datum = clipText(body.datum, 20)
         if (body.startTijd !== undefined) patch.startTijd = clipText(body.startTijd, 20)
         if (body.eindDatum !== undefined) patch.eindDatum = clipText(body.eindDatum, 20)
