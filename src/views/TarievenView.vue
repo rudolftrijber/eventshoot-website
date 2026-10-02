@@ -153,6 +153,14 @@ const packages = computed(() => [
                 <span>{{ t('tarieven.vodcastPriceLine2') }}</span>
                 <span>{{ t('tarieven.vodcastPriceAmount2') }}</span>
               </div>
+              <div class="vodcast__price-row">
+                <span>{{ t('tarieven.vodcastPriceLine3') }}</span>
+                <span>{{ t('tarieven.vodcastPriceAmount3') }}</span>
+              </div>
+              <div class="vodcast__price-row">
+                <span>{{ t('tarieven.vodcastPriceLine4') }}</span>
+                <span>{{ t('tarieven.vodcastPriceAmount4') }}</span>
+              </div>
             </div>
             <div class="vodcast__price-block">
               <p class="vodcast__price">{{ t('tarieven.vodcastPrice') }} <span>{{ t('tarieven.vodcastPricePer') }}</span></p>
