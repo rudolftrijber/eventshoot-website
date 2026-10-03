@@ -59,6 +59,10 @@ import ParticipantDefaultsCard from '@/components/interview/ParticipantDefaultsC
 import RatioPngUpload from '@/components/interview/RatioPngUpload.vue'
 import ShortQuestionsTip from '@/components/interview/ShortQuestionsTip.vue'
 import PresenterCardPrint from '@/components/interview/PresenterCardPrint.vue'
+import InterviewBriefPrint, {
+  type BriefCandidate,
+  type BriefProduction,
+} from '@/components/interview/InterviewBriefPrint.vue'
 
 const store = useInterviewStore()
 const route = useRoute()
@@ -154,6 +158,16 @@ const showCamQuestions = ref(false)
 // Confirm dialogs
 const confirmOpgenomen = ref(false)
 const showPresenterCard = ref(false)
+const showInterviewBrief = ref(false)
+const briefProduction = ref<BriefProduction>({
+  naam: '',
+  serie: '',
+  when: '',
+  status: '',
+  locatie: '',
+  crew: [],
+})
+const briefCandidates = ref<BriefCandidate[]>([])
 
 // AI question assistant
 type AiPrepAnswers = { sector: string; specialism: string; timeliness: string; customPrompt: string }
@@ -261,18 +275,23 @@ const guestFormLocked = computed(() =>
   store.isClient && fIntakeComplete.value && intakeLockApplies(fType.value),
 )
 
-const dayGuests = computed(() => {
+const scheduledGuests = computed(() => {
   const prod = workingProduction.value
   if (!prod) return []
-  const q = searchBox.value.toLowerCase()
   return [...store.guests]
     .filter((g) => g.productieNaam === prod.naam)
-    .filter((g) => !q || [g.naam, g.functie, g.organisatie, g.moderator, g.moderatorFunctie, g.regienummer, g.type, g.datum, g.tijd].join(' ').toLowerCase().includes(q))
     .sort((a, b) =>
       guestScheduleSortKey(a).localeCompare(guestScheduleSortKey(b))
       || (parseInt(a.regienummer) || 9999) - (parseInt(b.regienummer) || 9999)
       || a.naam.localeCompare(b.naam, 'nl'),
     )
+})
+
+const dayGuests = computed(() => {
+  const q = searchBox.value.toLowerCase()
+  return scheduledGuests.value.filter((g) =>
+    !q || [g.naam, g.functie, g.organisatie, g.moderator, g.moderatorFunctie, g.regienummer, g.type, g.datum, g.tijd].join(' ').toLowerCase().includes(q),
+  )
 })
 
 const sortedProductions = computed(() => sortedActiveProductions.value)
@@ -720,6 +739,134 @@ function openPresenterCard() {
     return
   }
   showPresenterCard.value = true
+}
+
+function productionWhenLabel(p: Productie): string {
+  const sameDay = Boolean(p.datum && p.eindDatum && p.datum.slice(0, 10) === p.eindDatum.slice(0, 10))
+  if (sameDay) {
+    const date = formatDisplayDate(p.datum)
+    const start = (p.startTijd || '').trim()
+    const end = (p.eindTijd || '').trim()
+    const times = start && end ? `${start}-${end}` : (start || end)
+    return times ? `${date} ${times}` : date
+  }
+  const start = p.datum ? formatDisplayDateTime(p.datum, p.startTijd || '') : ''
+  const end = p.eindDatum ? formatDisplayDateTime(p.eindDatum, p.eindTijd || '') : ''
+  if (start && end) return `${start} to ${end}`
+  return start || end
+}
+
+function productionCrewLabel(p: Productie): string[] {
+  const out: string[] = []
+  const seen = new Set<string>()
+  const add = (name: string, role?: string) => {
+    const value = (name || '').trim()
+    if (!value || value === DEFAULT_CREW_SLOT) return
+    const key = value.toLowerCase()
+    if (seen.has(key)) return
+    seen.add(key)
+    out.push(role ? `${value} (${role})` : value)
+  }
+  add(p.supervisor, 'supervisor')
+  add(p.crew2)
+  add(p.crew3)
+  add(p.crew4)
+  add(p.crew5)
+  return out
+}
+
+function toBriefProduction(p: Productie | null, fallbackName = ''): BriefProduction {
+  if (!p) {
+    return { naam: fallbackName, serie: '', when: '', status: '', locatie: '', crew: [] }
+  }
+  return {
+    naam: p.naam,
+    serie: (p.generalTitel || '').trim(),
+    when: productionWhenLabel(p),
+    status: p.status || '',
+    locatie: [p.locatie, p.land].map((part) => (part || '').trim()).filter(Boolean).join(', '),
+    crew: productionCrewLabel(p),
+  }
+}
+
+function guestMetaLabel(g: Pick<Gast, 'regienummer' | 'datum' | 'tijd' | 'type' | 'status' | 'productieNaam'>): string {
+  const when = formatGuestWhen(g as Gast)
+  return [
+    g.regienummer ? `Crew #${g.regienummer}` : '',
+    when && when !== '—' ? when : '',
+    g.type || '',
+    g.status || '',
+  ].filter(Boolean).join(' · ')
+}
+
+function toBriefCandidate(g: Gast): BriefCandidate {
+  return {
+    naam: g.naam,
+    functie: g.functie || '',
+    organisatie: g.organisatie || '',
+    meta: guestMetaLabel(g),
+    planning: (g.planning || '').trim(),
+    moderator: (g.moderator || '').trim(),
+    moderatorFunctie: (g.moderatorFunctie || '').trim(),
+    intro: (g.introTekst || '').trim(),
+    outro: (g.outroTekst || '').trim(),
+    questions: g.questions.map((q) => q.trim()).filter(Boolean),
+  }
+}
+
+function openInterviewBrief(candidates: BriefCandidate[], production: Productie | null, fallbackName = '') {
+  if (!candidates.length) {
+    showToast('No candidates to print')
+    return
+  }
+  briefProduction.value = toBriefProduction(production, fallbackName)
+  briefCandidates.value = candidates
+  showInterviewBrief.value = true
+}
+
+function openCandidateBrief() {
+  if (!fNaam.value.trim() && !fQuestions.value.some((q) => q.trim())) {
+    showToast('Add a name or questions first')
+    return
+  }
+  const stored = editingId.value
+    ? store.guests.find((g) => g.id === editingId.value) || null
+    : null
+  const datum = fDatum.value || presenterProduction.value?.datum || ''
+  const when = datum || fTijd.value ? formatDisplayDateTime(datum, fTijd.value) : ''
+  const meta = [
+    stored?.regienummer ? `Crew #${stored.regienummer}` : '',
+    when && when !== '—' ? when : '',
+    fType.value,
+    stored?.status || '',
+  ].filter(Boolean).join(' · ')
+  openInterviewBrief(
+    [{
+      naam: fNaam.value.trim(),
+      functie: fFunctie.value.trim(),
+      organisatie: fOrganisatie.value.trim(),
+      meta,
+      planning: fPlanning.value.trim(),
+      moderator: fModerator.value.trim(),
+      moderatorFunctie: fModeratorFunctie.value.trim(),
+      intro: fUseIntro.value ? fIntroTekst.value.trim() : '',
+      outro: fUseOutro.value ? fOutroTekst.value.trim() : '',
+      questions: fQuestions.value.map((q) => q.trim()).filter(Boolean),
+    }],
+    presenterProduction.value,
+    fProductie.value.trim(),
+  )
+}
+
+function openProductionBriefs() {
+  if (!scheduledGuests.value.length) {
+    showToast('No candidates to print')
+    return
+  }
+  openInterviewBrief(
+    scheduledGuests.value.map(toBriefCandidate),
+    workingProduction.value,
+  )
 }
 
 async function handleLogin() {
@@ -1661,7 +1808,7 @@ watch(() => store.role, (role) => {
     <header v-if="!crewFocusMode" class="ia-brand">
       <img
         class="ia-brand__logo"
-        src="/DATA_EVENTSHOOT/SITE_IMAGES/EIA_LOGO_NEG.svg"
+        src="/DATA_EVENTSHOOT/SITE_IMAGES/HUISSTIJL/EIA_LOGO_NEG.svg"
         alt="Event Interview App"
       />
     </header>
@@ -2058,6 +2205,16 @@ watch(() => store.role, (role) => {
                   >
                     <DocumentTextIcon class="ia-btn__icon" aria-hidden="true" />
                     Presenter card
+                  </button>
+                  <button
+                    class="ia-btn ia-btn--small ia-btn--secondary"
+                    type="button"
+                    title="Vodcast Production Overview PDF for this candidate"
+                    :disabled="!fNaam.trim() && !fQuestions.some((q) => q.trim())"
+                    @click="openCandidateBrief"
+                  >
+                    <DocumentTextIcon class="ia-btn__icon" aria-hidden="true" />
+                    VPO PDF
                   </button>
                   <button
                     v-if="aiGuestStep === 'idle' && !guestFormLocked"
@@ -2644,6 +2801,17 @@ watch(() => store.role, (role) => {
                     Save production details first, then add candidates.
                   </p>
                 </div>
+                <div v-if="!isNewProduction && scheduledGuests.length" class="ia-prod-detail-head__actions">
+                  <button
+                    class="ia-btn ia-btn--small ia-btn--secondary"
+                    type="button"
+                    title="Vodcast Production Overview PDF for every candidate"
+                    @click="openProductionBriefs"
+                  >
+                    <DocumentTextIcon class="ia-btn__icon" aria-hidden="true" />
+                    VPO PDF
+                  </button>
+                </div>
               </div>
 
               <template v-if="isNewProduction">
@@ -2856,6 +3024,13 @@ watch(() => store.role, (role) => {
       :outro-tekst="fUseOutro ? fOutroTekst : ''"
       :questions="fQuestions"
       @close="showPresenterCard = false"
+    />
+
+    <InterviewBriefPrint
+      :open="showInterviewBrief"
+      :production="briefProduction"
+      :candidates="briefCandidates"
+      @close="showInterviewBrief = false"
     />
   </div>
 </template>
