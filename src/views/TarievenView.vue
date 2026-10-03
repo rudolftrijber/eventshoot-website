@@ -157,7 +157,6 @@ const packages = computed(() => [
               </div>
               <div class="vodcast__price-row">
                 <span>{{ t('tarieven.vodcastPriceLine4') }}</span>
-                <span>{{ t('tarieven.vodcastPriceAmount4') }}</span>
               </div>
             </div>
             <div class="vodcast__price-block">

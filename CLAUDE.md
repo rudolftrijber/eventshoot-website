@@ -128,9 +128,9 @@ Componenten: HeaderBar → HeroImage → MottoBar (identiek aan Eventfotografie)
 Event Vodcast Recording (/diensten/event-vodcast-recording, Engels: /en/diensten/event-vodcast-recording)
 
 H1: Event Vodcast Recording
-Sub: Ca. 41 branded video's uit één eventdag. Ca. 8 long form vodcasts van ca. 20 minuten, 3 tot 4 verticale shorts per aflevering en een BTS. Klaar voor je marketeer.
+Sub: Ca. 40 branded video's uit één eventdag. Ca. 8 long form vodcasts van ca. 20 minuten, 3 tot 4 verticale shorts per aflevering en een BTS. Klaar voor je marketeer.
 Meta title: Event Vodcast Recording | Eventshoot.nl
-Meta desc: Ca. 41 branded video's uit één eventdag, voor € 3.725. Ca. 8 vodcasts van ca. 20 minuten, 3 tot 4 verticale shorts per aflevering en een BTS. Geen studio, geen cameraploeg.
+Meta desc: Ca. 40 branded video's uit één eventdag, voor € 3.725. Ca. 8 vodcasts van ca. 20 minuten, 3 tot 4 verticale shorts per aflevering en een BTS. Geen studio, geen cameraploeg.
 Componenten: HeaderBar → Hero (foto + Bel Rolf / Download onepager) → Gecentreerde videostrook (titel: Vod- & Podcast recordings tijdens je event) → Wat het oplevert (4 tegels, oranje achtergrond) → Praktisch (locatie, set, interview-app) → Fotogalerij met lightbox → FaqBlock (lichtblauw) → Download-strook → Investering (optioneel, flag SHOW_VODCAST_INVESTMENT in src/data/vodcastPage.ts, standaard uit) → BelRolfStrip → FooterBar
 Onepager: /DATA_EVENTSHOOT/FILES/Event_Vodcast_Recording_NL.pdf (Engels: Event_Vodcast_Recording_ENG.pdf)
 Introductievideo: Vimeo https://vimeo.com/1218955382 (Engels: https://vimeo.com/1219333277)
@@ -200,7 +200,7 @@ Event Vodcast Recording (aparte strook op Tarieven + eigen landing)
 Ca. 8 vodcasts van ca. 20 minuten (long form)
 Ca. 3 tot 4 verticale short form video's per vodcast
 BTS van de vodcastdag
-Ca. 41 video's, ca. € 90 per video
+Ca. 40 video's
 Excl. auteursrechtcorrecties, reis- en verblijfkosten en btw
 
 Aanvullende diensten
@@ -450,7 +450,7 @@ data/content-systeem/ — Eventkennis-content: overzicht, artikeltemplate (site 
 
 Bij twijfel over een specifieke pagina of een specifieke regel: raadpleeg eerst dit CLAUDE.md, daarna het juiste referentiedocument.
 
-Laatste update: oktober 2026 — Event Vodcast Recording € 3.725, ca. 41 video's (8 long form, 3 tot 4 shorts per aflevering, BTS).
+Laatste update: oktober 2026 — Event Vodcast Recording € 3.725, ca. 40 video's (8 long form, 3 tot 4 shorts per aflevering, BTS).
 
 ---
 

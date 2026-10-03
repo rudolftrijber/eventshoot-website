@@ -16,7 +16,7 @@ const PAGES = [
     path: '/diensten/event-vodcast-recording',
     title: 'Event Vodcast Recording | Eventshoot.nl',
     description:
-      'Ca. 41 branded video\'s uit één eventdag, voor € 3.725. Ca. 8 vodcasts van ca. 20 minuten, 3 tot 4 verticale shorts per aflevering en een BTS. Geen studio, geen cameraploeg.',
+      'Ca. 40 branded video\'s uit één eventdag, voor € 3.725. Ca. 8 vodcasts van ca. 20 minuten, 3 tot 4 verticale shorts per aflevering en een BTS. Geen studio, geen cameraploeg.',
     image: `${BASE_URL}/DATA_EVENTSHOOT/SITE_IMAGES/VODCAST/RT202570.jpg`,
     locale: 'nl_NL',
   },
@@ -24,7 +24,7 @@ const PAGES = [
     path: '/en/diensten/event-vodcast-recording',
     title: 'Event Vodcast Recording | Eventshoot.nl',
     description:
-      'About 41 branded videos from one event day, for € 3,725. About 8 vodcasts of about 20 minutes, 3 to 4 vertical shorts per episode and a BTS. No studio, no camera crew.',
+      'About 40 branded videos from one event day, for € 3,725. About 8 vodcasts of about 20 minutes, 3 to 4 vertical shorts per episode and a BTS. No studio, no camera crew.',
     image: `${BASE_URL}/DATA_EVENTSHOOT/SITE_IMAGES/VODCAST/RT202570.jpg`,
     locale: 'en_GB',
   },

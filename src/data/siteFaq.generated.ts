@@ -670,12 +670,12 @@ export const siteFaqByPage: Record<FaqPageKey, FaqLangMap> = {
       {
         "_id": "faq-event-vodcast-recording-1",
         "question": "Wat is Event Vodcast Recording?",
-        "answer": "Op je event lopen je keynotesprekers, executives en klanten toch al rond. Wij interviewen hen in een tijdelijke videostudio op locatie. Uit één eventdag haal je ca. 41 branded video's: ca. 8 long form vodcasts van ca. 20 minuten, 3 tot 4 verticale shorts per aflevering en een BTS van de vodcastdag."
+        "answer": "Op je event lopen je keynotesprekers, executives en klanten toch al rond. Wij interviewen hen in een tijdelijke videostudio op locatie. Uit één eventdag haal je ca. 40 branded video's: ca. 8 long form vodcasts van ca. 20 minuten, 3 tot 4 verticale shorts per aflevering en een BTS van de vodcastdag."
       },
       {
         "_id": "faq-event-vodcast-recording-2",
         "question": "Hoeveel video's levert één eventdag op?",
-        "answer": "Ca. 8 vodcasts van ca. 20 minuten, plus 3 tot 4 verticale short form video's per aflevering en een BTS van de vodcastdag. Samen ca. 41 branded video's voor € 3.725, ca. € 90 per video."
+        "answer": "Ca. 8 vodcasts van ca. 20 minuten, plus 3 tot 4 verticale short form video's per aflevering en een BTS van de vodcastdag. Samen ca. 40 branded video's voor € 3.725."
       },
       {
         "_id": "faq-event-vodcast-recording-3",
@@ -700,19 +700,19 @@ export const siteFaqByPage: Record<FaqPageKey, FaqLangMap> = {
       {
         "_id": "faq-event-vodcast-recording-7",
         "question": "Wat kost Event Vodcast Recording?",
-        "answer": "€ 3.725 voor het totaalpakket. Dat is ca. 8 vodcasts van ca. 20 minuten, 3 tot 4 verticale shorts per aflevering en een BTS van de vodcastdag. Samen ca. 41 video's, ca. € 90 per video. Excl. reis- en verblijfkosten en btw."
+        "answer": "€ 3.725 voor het totaalpakket. Dat is ca. 8 vodcasts van ca. 20 minuten, 3 tot 4 verticale shorts per aflevering en een BTS van de vodcastdag. Samen ca. 40 video's. Excl. reis- en verblijfkosten en btw."
       }
     ],
     "en": [
       {
         "_id": "faq-event-vodcast-recording-1",
         "question": "What is Event Vodcast Recording?",
-        "answer": "Your keynote speakers, executives and clients are already at your event. We interview them in a temporary video studio on location. From one event day you get about 41 branded videos: about 8 long form vodcasts of about 20 minutes, 3 to 4 vertical shorts per episode and a BTS of the vodcast day."
+        "answer": "Your keynote speakers, executives and clients are already at your event. We interview them in a temporary video studio on location. From one event day you get about 40 branded videos: about 8 long form vodcasts of about 20 minutes, 3 to 4 vertical shorts per episode and a BTS of the vodcast day."
       },
       {
         "_id": "faq-event-vodcast-recording-2",
         "question": "How many videos do you get from one event day?",
-        "answer": "About 8 vodcasts of about 20 minutes, plus 3 to 4 vertical short form videos per episode and a BTS of the vodcast day. Together about 41 branded videos for € 3,725, about € 90 per video."
+        "answer": "About 8 vodcasts of about 20 minutes, plus 3 to 4 vertical short form videos per episode and a BTS of the vodcast day. Together about 40 branded videos for € 3,725."
       },
       {
         "_id": "faq-event-vodcast-recording-3",
@@ -737,7 +737,7 @@ export const siteFaqByPage: Record<FaqPageKey, FaqLangMap> = {
       {
         "_id": "faq-event-vodcast-recording-7",
         "question": "What does Event Vodcast Recording cost?",
-        "answer": "€ 3,725 for the full package. That is about 8 vodcasts of about 20 minutes, 3 to 4 vertical shorts per episode and a BTS of the vodcast day. Together about 41 videos, about € 90 per video. Excl. travel and accommodation costs and VAT."
+        "answer": "€ 3,725 for the full package. That is about 8 vodcasts of about 20 minutes, 3 to 4 vertical shorts per episode and a BTS of the vodcast day. Together about 40 videos. Excl. travel and accommodation costs and VAT."
       }
     ]
   }
