@@ -16,8 +16,8 @@ const isEnglish = computed(() => locale.value.startsWith('en'))
 
 const onepagerPdf = computed(() =>
   isEnglish.value
-    ? '/DATA_EVENTSHOOT/FILES/Eventshoot_tarievenoverzicht_ENG.pdf'
-    : '/DATA_EVENTSHOOT/FILES/Eventshoot_tarievenoverzicht_NL.pdf',
+    ? '/DATA_EVENTSHOOT/FILES/Eventshoot_tarievenoverzicht_ENG.pdf?v=2'
+    : '/DATA_EVENTSHOOT/FILES/Eventshoot_tarievenoverzicht_NL.pdf?v=2',
 )
 
 const onepagerDownloadName = computed(() =>
@@ -41,7 +41,7 @@ usePageSeo('tarieven', { url: 'https://eventshoot.nl/tarieven' })
 const packages = computed(() => [
   {
     name: 'Highlight',
-    price: '€825',
+    price: '€975',
     description: t('pkg.highlightDesc'),
     features: [t('pkg.f4uur'), t('pkg.f100foto'), t('pkg.fSocial'), t('pkg.f48uurFotoAftermovie')],
     image: '/DATA_EVENTSHOOT/SITE_IMAGES/PRIJZEN/PHOTO.png',
@@ -49,7 +49,7 @@ const packages = computed(() => [
   },
   {
     name: 'Headline',
-    price: '€2.250',
+    price: '€2.475',
     description: t('pkg.headlineDesc'),
     features: [t('pkg.f8uur'), t('pkg.f150foto'), t('pkg.fSocial'), t('pkg.fCorporate'), t('pkg.fInterviews'), t('pkg.fDeliverySplit')],
     image: '/DATA_EVENTSHOOT/SITE_IMAGES/PRIJZEN/VIDEO.png',
@@ -57,7 +57,7 @@ const packages = computed(() => [
   },
   {
     name: 'Heroes',
-    price: '€3.450',
+    price: '€3.675',
     description: t('pkg.heroesDesc'),
     features: [t('pkg.f10uur3crew'), t('pkg.f200foto'), t('pkg.fSocial'), t('pkg.fCorporate'), t('pkg.fInterviewsHeroes'), t('pkg.fDeliverySplit')],
     image: '/DATA_EVENTSHOOT/SITE_IMAGES/PRIJZEN/INTERVIEWS.png',

@@ -274,7 +274,7 @@ export const siteFaqByPage: Record<FaqPageKey, FaqLangMap> = {
       {
         "_id": "faq-tarieven-1",
         "question": "Wat kosten de pakketten?",
-        "answer": "Highlight € 825 (4 uur), Headline € 2.250 (8 uur, meest gekozen) en Heroes € 3.450 (10 uur, foto + video). Alle prijzen excl. BTW. Reis- en transportkosten separaat."
+        "answer": "Highlight € 975 (4 uur), Headline € 2.475 (8 uur, meest gekozen) en Heroes € 3.675 (10 uur, foto + video). Alle prijzen excl. BTW. Reis- en transportkosten separaat."
       },
       {
         "_id": "faq-tarieven-2",
@@ -306,7 +306,7 @@ export const siteFaqByPage: Record<FaqPageKey, FaqLangMap> = {
       {
         "_id": "faq-tarieven-1",
         "question": "What do the packages cost?",
-        "answer": "Highlight € 825 (4 hours), Headline € 2,250 (8 hours, most popular) and Heroes € 3,450 (10 hours, photo + video). All prices excl. VAT. Travel and transport costs separate."
+        "answer": "Highlight € 975 (4 hours), Headline € 2,475 (8 hours, most popular) and Heroes € 3,675 (10 hours, photo + video). All prices excl. VAT. Travel and transport costs separate."
       },
       {
         "_id": "faq-tarieven-2",

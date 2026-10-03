@@ -58,7 +58,7 @@ export default {
     },
     tarieven: {
       title: 'Pricing for event content | Eventshoot.nl',
-      description: 'Three packages for event photography and video. Highlight from €825, Headline €2,250, Heroes €3,450. Plus Event Vodcast Recording € 3,725.',
+      description: 'Three packages for event photography and video. Highlight from €975, Headline €2,475, Heroes €3,675. Plus Event Vodcast Recording € 3,725.',
     },
     kennismaken: {
       title: 'Get in touch | Eventshoot.nl',
