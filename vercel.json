@@ -5,14 +5,14 @@
     "api/interview-login.ts": {
       "includeFiles": "api/interview/**"
     },
+    "api/interview/snippets.ts": {
+      "maxDuration": 60,
+      "includeFiles": "api/interview/**"
+    },
     "api/interview/*.ts": {
       "includeFiles": "api/interview/**"
     },
     "api/interview/**/*.ts": {
-      "includeFiles": "api/interview/**"
-    },
-    "api/interview/snippets.ts": {
-      "maxDuration": 60,
       "includeFiles": "api/interview/**"
     }
   },
