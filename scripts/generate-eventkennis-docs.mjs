@@ -24,9 +24,9 @@ const articles = [
 <h2>Welke pakketten zijn er voor congresfotografie?</h2>
 <p>Eventshoot.nl werkt met drie vaste pakketten. Geen losse uurtarieven achteraf, geen verrassingen op de factuur.</p>
 <ul>
-<li><strong>Highlight — €975 excl. BTW:</strong> 4 uur aanwezigheid, 100–150 foto's, social aftermovie (45–90 sec), 1 fotograaf. Levering binnen 48 uur. Past bij kleinere events of social-only.</li>
-<li><strong>Headline — €2.475 excl. BTW (meest gekozen):</strong> 8 uur aanwezigheid, 150–200 foto's, social én corporate aftermovie, 10–15 interviews (één camera), 2 personen crew. Levering binnen 48 uur. Past bij een jaarcongres of ledendag.</li>
-<li><strong>Heroes — €3.675 excl. BTW:</strong> 10 uur aanwezigheid, 200–300 foto's, social én corporate aftermovie (90–180 sec), 25–30 interviews, 3 personen crew. Levering binnen 48 uur. Past bij een hoog-profile congres.</li>
+<li><strong>Highlight — €975 excl. BTW:</strong> 4 uur aanwezigheid, 100–150 foto's, social aftermovie (45–90 sec), 1 crew. Levering binnen 48 uur. Past bij kleinere events of social-only.</li>
+<li><strong>Headline — €2.475 excl. BTW (meest gekozen):</strong> 8 uur aanwezigheid, 150–200 foto's, social én corporate aftermovie, 10–15 interviews (één camera), 2 crew. Levering binnen 48 uur. Past bij een jaarcongres of ledendag.</li>
+<li><strong>Heroes — €3.675 excl. BTW:</strong> 10 uur aanwezigheid, 200–300 foto's, social én corporate aftermovie (90–180 sec), 25–30 interviews, 3 crew. Levering binnen 48 uur. Past bij een hoog-profile congres.</li>
 </ul>
 
 <h2>Wat zit standaard in elk pakket?</h2>
@@ -194,7 +194,7 @@ const articles = [
 <p>Organiseer je meerdere events per jaar op verschillende locaties? Dan wil je één aanspreekpunt, één visuele stijl en voorspelbare levering binnen 48 uur. Neem contact op, dan stemmen we vooraf af welk pakket bij elk event past.</p>
 
 <h2>Veelgestelde vragen</h2>
-<p><strong>Komt de fotograaf alleen of met een crew?</strong><br>Highlight: één fotograaf. Headline: twee personen crew. Heroes: drie personen crew voor foto en video parallel.</p>
+<p><strong>Komt de fotograaf alleen of met een crew?</strong><br>Highlight: 1 crew. Headline: 2 crew. Heroes: 3 crew voor foto en video parallel.</p>
 <p><strong>Hoe vroeg moet ik boeken?</strong><br>Hoe eerder, hoe beter, zeker rond congresseizoen (september–november en voorjaar). Bij meerdere events per jaar plannen we vooraf samen de agenda in.</p>
 <p><strong>Werken jullie ook voor eventbureaus die landelijk opereren?</strong><br>Ja. Eventbureaus en DMC's schakelen Eventshoot.nl in als vaste content-partner achter de schermen.</p>
 <p><strong>Wat als de locatie lastige lichtomstandigheden heeft?</strong><br>Daarvoor is de locatie-afstemming vooraf. Podiumlicht, achtergrond en interviewplek worden samen met techniek doorgenomen.</p>

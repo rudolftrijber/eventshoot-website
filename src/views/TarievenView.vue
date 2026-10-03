@@ -51,7 +51,7 @@ const packages = computed(() => [
     name: 'Headline',
     price: '€2.475',
     description: t('pkg.headlineDesc'),
-    features: [t('pkg.f8uur'), t('pkg.f150foto'), t('pkg.fSocial'), t('pkg.fCorporate'), t('pkg.fInterviews'), t('pkg.fDeliverySplit')],
+    features: [t('pkg.f8uur2crew'), t('pkg.f150foto'), t('pkg.fSocial'), t('pkg.fCorporate'), t('pkg.fInterviews'), t('pkg.fDeliverySplit')],
     image: '/DATA_EVENTSHOOT/SITE_IMAGES/PRIJZEN/VIDEO.png',
     highlighted: true,
   },

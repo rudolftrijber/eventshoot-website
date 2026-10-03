@@ -183,7 +183,7 @@ Componenten per audience-pagina: HeaderBar → HeroImage → PainPointBlock → 
 
 6. Pakketten & tarieven
 Drie losse pakketten
-PakketPrijs (excl. BTW)AanwezigheidFoto'sAftermovieInterviewsCrewBeste fitHIGHLIGHT€ 9754 uur100–150Social (45–90 sec)—1Kleiner event, social-onlyHEADLINE (meest gekozen)€ 2.4758 uur150–250Social10–15 één-camera2Jaarcongres, ledendagHEROES€ 3.6758 uur200–300Social + Corporate (90–180 sec)15–20 één-camera2Hoog-profile congres
+PakketPrijs (excl. BTW)AanwezigheidFoto'sAftermovieInterviewsCrewBeste fitHIGHLIGHT€ 9754 uur100–150Social (45–90 sec)—1Kleiner event, social-onlyHEADLINE (meest gekozen)€ 2.4758 uur150–250Social10–15 één-camera2Jaarcongres, ledendagHEROES€ 3.6758 uur200–300Social + Corporate (90–180 sec)15–20 één-camera3Hoog-profile congres
 Alle pakketten inclusief: pre-production meeting, AI-ondertiteling, post-production met één correctieronde, levering binnen 48 uur (Highlight: 24 uur), drone/timelapse alleen bij Heroes (indien mogelijk).
 Content Year jaarcontract (aparte strook, geen vierde pakket)
 
