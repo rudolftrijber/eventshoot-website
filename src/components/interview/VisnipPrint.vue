@@ -245,6 +245,11 @@ function personLine(section: VisnipSection): string {
   border-top: 0.3mm solid #ddd;
 }
 
+.vs-list li {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
 .vs-title {
   margin: 0;
   font-size: 13pt;
@@ -284,16 +289,21 @@ function personLine(section: VisnipSection): string {
   }
 
   .vs-sheet {
+    width: 210mm;
+    min-height: 0;
+    height: auto;
     margin: 0;
     border-radius: 0;
     box-shadow: none;
-    break-after: page;
-    page-break-after: always;
+    break-before: auto;
+    break-after: auto;
+    page-break-before: auto;
+    page-break-after: auto;
   }
 
-  .vs-sheet:last-child {
-    break-after: auto;
-    page-break-after: auto;
+  .vs-sheet + .vs-sheet {
+    break-before: page;
+    page-break-before: always;
   }
 }
 </style>
