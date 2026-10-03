@@ -19,6 +19,7 @@ const DISPLAY_NAMES = {
   'dell.png': 'Dell',
   'dsr.png': 'DSR',
   'dux.png': 'Dux',
+  'esprit_ict.png': 'Esprit ICT',
   'gbl.png': 'GBL Alliance',
   'gladwell.png': 'Gladwell Academy',
   'ITChannelpro.png': 'IT Channel Pro',

@@ -28,6 +28,10 @@ export const CLIENT_LOGOS: ClientLogo[] = [
     "name": "Dux"
   },
   {
+    "file": "esprit_ict.png",
+    "name": "Esprit ICT"
+  },
+  {
     "file": "gbl.png",
     "name": "GBL Alliance"
   },
