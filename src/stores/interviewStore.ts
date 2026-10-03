@@ -388,6 +388,16 @@ export const useInterviewStore = defineStore('interview', () => {
     })
   }
 
+  async function generateSnippets(guestId: string) {
+    return api<{ snippets: Array<{ title: string; start: string; end: string; search: string; check: string }> }>(
+      '/api/interview/snippets',
+      {
+        method: 'POST',
+        body: JSON.stringify({ guestId }),
+      },
+    )
+  }
+
   async function suggestQuestions(payload: {
     scope: 'guest' | 'production'
     productionName: string
@@ -461,6 +471,7 @@ export const useInterviewStore = defineStore('interview', () => {
     seedDemo,
     uploadPng,
     suggestQuestions,
+    generateSnippets,
     setTab,
     selectGuest,
   }

@@ -7,9 +7,11 @@ import {
   fetchProducties,
   finalizeGuest,
   updateGuest,
+  updateGuestTranscript,
 } from '../database.js'
 import {
   filterGuestsForAuth,
+  presentGuest,
   productionNameAllowed,
   requireLogin,
   sanitizeGuestPatchForClient,
@@ -22,6 +24,7 @@ import {
   MAX_SHORT_TEXT,
   sanitizeImageUrl,
   sanitizeQuestions,
+  sanitizeTranscript,
 } from '../sanitize.js'
 
 function parseBody(req: VercelRequest): Record<string, unknown> {
@@ -66,7 +69,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         guest.functie = clipText(body.functie ?? guest.functie, MAX_SHORT_TEXT)
         guest.organisatie = clipText(body.organisatie ?? guest.organisatie, MAX_SHORT_TEXT)
         const finalized = await finalizeGuest(guest)
-        res.status(200).json({ guest: finalized })
+        res.status(200).json({ guest: presentGuest(ctx, finalized) })
         return
       }
 
@@ -91,6 +94,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (body.questions !== undefined) patch.questions = sanitizeQuestions(body.questions)
       if (body.moderator !== undefined) patch.moderator = clipText(body.moderator, MAX_SHORT_TEXT)
       if (body.moderatorFunctie !== undefined) patch.moderatorFunctie = clipText(body.moderatorFunctie, MAX_SHORT_TEXT)
+      if (isCrew(ctx) && body.transcript !== undefined) {
+        const parsed = sanitizeTranscript(body.transcript)
+        if (parsed === null) {
+          res.status(400).json({ error: 'Transcript is too large' })
+          return
+        }
+        patch.transcript = parsed
+        patch.transcriptFilename = parsed
+          ? clipText(body.transcriptFilename, 200).replace(/[\\/]/g, '')
+          : ''
+      }
       if (body.intakeComplete !== undefined) patch.intakeComplete = Boolean(body.intakeComplete)
       if (body.status !== undefined) patch.status = String(body.status) as GastStatus
       if (body.regienummer !== undefined) patch.regienummer = clipText(body.regienummer, 20)
@@ -110,12 +124,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
       }
 
-      const updated = await updateGuest(id, patch)
+      const patchKeys = Object.keys(patch)
+      const transcriptOnly = patchKeys.length > 0
+        && patchKeys.every((key) => key === 'transcript' || key === 'transcriptFilename')
+      const updated = transcriptOnly
+        ? await updateGuestTranscript(
+          id,
+          String(patch.transcript ?? ''),
+          String(patch.transcriptFilename ?? ''),
+        )
+        : await updateGuest(id, patch)
       if (!updated) {
         res.status(404).json({ error: 'Guest not found' })
         return
       }
-      res.status(200).json({ guest: updated })
+      res.status(200).json({ guest: presentGuest(ctx, updated) })
       return
     }
 

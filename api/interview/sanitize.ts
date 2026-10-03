@@ -4,6 +4,8 @@ import { MAX_PNG_BYTES } from './types.js'
 export const MAX_SHORT_TEXT = 200
 export const MAX_MEDIUM_TEXT = 500
 export const MAX_LONG_TEXT = 4000
+/** A 20-minute Premiere transcript with timecodes stays well under this. */
+export const MAX_TRANSCRIPT_CHARS = 500_000
 export const MAX_QUESTIONS = 10
 export const MAX_QUESTION_LEN = 400
 export const MAX_PASSWORD_LEN = 128
@@ -12,6 +14,13 @@ export const MAX_DATA_URL_CHARS = Math.ceil(MAX_PNG_BYTES * 1.4) + 64
 
 export function clipText(value: unknown, max: number): string {
   return String(value ?? '').trim().slice(0, max)
+}
+
+/** Returns null when the transcript is larger than the stored limit. */
+export function sanitizeTranscript(value: unknown): string | null {
+  const text = String(value ?? '').replace(/^\uFEFF/, '').replace(/\u0000/g, '')
+  if (text.length > MAX_TRANSCRIPT_CHARS) return null
+  return text.trim()
 }
 
 export function sanitizeQuestions(value: unknown): string[] {

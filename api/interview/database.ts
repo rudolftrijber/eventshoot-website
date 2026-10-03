@@ -15,7 +15,7 @@ import {
   verifyClientPassword,
 } from './auth.js'
 
-const SCHEMA_VERSION = 1
+const SCHEMA_VERSION = 2
 
 let schemaReady: Promise<void> | null = null
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -142,6 +142,8 @@ async function initSchema(): Promise<void> {
   await sql`ALTER TABLE interview_gasten ADD COLUMN IF NOT EXISTS thumbnail_4x5 TEXT NOT NULL DEFAULT ''`
   await sql`ALTER TABLE interview_gasten ADD COLUMN IF NOT EXISTS moderator TEXT NOT NULL DEFAULT ''`
   await sql`ALTER TABLE interview_gasten ADD COLUMN IF NOT EXISTS moderator_functie TEXT NOT NULL DEFAULT ''`
+  await sql`ALTER TABLE interview_gasten ADD COLUMN IF NOT EXISTS transcript TEXT NOT NULL DEFAULT ''`
+  await sql`ALTER TABLE interview_gasten ADD COLUMN IF NOT EXISTS transcript_filename TEXT NOT NULL DEFAULT ''`
   await sql`
     CREATE TABLE IF NOT EXISTS interview_rate_limits (
       bucket_key TEXT PRIMARY KEY,
@@ -172,7 +174,11 @@ async function migrateClientPasswordLookups(sql: Awaited<ReturnType<typeof getSq
 
 function formatDateValue(value: unknown): string {
   if (!value) return ''
-  if (value instanceof Date) return value.toISOString().slice(0, 10)
+  if (value instanceof Date && !Number.isNaN(value.getTime())) {
+    const month = String(value.getMonth() + 1).padStart(2, '0')
+    const day = String(value.getDate()).padStart(2, '0')
+    return `${value.getFullYear()}-${month}-${day}`
+  }
   const s = String(value).trim()
   if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0, 10)
   const parsed = new Date(s)
@@ -245,6 +251,8 @@ function rowToGast(row: Record<string, unknown>): Gast {
     questions: Array.isArray(row.questions) ? row.questions.map(String) : [],
     moderator: String(row.moderator || ''),
     moderatorFunctie: String(row.moderator_functie || ''),
+    transcript: String(row.transcript || ''),
+    transcriptFilename: String(row.transcript_filename || ''),
     intakeComplete: Boolean(row.intake_complete),
     status: normalizeGastStatus(String(row.status)),
     regienummer: row.regienummer ? String(row.regienummer) : '',
@@ -370,7 +378,8 @@ export async function fetchGuests(): Promise<Gast[]> {
   const sql = await getSql()
   const cols = sql.unsafe(`id, productie_naam, type, naam, functie, organisatie, planning, gedeeld,
     intro_tekst, outro_tekst, serie_naam, interview_titel, questions,
-    moderator, moderator_functie, intake_complete, status, regienummer, datum, tijd,
+    moderator, moderator_functie, transcript, transcript_filename,
+    intake_complete, status, regienummer, datum, tijd,
     created_at, updated_at,
     CASE WHEN screenshot_16x9 LIKE 'data:%' THEN '' ELSE COALESCE(screenshot_16x9, '') END AS screenshot_16x9,
     CASE WHEN screenshot_9x16 LIKE 'data:%' THEN '' ELSE COALESCE(screenshot_9x16, '') END AS screenshot_9x16,
@@ -390,7 +399,8 @@ export async function createGuest(data: Omit<Gast, 'createdAt' | 'updatedAt'>): 
       intro_tekst, outro_tekst, serie_naam, interview_titel,
       screenshot_16x9, screenshot_9x16, screenshot_4x5,
       thumbnail_16x9, thumbnail_9x16, thumbnail_4x5,
-      questions, moderator, moderator_functie, intake_complete, status, regienummer, datum, tijd
+      questions, moderator, moderator_functie, transcript, transcript_filename,
+      intake_complete, status, regienummer, datum, tijd
     ) VALUES (
       ${data.id}, ${data.productieNaam}, ${data.type}, ${data.naam}, ${data.functie},
       ${data.organisatie || ''},
@@ -401,11 +411,30 @@ export async function createGuest(data: Omit<Gast, 'createdAt' | 'updatedAt'>): 
       ${data.thumbnail16x9 || ''}, ${data.thumbnail9x16 || ''}, ${data.thumbnail4x5 || ''},
       ${JSON.stringify(data.questions)}::jsonb,
       ${data.moderator || ''}, ${data.moderatorFunctie || ''},
+      ${data.transcript || ''}, ${data.transcriptFilename || ''},
       ${Boolean(data.intakeComplete)}, ${data.status}, ${data.regienummer || null},
       ${toDateParam(data.datum)}, ${formatTimeValue(data.tijd) || null}
     )
     RETURNING *
   `
+  return rowToGast(rows[0] as Record<string, unknown>)
+}
+
+export async function updateGuestTranscript(
+  id: string,
+  transcript: string,
+  transcriptFilename: string,
+): Promise<Gast | null> {
+  const sql = await getSql()
+  const rows = await sql`
+    UPDATE interview_gasten SET
+      transcript = ${transcript},
+      transcript_filename = ${transcriptFilename},
+      updated_at = NOW()
+    WHERE id = ${id}
+    RETURNING *
+  `
+  if (!rows.length) return null
   return rowToGast(rows[0] as Record<string, unknown>)
 }
 
@@ -438,6 +467,8 @@ export async function updateGuest(id: string, patch: Partial<Gast>): Promise<Gas
       questions = ${JSON.stringify(next.questions)}::jsonb,
       moderator = ${next.moderator || ''},
       moderator_functie = ${next.moderatorFunctie || ''},
+      transcript = ${next.transcript || ''},
+      transcript_filename = ${next.transcriptFilename || ''},
       intake_complete = ${Boolean(next.intakeComplete)},
       status = ${next.status},
       regienummer = ${next.regienummer || null},

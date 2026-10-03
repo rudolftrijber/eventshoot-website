@@ -50,6 +50,11 @@ export function filterProductionsForAuth(ctx: AuthContext, list: Productie[]): P
   })
 }
 
+export function presentGuest(ctx: AuthContext, guest: Gast): Gast {
+  if (isCrew(ctx)) return guest
+  return { ...guest, transcript: '', transcriptFilename: '' }
+}
+
 export function filterGuestsForAuth(ctx: AuthContext, guests: Gast[], productions: Productie[]): Gast[] {
   if (isCrew(ctx)) return guests
   const names = new Set(
@@ -57,7 +62,9 @@ export function filterGuestsForAuth(ctx: AuthContext, guests: Gast[], production
       .filter((p) => ctx.productionIds.includes(p.id))
       .map((p) => p.naam),
   )
-  return guests.filter((g) => names.has(g.productieNaam))
+  return guests
+    .filter((g) => names.has(g.productieNaam))
+    .map((g) => ({ ...g, transcript: '', transcriptFilename: '' }))
 }
 
 export function productionNameAllowed(
@@ -83,7 +90,7 @@ export function sanitizeGuestPatchForClient(
   patch: Record<string, unknown>,
 ): Record<string, unknown> | string {
   const blocked = [
-    'status', 'regienummer', 'action',
+    'status', 'regienummer', 'action', 'transcript', 'transcriptFilename',
   ]
   for (const key of blocked) {
     if (patch[key] !== undefined) return 'Clients cannot change crew fields'

@@ -78,6 +78,9 @@ export interface Gast {
   moderator: string
   /** Role or job title of the moderator */
   moderatorFunctie: string
+  /** Premiere transcript for short-form snippets. Crew only. */
+  transcript: string
+  transcriptFilename: string
   intakeComplete: boolean
   status: GastStatus
   regienummer: string

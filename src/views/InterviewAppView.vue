@@ -40,7 +40,8 @@ import {
   triggerImageDownload,
   withImageCacheBust,
 } from '@/utils/interviewUploads'
-import '@/assets/interview-app.css?v=thumb-45b'
+import { assignTranscriptGuests } from '@/utils/matchTranscripts'
+import '@/assets/interview-app.css?v=transcript-2'
 import '@/assets/interview-app-buttons.css'
 import {
   EyeIcon,
@@ -63,6 +64,7 @@ import InterviewBriefPrint, {
   type BriefCandidate,
   type BriefProduction,
 } from '@/components/interview/InterviewBriefPrint.vue'
+import VisnipPrint, { type VisnipSection } from '@/components/interview/VisnipPrint.vue'
 
 const store = useInterviewStore()
 const route = useRoute()
@@ -121,6 +123,18 @@ const fModerator = ref('')
 const fModeratorFunctie = ref('')
 const moderatorCarriedOver = ref(false)
 
+type TranscriptDrop = {
+  key: string
+  filename: string
+  text: string
+  guestId: string
+}
+const transcriptDrops = ref<TranscriptDrop[]>([])
+const transcriptDragOver = ref(false)
+const transcriptSaving = ref(false)
+const transcriptInput = ref<HTMLInputElement | null>(null)
+const MAX_TRANSCRIPT_CHARS = 500_000
+
 // Productie form
 const editingProdId = ref<string | null>(null)
 const pNaam = ref('')
@@ -159,6 +173,10 @@ const showCamQuestions = ref(false)
 const confirmOpgenomen = ref(false)
 const showPresenterCard = ref(false)
 const showInterviewBrief = ref(false)
+const showVisnip = ref(false)
+const visnipBusy = ref(false)
+const visnipProgress = ref('')
+const visnipSections = ref<VisnipSection[]>([])
 const briefProduction = ref<BriefProduction>({
   naam: '',
   serie: '',
@@ -869,6 +887,52 @@ function openProductionBriefs() {
   )
 }
 
+async function openVisnipPdf() {
+  const guests = scheduledGuests.value.filter((guest) => guest.transcript.trim())
+  if (!guests.length) {
+    showToast('Upload transcripts first')
+    return
+  }
+  visnipBusy.value = true
+  const sections: VisnipSection[] = []
+  let failed = 0
+  try {
+    for (let i = 0; i < guests.length; i++) {
+      const guest = guests[i]
+      visnipProgress.value = `${i + 1}/${guests.length}`
+      const section: VisnipSection = {
+        naam: guest.naam,
+        functie: guest.functie || '',
+        organisatie: guest.organisatie || '',
+        when: formatGuestWhen(guest),
+        snippets: [],
+        error: '',
+      }
+      try {
+        const data = await store.generateSnippets(guest.id)
+        section.snippets = data.snippets
+      } catch (err) {
+        failed += 1
+        section.error = err instanceof Error ? err.message : 'Snippet list failed'
+        sections.push(section)
+        if (/not available|temporarily unavailable|limit reached/i.test(section.error)) break
+        continue
+      }
+      sections.push(section)
+    }
+  } finally {
+    visnipBusy.value = false
+    visnipProgress.value = ''
+  }
+  if (!sections.some((section) => section.snippets.length)) {
+    showToast(sections[0]?.error || 'Snippet list failed')
+    return
+  }
+  if (failed) showToast(`${sections.length - failed} ready, ${failed} failed`)
+  visnipSections.value = sections
+  showVisnip.value = true
+}
+
 async function handleLogin() {
   if (!apiConfigured.value) return
   loginError.value = ''
@@ -1132,6 +1196,143 @@ function applyProductionAiPreview() {
 function dismissProductionAiPreview() {
   resetProdAi()
 }
+
+const unmatchedTranscriptDrops = computed(() =>
+  transcriptDrops.value.filter((drop) => !drop.guestId),
+)
+
+function pendingDropFor(guestId: string): TranscriptDrop | undefined {
+  return transcriptDrops.value.find((drop) => drop.guestId === guestId)
+}
+
+function removeGuestTranscript(guest: Gast) {
+  const pending = pendingDropFor(guest.id)
+  if (pending) removeTranscriptDrop(pending.key)
+  else void removeStoredTranscript(guest)
+}
+
+function transcriptSizeLabel(chars: number): string {
+  if (chars < 1000) return `${chars} characters`
+  return `${Math.round(chars / 1000)}k characters`
+}
+
+function transcriptGuestTaken(guestId: string, dropKey: string): boolean {
+  return transcriptDrops.value.some((drop) => drop.key !== dropKey && drop.guestId === guestId)
+}
+
+function readTranscriptText(file: File): Promise<string> {
+  return file.arrayBuffer().then((buf) => {
+    const bytes = new Uint8Array(buf)
+    let text: string
+    if (bytes.length >= 2 && bytes[0] === 0xff && bytes[1] === 0xfe) {
+      text = new TextDecoder('utf-16le').decode(buf)
+    } else if (bytes.length >= 2 && bytes[0] === 0xfe && bytes[1] === 0xff) {
+      text = new TextDecoder('utf-16be').decode(buf)
+    } else {
+      text = new TextDecoder('utf-8').decode(buf)
+    }
+    return text.replace(/^\uFEFF/, '')
+  })
+}
+
+async function ingestTranscriptFiles(list: FileList | File[]) {
+  const files = [...list]
+  const skipped: string[] = []
+  const accepted: TranscriptDrop[] = []
+  for (const file of files.slice(0, 40)) {
+    const filename = file.name.replace(/[\\/]/g, '').slice(0, 200)
+    if (!/\.(txt|srt|vtt)$/i.test(filename)) {
+      skipped.push(filename || 'file')
+      continue
+    }
+    if (file.size > 2_000_000) {
+      skipped.push(filename)
+      continue
+    }
+    const text = (await readTranscriptText(file)).trim()
+    if (!text || text.length > MAX_TRANSCRIPT_CHARS) {
+      skipped.push(filename)
+      continue
+    }
+    accepted.push({
+      key: `${filename}-${file.size}-${accepted.length}-${Date.now()}`,
+      filename,
+      text,
+      guestId: '',
+    })
+  }
+  if (files.length > 40) skipped.push('extra files')
+  if (!accepted.length) {
+    showToast(skipped.length ? 'No usable transcript files' : 'Choose transcript files')
+    return
+  }
+  const assigned = assignTranscriptGuests(
+    accepted,
+    scheduledGuests.value,
+    transcriptDrops.value.map((drop) => drop.guestId),
+  )
+  for (const drop of accepted) drop.guestId = assigned.get(drop.key) || ''
+  transcriptDrops.value = [...transcriptDrops.value, ...accepted]
+  const linked = accepted.filter((drop) => drop.guestId).length
+  const open = accepted.length - linked
+  if (skipped.length) showToast(`${accepted.length} added, ${skipped.length} skipped`)
+  else if (open) showToast(`${linked} linked, ${open} still need a candidate`)
+  else showToast(`${linked} linked to candidates`)
+}
+
+function onTranscriptFiles(event: Event) {
+  const input = event.target as HTMLInputElement
+  const files = input.files ? [...input.files] : []
+  input.value = ''
+  if (files.length) void ingestTranscriptFiles(files)
+}
+
+function onTranscriptDrop(event: DragEvent) {
+  transcriptDragOver.value = false
+  const files = event.dataTransfer?.files ? [...event.dataTransfer.files] : []
+  if (files.length) void ingestTranscriptFiles(files)
+}
+
+function removeTranscriptDrop(key: string) {
+  transcriptDrops.value = transcriptDrops.value.filter((drop) => drop.key !== key)
+}
+
+async function saveTranscriptDrops() {
+  const ready = transcriptDrops.value.filter((drop) => drop.guestId)
+  if (!ready.length) {
+    showToast('Choose a candidate for each file')
+    return
+  }
+  transcriptSaving.value = true
+  try {
+    for (const drop of ready) {
+      await store.updateGuest(drop.guestId, {
+        transcript: drop.text,
+        transcriptFilename: drop.filename,
+      })
+    }
+    const waiting = transcriptDrops.value.length - ready.length
+    transcriptDrops.value = transcriptDrops.value.filter((drop) => !drop.guestId)
+    showToast(waiting ? `${ready.length} saved, ${waiting} still open` : `${ready.length} transcripts saved`)
+  } catch (e) {
+    showToast(e instanceof Error ? e.message : 'Save failed')
+  } finally {
+    transcriptSaving.value = false
+  }
+}
+
+async function removeStoredTranscript(guest: Gast) {
+  try {
+    await store.updateGuest(guest.id, { transcript: '', transcriptFilename: '' })
+    showToast('Transcript removed')
+  } catch (e) {
+    showToast(e instanceof Error ? e.message : 'Remove failed')
+  }
+}
+
+watch(() => workingProduction.value?.id, () => {
+  transcriptDrops.value = []
+})
 
 function clearForm() {
   editingId.value = null
@@ -2811,6 +3012,17 @@ watch(() => store.role, (role) => {
                     <DocumentTextIcon class="ia-btn__icon" aria-hidden="true" />
                     VPO PDF
                   </button>
+                  <button
+                    v-if="store.isCrew"
+                    class="ia-btn ia-btn--small ia-btn--secondary"
+                    type="button"
+                    title="Vertical snippet list for every vodcast with a transcript"
+                    :disabled="visnipBusy"
+                    @click="openVisnipPdf"
+                  >
+                    <DocumentTextIcon class="ia-btn__icon" aria-hidden="true" />
+                    {{ visnipBusy ? `VISNIP ${visnipProgress}` : 'VISNIP PDF' }}
+                  </button>
                 </div>
               </div>
 
@@ -2821,6 +3033,52 @@ watch(() => store.role, (role) => {
                 <div class="ia-actions ia-actions--tight">
                   <button class="ia-btn ia-btn--small ia-btn--accent" type="button" @click="openNewGuest">
                     + New candidate
+                  </button>
+                </div>
+                <div
+                  v-if="store.isCrew && scheduledGuests.length"
+                  class="ia-transcript-drop"
+                  :class="{ 'ia-transcript-drop--over': transcriptDragOver }"
+                  @dragover.prevent="transcriptDragOver = true"
+                  @dragleave.prevent="transcriptDragOver = false"
+                  @drop.prevent="onTranscriptDrop"
+                >
+                  <p>Drop Premiere transcripts here. They attach to the candidate below.</p>
+                  <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="transcriptInput?.click()">
+                    Choose files
+                  </button>
+                  <input
+                    ref="transcriptInput"
+                    type="file"
+                    multiple
+                    accept=".txt,.srt,.vtt,text/plain"
+                    hidden
+                    @change="onTranscriptFiles"
+                  />
+                </div>
+                <ul v-if="unmatchedTranscriptDrops.length" class="ia-transcript-list">
+                  <li v-for="drop in unmatchedTranscriptDrops" :key="drop.key">
+                    <div class="ia-transcript-list__file">
+                      <strong>{{ drop.filename }}</strong>
+                      <span>Choose a candidate</span>
+                    </div>
+                    <select v-model="drop.guestId" class="ia-select">
+                      <option value="">Choose a candidate</option>
+                      <option
+                        v-for="guest in scheduledGuests"
+                        :key="guest.id"
+                        :value="guest.id"
+                        :disabled="transcriptGuestTaken(guest.id, drop.key)"
+                      >
+                        {{ guest.naam }}
+                      </option>
+                    </select>
+                    <button class="ia-iconbtn ia-transcript-list__remove" type="button" title="Remove" @click="removeTranscriptDrop(drop.key)">🗑️</button>
+                  </li>
+                </ul>
+                <div v-if="transcriptDrops.length" class="ia-actions">
+                  <button class="ia-btn ia-btn--small" type="button" :disabled="transcriptSaving" @click="saveTranscriptDrops">
+                    {{ transcriptSaving ? 'Saving…' : 'Save transcripts' }}
                   </button>
                 </div>
                 <input
@@ -2855,6 +3113,21 @@ watch(() => store.role, (role) => {
                       <td>{{ formatGuestWhen(g) || '—' }}</td>
                       <td>
                         <div>{{ g.naam }}</div>
+                        <div
+                          v-if="store.isCrew && (pendingDropFor(g.id) || g.transcript.trim())"
+                          class="ia-guest-transcript"
+                          @click.stop
+                        >
+                          <span :title="pendingDropFor(g.id)?.filename || g.transcriptFilename">
+                            {{ pendingDropFor(g.id)?.filename || g.transcriptFilename || 'Transcript' }}
+                          </span>
+                          <button
+                            class="ia-iconbtn"
+                            type="button"
+                            title="Remove transcript"
+                            @click="removeGuestTranscript(g)"
+                          >🗑️</button>
+                        </div>
                         <small v-if="g.planning" style="color:var(--color-text-muted)">{{ g.planning }}</small>
                         <small v-if="g.intakeComplete" class="ia-intake-badge">Intake complete</small>
                       </td>
@@ -3031,6 +3304,14 @@ watch(() => store.role, (role) => {
       :production="briefProduction"
       :candidates="briefCandidates"
       @close="showInterviewBrief = false"
+    />
+
+    <VisnipPrint
+      :open="showVisnip"
+      :production-name="workingProduction?.naam || ''"
+      :production-when="workingProduction ? productionWhenLabel(workingProduction) : ''"
+      :sections="visnipSections"
+      @close="showVisnip = false"
     />
   </div>
 </template>

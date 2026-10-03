@@ -104,6 +104,8 @@ const gasten: Omit<Gast, 'createdAt' | 'updatedAt'>[] = [
     thumbnail16x9: '',
     thumbnail9x16: '',
     thumbnail4x5: '',
+    transcript: '',
+    transcriptFilename: '',
     questions: [
       'Wat was voor u het hoogtepunt van dit congres?',
       'Welke trend ziet u de komende jaren in de sector?',
@@ -137,6 +139,8 @@ const gasten: Omit<Gast, 'createdAt' | 'updatedAt'>[] = [
     thumbnail16x9: '',
     thumbnail9x16: '',
     thumbnail4x5: '',
+    transcript: '',
+    transcriptFilename: '',
     questions: [
       'Wat verraste u vandaag het meest?',
       'Hoe vertaalt innovatie zich naar de praktijk?',
@@ -170,6 +174,8 @@ const gasten: Omit<Gast, 'createdAt' | 'updatedAt'>[] = [
     thumbnail16x9: '',
     thumbnail9x16: '',
     thumbnail4x5: '',
+    transcript: '',
+    transcriptFilename: '',
     questions: [
       'Wat haalt u uit deze ledendag?',
       'Welke sessie sprak u het meest aan?',
@@ -203,6 +209,8 @@ const gasten: Omit<Gast, 'createdAt' | 'updatedAt'>[] = [
     thumbnail16x9: '',
     thumbnail9x16: '',
     thumbnail4x5: '',
+    transcript: '',
+    transcriptFilename: '',
     questions: [
       'Waarom is deze ledendag belangrijk voor uw leden?',
       'Welke boodschap neemt u mee naar de raad van bestuur?',
@@ -236,6 +244,8 @@ const gasten: Omit<Gast, 'createdAt' | 'updatedAt'>[] = [
     thumbnail16x9: '',
     thumbnail9x16: '',
     thumbnail4x5: '',
+    transcript: '',
+    transcriptFilename: '',
     questions: [
       'Hoe kijkt u terug op deze editie?',
       'Welk moment vond u het meest energiek?',
@@ -269,6 +279,8 @@ const gasten: Omit<Gast, 'createdAt' | 'updatedAt'>[] = [
     thumbnail16x9: '',
     thumbnail9x16: '',
     thumbnail4x5: '',
+    transcript: '',
+    transcriptFilename: '',
     questions: [
       'Welke productupdate vindt u het meest relevant?',
       'Hoe gebruikt u onze oplossing in de praktijk?',

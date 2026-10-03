@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { isClient, intakeLockApplies } from './auth.js'
+import { isClient, isCrew, intakeLockApplies } from './auth.js'
 import {
   createGuest,
   ensureSchema,
@@ -8,6 +8,7 @@ import {
 } from './database.js'
 import {
   filterGuestsForAuth,
+  presentGuest,
   productionNameAllowed,
   requireLogin,
   sanitizeGuestCreateForClient,
@@ -19,6 +20,7 @@ import {
   MAX_SHORT_TEXT,
   sanitizeImageUrl,
   sanitizeQuestions,
+  sanitizeTranscript,
 } from './sanitize.js'
 import { MAX_INTERVIEW_TITLE_CHARS, type Gast } from './types.js'
 
@@ -63,6 +65,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const questions = sanitizeQuestions(body.questions)
       const type = clipText(body.type, 40)
       const intakeComplete = Boolean(body.intakeComplete) && intakeLockApplies(type)
+      let transcript = ''
+      let transcriptFilename = ''
+      if (isCrew(ctx)) {
+        const parsed = sanitizeTranscript(body.transcript)
+        if (parsed === null) {
+          res.status(400).json({ error: 'Transcript is too large' })
+          return
+        }
+        transcript = parsed
+        transcriptFilename = transcript
+          ? clipText(body.transcriptFilename, 200).replace(/[\\/]/g, '')
+          : ''
+      }
       const guest: Omit<Gast, 'createdAt' | 'updatedAt'> = {
         id: uid(),
         productieNaam: clipText(productieNaam, MAX_SHORT_TEXT),
@@ -85,6 +100,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         questions,
         moderator: clipText(body.moderator, MAX_SHORT_TEXT),
         moderatorFunctie: clipText(body.moderatorFunctie, MAX_SHORT_TEXT),
+        transcript,
+        transcriptFilename,
         intakeComplete,
         status: 'Entered',
         regienummer: '',
@@ -96,7 +113,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return
       }
       const created = await createGuest(guest)
-      res.status(201).json({ guest: created })
+      res.status(201).json({ guest: presentGuest(ctx, created) })
       return
     }
 
