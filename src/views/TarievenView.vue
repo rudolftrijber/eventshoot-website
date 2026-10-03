@@ -8,7 +8,7 @@ import UspGrid from '@/components/UspGrid.vue'
 import FaqBlock from '@/components/FaqBlock.vue'
 import OptimizedImage from '@/components/OptimizedImage.vue'
 import { usePageSeo } from '@/composables/usePageSeo'
-import { vodcastPath } from '@/data/vodcastPage'
+import { VODCAST_ONEPAGER_EN, VODCAST_ONEPAGER_NL, vodcastPath } from '@/data/vodcastPage'
 
 const { t, locale } = useI18n()
 
@@ -27,9 +27,7 @@ const onepagerDownloadName = computed(() =>
 )
 
 const vodcastPdf = computed(() =>
-  isEnglish.value
-    ? '/DATA_EVENTSHOOT/FILES/Event_Vodcast_Recording_ENG.pdf?v=2'
-    : '/DATA_EVENTSHOOT/FILES/Event_Vodcast_Recording_NL.pdf',
+  isEnglish.value ? VODCAST_ONEPAGER_EN : VODCAST_ONEPAGER_NL,
 )
 
 const vodcastDownloadName = computed(() =>

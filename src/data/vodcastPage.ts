@@ -16,8 +16,8 @@ export function vodcastPath(locale: string) {
   return locale.startsWith('en') ? VODCAST_PATH_EN : VODCAST_PATH_NL
 }
 
-export const VODCAST_ONEPAGER_NL = '/downloads/eventshoot-event-vodcast-recording.pdf'
-export const VODCAST_ONEPAGER_EN = '/DATA_EVENTSHOOT/FILES/Event_Vodcast_Recording_ENG.pdf'
+export const VODCAST_ONEPAGER_NL = '/DATA_EVENTSHOOT/FILES/Event_Vodcast_Recording_NL.pdf?v=3'
+export const VODCAST_ONEPAGER_EN = '/DATA_EVENTSHOOT/FILES/Event_Vodcast_Recording_ENG.pdf?v=3'
 
 export const VODCAST_INTRO_VIMEO =
   'https://player.vimeo.com/video/1218955382?title=0&byline=0&portrait=0'
