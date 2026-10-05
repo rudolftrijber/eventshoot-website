@@ -69,8 +69,12 @@
           var touch = (navigator.maxTouchPoints || 0) > 0
           var coarse = window.matchMedia && window.matchMedia('(any-pointer: coarse), (pointer: coarse), (hover: none)').matches
           var safari = /Safari/.test(ua) && !/Chrome|Chromium|Edg\/|OPR\/|Android/.test(ua)
-          var ios = /iPad|iPhone|iPod|FxiOS|CriOS|EdgiOS/.test(ua) || safari || coarse || (touch && /Macintosh|Mac OS X/.test(ua))
+          var shortSide = Math.min(screen.width || 0, screen.height || 0)
+          var narrow = window.matchMedia && window.matchMedia('(max-width: 1200px)').matches
+          var compact = (shortSide > 0 && shortSide <= 1024) || narrow
+          var ios = /iPad|iPhone|iPod|FxiOS|CriOS|EdgiOS/.test(ua) || safari || coarse || (touch && /Macintosh|Mac OS X/.test(ua)) || compact
           if (ios) document.documentElement.classList.add('is-ios')
+          if (compact) document.documentElement.classList.add('is-compact')
         } catch (e) {}
       })()
       window.addEventListener('error', function (e) {
@@ -84,13 +88,15 @@
       html, body { background: #0a1628; color: #fff; }
       html.is-ios .app-bg,
       html.is-ios video.bg-video,
+      html.is-compact .app-bg,
+      html.is-compact video.bg-video,
       .app-bg,
       video.bg-video {
         display: none !important;
       }
-      @media (hover: hover) and (pointer: fine) and (any-pointer: fine) {
-        html:not(.is-ios) .app-bg,
-        html:not(.is-ios) video.bg-video {
+      @media (min-width: 1201px) {
+        html:not(.is-ios):not(.is-compact) .app-bg,
+        html:not(.is-ios):not(.is-compact) video.bg-video {
           display: block !important;
         }
       }
@@ -114,7 +120,7 @@
         <p style="font-size:1.05rem;line-height:1.6;margin:0 0 1.5rem;">Eén event, een complete contentbox. Eventshoot.nl levert 25+ kant-en-klare foto's, aftermovies en interviews uit jouw zakelijke event. Gemaakt door mensen, geleverd binnen 48 uur.</p>
         <p id="boot-error" hidden style="background:#3a1010;color:#fff;padding:0.8rem 1rem;border-radius:8px;margin:0 0 1rem;"></p>
         <p style="margin:0 0 1rem;">
-          <a href="/interview.html?v=7" style="display:inline-block;background:#FF7B00;color:#fff;text-decoration:none;font-weight:700;padding:0.9rem 1.4rem;border-radius:10px;font-size:1.15rem;">Interview-app</a>
+          <a href="/interview.html?v=8" style="display:inline-block;background:#FF7B00;color:#fff;text-decoration:none;font-weight:700;padding:0.9rem 1.4rem;border-radius:10px;font-size:1.15rem;">Interview-app</a>
         </p>
         <p style="margin:0;">
           <a href="/kennismaken/" style="display:inline-block;color:#fff;text-decoration:underline;margin-right:1rem;">Kennismaken</a>

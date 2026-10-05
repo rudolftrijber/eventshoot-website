@@ -7,13 +7,13 @@ import FooterSection from '@/components/FooterSection.vue'
 import BackgroundVideo from '@/components/BackgroundVideo.vue'
 import { RouterView } from 'vue-router'
 import { reinitElfsightWidgets } from '@/lib/elfsight'
-import { isIosLike } from '@/lib/isIosLike'
+import { skipFullscreenVideo } from '@/lib/isIosLike'
 
 const route = useRoute()
 const hideLayout = computed(() => Boolean(route.meta.hideLayout))
 const hideRolfContact = computed(() => Boolean(route.meta.hideRolfContact))
 const hideBackgroundVideo = computed(() => Boolean(route.meta.hideBackgroundVideo))
-const ios = isIosLike()
+const ios = skipFullscreenVideo()
 
 watch(
   () => route.fullPath,
@@ -53,11 +53,13 @@ watch(
 }
 
 html.is-ios .app-bg,
-html.is-ios .bg-video {
+html.is-ios .bg-video,
+html.is-compact .app-bg,
+html.is-compact .bg-video {
   display: none !important;
 }
 
-@media (any-pointer: coarse), (hover: none), (pointer: coarse) {
+@media (any-pointer: coarse), (hover: none), (pointer: coarse), (max-width: 1200px) {
   .app-bg,
   .bg-video,
   video.bg-video {

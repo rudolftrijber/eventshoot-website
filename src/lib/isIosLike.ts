@@ -17,3 +17,17 @@ export function isIosLike(): boolean {
     return true
   }
 }
+
+/** iPad mini landscape is wider than the phone breakpoint, but must follow the phone path: no full-screen video. */
+export function skipFullscreenVideo(): boolean {
+  if (isIosLike()) return true
+  try {
+    if (typeof window === 'undefined') return false
+    const shortSide = Math.min(window.screen?.width || 0, window.screen?.height || 0)
+    if (shortSide > 0 && shortSide <= 1024) return true
+    if (window.matchMedia?.('(max-width: 1200px)').matches) return true
+    return false
+  } catch {
+    return true
+  }
+}

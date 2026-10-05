@@ -13,15 +13,51 @@
         color: #fff;
         margin: 0;
         min-height: 100%;
+        font-family: -apple-system, BlinkMacSystemFont, sans-serif;
       }
       video { display: none !important; }
+      #boot-links a { color: #fff; font-size: 1.05rem; }
     </style>
   </head>
   <body>
     <div id="app">
       <p id="boot-error" hidden style="background:#3a1010;color:#fff;padding:1rem;margin:0;"></p>
-      <p style="font-family:-apple-system,sans-serif;padding:2rem;">Interview-app laden…</p>
+      <p style="padding:2rem 1.25rem 0.75rem;font-size:1.25rem;">Interview-app laden…</p>
+      <p id="boot-links" style="padding:0 1.25rem 2rem;line-height:2;">
+        <a href="/">Website</a><br />
+        <a href="tel:+31625177728">06 251 777 28</a>
+      </p>
     </div>
+    <script>
+      (function () {
+        try {
+          var shortSide = Math.min(screen.width || 0, screen.height || 0)
+          var narrow = window.matchMedia && window.matchMedia('(max-width: 1200px)').matches
+          if ((shortSide > 0 && shortSide <= 1024) || narrow) {
+            document.documentElement.classList.add('is-compact')
+            document.documentElement.classList.add('is-ios')
+          }
+        } catch (e) {}
+        function show(message) {
+          var box = document.getElementById('boot-error')
+          if (!box) return
+          box.hidden = false
+          box.textContent = message
+        }
+        window.addEventListener('error', function (e) {
+          show('De interview-app startte niet: ' + (e && e.message ? e.message : 'onbekende fout'))
+        })
+        window.addEventListener('unhandledrejection', function (e) {
+          var reason = e && e.reason
+          var message = reason && reason.message ? reason.message : 'onbekende fout'
+          show('De interview-app startte niet: ' + message)
+        })
+        window.setTimeout(function () {
+          if (document.documentElement.getAttribute('data-app') === 'ready') return
+          show('De interview-app startte niet. Gebruik de link Website of bel Rolf.')
+        }, 6000)
+      })()
+    </script>
     <script type="module" src="/src/interview-main.ts"></script>
   </body>
 </html>

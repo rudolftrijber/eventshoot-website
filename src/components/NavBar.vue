@@ -317,7 +317,7 @@ html.is-ios .navbar__nav {
 }
 
 /* ── Mobile ─────────────────────────────────────────────── */
-@media (max-width: 900px) {
+@media (max-width: 1200px) {
   .navbar__burger { display: flex; }
 
   .navbar__nav {
