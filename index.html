@@ -63,6 +63,20 @@
     }
     </script>
     <script src="https://static.elfsight.com/platform/platform.js" async defer></script>
+    <script>
+      (function () {
+        try {
+          var ua = navigator.userAgent || ''
+          var touch = (navigator.maxTouchPoints || 0) > 1
+          var ios = /iPad|iPhone|iPod|FxiOS|CriOS/.test(ua) || (touch && /Macintosh|Mac OS X/.test(ua))
+          if (ios) document.documentElement.classList.add('is-ios')
+        } catch (e) {}
+      })()
+    </script>
+    <style>
+      html.is-ios, html.is-ios body { background: #0a1628; color: #fff; }
+      html.is-ios .app-bg, html.is-ios video.bg-video { display: none !important; }
+    </style>
   </head>
   <body>
     <div id="app"></div>

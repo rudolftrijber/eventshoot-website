@@ -24,9 +24,9 @@ watch(
 </script>
 
 <template>
-  <div class="app-bg" :class="{ 'app-bg--solid': hideBackgroundVideo }">
+  <div v-if="!ios" class="app-bg" :class="{ 'app-bg--solid': hideBackgroundVideo }">
     <BackgroundVideo
-      v-if="!hideBackgroundVideo && !ios"
+      v-if="!hideBackgroundVideo"
       video-class="app-bg__video"
       src="/images/es_bokey_bckgrnd_v1-1080p.mp4"
     />
@@ -45,11 +45,15 @@ watch(
 .app-bg {
   position: fixed;
   inset: 0;
-  z-index: 0;
+  z-index: -1;
   overflow: hidden;
   pointer-events: none;
   background: #0a1628;
-  transform: translateZ(0);
+}
+
+html.is-ios .app-bg,
+html.is-ios .bg-video {
+  display: none !important;
 }
 
 .app-foreground {
