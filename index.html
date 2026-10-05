@@ -69,7 +69,8 @@
           var ua = navigator.userAgent || ''
           var touch = (navigator.maxTouchPoints || 0) > 0
           var coarse = window.matchMedia && window.matchMedia('(any-pointer: coarse), (pointer: coarse), (hover: none)').matches
-          var ios = /iPad|iPhone|iPod|FxiOS|CriOS/.test(ua) || coarse || (touch && /Macintosh|Mac OS X/.test(ua))
+          var safari = /Safari/.test(ua) && !/Chrome|Chromium|Edg\/|OPR\/|Android/.test(ua)
+          var ios = /iPad|iPhone|iPod|FxiOS|CriOS|EdgiOS/.test(ua) || safari || coarse || (touch && /Macintosh|Mac OS X/.test(ua))
           if (ios) document.documentElement.classList.add('is-ios')
         } catch (e) {}
       })()
