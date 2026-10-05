@@ -46,6 +46,7 @@ import {
   crewDirectoryPhone,
   defaultRoleFor,
   emptyCallsheet,
+  formatUur,
   hydrateCrewDetails,
   normalizeCallsheet,
 } from '@/utils/callsheet'
@@ -960,33 +961,6 @@ function onCrewPicked(index: number) {
   rememberCrewNames()
 }
 
-function addInterviewsToProgram() {
-  const sheet = pCallsheet.value
-  const seen = new Set(
-    sheet.programma.map((row) => row.onderdeel.trim().toLowerCase()).filter(Boolean),
-  )
-  const extra = scheduledGuests.value.flatMap((guest) => {
-    const who = [guest.naam, guest.functie].map((part) => part.trim()).filter(Boolean).join(', ')
-    const onderdeel = who ? `Interview: ${who}` : ''
-    if (!onderdeel || seen.has(onderdeel.toLowerCase())) return []
-    seen.add(onderdeel.toLowerCase())
-    return [{
-      tijd: (guest.tijd || '').trim(),
-      onderdeel,
-      locatie: (guest.planning || pLocatie.value || '').trim(),
-      crew: (guest.moderator || '').trim(),
-      highlight: guest.type === 'Keynote speaker',
-    }]
-  })
-  if (!extra.length) {
-    showToast('No new interview times to add')
-    return
-  }
-  const kept = sheet.programma.filter((row) => row.tijd || row.onderdeel || row.locatie || row.crew)
-  pCallsheet.value = { ...sheet, programma: [...kept, ...extra] }
-  showToast('Interview times added to the schedule')
-}
-
 const callsheetLive = computed(() => {
   if (showProdForm.value || isNewProduction.value) {
     return {
@@ -1037,6 +1011,19 @@ const callsheetLive = computed(() => {
     production,
   }
 })
+
+const callsheetCandidates = computed(() => scheduledGuests.value.map((guest) => {
+  const time = (guest.tijd || '').trim()
+  const sameDay = !guest.datum || guest.datum === (callsheetLive.value.datum || '')
+  const when = formatGuestWhen(guest)
+  return {
+    tijd: time && sameDay ? formatUur(time) : (when === '—' ? '' : when),
+    naam: guest.naam.trim(),
+    rol: (guest.functie || '').trim(),
+    bedrijf: (guest.organisatie || '').trim(),
+    opmerking: (guest.planning || '').trim(),
+  }
+}))
 
 function openCallsheet() {
   showCallsheet.value = true
@@ -3106,7 +3093,6 @@ watch(() => store.role, (role) => {
                   v-model="pCallsheet"
                   :crew-names="currentCrewNames()"
                   :crew-directory="store.crew"
-                  @add-interviews="addInterviewsToProgram"
                 />
 
                 <div id="ia-png-overlays" class="ia-thumb-block">
@@ -3536,8 +3522,7 @@ watch(() => store.role, (role) => {
       :client-name="store.clients.find((client) => client.id === callsheetLive.clientId)?.naam || ''"
       :client-contacts="store.clients.find((client) => client.id === callsheetLive.clientId)?.contacten || []"
       :crew-directory="store.crew"
-      :brief-production="toBriefProduction(callsheetLive.production, callsheetLive.naam)"
-      :brief-candidates="scheduledGuests.map(toBriefCandidate)"
+      :candidates="callsheetCandidates"
       @close="showCallsheet = false"
     />
 

@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import type { CallsheetData } from '@/types/interview'
 import { DEFAULT_CREW_SLOT } from '@/types/interview'
-import { emptyGearRow, emptyProgramRow } from '@/utils/callsheet'
-
 const props = defineProps<{
   modelValue: CallsheetData
   crewNames: string[]
@@ -11,7 +9,6 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   'update:modelValue': [value: CallsheetData]
-  'add-interviews': []
 }>()
 
 const slotLabels = ['Supervisor', 'Crew 2', 'Crew 3', 'Crew 4', 'Crew 5']
@@ -36,54 +33,6 @@ function updateCrew(index: number, field: 'rol' | 'telefoon' | 'callTijd', value
   patch({ crewDetails })
 }
 
-function updateProgram(index: number, field: 'tijd' | 'onderdeel' | 'locatie' | 'crew', value: string) {
-  const programma = props.modelValue.programma.map((row, i) => (
-    i === index ? { ...row, [field]: value } : row
-  ))
-  patch({ programma })
-}
-
-function toggleProgramMark(index: number) {
-  const programma = props.modelValue.programma.map((row, i) => (
-    i === index ? { ...row, highlight: !row.highlight } : row
-  ))
-  patch({ programma })
-}
-
-function addProgramRow() {
-  if (props.modelValue.programma.length >= 40) return
-  patch({ programma: [...props.modelValue.programma, emptyProgramRow()] })
-}
-
-function removeProgramRow(index: number) {
-  patch({ programma: props.modelValue.programma.filter((_, i) => i !== index) })
-}
-
-function updateGear(index: number, field: 'categorie' | 'omschrijving' | 'aantal', value: string) {
-  const apparatuur = props.modelValue.apparatuur.map((row, i) => (
-    i === index ? { ...row, [field]: value } : row
-  ))
-  patch({ apparatuur })
-}
-
-function toggleGear(index: number) {
-  const apparatuur = props.modelValue.apparatuur.map((row, i) => (
-    i === index ? { ...row, ok: !row.ok } : row
-  ))
-  patch({ apparatuur })
-}
-
-function addGearRow() {
-  if (props.modelValue.apparatuur.length >= 24) return
-  const last = props.modelValue.apparatuur[props.modelValue.apparatuur.length - 1]
-  patch({ apparatuur: [...props.modelValue.apparatuur, emptyGearRow(last?.categorie || 'Extra categorie')] })
-}
-
-function removeGearRow(index: number) {
-  const apparatuur = props.modelValue.apparatuur.filter((_, i) => i !== index)
-  patch({ apparatuur: apparatuur.length ? apparatuur : [emptyGearRow()] })
-}
-
 function crewActive(index: number): boolean {
   const name = (props.crewNames[index] || '').trim()
   return Boolean(name) && name !== DEFAULT_CREW_SLOT
@@ -94,8 +43,8 @@ function crewActive(index: number): boolean {
   <div class="ia-callsheet">
     <h3 class="ia-form-section-title">Callsheet</h3>
     <p class="ia-hint ia-callsheet__intro">
-      These fields go on the A4 callsheet. The interview programme, with the questions per candidate, follows in the same PDF.
-      The client and crew phones come from Settings.
+      These fields go on the A4 callsheet. Interview candidates follow as a short list: name, role, company, time and remarks.
+      The full questions stay in the VPO PDF. Client and crew phones come from Settings.
     </p>
 
     <div class="ia-callsheet__grid">
@@ -172,92 +121,5 @@ function crewActive(index: number): boolean {
       </div>
     </div>
 
-    <div class="ia-callsheet__block">
-      <div class="ia-callsheet__head">
-        <h4>Programme</h4>
-        <div class="ia-actions ia-actions--tight">
-          <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="emit('add-interviews')">
-            Add interview times
-          </button>
-          <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="addProgramRow">
-            + Row
-          </button>
-        </div>
-      </div>
-      <p class="ia-hint">Mark a keynote or other fixed moment. That row is shaded on the callsheet.</p>
-      <div v-for="(row, index) in modelValue.programma" :key="`prog-${index}`" class="ia-callsheet__program">
-        <input
-          class="ia-input"
-          :value="row.tijd"
-          placeholder="Time"
-          aria-label="Time"
-          @input="updateProgram(index, 'tijd', ($event.target as HTMLInputElement).value)"
-        />
-        <input
-          class="ia-input ia-callsheet__grow"
-          :value="row.onderdeel"
-          placeholder="Programme item"
-          aria-label="Programme item"
-          @input="updateProgram(index, 'onderdeel', ($event.target as HTMLInputElement).value)"
-        />
-        <input
-          class="ia-input"
-          :value="row.locatie"
-          placeholder="Room"
-          aria-label="Room"
-          @input="updateProgram(index, 'locatie', ($event.target as HTMLInputElement).value)"
-        />
-        <input
-          class="ia-input"
-          :value="row.crew"
-          placeholder="Crew"
-          aria-label="Crew"
-          @input="updateProgram(index, 'crew', ($event.target as HTMLInputElement).value)"
-        />
-        <label class="ia-callsheet__check">
-          <input type="checkbox" :checked="row.highlight" @change="toggleProgramMark(index)" />
-          Mark
-        </label>
-        <button class="ia-iconbtn" type="button" title="Remove row" @click="removeProgramRow(index)">🗑️</button>
-      </div>
-      <p v-if="!modelValue.programma.length" class="ia-empty">No schedule yet. Add rows, or put the interview times in.</p>
-    </div>
-
-    <div class="ia-callsheet__block">
-      <div class="ia-callsheet__head">
-        <h4>Gear</h4>
-        <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="addGearRow">
-          + Row
-        </button>
-      </div>
-      <div v-for="(row, index) in modelValue.apparatuur" :key="`gear-${index}`" class="ia-callsheet__gear">
-        <input
-          class="ia-input"
-          :value="row.categorie"
-          placeholder="Category"
-          aria-label="Category"
-          @input="updateGear(index, 'categorie', ($event.target as HTMLInputElement).value)"
-        />
-        <input
-          class="ia-input ia-callsheet__grow"
-          :value="row.omschrijving"
-          placeholder="Description"
-          aria-label="Description"
-          @input="updateGear(index, 'omschrijving', ($event.target as HTMLInputElement).value)"
-        />
-        <input
-          class="ia-input ia-callsheet__qty"
-          :value="row.aantal"
-          placeholder="Qty"
-          aria-label="Quantity"
-          @input="updateGear(index, 'aantal', ($event.target as HTMLInputElement).value)"
-        />
-        <label class="ia-callsheet__check">
-          <input type="checkbox" :checked="row.ok" @change="toggleGear(index)" />
-          Packed
-        </label>
-        <button class="ia-iconbtn" type="button" title="Remove row" @click="removeGearRow(index)">🗑️</button>
-      </div>
-    </div>
   </div>
 </template>

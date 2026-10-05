@@ -1,10 +1,6 @@
 <script setup lang="ts">
 import { computed, onUnmounted, watch } from 'vue'
-import InterviewBriefPrint, {
-  type BriefCandidate,
-  type BriefProduction,
-} from '@/components/interview/InterviewBriefPrint.vue'
-import type { CallsheetContact, CallsheetData, CallsheetGearRow, CallsheetProgramRow, CrewMember } from '@/types/interview'
+import type { CallsheetContact, CallsheetData, CrewMember } from '@/types/interview'
 import { DEFAULT_CREW_SLOT } from '@/types/interview'
 import { dutchLongDate, formatUur, hydrateCrewDetails, normalizeCallsheet } from '@/utils/callsheet'
 
@@ -21,15 +17,14 @@ const props = defineProps<{
   clientName: string
   clientContacts: CallsheetContact[]
   crewDirectory: CrewMember[]
-  briefProduction: BriefProduction
-  briefCandidates: BriefCandidate[]
+  candidates: { tijd: string; naam: string; rol: string; bedrijf: string; opmerking: string }[]
 }>()
 
 const emit = defineEmits<{
   close: []
 }>()
 
-const PROGRAM_PER_PAGE = 16
+const CANDIDATES_PER_PAGE = 14
 
 const sheet = computed(() => hydrateCrewDetails(normalizeCallsheet(props.sheet), props.crewNames))
 const dateLabel = computed(() => dutchLongDate(props.datum))
@@ -68,35 +63,17 @@ const crewRows = computed(() => props.crewNames
   })
   .filter((row) => row.naam && row.naam !== DEFAULT_CREW_SLOT))
 
-const programPages = computed(() => {
-  const filled = sheet.value.programma.filter((row) => row.tijd || row.onderdeel || row.locatie || row.crew)
-  const rows = filled.length
-    ? filled
-    : Array.from({ length: 8 }, () => ({ tijd: '', onderdeel: '', locatie: '', crew: '', highlight: false }))
-  const pages: CallsheetProgramRow[][] = []
-  for (let i = 0; i < rows.length; i += PROGRAM_PER_PAGE) {
-    pages.push(rows.slice(i, i + PROGRAM_PER_PAGE))
+const candidatePages = computed(() => {
+  const rows = props.candidates.filter((row) => row.naam || row.tijd || row.rol || row.bedrijf || row.opmerking)
+  const pages: { tijd: string; naam: string; rol: string; bedrijf: string; opmerking: string }[][] = []
+  for (let i = 0; i < rows.length; i += CANDIDATES_PER_PAGE) {
+    pages.push(rows.slice(i, i + CANDIDATES_PER_PAGE))
   }
   return pages
 })
 
-const gearPages = computed(() => {
-  const rows = sheet.value.apparatuur.length
-    ? sheet.value.apparatuur
-    : [{ categorie: 'Overig', omschrijving: '', aantal: '', ok: false }]
-  const pages: CallsheetGearRow[][] = []
-  for (let i = 0; i < rows.length; i += 18) pages.push(rows.slice(i, i + 18))
-  return pages
-})
-
-const pageCount = computed(() => 1 + programPages.value.length + gearPages.value.length)
-const hasBrief = computed(() => props.briefCandidates.length > 0)
-
-function gearCategory(page: CallsheetGearRow[], index: number): string {
-  const current = page[index]?.categorie || ''
-  if (index === 0) return current
-  return current === page[index - 1]?.categorie ? '' : current
-}
+const pageCount = computed(() => 1 + candidatePages.value.length)
+const hasCandidates = computed(() => candidatePages.value.length > 0)
 
 function pdfFileBaseName(): string {
   const name = props.naam.trim()
@@ -138,7 +115,7 @@ onUnmounted(() => {
     <div
       v-if="open"
       class="callsheet-print"
-      :class="{ 'callsheet-print--no-brief': !hasBrief }"
+      :class="{ 'callsheet-print--no-brief': !hasCandidates }"
       role="dialog"
       aria-modal="true"
       aria-label="Callsheet"
@@ -151,14 +128,20 @@ onUnmounted(() => {
         </div>
       </div>
 
-      <article class="cs-sheet">
+      <article class="cs-sheet" :class="{ 'cs-sheet--last': !hasCandidates }">
         <header class="cs-top">
           <div>
             <p class="cs-kicker">Callsheet</p>
             <h1 class="cs-title">Callsheet{{ dateHeading ? `, ${dateHeading}` : '' }}</h1>
             <p v-if="subtitle" class="cs-sub">{{ subtitle }}</p>
           </div>
-          <p class="cs-brand">Eventshoot.nl</p>
+          <img
+            class="cs-logo"
+            src="/images/logos/ES_logo_pos.png"
+            alt="Eventshoot.nl"
+            width="160"
+            height="36"
+          />
         </header>
 
         <h2 class="cs-section">1 Algemene informatie</h2>
@@ -251,107 +234,60 @@ onUnmounted(() => {
 
         <footer class="cs-foot">
           <p>Vragen? Bel of app Rolf Trijber op 06 251 777 28 of mail rolf@eventshoot.nl.</p>
-          <p>Eventshoot.nl, interne callsheet, niet voor verspreiding buiten het team.</p>
           <span>1 / {{ pageCount }}</span>
         </footer>
       </article>
 
       <article
-        v-for="(rows, pageIndex) in programPages"
-        :key="`program-${pageIndex}`"
+        v-for="(rows, pageIndex) in candidatePages"
+        :key="`candidates-${pageIndex}`"
         class="cs-sheet"
+        :class="{ 'cs-sheet--last': pageIndex === candidatePages.length - 1 }"
       >
         <header class="cs-top cs-top--compact">
           <div>
             <p class="cs-kicker">Callsheet</p>
-            <h2 class="cs-section cs-section--page">2 Programma en tijdschema</h2>
+            <h2 class="cs-section cs-section--page">2 Interviewkandidaten</h2>
           </div>
-          <p class="cs-brand">Eventshoot.nl</p>
+          <img
+            class="cs-logo"
+            src="/images/logos/ES_logo_pos.png"
+            alt="Eventshoot.nl"
+            width="160"
+            height="36"
+          />
         </header>
         <p v-if="pageIndex === 0" class="cs-lead">
-          Vul hieronder het tijdschema van de dag in. Markeer tijdgebonden of belangrijke momenten, zoals een keynote, dik of gearceerd, zodat ze voor de crew in één oogopslag opvallen.
+          Overzicht van de geplande interviews. Naam, rol, bedrijf, tijd en opmerkingen. De vragen staan niet op dit blad.
         </p>
-        <table class="cs-table">
+        <table class="cs-table cs-table--candidates">
           <thead>
             <tr>
               <th class="cs-col-time">Tijd</th>
-              <th>Programma-onderdeel</th>
-              <th>Locatie / zaal</th>
-              <th>Crew</th>
+              <th class="cs-col-name">Naam</th>
+              <th class="cs-col-role">Rol</th>
+              <th class="cs-col-company">Bedrijf</th>
+              <th>Opmerkingen</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(row, index) in rows" :key="`p-${pageIndex}-${index}`" :class="{ 'cs-row--mark': row.highlight }">
-              <td>{{ row.tijd ? formatUur(row.tijd) : '' }}</td>
-              <td>{{ row.onderdeel }}</td>
-              <td>{{ row.locatie }}</td>
-              <td>{{ row.crew }}</td>
+            <tr v-for="(row, index) in rows" :key="`c-${pageIndex}-${index}`">
+              <td>{{ row.tijd }}</td>
+              <td>{{ row.naam }}</td>
+              <td>{{ row.rol }}</td>
+              <td>{{ row.bedrijf }}</td>
+              <td>{{ row.opmerking }}</td>
             </tr>
           </tbody>
         </table>
         <footer class="cs-foot">
           <p>Vragen? Bel of app Rolf Trijber op 06 251 777 28 of mail rolf@eventshoot.nl.</p>
-          <p>Eventshoot.nl, interne callsheet, niet voor verspreiding buiten het team.</p>
           <span>{{ pageIndex + 2 }} / {{ pageCount }}</span>
         </footer>
       </article>
 
-      <article
-        v-for="(rows, pageIndex) in gearPages"
-        :key="`gear-${pageIndex}`"
-        class="cs-sheet"
-        :class="{ 'cs-sheet--last': !hasBrief && pageIndex === gearPages.length - 1 }"
-      >
-        <header class="cs-top cs-top--compact">
-          <div>
-            <p class="cs-kicker">Callsheet</p>
-            <h2 class="cs-section cs-section--page">3 Apparatuur en materiaal</h2>
-          </div>
-          <p class="cs-brand">Eventshoot.nl</p>
-        </header>
-        <p v-if="pageIndex === 0" class="cs-lead">
-          Vink per categorie af welke apparatuur is ingepakt. Pas de categorieën aan op de productie, of vul een eigen categorie in.
-        </p>
-        <table class="cs-table">
-          <thead>
-            <tr>
-              <th>Omschrijving</th>
-              <th class="cs-col-qty">Aantal</th>
-              <th class="cs-col-ok">Ok</th>
-            </tr>
-          </thead>
-          <tbody>
-            <template v-for="(row, index) in rows" :key="`g-${pageIndex}-${index}`">
-              <tr v-if="gearCategory(rows, index)" class="cs-row--cat">
-                <td colspan="3">{{ gearCategory(rows, index) }}</td>
-              </tr>
-              <tr>
-                <td>{{ row.omschrijving }}</td>
-                <td>{{ row.aantal }}</td>
-                <td>
-                  <span class="cs-box" :class="{ 'cs-box--on': row.ok }" aria-hidden="true"></span>
-                </td>
-              </tr>
-            </template>
-          </tbody>
-        </table>
-        <footer class="cs-foot">
-          <p>Vragen? Bel of app Rolf Trijber op 06 251 777 28 of mail rolf@eventshoot.nl.</p>
-          <p>Eventshoot.nl, interne callsheet, niet voor verspreiding buiten het team.</p>
-          <span>{{ 1 + programPages.length + pageIndex + 1 }} / {{ pageCount }}</span>
-        </footer>
-      </article>
-
-      <InterviewBriefPrint
-        v-if="hasBrief"
-        embedded
-        :open="open"
-        :production="briefProduction"
-        :candidates="briefCandidates"
-      />
-
       <p class="cs-hint no-print">
-        Eerst het callsheet, daarna het interviewprogramma. Gebruik Print / Save as PDF.
+        Interviewkandidaten staan als overzicht op het callsheet. De vragen blijven in VPO PDF. Gebruik Print / Save as PDF.
       </p>
     </div>
   </Teleport>
@@ -474,14 +410,11 @@ onUnmounted(() => {
   color: #333;
 }
 
-.cs-brand {
-  margin: 1mm 0 0;
+.cs-logo {
   flex: 0 0 auto;
-  font-size: 13pt;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  color: #111;
-  line-height: 1;
+  width: 38mm;
+  height: auto;
+  display: block;
 }
 
 .cs-section {
@@ -565,6 +498,42 @@ onUnmounted(() => {
   width: 16mm;
 }
 
+.cs-col-time {
+  width: 28mm;
+  white-space: nowrap;
+}
+
+.cs-col-name {
+  width: 52mm;
+}
+
+.cs-table--candidates {
+  font-size: 8.5pt;
+}
+
+.cs-table--candidates th,
+.cs-table--candidates td {
+  font-size: 8.5pt;
+  padding: 1.3mm 1.6mm;
+}
+
+.cs-table--candidates th {
+  width: auto;
+}
+
+.cs-table--candidates .cs-col-time {
+  width: 22mm;
+}
+
+.cs-table--candidates .cs-col-name {
+  width: 32mm;
+}
+
+.cs-table--candidates .cs-col-role,
+.cs-table--candidates .cs-col-company {
+  width: 34mm;
+}
+
 .cs-row--mark td {
   background: #e8f4fd;
   font-weight: 700;
@@ -640,6 +609,7 @@ onUnmounted(() => {
     page-break-after: auto;
   }
 
+  .cs-logo,
   .cs-kicker,
   .cs-section,
   .cs-label,
