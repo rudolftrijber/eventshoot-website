@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { isClient, isCrew, intakeLockApplies } from './auth.js'
+import { isClient, isCrew, isSet, intakeLockApplies } from './auth.js'
 import {
   createGuest,
   ensureSchema,
@@ -47,6 +47,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     if (req.method === 'POST') {
+      if (isSet(ctx)) {
+        res.status(403).json({ error: 'Not allowed' })
+        return
+      }
       const body = parseBody(req)
       if (isClient(ctx)) {
         const sanitized = sanitizeGuestCreateForClient(body)

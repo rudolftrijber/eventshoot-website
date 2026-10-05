@@ -2,7 +2,7 @@ import { mkdir, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { v2 as cloudinary } from 'cloudinary'
-import { getRequestIp, isCrew } from './auth.js'
+import { getRequestIp, isCrew, isSet } from './auth.js'
 import { requireLogin } from './permissions.js'
 import { consumeRateLimit, rateLimited } from './rateLimit.js'
 import { isPngRatioId, parseDataUrlImage, assertImageRatio, type ScreenshotExt } from './png.js'
@@ -98,6 +98,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const ctx = await requireLogin(req, res)
   if (!ctx) return
+  if (isSet(ctx)) {
+    res.status(403).json({ error: 'Not allowed' })
+    return
+  }
 
   const ip = getRequestIp(req)
   const limit = await consumeRateLimit(`upload:${ctx.role || 'unknown'}:${ip}`, UPLOAD_MAX_HITS, UPLOAD_WINDOW_MS)

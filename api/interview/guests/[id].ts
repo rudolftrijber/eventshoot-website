@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { isClient, isCrew } from '../auth.js'
+import { isClient, isCrew, isSet } from '../auth.js'
 import {
   deleteGuest,
   ensureSchema,
@@ -59,6 +59,30 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (req.method === 'PATCH') {
       const body = parseBody(req)
+
+      if (isSet(ctx)) {
+        if (body.action === 'finalize') {
+          guest.naam = clipText(body.naam ?? guest.naam, MAX_SHORT_TEXT)
+          guest.functie = clipText(body.functie ?? guest.functie, MAX_SHORT_TEXT)
+          guest.organisatie = clipText(body.organisatie ?? guest.organisatie, MAX_SHORT_TEXT)
+          const finalized = await finalizeGuest(guest)
+          res.status(200).json({ guest: presentGuest(ctx, finalized) })
+          return
+        }
+        const keys = Object.keys(body).filter((key) => body[key] !== undefined)
+        const status = String(body.status || '')
+        if (keys.length !== 1 || keys[0] !== 'status' || !['Entered', 'Checked', 'Recorded'].includes(status)) {
+          res.status(403).json({ error: 'Not allowed' })
+          return
+        }
+        const updated = await updateGuest(id, { status: status as GastStatus })
+        if (!updated) {
+          res.status(404).json({ error: 'Guest not found' })
+          return
+        }
+        res.status(200).json({ guest: presentGuest(ctx, updated) })
+        return
+      }
 
       if (body.action === 'finalize') {
         if (!isCrew(ctx)) {
@@ -143,6 +167,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     if (req.method === 'DELETE') {
+      if (isSet(ctx)) {
+        res.status(403).json({ error: 'Not allowed' })
+        return
+      }
       if (isClient(ctx)) {
         if (guest.intakeComplete) {
           res.status(403).json({ error: 'Unlock intake before deleting' })

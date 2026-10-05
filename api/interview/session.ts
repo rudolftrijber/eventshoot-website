@@ -32,9 +32,13 @@ export function isAuthenticated(req: VercelRequest): boolean {
 }
 
 export function setSessionCookie(res: VercelResponse, token: string): void {
+  const payload = parseSessionToken(token)
+  const maxAge = payload
+    ? Math.max(60, payload.exp - Math.floor(Date.now() / 1000))
+    : SESSION_TTL_SEC
   res.setHeader('Set-Cookie', [
     cookieParts('/', '', 0),
-    cookieParts('/api', token, SESSION_TTL_SEC),
+    cookieParts('/api', token, maxAge),
   ])
 }
 

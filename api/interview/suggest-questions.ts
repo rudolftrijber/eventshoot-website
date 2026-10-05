@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { getRequestIp, isClient } from './auth.js'
+import { getRequestIp, isClient, isSet } from './auth.js'
 import { suggestInterviewQuestions, type SuggestQuestionsInput } from './aiSuggestQuestions.js'
 import { ensureSchema, fetchProducties } from './database.js'
 import { productionNameAllowed, requireLogin } from './permissions.js'
@@ -36,6 +36,10 @@ function publicAiError(err: unknown): string {
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const ctx = await requireLogin(req, res)
   if (!ctx) return
+  if (isSet(ctx)) {
+    res.status(403).json({ error: 'Not allowed' })
+    return
+  }
 
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'Method not allowed' })

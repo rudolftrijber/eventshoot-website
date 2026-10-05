@@ -1,7 +1,7 @@
 import { createDecipheriv, createHash, createHmac, randomBytes, scryptSync, timingSafeEqual } from 'crypto'
 import type { VercelRequest } from '@vercel/node'
 
-export type InterviewRole = 'crew' | 'client'
+export type InterviewRole = 'crew' | 'client' | 'set'
 
 export interface SessionPayload {
   role: InterviewRole
@@ -136,14 +136,13 @@ export function verifyCrewPassword(password: string): boolean {
   }
 }
 
-export const CREW_LOGIN_NAMES = [
+/** Only these two run interviews and can open the full app. */
+export const INTERVIEWER_NAMES = [
   'Rolf Trijber',
   'Maurice Antenbrink',
-  'Ron Gessel',
-  'Jeroen Lutmers',
-  'Niels Visser',
-  'Vanessa Cristina',
 ] as const
+
+export const SET_CREW_NAME = 'Set'
 
 export function parseCrewPasswordMap(): Record<string, string> {
   const raw = process.env.INTERVIEW_CREW_PASSWORDS || ''
@@ -176,7 +175,7 @@ function safeEqualString(a: string, b: string): boolean {
 /** Per-crew password from INTERVIEW_CREW_PASSWORDS; no shared fallback once personal is set. */
 export function verifyCrewMemberLogin(crewName: string, password: string): boolean {
   if (!crewName || !password) return false
-  if (!(CREW_LOGIN_NAMES as readonly string[]).includes(crewName)) return false
+  if (!(INTERVIEWER_NAMES as readonly string[]).includes(crewName)) return false
   const personal = parseCrewPasswordMap()[crewName]
   if (personal) return safeEqualString(password, personal)
   return verifyCrewPassword(password)
@@ -220,12 +219,19 @@ export function parseSessionToken(token: string | null): SessionPayload | null {
   }
   try {
     const payload = JSON.parse(fromBase64Url(encoded)) as SessionPayload
-    if (payload.role !== 'crew' && payload.role !== 'client') return null
+    if (payload.role !== 'crew' && payload.role !== 'client' && payload.role !== 'set') return null
     if (!Array.isArray(payload.productionIds)) payload.productionIds = []
     if (typeof payload.cred !== 'string' || !payload.cred) return null
     if (typeof payload.exp !== 'number' || payload.exp < Math.floor(Date.now() / 1000)) return null
     if (payload.role === 'crew') {
-      if (!payload.crewName || !verifyCrewSessionCred(payload.crewName, payload.cred)) return null
+      if (!payload.crewName || !(INTERVIEWER_NAMES as readonly string[]).includes(payload.crewName)) return null
+      if (!verifyCrewSessionCred(payload.crewName, payload.cred)) return null
+    }
+    if (payload.role === 'set') {
+      if (payload.crewName !== SET_CREW_NAME) return null
+      if (payload.productionIds.length !== 1) return null
+      const productionId = payload.productionIds[0]
+      if (!productionId || !verifySetSessionCred(productionId, payload.cred)) return null
     }
     return payload
   } catch {
@@ -233,33 +239,88 @@ export function parseSessionToken(token: string | null): SessionPayload | null {
   }
 }
 
-export const FLOOR_CREW_NAME = 'Floor'
-export const FLOOR_PATH_TOKEN = 'live'
+const AMSTERDAM = 'Europe/Amsterdam'
 
-/** Optional extra key. INTERVIEW_FLOOR_KEY, or a stable HMAC of the session secret. */
-export function getFloorKey(): string {
-  const explicit = String(process.env.INTERVIEW_FLOOR_KEY || '').trim()
-  if (explicit) return explicit.slice(0, 64)
-  const secret = getSecret()
-  if (!secret) return ''
-  return createHmac('sha256', secret).update('interview-floor-v1').digest('hex').slice(0, 24)
+export function amsterdamDate(now = new Date()): string {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: AMSTERDAM,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(now)
 }
 
-export function verifyFloorKey(key: string): boolean {
-  const given = String(key || '').trim()
-  if (!given) return false
-  if (given === FLOOR_PATH_TOKEN) return true
-  const expected = getFloorKey()
-  if (!expected || given.length !== expected.length) return false
+/** Unix seconds when the current Amsterdam calendar day ends. */
+export function endOfAmsterdamDayUnix(now = new Date()): number {
+  const fmt = new Intl.DateTimeFormat('en-US', {
+    timeZone: AMSTERDAM,
+    hourCycle: 'h23',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  })
+  const bag: Record<string, string> = {}
+  for (const part of fmt.formatToParts(now)) bag[part.type] = part.value
+  let hour = Number(bag.hour)
+  let day = Number(bag.day)
+  if (hour === 24) {
+    hour = 0
+    day += 1
+  }
+  const asUtc = Date.UTC(Number(bag.year), Number(bag.month) - 1, day, hour, Number(bag.minute), Number(bag.second))
+  const offsetMs = asUtc - now.getTime()
+  const nextMidnight = Date.UTC(Number(bag.year), Number(bag.month) - 1, day + 1, 0, 0, 0)
+  return Math.floor((nextMidnight - offsetMs) / 1000)
+}
+
+export function setSessionCred(productionId: string, date: string): string {
+  return sign(`set-cred:${productionId}:${date}`)
+}
+
+export function verifySetSessionCred(productionId: string, cred: string): boolean {
+  if (!productionId || !cred) return false
+  return safeEqualHex(cred, setSessionCred(productionId, amsterdamDate()))
+}
+
+export type SetTokenState =
+  | { ok: true; productionId: string; date: string }
+  | { ok: false; reason: 'invalid' | 'expired' }
+
+/** Long, unguessable link for one production, valid only on this Amsterdam day. */
+export function createSetToken(productionId: string, now = new Date()): string {
+  const date = amsterdamDate(now)
+  const body = Buffer.from(JSON.stringify({ id: productionId, d: date }), 'utf8').toString('base64url')
+  const sig = createHmac('sha256', getSecret()).update(`set-link:${body}`).digest('hex').slice(0, 32)
+  return `${body}.${sig}`
+}
+
+export function readSetToken(token: string, now = new Date()): SetTokenState {
+  const raw = String(token || '').trim()
+  if (!raw || raw.length > 512 || raw === 'live') return { ok: false, reason: 'invalid' }
+  const dot = raw.lastIndexOf('.')
+  if (dot <= 0) return { ok: false, reason: 'invalid' }
+  const body = raw.slice(0, dot)
+  const sig = raw.slice(dot + 1)
+  if (!/^[a-f0-9]{32}$/.test(sig)) return { ok: false, reason: 'invalid' }
+  const expected = createHmac('sha256', getSecret()).update(`set-link:${body}`).digest('hex').slice(0, 32)
+  if (!safeEqualHex(sig, expected)) return { ok: false, reason: 'invalid' }
   try {
-    return timingSafeEqual(Buffer.from(given), Buffer.from(expected))
+    const parsed = JSON.parse(Buffer.from(body, 'base64url').toString('utf8')) as { id?: unknown; d?: unknown }
+    const productionId = String(parsed.id || '').trim()
+    const date = String(parsed.d || '').trim()
+    if (!productionId || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return { ok: false, reason: 'invalid' }
+    if (date !== amsterdamDate(now)) return { ok: false, reason: 'expired' }
+    return { ok: true, productionId, date }
   } catch {
-    return false
+    return { ok: false, reason: 'invalid' }
   }
 }
 
-export function floorAppPath(): string {
-  return '/interview-app/live'
+export function setAppPath(token: string): string {
+  return `/interview-app/live/${token}`
 }
 
 export function skipAuth(): boolean {
@@ -288,6 +349,10 @@ export function getAuthContext(req: VercelRequest, token: string | null): AuthCo
 
 export function isCrew(ctx: AuthContext): boolean {
   return ctx.skipAuth || ctx.role === 'crew'
+}
+
+export function isSet(ctx: AuthContext): boolean {
+  return !ctx.skipAuth && ctx.role === 'set'
 }
 
 export function isClient(ctx: AuthContext): boolean {

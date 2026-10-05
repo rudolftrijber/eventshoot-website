@@ -2,17 +2,22 @@ import type { VercelRequest, VercelResponse } from '@vercel/node'
 import {
   clientPasswordLookup,
   createSessionToken,
+  createSetToken,
   crewSessionCred,
-  FLOOR_CREW_NAME,
-  floorAppPath,
+  endOfAmsterdamDayUnix,
   getAuthContext,
   getRequestIp,
   hasCrewAuthConfigured,
+  INTERVIEWER_NAMES,
+  isCrew,
   parseSessionToken,
+  readSetToken,
+  SET_CREW_NAME,
+  setAppPath,
+  setSessionCred,
   verifyCrewMemberLogin,
-  verifyFloorKey,
 } from './interview/auth.js'
-import { clientSessionCredValid, ensureSchema, fetchProductiesByClientPassword } from './interview/database.js'
+import { clientSessionCredValid, ensureSchema, fetchProducties, fetchProductiesByClientPassword } from './interview/database.js'
 import { consumeRateLimit, rateLimited } from './interview/rateLimit.js'
 import { MAX_PASSWORD_LEN, originAllowed } from './interview/sanitize.js'
 import {
@@ -24,7 +29,7 @@ import {
 
 const LOGIN_MAX_ATTEMPTS = 10
 const LOGIN_WINDOW_MS = 15 * 60 * 1000
-const FLOOR_MAX_ATTEMPTS = 40
+const SET_MAX_ATTEMPTS = 40
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
@@ -42,7 +47,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const hasCrewAuth = hasCrewAuthConfigured()
       const hasDb = Boolean(process.env.POSTGRES_URL || process.env.POSTGRES_URL_NON_POOLING)
       const configured = authSkipped ? hasDb : hasSecret && hasCrewAuth && hasDb
-      const crewFloor = Boolean(ctx.authenticated && (ctx.skipAuth || ctx.role === 'crew'))
       res.status(200).json({
         authenticated: ctx.authenticated,
         role: ctx.role,
@@ -51,7 +55,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         skipAuth: authSkipped,
         configured,
         missing: authSkipped && !hasDb ? ['POSTGRES_URL'] : [],
-        floorPath: crewFloor ? floorAppPath() : '',
       })
       return
     }
@@ -75,37 +78,94 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return
     }
 
-    if (action === 'floor') {
+    if (action === 'set-link') {
+      if (!process.env.INTERVIEW_SESSION_SECRET) {
+        res.status(500).json({ error: 'Server not configured' })
+        return
+      }
+      const ctx = getAuthContext(req, getSessionToken(req))
+      if (!isCrew(ctx)) {
+        res.status(403).json({ error: 'Crew access only' })
+        return
+      }
+      const productionId = String(body?.productionId || '').trim().slice(0, 64)
+      if (!productionId) {
+        res.status(400).json({ error: 'Production missing' })
+        return
+      }
+      await ensureSchema()
+      const productions = await fetchProducties(true)
+      if (!productions.some((p) => p.id === productionId)) {
+        res.status(404).json({ error: 'Production not found' })
+        return
+      }
+      const token = createSetToken(productionId)
+      res.status(200).json({ path: setAppPath(token) })
+      return
+    }
+
+    if (action === 'set') {
+      const parsed = readSetToken(String(body?.key || ''))
+      if (!parsed.ok) {
+        res.status(401).json({
+          error: parsed.reason === 'expired'
+            ? 'This set link has expired. Ask Rolf or Maurice for a new link.'
+            : 'This set link is not valid. Ask Rolf or Maurice for today\'s link.',
+        })
+        return
+      }
+
       if (!process.env.INTERVIEW_SESSION_SECRET) {
         res.status(500).json({ error: 'Server not configured' })
         return
       }
 
       const ip = getRequestIp(req)
-      const limit = await consumeRateLimit(`floor:${ip}`, FLOOR_MAX_ATTEMPTS, LOGIN_WINDOW_MS)
+      const limit = await consumeRateLimit(`set:${ip}`, SET_MAX_ATTEMPTS, LOGIN_WINDOW_MS)
       if (!limit.ok) {
-        rateLimited(res, limit.retryAfterSec, 'Too many live-link attempts. Try again later.')
+        rateLimited(res, limit.retryAfterSec, 'Too many set-link attempts. Try again later.')
         return
       }
 
-      const key = String(body?.key || '')
-      if (!verifyFloorKey(key)) {
-        res.status(401).json({ error: 'This live URL is not valid' })
+      await ensureSchema()
+      const productions = await fetchProducties(true)
+      const production = productions.find((p) => p.id === parsed.productionId)
+      if (!production) {
+        res.status(401).json({ error: 'This set link is not valid. Ask Rolf or Maurice for today\'s link.' })
+        return
+      }
+
+      const existing = getAuthContext(req, getSessionToken(req))
+      if (
+        existing.authenticated
+        && existing.role === 'crew'
+        && existing.crewName
+        && (INTERVIEWER_NAMES as readonly string[]).includes(existing.crewName)
+      ) {
+        res.status(200).json({
+          ok: true,
+          retained: true,
+          role: 'crew',
+          crewName: existing.crewName,
+          productionId: production.id,
+        })
         return
       }
 
       const token = createSessionToken({
-        role: 'crew',
-        productionIds: [],
-        crewName: FLOOR_CREW_NAME,
-        cred: crewSessionCred(FLOOR_CREW_NAME),
+        role: 'set',
+        productionIds: [production.id],
+        crewName: SET_CREW_NAME,
+        cred: setSessionCred(production.id, parsed.date),
+        exp: endOfAmsterdamDayUnix(),
       })
       setSessionCookie(res, token)
       res.status(200).json({
         ok: true,
-        role: 'crew',
-        crewName: FLOOR_CREW_NAME,
-        floorPath: floorAppPath(),
+        role: 'set',
+        crewName: SET_CREW_NAME,
+        productionId: production.id,
+        productionIds: [production.id],
       })
       return
     }
@@ -140,9 +200,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           productionIds: [],
           crewName,
           cred: crewSessionCred(crewName),
+          exp: endOfAmsterdamDayUnix(),
         })
         setSessionCookie(res, token)
-        res.status(200).json({ ok: true, role: 'crew', crewName, floorPath: floorAppPath() })
+        res.status(200).json({ ok: true, role: 'crew', crewName })
         return
       }
 
