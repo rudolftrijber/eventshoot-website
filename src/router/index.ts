@@ -58,7 +58,11 @@ router.beforeEach((to) => {
   const lang = to.path.startsWith('/en/') ? 'en' : to.name === 'event-vodcast-recording' ? 'nl' : null
   if (!lang) return
   i18n.global.locale.value = lang
-  if (typeof localStorage !== 'undefined') localStorage.setItem('lang', lang)
+  try {
+    localStorage.setItem('lang', lang)
+  } catch {
+    /* Safari op iPad blokkeert localStorage soms. */
+  }
   if (typeof document !== 'undefined') document.documentElement.lang = lang
 })
 

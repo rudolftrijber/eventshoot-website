@@ -13,7 +13,11 @@ const showEventkennis = computed(() => !locale.value.startsWith('en'))
 
 function setLang(lang: string) {
   locale.value = lang
-  localStorage.setItem('lang', lang)
+  try {
+    localStorage.setItem('lang', lang)
+  } catch {
+    /* Safari op iPad blokkeert localStorage soms. */
+  }
   document.documentElement.lang = lang
   closeMenu()
   const onVodcast = route.path === VODCAST_PATH_NL || route.path === VODCAST_PATH_EN

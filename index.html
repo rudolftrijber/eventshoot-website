@@ -74,6 +74,12 @@
           if (ios) document.documentElement.classList.add('is-ios')
         } catch (e) {}
       })()
+      window.addEventListener('error', function (e) {
+        var box = document.getElementById('boot-error')
+        if (!box) return
+        box.hidden = false
+        box.textContent = 'De site startte niet: ' + (e && e.message ? e.message : 'onbekende fout')
+      })
     </script>
     <style>
       html, body { background: #0a1628; color: #fff; }
@@ -96,9 +102,13 @@
       <main style="padding:7rem 1.5rem 3rem;max-width:760px;margin:0 auto;font-family:Roboto,-apple-system,sans-serif;">
         <h1 style="font-size:2.4rem;line-height:1.1;margin:0 0 1rem;">Jouw event is een goudmijn aan content.</h1>
         <p style="font-size:1.05rem;line-height:1.6;margin:0 0 1.5rem;">Eén event, een complete contentbox. Eventshoot.nl levert 25+ kant-en-klare foto's, aftermovies en interviews uit jouw zakelijke event. Gemaakt door mensen, geleverd binnen 48 uur.</p>
+        <p id="boot-error" hidden style="background:#3a1010;color:#fff;padding:0.8rem 1rem;border-radius:8px;margin:0 0 1rem;"></p>
+        <p style="margin:0 0 1rem;">
+          <a href="/interview-app/?v=6" style="display:inline-block;background:#FF7B00;color:#fff;text-decoration:none;font-weight:700;padding:0.9rem 1.4rem;border-radius:10px;font-size:1.15rem;">Interview-app</a>
+        </p>
         <p style="margin:0;">
-          <a href="/kennismaken/" style="display:inline-block;background:#FF7B00;color:#fff;text-decoration:none;font-weight:700;padding:0.8rem 1.4rem;border-radius:10px;">Kennismaken</a>
-          <a href="tel:+31625177728" style="display:inline-block;color:#fff;margin-left:1rem;">06 251 777 28</a>
+          <a href="/kennismaken/" style="display:inline-block;color:#fff;text-decoration:underline;margin-right:1rem;">Kennismaken</a>
+          <a href="tel:+31625177728" style="display:inline-block;color:#fff;">06 251 777 28</a>
         </p>
       </main>
     </div>
