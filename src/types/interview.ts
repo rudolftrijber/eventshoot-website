@@ -5,7 +5,7 @@ export interface InterviewSettings {
   maxChars: number
 }
 
-export type InterviewRole = 'crew' | 'client'
+export type InterviewRole = 'crew' | 'client' | 'set'
 
 export type PngRatioId = '16x9' | '9x16' | '4x5'
 
@@ -43,11 +43,14 @@ export interface Productie {
   status: ProductieStatus
   locatie: string
   land: string
+  /** Client from Settings. Empty when none is chosen. */
+  clientId: string
   supervisor: string
   crew2: string
   crew3: string
   crew4: string
   crew5: string
+  callsheet: CallsheetData
   vragen: string[]
   archivedAt: string | null
   hasClientPassword?: boolean
@@ -108,7 +111,7 @@ export function intakeLockApplies(type: string): boolean {
 export const GAST_STATUS_ORDER: GastStatus[] = ['Entered', 'Checked', 'Recorded']
 export const PRODUCTIE_STATUSES: ProductieStatus[] = ['OPT', 'DEF', 'COMPL']
 
-/** Crew roster for Supervisor / Crew 2–5 dropdowns */
+/** Fallback roster until the crew table has loaded. N.V.T. is an empty slot, not a person. */
 export const CREW_MEMBERS = [
   'N.V.T.',
   'Rolf Trijber',
@@ -122,13 +125,75 @@ export const CREW_MEMBERS = [
 export const DEFAULT_SUPERVISOR = 'Rolf Trijber'
 export const DEFAULT_CREW_SLOT = 'N.V.T.'
 
-/** Crew members who can log in (excludes N.V.T.) */
-export const CREW_LOGIN_NAMES = CREW_MEMBERS.filter((m) => m !== 'N.V.T.')
+export interface CallsheetContact {
+  rol: string
+  naam: string
+  telefoon: string
+}
+
+/** Role, phone and call time for Supervisor and Crew 2–5. The name stays on the production. */
+export interface CallsheetCrewDetail {
+  rol: string
+  telefoon: string
+  callTijd: string
+}
+
+export interface CallsheetProgramRow {
+  tijd: string
+  onderdeel: string
+  locatie: string
+  crew: string
+  highlight: boolean
+}
+
+export interface CallsheetGearRow {
+  categorie: string
+  omschrijving: string
+  aantal: string
+  ok: boolean
+}
+
+export interface CallsheetData {
+  opdrachtgever: string
+  parkeren: string
+  locatieAdres: string
+  locatiePlaats: string
+  programmaUrl: string
+  crewKleding: string
+  contacten: CallsheetContact[]
+  crewDetails: CallsheetCrewDetail[]
+  programma: CallsheetProgramRow[]
+  apparatuur: CallsheetGearRow[]
+}
+
+/** Rolf and Maurice run the interviews and can log in to the full app. */
+export const INTERVIEWER_NAMES = ['Rolf Trijber', 'Maurice Antenbrink'] as const
+
+/** @deprecated Use INTERVIEWER_NAMES. Kept so older imports stay limited to the two interviewers. */
+export const CREW_LOGIN_NAMES = INTERVIEWER_NAMES
+
+export interface ClientContact {
+  rol: string
+  naam: string
+  telefoon: string
+}
+
+export interface ClientRecord {
+  id: string
+  naam: string
+  contacten: ClientContact[]
+}
+
+export interface CrewMember {
+  id: string
+  naam: string
+  rol: string
+  telefoon: string
+}
 
 export function normalizeCrewMember(value: string | null | undefined, fallback = DEFAULT_CREW_SLOT): string {
-  const v = String(value || '').trim()
-  if ((CREW_MEMBERS as readonly string[]).includes(v)) return v
-  return fallback
+  const v = String(value || '').trim().slice(0, 80)
+  return v || fallback
 }
 
 const LEGACY_GAST_STATUS: Record<string, GastStatus> = {

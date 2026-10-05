@@ -11,6 +11,7 @@ import {
   sanitizeProductionPatchForClient,
 } from '../permissions.js'
 import { MAX_GENERAL_TITLE_CHARS, type ProductieStatus } from '../types.js'
+import { sanitizeCallsheet } from '../callsheet.js'
 import {
   clipText,
   MAX_PASSWORD_LEN,
@@ -97,11 +98,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         if (body.status !== undefined) patch.status = String(body.status) as ProductieStatus
         if (body.locatie !== undefined) patch.locatie = clipText(body.locatie, MAX_SHORT_TEXT)
         if (body.land !== undefined) patch.land = clipText(body.land, MAX_SHORT_TEXT)
+        if (body.clientId !== undefined) patch.clientId = clipText(body.clientId, 64)
         if (body.supervisor !== undefined) patch.supervisor = clipText(body.supervisor, MAX_SHORT_TEXT)
         if (body.crew2 !== undefined) patch.crew2 = clipText(body.crew2, MAX_SHORT_TEXT)
         if (body.crew3 !== undefined) patch.crew3 = clipText(body.crew3, MAX_SHORT_TEXT)
         if (body.crew4 !== undefined) patch.crew4 = clipText(body.crew4, MAX_SHORT_TEXT)
         if (body.crew5 !== undefined) patch.crew5 = clipText(body.crew5, MAX_SHORT_TEXT)
+        if (body.callsheet !== undefined) patch.callsheet = sanitizeCallsheet(body.callsheet)
         if (body.vragen !== undefined) patch.vragen = sanitizeQuestions(body.vragen)
         if (body.clientPassword !== undefined) {
           const raw = String(body.clientPassword).trim()

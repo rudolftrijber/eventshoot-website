@@ -1,4 +1,5 @@
 import { createGuest, createProductie, ensureSchema, fetchProducties } from './database.js'
+import { emptyCallsheet } from './callsheet.js'
 import type { Gast, Productie } from './types.js'
 
 export const DEMO_PRODUCTIE_ID = 'prod-dsr-2026'
@@ -23,6 +24,8 @@ const producties: Omit<Productie, 'createdAt' | 'updatedAt' | 'archivedAt' | 'ha
     crew3: 'N.V.T.',
     crew4: 'N.V.T.',
     crew5: 'N.V.T.',
+    clientId: '',
+    callsheet: emptyCallsheet(),
     vragen: [
       'Wat was voor u het hoogtepunt van dit congres?',
       'Welke trend ziet u de komende jaren in de sector?',
@@ -49,6 +52,8 @@ const producties: Omit<Productie, 'createdAt' | 'updatedAt' | 'archivedAt' | 'ha
     crew3: 'N.V.T.',
     crew4: 'N.V.T.',
     crew5: 'N.V.T.',
+    clientId: '',
+    callsheet: emptyCallsheet(),
     vragen: [
       'Wat haalt u uit deze ledendag?',
       'Welke sessie sprak u het meest aan?',
@@ -75,6 +80,8 @@ const producties: Omit<Productie, 'createdAt' | 'updatedAt' | 'archivedAt' | 'ha
     crew3: 'N.V.T.',
     crew4: 'N.V.T.',
     crew5: 'N.V.T.',
+    clientId: '',
+    callsheet: emptyCallsheet(),
     vragen: [
       'Wat maakt dit user conference uniek voor klanten?',
       'Welke productupdate vindt u het meest relevant?',

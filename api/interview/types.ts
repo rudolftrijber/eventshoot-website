@@ -1,3 +1,43 @@
+export interface CallsheetContact {
+  rol: string
+  naam: string
+  telefoon: string
+}
+
+export interface CallsheetCrewDetail {
+  rol: string
+  telefoon: string
+  callTijd: string
+}
+
+export interface CallsheetProgramRow {
+  tijd: string
+  onderdeel: string
+  locatie: string
+  crew: string
+  highlight: boolean
+}
+
+export interface CallsheetGearRow {
+  categorie: string
+  omschrijving: string
+  aantal: string
+  ok: boolean
+}
+
+export interface CallsheetData {
+  opdrachtgever: string
+  parkeren: string
+  locatieAdres: string
+  locatiePlaats: string
+  programmaUrl: string
+  crewKleding: string
+  contacten: CallsheetContact[]
+  crewDetails: CallsheetCrewDetail[]
+  programma: CallsheetProgramRow[]
+  apparatuur: CallsheetGearRow[]
+}
+
 export type GastStatus = 'Entered' | 'Checked' | 'Recorded'
 export type ProductieStatus = 'OPT' | 'DEF' | 'COMPL'
 export type GastType = 'Keynote speaker' | 'Executive' | 'Participant' | 'Sponsor' | 'Other' | ''
@@ -37,11 +77,14 @@ export interface Productie {
   status: ProductieStatus
   locatie: string
   land: string
+  /** Client from the Settings directory. Empty when none is chosen. */
+  clientId: string
   supervisor: string
   crew2: string
   crew3: string
   crew4: string
   crew5: string
+  callsheet: CallsheetData
   vragen: string[]
   archivedAt: string | null
   hasClientPassword?: boolean
@@ -143,7 +186,6 @@ export const DEFAULT_SUPERVISOR = 'Rolf Trijber'
 export const DEFAULT_CREW_SLOT = 'N.V.T.'
 
 export function normalizeCrewMember(value: string | null | undefined, fallback = DEFAULT_CREW_SLOT): string {
-  const v = String(value || '').trim()
-  if ((CREW_MEMBERS as readonly string[]).includes(v)) return v
-  return fallback
+  const v = String(value || '').trim().slice(0, 80)
+  return v || fallback
 }

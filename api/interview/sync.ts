@@ -1,6 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { isCrew } from './auth.js'
 import { fetchGuests, fetchProducties, fetchSettings, ensureSchema } from './database.js'
+import { fetchClients, fetchCrew } from './directory.js'
 import { seedDemoData } from './demoSeed.js'
 import { filterGuestsForAuth, filterProductionsForAuth, requireLogin } from './permissions.js'
 
@@ -36,11 +37,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     productions = filterProductionsForAuth(ctx, productions)
     guests = filterGuestsForAuth(ctx, guests, productions)
+    const [clients, crew] = isCrew(ctx)
+      ? await Promise.all([fetchClients(), fetchCrew()])
+      : [[], []]
 
     res.status(200).json({
       guests,
       productions,
       settings,
+      clients,
+      crew,
       role: ctx.role,
       productionIds: ctx.productionIds,
       serverTime: new Date().toISOString(),

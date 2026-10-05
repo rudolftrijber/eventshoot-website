@@ -27,6 +27,7 @@ const props = defineProps<{
   open: boolean
   production: BriefProduction
   candidates: BriefCandidate[]
+  embedded?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -182,7 +183,7 @@ watch(dataSignature, () => {
 }, { immediate: true })
 
 watch(
-  () => props.open,
+  () => props.open && !props.embedded,
   (open) => {
     document.body.classList.toggle('ia-brief-print-open', open)
   },
@@ -192,7 +193,7 @@ watch(
 let previousTitle = ''
 
 onUnmounted(() => {
-  document.body.classList.remove('ia-brief-print-open')
+  if (!props.embedded) document.body.classList.remove('ia-brief-print-open')
   if (previousTitle) {
     document.title = previousTitle
     previousTitle = ''
@@ -233,15 +234,16 @@ function hasScript(candidate: BriefCandidate | undefined): boolean {
 </script>
 
 <template>
-  <Teleport to="body">
+  <Teleport to="body" :disabled="embedded">
     <div
       v-if="open"
       class="interview-brief-print"
+      :class="{ 'interview-brief-print--embedded': embedded }"
       role="dialog"
       aria-modal="true"
       aria-label="VPO PDF"
     >
-      <div class="ib-toolbar no-print">
+      <div v-if="!embedded" class="ib-toolbar no-print">
         <h2 class="ib-toolbar__title">{{ toolbarTitle }}</h2>
         <div class="ib-toolbar__actions">
           <button class="ib-btn ib-btn--primary" type="button" @click="printBrief">Print / Save as PDF</button>
@@ -373,7 +375,7 @@ function hasScript(candidate: BriefCandidate | undefined): boolean {
         <p class="ib-foot">{{ pageIndex + 1 }} / {{ pages.length }}</p>
       </article>
 
-      <p class="ib-hint no-print">
+      <p v-if="!embedded" class="ib-hint no-print">
         Vodcast Production Overview. Use Print / Save as PDF. A candidate continues on the next page when the questions do not fit.
       </p>
     </div>
@@ -390,6 +392,16 @@ function hasScript(candidate: BriefCandidate | undefined): boolean {
   padding: 1rem 1rem 2rem;
   color: #fff;
   font-family: var(--font-base, system-ui, sans-serif);
+}
+
+.interview-brief-print.interview-brief-print--embedded {
+  position: static;
+  inset: auto;
+  z-index: auto;
+  overflow: visible;
+  background: transparent;
+  padding: 0;
+  color: #111;
 }
 
 .ib-toolbar {
@@ -465,6 +477,10 @@ function hasScript(candidate: BriefCandidate | undefined): boolean {
 }
 
 .ib-sheet + .ib-sheet {
+  margin-top: 10mm;
+}
+
+.interview-brief-print--embedded .ib-sheet:first-child {
   margin-top: 10mm;
 }
 

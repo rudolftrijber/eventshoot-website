@@ -2,9 +2,10 @@
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useInterviewStore } from '@/stores/interviewStore'
-import type { Gast, GuestView, Productie } from '@/types/interview'
+import type { CallsheetData, Gast, GuestView, Productie } from '@/types/interview'
+import DirectorySettings from '@/components/interview/DirectorySettings.vue'
 import {
-  CREW_LOGIN_NAMES,
+  INTERVIEWER_NAMES,
   CREW_MEMBERS,
   DEFAULT_CREW_SLOT,
   DEFAULT_SUPERVISOR,
@@ -41,7 +42,14 @@ import {
   withImageCacheBust,
 } from '@/utils/interviewUploads'
 import { assignTranscriptGuests } from '@/utils/matchTranscripts'
-import '@/assets/interview-app.css?v=transcript-2'
+import {
+  crewDirectoryPhone,
+  defaultRoleFor,
+  emptyCallsheet,
+  hydrateCrewDetails,
+  normalizeCallsheet,
+} from '@/utils/callsheet'
+import '@/assets/interview-app.css?v=callsheet-1'
 import '@/assets/interview-app-buttons.css'
 import {
   EyeIcon,
@@ -64,22 +72,32 @@ import InterviewBriefPrint, {
   type BriefCandidate,
   type BriefProduction,
 } from '@/components/interview/InterviewBriefPrint.vue'
+import CallsheetPrint from '@/components/interview/CallsheetPrint.vue'
+import CallsheetForm from '@/components/interview/CallsheetForm.vue'
 import VisnipPrint, { type VisnipSection } from '@/components/interview/VisnipPrint.vue'
 
 const store = useInterviewStore()
 const route = useRoute()
 const floorMode = computed(() => Boolean(route.meta.floorMode))
-const floorKey = computed(() => {
-  const raw = String(route.params.floorKey || '').trim()
-  if (!raw || raw === '…' || raw === '...') return 'live'
-  return raw
-})
+const fullCrew = computed(() => store.isCrew && !floorMode.value)
+const floorKey = computed(() => String(route.params.floorKey || '').trim())
+const LAST_INTERVIEWER_KEY = 'eventshoot-interview-name'
+
+function storedInterviewer(): string {
+  try {
+    const saved = localStorage.getItem(LAST_INTERVIEWER_KEY) || ''
+    return (INTERVIEWER_NAMES as readonly string[]).includes(saved) ? saved : ''
+  } catch {
+    return ''
+  }
+}
 
 const devBuildStamp = import.meta.env.DEV ? '13 jul 09:50 · compact buttons' : ''
+const booting = ref(true)
 const skipAuthMode = ref(false)
 const justSetClientPassword = ref('')
 const password = ref('')
-const loginIdentity = ref('') // '' = client, otherwise crew name
+const loginIdentity = ref(storedInterviewer())
 const showPassword = ref(false)
 const showPClientPassword = ref(false)
 const loginError = ref('')
@@ -150,11 +168,14 @@ const pEindTijd = ref('')
 const pStatus = ref<Productie['status']>('OPT')
 const pLocatie = ref('')
 const pLand = ref('')
+const pClientId = ref('')
 const pSupervisor = ref(DEFAULT_SUPERVISOR)
 const pCrew2 = ref(DEFAULT_CREW_SLOT)
 const pCrew3 = ref(DEFAULT_CREW_SLOT)
 const pCrew4 = ref(DEFAULT_CREW_SLOT)
 const pCrew5 = ref(DEFAULT_CREW_SLOT)
+const pCallsheet = ref<CallsheetData>(emptyCallsheet())
+const crewNameSnapshot = ref<string[]>([])
 const pClientPassword = ref('')
 const editingProdHasClientPassword = ref(false)
 const pQuestions = ref<string[]>(['', '', '', ''])
@@ -173,6 +194,7 @@ const showCamQuestions = ref(false)
 const confirmOpgenomen = ref(false)
 const showPresenterCard = ref(false)
 const showInterviewBrief = ref(false)
+const showCallsheet = ref(false)
 const showVisnip = ref(false)
 const visnipBusy = ref(false)
 const visnipProgress = ref('')
@@ -221,8 +243,8 @@ let toastTimer: ReturnType<typeof setTimeout> | null = null
 const todayIso = computed(() => todayStr())
 
 const workingProduction = computed(() => {
-  const list = store.activeProductions
   if (!manualProductieId.value) return null
+  const list = floorMode.value || store.isSet ? store.productions : store.activeProductions
   return list.find((p) => p.id === manualProductieId.value) || null
 })
 
@@ -277,11 +299,14 @@ const productionMeta = computed(() => {
 })
 
 /** Production overviews: sorted by start date + time */
-const sortedActiveProductions = computed(() =>
-  [...store.activeProductions].sort((a, b) =>
+const sortedActiveProductions = computed(() => {
+  const list = floorMode.value && store.setProductionId
+    ? store.productions.filter((p) => p.id === store.setProductionId)
+    : store.activeProductions
+  return [...list].sort((a, b) =>
     productionStartSortKey(a).localeCompare(productionStartSortKey(b)),
-  ),
-)
+  )
+})
 
 const sortedArchivedProductions = computed(() =>
   [...store.archivedProductions].sort((a, b) =>
@@ -683,7 +708,7 @@ function onProductionPngError(ratio: PngRatioId) {
 }
 
 async function startReplaceProductionPng() {
-  if (!store.isCrew) return
+  if (!fullCrew.value) return
   if (!showProdForm.value) toggleEditProduction()
   await nextTick()
   document.getElementById('ia-png-overlays')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
@@ -720,21 +745,31 @@ const moveFQ = (i: number, dir: -1 | 1) => moveQuestion(fQuestions, i, dir)
 const addPQ = () => addQuestion(pQuestions)
 const removePQ = (i: number) => removeQuestion(pQuestions, i)
 
-function showToast(msg: string) {
+function showToast(msg: string, ms = 2000) {
   toast.value = msg
   if (toastTimer) clearTimeout(toastTimer)
-  toastTimer = setTimeout(() => { toast.value = '' }, 2000)
+  toastTimer = setTimeout(() => { toast.value = '' }, ms)
 }
 
-async function copyFloorLink() {
-  const path = store.floorPath
-  if (!path) {
-    showToast('Set URL not available yet')
-    return
+async function copySetLink(productionId: string) {
+  try {
+    const data = await store.createSetLink(productionId)
+    const url = `${window.location.origin}${data.path}`
+    const ok = await copyTextToClipboard(url)
+    showToast(
+      ok ? 'Set link copied. It works until tonight, for this production only.' : 'Copy failed',
+      4000,
+    )
+  } catch (e) {
+    showToast(e instanceof Error ? e.message : 'Set link failed')
   }
-  const url = `${window.location.origin}${path}`
-  const ok = await copyTextToClipboard(url)
-  showToast(ok ? 'Set URL copied. Bookmark this on the tablet.' : 'Copy failed')
+}
+
+function lockSetProduction() {
+  if (!floorMode.value || !store.setProductionId) return
+  const production = store.productions.find((p) => p.id === store.setProductionId)
+  if (!production) return
+  enterProduction(production)
 }
 
 async function copyQuestions(
@@ -887,6 +922,126 @@ function openProductionBriefs() {
   )
 }
 
+function currentCrewNames(): string[] {
+  return [pSupervisor.value, pCrew2.value, pCrew3.value, pCrew4.value, pCrew5.value]
+}
+
+function slotOptions(current: string): string[] {
+  const names = store.crew.length
+    ? store.crew.map((person) => person.naam)
+    : CREW_MEMBERS.filter((name) => name !== DEFAULT_CREW_SLOT)
+  const options = [DEFAULT_CREW_SLOT, ...names]
+  if (current && !options.includes(current)) options.unshift(current)
+  return options
+}
+
+function rememberCrewNames() {
+  crewNameSnapshot.value = currentCrewNames()
+}
+
+function onCrewPicked(index: number) {
+  const names = currentCrewNames()
+  const previous = crewNameSnapshot.value[index] || ''
+  const next = names[index] || ''
+  const crewDetails = pCallsheet.value.crewDetails.map((detail, i) => {
+    if (i !== index) return detail
+    if (!next || next === DEFAULT_CREW_SLOT) return { rol: '', telefoon: '', callTijd: '' }
+    const prevPhone = crewDirectoryPhone(previous)
+    const nextPhone = crewDirectoryPhone(next)
+    const prevRole = defaultRoleFor(previous, index)
+    const nextRole = defaultRoleFor(next, index)
+    return {
+      rol: !detail.rol.trim() || detail.rol.trim() === prevRole ? nextRole : detail.rol,
+      telefoon: !detail.telefoon.trim() || detail.telefoon.trim() === prevPhone ? nextPhone : detail.telefoon,
+      callTijd: detail.callTijd,
+    }
+  })
+  pCallsheet.value = { ...pCallsheet.value, crewDetails }
+  rememberCrewNames()
+}
+
+function addInterviewsToProgram() {
+  const sheet = pCallsheet.value
+  const seen = new Set(
+    sheet.programma.map((row) => row.onderdeel.trim().toLowerCase()).filter(Boolean),
+  )
+  const extra = scheduledGuests.value.flatMap((guest) => {
+    const who = [guest.naam, guest.functie].map((part) => part.trim()).filter(Boolean).join(', ')
+    const onderdeel = who ? `Interview: ${who}` : ''
+    if (!onderdeel || seen.has(onderdeel.toLowerCase())) return []
+    seen.add(onderdeel.toLowerCase())
+    return [{
+      tijd: (guest.tijd || '').trim(),
+      onderdeel,
+      locatie: (guest.planning || pLocatie.value || '').trim(),
+      crew: (guest.moderator || '').trim(),
+      highlight: guest.type === 'Keynote speaker',
+    }]
+  })
+  if (!extra.length) {
+    showToast('No new interview times to add')
+    return
+  }
+  const kept = sheet.programma.filter((row) => row.tijd || row.onderdeel || row.locatie || row.crew)
+  pCallsheet.value = { ...sheet, programma: [...kept, ...extra] }
+  showToast('Interview times added to the schedule')
+}
+
+const callsheetLive = computed(() => {
+  if (showProdForm.value || isNewProduction.value) {
+    return {
+      naam: pNaam.value.trim(),
+      datum: pDatum.value,
+      startTijd: pStartTijd.value,
+      eindTijd: pEindTijd.value,
+      locatieNaam: pLocatie.value.trim(),
+      land: pLand.value.trim(),
+      clientId: pClientId.value,
+      sheet: pCallsheet.value,
+      crewNames: currentCrewNames(),
+      production: {
+        naam: pNaam.value.trim(),
+        datum: pDatum.value,
+        startTijd: pStartTijd.value,
+        eindDatum: pEindDatum.value,
+        eindTijd: pEindTijd.value,
+        status: pStatus.value,
+        locatie: pLocatie.value.trim(),
+        land: pLand.value.trim(),
+        generalTitel: pGeneralTitel.value.trim(),
+        supervisor: pSupervisor.value,
+        crew2: pCrew2.value,
+        crew3: pCrew3.value,
+        crew4: pCrew4.value,
+        crew5: pCrew5.value,
+      } as Productie,
+    }
+  }
+  const production = workingProduction.value
+  return {
+    naam: production?.naam || '',
+    datum: production?.datum || '',
+    startTijd: production?.startTijd || '',
+    eindTijd: production?.eindTijd || '',
+    locatieNaam: production?.locatie || '',
+    land: production?.land || '',
+    clientId: production?.clientId || '',
+    sheet: normalizeCallsheet(production?.callsheet),
+    crewNames: [
+      production?.supervisor || '',
+      production?.crew2 || '',
+      production?.crew3 || '',
+      production?.crew4 || '',
+      production?.crew5 || '',
+    ],
+    production,
+  }
+})
+
+function openCallsheet() {
+  showCallsheet.value = true
+}
+
 async function openVisnipPdf() {
   const guests = scheduledGuests.value.filter((guest) => guest.transcript.trim())
   if (!guests.length) {
@@ -948,8 +1103,11 @@ async function handleLogin() {
       return
     }
     await store.login(password.value, loginIdentity.value)
+    if ((INTERVIEWER_NAMES as readonly string[]).includes(loginIdentity.value)) {
+      localStorage.setItem(LAST_INTERVIEWER_KEY, loginIdentity.value)
+    }
     password.value = ''
-    if (floorMode.value) store.stopIdleWatch()
+    if (floorMode.value || store.role !== 'client') store.stopIdleWatch()
   } catch (e) {
     const msg = e instanceof Error ? e.message : 'Login failed'
     if (!msg.includes('.env.local') && !msg.includes('INTERVIEW_') && !msg.includes('POSTGRES_URL')) {
@@ -1533,11 +1691,13 @@ async function saveProductie() {
       status: pStatus.value,
       locatie: pLocatie.value.trim(),
       land: pLand.value.trim(),
+      clientId: pClientId.value,
       supervisor: pSupervisor.value,
       crew2: pCrew2.value,
       crew3: pCrew3.value,
       crew4: pCrew4.value,
       crew5: pCrew5.value,
+      callsheet: pCallsheet.value,
       vragen,
     }
     const png16 = stripImageCacheBust(pPng16x9.value)
@@ -1585,11 +1745,14 @@ function clearProductieForm() {
   pStatus.value = 'OPT'
   pLocatie.value = ''
   pLand.value = ''
+  pClientId.value = ''
   pSupervisor.value = DEFAULT_SUPERVISOR
   pCrew2.value = DEFAULT_CREW_SLOT
   pCrew3.value = DEFAULT_CREW_SLOT
   pCrew4.value = DEFAULT_CREW_SLOT
   pCrew5.value = DEFAULT_CREW_SLOT
+  pCallsheet.value = hydrateCrewDetails(emptyCallsheet(), currentCrewNames())
+  rememberCrewNames()
   pClientPassword.value = ''
   showPClientPassword.value = false
   editingProdHasClientPassword.value = false
@@ -1613,11 +1776,20 @@ function editProductie(p: Productie) {
   pStatus.value = p.status
   pLocatie.value = p.locatie || ''
   pLand.value = p.land || ''
+  pClientId.value = p.clientId || ''
   pSupervisor.value = p.supervisor || DEFAULT_SUPERVISOR
   pCrew2.value = p.crew2 || DEFAULT_CREW_SLOT
   pCrew3.value = p.crew3 || DEFAULT_CREW_SLOT
   pCrew4.value = p.crew4 || DEFAULT_CREW_SLOT
   pCrew5.value = p.crew5 || DEFAULT_CREW_SLOT
+  pCallsheet.value = hydrateCrewDetails(normalizeCallsheet(p.callsheet), [
+    p.supervisor || DEFAULT_SUPERVISOR,
+    p.crew2 || DEFAULT_CREW_SLOT,
+    p.crew3 || DEFAULT_CREW_SLOT,
+    p.crew4 || DEFAULT_CREW_SLOT,
+    p.crew5 || DEFAULT_CREW_SLOT,
+  ])
+  rememberCrewNames()
   pClientPassword.value = ''
   showPClientPassword.value = false
   editingProdHasClientPassword.value = Boolean(p.hasClientPassword)
@@ -1768,7 +1940,7 @@ async function resetGuestStatus(g: Gast) {
 }
 
 async function cycleGuestStatusFromList(g: Gast) {
-  if (!store.isCrew) return
+  if (!store.canOperate) return
   try {
     await store.cycleGuestStatus(g)
     const updated = store.guests.find((x) => x.id === g.id)
@@ -1810,10 +1982,15 @@ function nameChecked(g: Gast) {
   return g.status === 'Checked' || g.status === 'Recorded'
 }
 
+function onGuestRowClick(g: Gast) {
+  if (store.isSet || floorMode.value) return
+  loadForEdit(g)
+}
+
 function onNameCheckClick(g: Gast, event: Event) {
   event.preventDefault()
   event.stopPropagation()
-  if (!store.isCrew) return
+  if (!store.canOperate) return
   if (g.status === 'Entered') {
     openGuestControle(g)
     return
@@ -1824,7 +2001,7 @@ function onNameCheckClick(g: Gast, event: Event) {
 function onRecordedClick(g: Gast, event: Event) {
   event.preventDefault()
   event.stopPropagation()
-  if (!store.isCrew) return
+  if (!store.canOperate) return
   if (g.status === 'Recorded') {
     void store.updateGuest(g.id, { status: 'Checked' })
     return
@@ -1875,19 +2052,19 @@ onMounted(async () => {
   meta.setAttribute('name', 'robots')
   meta.setAttribute('content', 'noindex, nofollow')
   if (!meta.parentElement) document.head.appendChild(meta)
+  booting.value = true
 
   try {
     if (floorMode.value) {
-      const status = await store.checkAuth()
-      skipAuthMode.value = Boolean(status.skipAuth)
-      if (status.configured === false) {
-        apiConfigHint.value = 'Login is not configured on this server.'
-      } else if (store.authenticated) {
-        await store.sync()
-        store.startPolling()
-      } else {
-        await store.loginFloor(floorKey.value)
+      if (!floorKey.value) {
+        loginError.value = 'This set link is not valid. Ask Rolf or Maurice for today\'s link.'
+        return
       }
+      await store.enterSet(floorKey.value)
+      await store.sync()
+      store.startPolling()
+      store.stopIdleWatch()
+      lockSetProduction()
       return
     }
 
@@ -1904,7 +2081,8 @@ onMounted(async () => {
     if (store.authenticated) {
       await store.sync()
       store.startPolling()
-      store.startIdleWatch()
+      if (store.role === 'client') store.startIdleWatch()
+      else store.stopIdleWatch()
     }
   } catch (e) {
     const msg = e instanceof Error ? e.message : 'API unreachable'
@@ -1913,6 +2091,8 @@ onMounted(async () => {
     } else {
       apiConfigHint.value = msg
     }
+  } finally {
+    booting.value = false
   }
 })
 
@@ -1991,7 +2171,7 @@ watch(
 )
 
 watch(() => store.role, (role) => {
-  if (!role) return
+  if (!role || floorMode.value) return
   store.setTab('productions')
   guestView.value = null
   settingsOpen.value = false
@@ -2015,20 +2195,32 @@ watch(() => store.role, (role) => {
     </header>
 
     <!-- Login -->
-    <template v-if="!store.authenticated">
+    <template v-if="booting">
+      <div class="ia-login-page">
+        <div class="ia-body ia-body--login">
+          <div class="ia-login">
+            <div class="ia-login__card">
+              <p class="ia-login__intro">Opening…</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </template>
+    <template v-else-if="!store.authenticated">
       <div class="ia-login-page">
         <div class="ia-body ia-body--login">
           <div class="ia-login">
             <div class="ia-login__card">
               <p v-if="devBuildStamp" class="ia-dev-badge">Local · build {{ devBuildStamp }}</p>
-              <p class="ia-login__intro">Crew: choose your name and password. Clients: choose Client and use the production password.</p>
-              <p v-if="floorMode" class="ia-hint">Set link: this page signs crew in without a password. Bookmark https://eventshoot.nl/interview-app/live on the tablet.</p>
+              <p v-if="floorMode" class="ia-login__intro">{{ loginError || 'This set link is not valid. Ask Rolf or Maurice for today\'s link.' }}</p>
+              <p v-else class="ia-login__intro">Rolf or Maurice: choose your name and password. This device stays signed in until tonight. Clients: choose Client and use the production password.</p>
               <p v-if="store.idleLoggedOut" class="ia-login__idle">You were logged out after 10 minutes without activity. Log in again to continue.</p>
               <p v-if="apiConfigHint" class="ia-error ia-error--block ia-error--pre">{{ apiConfigHint }}</p>
+              <template v-if="!floorMode">
               <label class="ia-label" for="login-identity">Who are you?</label>
               <select id="login-identity" v-model="loginIdentity" class="ia-select ia-login__identity">
                 <option value="">Client (production password)</option>
-                <option v-for="name in CREW_LOGIN_NAMES" :key="name" :value="name">{{ name }}</option>
+                <option v-for="name in INTERVIEWER_NAMES" :key="name" :value="name">{{ name }}</option>
               </select>
               <label class="ia-label" for="pw">Password</label>
               <div class="ia-password-wrap">
@@ -2060,6 +2252,7 @@ watch(() => store.role, (role) => {
                   @click="handleLogin"
                 >Log in</button>
               </div>
+              </template>
             </div>
           </div>
         </div>
@@ -2071,7 +2264,6 @@ watch(() => store.role, (role) => {
       <div class="ia-body">
         <div class="ia-shell">
           <header class="ia-shell__nav">
-            <p v-if="floorMode" class="ia-hint ia-hint--set">Set mode · stays signed in on this tablet</p>
             <div class="ia-tabs-wrap">
               <nav class="ia-tabs" aria-label="Interview app menu">
                 <button
@@ -2094,7 +2286,7 @@ watch(() => store.role, (role) => {
               </nav>
               <div class="ia-tabs-utils">
                 <button
-                  v-if="store.isCrew"
+                  v-if="store.isCrew && !floorMode"
                   class="ia-tab ia-tab--util"
                   :class="{ active: settingsOpen }"
                   type="button"
@@ -2105,7 +2297,7 @@ watch(() => store.role, (role) => {
                   <Cog6ToothIcon class="ia-tab__icon" aria-hidden="true" />
                 </button>
                 <button
-                  v-if="!skipAuthMode"
+                  v-if="!skipAuthMode && !floorMode"
                   class="ia-tab ia-tab--util ia-tab--logout"
                   type="button"
                   title="Log out"
@@ -2119,7 +2311,8 @@ watch(() => store.role, (role) => {
           </header>
 
       <p v-if="skipAuthMode && !crewFocusMode" class="ia-skip-auth-banner">Finetune mode: password is off. Local only.</p>
-      <p v-else-if="store.isCrew && store.crewName && !crewFocusMode" class="ia-crew-banner">Crew · {{ store.crewName }}</p>
+      <p v-else-if="floorMode && !crewFocusMode" class="ia-crew-banner">Set · this production only · until tonight</p>
+      <p v-else-if="store.isCrew && store.crewName && !crewFocusMode" class="ia-crew-banner">{{ store.crewName }} · signed in until tonight</p>
       <p v-else-if="store.isClient && !crewFocusMode" class="ia-client-banner">Client view — open a production, set Participant defaults, add candidates, and mark intake complete.</p>
 
       <div v-if="settingsOpen && store.isCrew" class="ia-settings">
@@ -2136,6 +2329,7 @@ watch(() => store.role, (role) => {
           />
           <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="saveMaxChars">Save</button>
         </div>
+        <DirectorySettings @toast="showToast" />
         <div class="ia-actions">
           <button class="ia-btn ia-btn--small ia-btn--accent" type="button" @click="loadDemoData">Load demo data</button>
           <button class="ia-btn ia-btn--small ia-btn--secondary" type="button" @click="exportJson">Export JSON</button>
@@ -2693,8 +2887,13 @@ watch(() => store.role, (role) => {
                   <p v-if="!isNewProduction" class="ia-hint" style="margin:0 0 0.25rem">Event Interviews</p>
                   <h2 class="ia-section-title" style="margin:0">{{ productionHeading }}</h2>
                   <p v-if="!showProdForm" class="ia-hint" style="margin:0.35rem 0 0">{{ productionMeta }}</p>
+                  <div v-if="store.isCrew && !floorMode && workingProduction && !isNewProduction && !showProdForm" class="ia-actions ia-actions--tight">
+                    <button class="ia-btn ia-btn--small" type="button" @click="copySetLink(workingProduction.id)">
+                      Set link for today
+                    </button>
+                  </div>
                   <p
-                    v-if="store.isCrew && !isNewProduction && !showProdForm && (workingProduction?.hasClientPassword || justSetClientPassword)"
+                    v-if="store.isCrew && !floorMode && !isNewProduction && !showProdForm && (workingProduction?.hasClientPassword || justSetClientPassword)"
                     class="ia-client-pw"
                   >
                     <span class="ia-client-pw__label">Client password</span>
@@ -2703,7 +2902,7 @@ watch(() => store.role, (role) => {
                   </p>
                 </div>
                 <button
-                  v-if="store.isCrew && !isNewProduction"
+                  v-if="store.isCrew && !floorMode && !isNewProduction"
                   class="ia-editbtn"
                   :class="{ 'ia-editbtn--active': showProdForm }"
                   type="button"
@@ -2735,12 +2934,12 @@ watch(() => store.role, (role) => {
                   <figure
                     v-if="workingProduction.png16x9"
                     class="ia-png-preview ia-png-preview--16x9"
-                    :class="{ 'ia-png-preview--replace': store.isCrew }"
-                    :role="store.isCrew ? 'button' : undefined"
-                    :tabindex="store.isCrew ? 0 : undefined"
+                    :class="{ 'ia-png-preview--replace': fullCrew }"
+                    :role="fullCrew ? 'button' : undefined"
+                    :tabindex="fullCrew ? 0 : undefined"
                     :aria-label="productionPngMissing('16x9') ? 'PNG 16:9 missing, tap to replace' : 'PNG 16:9, tap to replace'"
-                    @click="store.isCrew && startReplaceProductionPng()"
-                    @keydown.enter.prevent="store.isCrew && startReplaceProductionPng()"
+                    @click="fullCrew && startReplaceProductionPng()"
+                    @keydown.enter.prevent="fullCrew && startReplaceProductionPng()"
                   >
                     <img
                       v-if="!productionPngMissing('16x9')"
@@ -2757,8 +2956,8 @@ watch(() => store.role, (role) => {
                   <figure
                     v-if="SHOW_PORTRAIT_THUMBNAIL_RATIOS && workingProduction.png9x16"
                     class="ia-png-preview ia-png-preview--9x16"
-                    :class="{ 'ia-png-preview--replace': store.isCrew }"
-                    @click="store.isCrew && startReplaceProductionPng()"
+                    :class="{ 'ia-png-preview--replace': fullCrew }"
+                    @click="fullCrew && startReplaceProductionPng()"
                   >
                     <img
                       v-if="!productionPngMissing('9x16')"
@@ -2775,8 +2974,8 @@ watch(() => store.role, (role) => {
                   <figure
                     v-if="SHOW_45_THUMBNAIL_RATIO && workingProduction.png4x5"
                     class="ia-png-preview ia-png-preview--4x5"
-                    :class="{ 'ia-png-preview--replace': store.isCrew }"
-                    @click="store.isCrew && startReplaceProductionPng()"
+                    :class="{ 'ia-png-preview--replace': fullCrew }"
+                    @click="fullCrew && startReplaceProductionPng()"
                   >
                     <img
                       v-if="!productionPngMissing('4x5')"
@@ -2814,6 +3013,13 @@ watch(() => store.role, (role) => {
 
                     <label class="ia-label">Country</label>
                     <input v-model="pLand" class="ia-input" placeholder="e.g. Netherlands" />
+
+                    <label class="ia-label">Client</label>
+                    <select v-model="pClientId" class="ia-select">
+                      <option value="">— none —</option>
+                      <option v-for="client in store.clients" :key="client.id" :value="client.id">{{ client.naam }}</option>
+                    </select>
+                    <p class="ia-hint">Add clients and their contacts in Settings.</p>
 
                     <label class="ia-label">Status</label>
                     <select v-model="pStatus" class="ia-select">
@@ -2870,31 +3076,38 @@ watch(() => store.role, (role) => {
                     </div>
 
                     <label class="ia-label">Supervisor</label>
-                    <select v-model="pSupervisor" class="ia-select">
-                      <option v-for="m in CREW_MEMBERS" :key="`sup-${m}`" :value="m">{{ m }}</option>
+                    <select v-model="pSupervisor" class="ia-select" @change="onCrewPicked(0)">
+                      <option v-for="m in slotOptions(pSupervisor)" :key="`sup-${m}`" :value="m">{{ m }}</option>
                     </select>
 
                     <label class="ia-label">Crew 2</label>
-                    <select v-model="pCrew2" class="ia-select">
-                      <option v-for="m in CREW_MEMBERS" :key="`c2-${m}`" :value="m">{{ m }}</option>
+                    <select v-model="pCrew2" class="ia-select" @change="onCrewPicked(1)">
+                      <option v-for="m in slotOptions(pCrew2)" :key="`c2-${m}`" :value="m">{{ m }}</option>
                     </select>
 
                     <label class="ia-label">Crew 3</label>
-                    <select v-model="pCrew3" class="ia-select">
-                      <option v-for="m in CREW_MEMBERS" :key="`c3-${m}`" :value="m">{{ m }}</option>
+                    <select v-model="pCrew3" class="ia-select" @change="onCrewPicked(2)">
+                      <option v-for="m in slotOptions(pCrew3)" :key="`c3-${m}`" :value="m">{{ m }}</option>
                     </select>
 
                     <label class="ia-label">Crew 4</label>
-                    <select v-model="pCrew4" class="ia-select">
-                      <option v-for="m in CREW_MEMBERS" :key="`c4-${m}`" :value="m">{{ m }}</option>
+                    <select v-model="pCrew4" class="ia-select" @change="onCrewPicked(3)">
+                      <option v-for="m in slotOptions(pCrew4)" :key="`c4-${m}`" :value="m">{{ m }}</option>
                     </select>
 
                     <label class="ia-label">Crew 5</label>
-                    <select v-model="pCrew5" class="ia-select">
-                      <option v-for="m in CREW_MEMBERS" :key="`c5-${m}`" :value="m">{{ m }}</option>
+                    <select v-model="pCrew5" class="ia-select" @change="onCrewPicked(4)">
+                      <option v-for="m in slotOptions(pCrew5)" :key="`c5-${m}`" :value="m">{{ m }}</option>
                     </select>
                   </div>
                 </div>
+
+                <CallsheetForm
+                  v-model="pCallsheet"
+                  :crew-names="currentCrewNames()"
+                  :crew-directory="store.crew"
+                  @add-interviews="addInterviewsToProgram"
+                />
 
                 <div id="ia-png-overlays" class="ia-thumb-block">
                   <h3 class="ia-form-section-title">PNG overlays</h3>
@@ -2923,6 +3136,7 @@ watch(() => store.role, (role) => {
 
                 <div class="ia-actions">
                   <button class="ia-btn" type="button" @click="saveProductie">Save</button>
+                  <button class="ia-btn ia-btn--secondary" type="button" @click="openCallsheet">Callsheet</button>
                   <button class="ia-btn ia-btn--secondary" type="button" @click="cancelProductionEdit">Cancel</button>
                 </div>
               </div>
@@ -3002,8 +3216,19 @@ watch(() => store.role, (role) => {
                     Save production details first, then add candidates.
                   </p>
                 </div>
-                <div v-if="!isNewProduction && scheduledGuests.length" class="ia-prod-detail-head__actions">
+                <div v-if="!isNewProduction" class="ia-prod-detail-head__actions">
                   <button
+                    v-if="fullCrew"
+                    class="ia-btn ia-btn--small ia-btn--secondary"
+                    type="button"
+                    title="Callsheet, gevolgd door het interviewprogramma"
+                    @click="openCallsheet"
+                  >
+                    <DocumentTextIcon class="ia-btn__icon" aria-hidden="true" />
+                    Callsheet
+                  </button>
+                  <button
+                    v-if="scheduledGuests.length"
                     class="ia-btn ia-btn--small ia-btn--secondary"
                     type="button"
                     title="Vodcast Production Overview PDF for every candidate"
@@ -3013,7 +3238,7 @@ watch(() => store.role, (role) => {
                     VPO PDF
                   </button>
                   <button
-                    v-if="store.isCrew"
+                    v-if="fullCrew && scheduledGuests.length"
                     class="ia-btn ia-btn--small ia-btn--secondary"
                     type="button"
                     title="Vertical snippet list for every vodcast with a transcript"
@@ -3030,13 +3255,13 @@ watch(() => store.role, (role) => {
                 <p class="ia-empty">Candidates become available after you save this production.</p>
               </template>
               <template v-else>
-                <div class="ia-actions ia-actions--tight">
+                <div v-if="!store.isSet && !floorMode" class="ia-actions ia-actions--tight">
                   <button class="ia-btn ia-btn--small ia-btn--accent" type="button" @click="openNewGuest">
                     + New candidate
                   </button>
                 </div>
                 <div
-                  v-if="store.isCrew && scheduledGuests.length"
+                  v-if="fullCrew && scheduledGuests.length"
                   class="ia-transcript-drop"
                   :class="{ 'ia-transcript-drop--over': transcriptDragOver }"
                   @dragover.prevent="transcriptDragOver = true"
@@ -3090,12 +3315,12 @@ watch(() => store.role, (role) => {
                 <table class="ia-table">
                   <thead>
                     <tr>
-                      <th v-if="store.isCrew">Crew #</th>
+                      <th v-if="store.canOperate && !floorMode">Crew #</th>
                       <th>Time</th>
                       <th>Name</th>
                       <th>Role</th>
                       <th>Organization</th>
-                      <th v-if="store.isCrew">Set</th>
+                      <th v-if="store.canOperate">Set</th>
                       <th v-else>Status</th>
                     </tr>
                   </thead>
@@ -3106,15 +3331,15 @@ watch(() => store.role, (role) => {
                       class="data-row data-row--clickable"
                       role="button"
                       tabindex="0"
-                      @click="loadForEdit(g)"
-                      @keyup.enter="loadForEdit(g)"
+                      @click="onGuestRowClick(g)"
+                      @keyup.enter="onGuestRowClick(g)"
                     >
-                      <td v-if="store.isCrew">{{ g.regienummer || '—' }}</td>
+                      <td v-if="store.canOperate && !floorMode">{{ g.regienummer || '—' }}</td>
                       <td>{{ formatGuestWhen(g) || '—' }}</td>
                       <td>
                         <div>{{ g.naam }}</div>
                         <div
-                          v-if="store.isCrew && (pendingDropFor(g.id) || g.transcript.trim())"
+                          v-if="store.isCrew && !floorMode && (pendingDropFor(g.id) || g.transcript.trim())"
                           class="ia-guest-transcript"
                           @click.stop
                         >
@@ -3133,7 +3358,7 @@ watch(() => store.role, (role) => {
                       </td>
                       <td>{{ g.functie }}</td>
                       <td>{{ g.organisatie || '—' }}</td>
-                      <td v-if="store.isCrew" class="ia-row-actions" @click.stop>
+                      <td v-if="store.canOperate" class="ia-row-actions" @click.stop>
                         <div class="ia-onset">
                           <label class="ia-onset-check" :title="nameChecked(g) ? 'Name checked' : 'Name not checked — opens lower third'">
                             <input
@@ -3185,18 +3410,9 @@ watch(() => store.role, (role) => {
             <p class="ia-hint">
               Sorted by start date and time. Click a row to open details, default questions and candidates.
             </p>
-            <div v-if="store.isCrew" class="ia-table-toolbar">
+            <div v-if="store.isCrew && !floorMode" class="ia-table-toolbar">
               <button class="ia-btn ia-btn--small ia-btn--accent" type="button" @click="openNewProductie">
                 + New production
-              </button>
-              <button
-                v-if="store.floorPath"
-                class="ia-btn ia-btn--small"
-                type="button"
-                title="Copy the set URL that skips login on the tablet"
-                @click="copyFloorLink"
-              >
-                Copy set URL
               </button>
             </div>
             <p v-if="store.loading && !store.productions.length" class="ia-empty">Loading productions…</p>
@@ -3235,7 +3451,8 @@ watch(() => store.role, (role) => {
                     <span class="ia-progress-chip ia-progress-chip--checked">Checked {{ productionCounts(p).checked }}</span>
                     <span class="ia-progress-chip ia-progress-chip--recorded">Recorded {{ productionCounts(p).recorded }}</span>
                   </div>
-                  <span v-if="store.isCrew" class="ia-prod-row__actions" @click.stop>
+                  <span v-if="store.isCrew && !floorMode" class="ia-prod-row__actions" @click.stop>
+                    <button class="ia-btn ia-btn--small" type="button" @click="copySetLink(p.id)">Set link</button>
                     <button class="ia-iconbtn" type="button" title="Edit" @click="openProductionForEdit(p)">✏️</button>
                     <button class="ia-iconbtn" type="button" title="Archive" @click="store.archiveProduction(p.id)">📦</button>
                   </span>
@@ -3246,7 +3463,7 @@ watch(() => store.role, (role) => {
               {{ store.isCrew ? 'No productions yet. Click + New production to get started.' : 'No productions available for this login.' }}
             </p>
           </div>
-          <div v-if="store.isCrew && store.archivedProductions.length" class="ia-card">
+          <div v-if="store.isCrew && !floorMode && store.archivedProductions.length" class="ia-card">
             <h2 class="ia-section-title">Archive</h2>
             <p class="ia-list-header__sub">Archived productions and their candidates.</p>
             <table class="ia-table">
@@ -3304,6 +3521,24 @@ watch(() => store.role, (role) => {
       :production="briefProduction"
       :candidates="briefCandidates"
       @close="showInterviewBrief = false"
+    />
+
+    <CallsheetPrint
+      :open="showCallsheet"
+      :naam="callsheetLive.naam"
+      :datum="callsheetLive.datum"
+      :start-tijd="callsheetLive.startTijd"
+      :eind-tijd="callsheetLive.eindTijd"
+      :locatie-naam="callsheetLive.locatieNaam"
+      :land="callsheetLive.land"
+      :sheet="callsheetLive.sheet"
+      :crew-names="callsheetLive.crewNames"
+      :client-name="store.clients.find((client) => client.id === callsheetLive.clientId)?.naam || ''"
+      :client-contacts="store.clients.find((client) => client.id === callsheetLive.clientId)?.contacten || []"
+      :crew-directory="store.crew"
+      :brief-production="toBriefProduction(callsheetLive.production, callsheetLive.naam)"
+      :brief-candidates="scheduledGuests.map(toBriefCandidate)"
+      @close="showCallsheet = false"
     />
 
     <VisnipPrint

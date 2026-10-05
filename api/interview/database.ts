@@ -1,4 +1,5 @@
 import type { Gast, GastStatus, InterviewSettings, Productie, ProductieStatus } from './types.js'
+import { sanitizeCallsheet } from './callsheet.js'
 import {
   DEFAULT_CREW_SLOT,
   DEFAULT_SUPERVISOR,
@@ -15,7 +16,7 @@ import {
   verifyClientPassword,
 } from './auth.js'
 
-const SCHEMA_VERSION = 2
+const SCHEMA_VERSION = 4
 
 let schemaReady: Promise<void> | null = null
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -133,6 +134,47 @@ async function initSchema(): Promise<void> {
   await sql`ALTER TABLE interview_producties ADD COLUMN IF NOT EXISTS png_16x9 TEXT NOT NULL DEFAULT ''`
   await sql`ALTER TABLE interview_producties ADD COLUMN IF NOT EXISTS png_9x16 TEXT NOT NULL DEFAULT ''`
   await sql`ALTER TABLE interview_producties ADD COLUMN IF NOT EXISTS png_4x5 TEXT NOT NULL DEFAULT ''`
+  await sql`ALTER TABLE interview_producties ADD COLUMN IF NOT EXISTS callsheet JSONB NOT NULL DEFAULT '{}'`
+  await sql`ALTER TABLE interview_producties ADD COLUMN IF NOT EXISTS client_id TEXT`
+  await sql`
+    CREATE TABLE IF NOT EXISTS interview_clients (
+      id TEXT PRIMARY KEY,
+      naam TEXT NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `
+  await sql`
+    CREATE UNIQUE INDEX IF NOT EXISTS interview_clients_naam_idx
+    ON interview_clients (LOWER(naam))
+  `
+  await sql`
+    CREATE TABLE IF NOT EXISTS interview_client_contacts (
+      id TEXT PRIMARY KEY,
+      client_id TEXT NOT NULL REFERENCES interview_clients(id) ON DELETE CASCADE,
+      sort_order INTEGER NOT NULL DEFAULT 0,
+      rol TEXT NOT NULL DEFAULT '',
+      naam TEXT NOT NULL DEFAULT '',
+      telefoon TEXT NOT NULL DEFAULT ''
+    )
+  `
+  await sql`CREATE INDEX IF NOT EXISTS interview_client_contacts_client_idx ON interview_client_contacts (client_id, sort_order)`
+  await sql`
+    CREATE TABLE IF NOT EXISTS interview_crew (
+      id TEXT PRIMARY KEY,
+      naam TEXT NOT NULL,
+      rol TEXT NOT NULL DEFAULT '',
+      telefoon TEXT NOT NULL DEFAULT '',
+      sort_order INTEGER NOT NULL DEFAULT 0,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `
+  await sql`
+    CREATE UNIQUE INDEX IF NOT EXISTS interview_crew_naam_idx
+    ON interview_crew (LOWER(naam))
+  `
+  await seedDefaultCrew(sql)
   await sql`ALTER TABLE interview_gasten ADD COLUMN IF NOT EXISTS interview_titel TEXT NOT NULL DEFAULT ''`
   await sql`ALTER TABLE interview_gasten ADD COLUMN IF NOT EXISTS screenshot_16x9 TEXT NOT NULL DEFAULT ''`
   await sql`ALTER TABLE interview_gasten ADD COLUMN IF NOT EXISTS screenshot_9x16 TEXT NOT NULL DEFAULT ''`
@@ -168,6 +210,28 @@ async function migrateClientPasswordLookups(sql: Awaited<ReturnType<typeof getSq
       UPDATE interview_producties
       SET client_password_lookup = ${derivedLookup}, client_password_enc = NULL, updated_at = NOW()
       WHERE id = ${row.id}
+    `
+  }
+}
+
+const DEFAULT_CREW_ROWS: Array<{ id: string; naam: string; rol: string; telefoon: string; sort: number }> = [
+  { id: 'crew-rolf-trijber', naam: 'Rolf Trijber', rol: 'Supervisor', telefoon: '06 251 777 28', sort: 1 },
+  { id: 'crew-maurice-antenbrink', naam: 'Maurice Antenbrink', rol: '', telefoon: '', sort: 2 },
+  { id: 'crew-ron-gessel', naam: 'Ron Gessel', rol: '', telefoon: '', sort: 3 },
+  { id: 'crew-jeroen-lutmers', naam: 'Jeroen Lutmers', rol: '', telefoon: '', sort: 4 },
+  { id: 'crew-niels-visser', naam: 'Niels Visser', rol: '', telefoon: '', sort: 5 },
+  { id: 'crew-vanessa-cristina', naam: 'Vanessa Cristina', rol: '', telefoon: '', sort: 6 },
+]
+
+async function seedDefaultCrew(sql: Awaited<ReturnType<typeof getSql>>): Promise<void> {
+  const rows = await sql`SELECT COUNT(*)::int AS n FROM interview_crew`
+  const count = Number((rows[0] as { n?: number } | undefined)?.n) || 0
+  if (count > 0) return
+  for (const person of DEFAULT_CREW_ROWS) {
+    await sql`
+      INSERT INTO interview_crew (id, naam, rol, telefoon, sort_order)
+      VALUES (${person.id}, ${person.naam}, ${person.rol}, ${person.telefoon}, ${person.sort})
+      ON CONFLICT (id) DO NOTHING
     `
   }
 }
@@ -215,11 +279,13 @@ function rowToProductie(row: Record<string, unknown>): Productie {
     status: normalizeProductieStatus(String(row.status)),
     locatie: String(row.locatie || ''),
     land: String(row.land || ''),
+    clientId: String(row.client_id || ''),
     supervisor: normalizeCrewMember(String(row.supervisor || ''), DEFAULT_SUPERVISOR),
     crew2: normalizeCrewMember(String(row.crew2 || ''), DEFAULT_CREW_SLOT),
     crew3: normalizeCrewMember(String(row.crew3 || ''), DEFAULT_CREW_SLOT),
     crew4: normalizeCrewMember(String(row.crew4 || ''), DEFAULT_CREW_SLOT),
     crew5: normalizeCrewMember(String(row.crew5 || ''), DEFAULT_CREW_SLOT),
+    callsheet: sanitizeCallsheet(row.callsheet),
     vragen: Array.isArray(row.vragen) ? row.vragen.map(String) : [],
     archivedAt: row.archived_at ? String(row.archived_at) : null,
     hasClientPassword: Boolean(hash),
@@ -366,7 +432,7 @@ export async function fetchProducties(includeArchived = false): Promise<Producti
   const sql = await getSql()
   const cols = sql.unsafe(`id, naam, general_titel, png_16x9, png_9x16, png_4x5,
     datum, start_tijd, eind_datum, eind_tijd, status,
-    locatie, land, supervisor, crew2, crew3, crew4, crew5, vragen, archived_at,
+    locatie, land, client_id, supervisor, crew2, crew3, crew4, crew5, callsheet, vragen, archived_at,
     created_at, updated_at, client_password_hash`)
   const rows = includeArchived
     ? await sql`SELECT ${cols} FROM interview_producties ORDER BY updated_at DESC`
@@ -498,7 +564,7 @@ export async function createProductie(
     INSERT INTO interview_producties (
       id, naam, general_titel, png_16x9, png_9x16, png_4x5,
       datum, start_tijd, eind_datum, eind_tijd, status,
-      locatie, land, supervisor, crew2, crew3, crew4, crew5,
+      locatie, land, client_id, supervisor, crew2, crew3, crew4, crew5, callsheet,
       vragen, client_password_hash, client_password_lookup, client_password_enc
     )
     VALUES (
@@ -506,10 +572,11 @@ export async function createProductie(
       ${data.png16x9 || ''}, ${data.png9x16 || ''}, ${data.png4x5 || ''},
       ${toDateParam(data.datum)}, ${formatTimeValue(data.startTijd)},
       ${toDateParam(data.eindDatum)}, ${formatTimeValue(data.eindTijd)}, ${data.status},
-      ${data.locatie || ''}, ${data.land || ''},
+      ${data.locatie || ''}, ${data.land || ''}, ${data.clientId || null},
       ${normalizeCrewMember(data.supervisor, DEFAULT_SUPERVISOR)},
       ${normalizeCrewMember(data.crew2)}, ${normalizeCrewMember(data.crew3)},
       ${normalizeCrewMember(data.crew4)}, ${normalizeCrewMember(data.crew5)},
+      ${JSON.stringify(sanitizeCallsheet(data.callsheet))}::jsonb,
       ${JSON.stringify(data.vragen)}::jsonb, ${hash}, ${lookup || null}, NULL
     )
     RETURNING *
@@ -550,11 +617,13 @@ export async function updateProductie(id: string, patch: Partial<Productie>): Pr
       status = ${next.status},
       locatie = ${next.locatie || ''},
       land = ${next.land || ''},
+      client_id = ${next.clientId || null},
       supervisor = ${normalizeCrewMember(next.supervisor, DEFAULT_SUPERVISOR)},
       crew2 = ${normalizeCrewMember(next.crew2)},
       crew3 = ${normalizeCrewMember(next.crew3)},
       crew4 = ${normalizeCrewMember(next.crew4)},
       crew5 = ${normalizeCrewMember(next.crew5)},
+      callsheet = ${JSON.stringify(sanitizeCallsheet(next.callsheet))}::jsonb,
       vragen = ${JSON.stringify(next.vragen)}::jsonb,
       archived_at = ${next.archivedAt},
       client_password_hash = ${nextHash},

@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
-import type { Gast, GastStatus, InterviewRole, InterviewSettings, Productie, TabId } from '@/types/interview'
+import type { ClientRecord, CrewMember, Gast, GastStatus, InterviewRole, InterviewSettings, Productie, TabId } from '@/types/interview'
 
 const POLL_MS = 10000
 const IDLE_MS = 10 * 60 * 1000
@@ -42,12 +42,14 @@ export const useInterviewStore = defineStore('interview', () => {
   const role = ref<InterviewRole | null>(null)
   const crewName = ref<string | null>(null)
   const clientProductionIds = ref<string[]>([])
-  const floorPath = ref('')
+  const setProductionId = ref('')
   const loading = ref(false)
   const error = ref('')
   const guests = ref<Gast[]>([])
   const productions = ref<Productie[]>([])
   const settings = ref<InterviewSettings>({ maxChars: 40 })
+  const clients = ref<ClientRecord[]>([])
+  const crew = ref<CrewMember[]>([])
   const activeTab = ref<TabId>('productions')
   const activeGuestId = ref<string | null>(null)
   const pollTimer = ref<ReturnType<typeof setInterval> | null>(null)
@@ -62,6 +64,8 @@ export const useInterviewStore = defineStore('interview', () => {
   const activeGuest = computed(() => guests.value.find((g) => g.id === activeGuestId.value) || null)
   const isCrew = computed(() => role.value === 'crew')
   const isClient = computed(() => role.value === 'client')
+  const isSet = computed(() => role.value === 'set')
+  const canOperate = computed(() => role.value === 'crew' || role.value === 'set')
 
   const productieNames = computed(() => {
     const names = new Set<string>()
@@ -70,7 +74,7 @@ export const useInterviewStore = defineStore('interview', () => {
     return Array.from(names).sort()
   })
 
-  async function checkAuth() {
+  async function checkAuth(opts?: { acceptSet?: boolean }) {
     const data = await api<{
       authenticated: boolean
       role?: InterviewRole | null
@@ -79,19 +83,19 @@ export const useInterviewStore = defineStore('interview', () => {
       skipAuth?: boolean
       configured?: boolean
       missing?: string[]
-      floorPath?: string
     }>('/api/interview-login')
-    authenticated.value = Boolean(data.skipAuth || data.authenticated)
-    role.value = data.skipAuth ? 'crew' : (data.role || null)
-    crewName.value = data.skipAuth ? null : (data.crewName || null)
-    clientProductionIds.value = data.productionIds || []
-    if (data.floorPath) floorPath.value = data.floorPath
-    return data
+    const ignoreSet = data.role === 'set' && !opts?.acceptSet
+    authenticated.value = !ignoreSet && Boolean(data.skipAuth || data.authenticated)
+    role.value = ignoreSet ? null : (data.skipAuth ? 'crew' : (data.role || null))
+    crewName.value = ignoreSet || data.skipAuth ? null : (data.crewName || null)
+    clientProductionIds.value = ignoreSet ? [] : (data.productionIds || [])
+    if (ignoreSet) setProductionId.value = ''
+    return ignoreSet ? { ...data, authenticated: false } : data
   }
 
   async function login(password: string, selectedCrewName = '') {
     error.value = ''
-    const data = await api<{ ok: boolean; role?: InterviewRole; productionIds?: string[]; crewName?: string; floorPath?: string }>(
+    const data = await api<{ ok: boolean; role?: InterviewRole; productionIds?: string[]; crewName?: string }>(
       '/api/interview-login',
       {
         method: 'POST',
@@ -106,30 +110,42 @@ export const useInterviewStore = defineStore('interview', () => {
     role.value = data.role || 'crew'
     crewName.value = data.crewName || null
     clientProductionIds.value = data.productionIds || []
-    if (data.floorPath) floorPath.value = data.floorPath
+    setProductionId.value = ''
     idleLoggedOut.value = false
     await sync()
     startPolling()
-    startIdleWatch()
+    if (data.role === 'client') startIdleWatch()
+    else stopIdleWatch()
   }
 
-  async function loginFloor(key: string) {
+  async function createSetLink(productionId: string) {
+    return api<{ path: string }>('/api/interview-login', {
+      method: 'POST',
+      body: JSON.stringify({ action: 'set-link', productionId }),
+    })
+  }
+
+  async function enterSet(key: string) {
     error.value = ''
-    const data = await api<{ ok: boolean; role?: InterviewRole; crewName?: string; floorPath?: string }>(
-      '/api/interview-login',
-      {
-        method: 'POST',
-        body: JSON.stringify({ action: 'floor', key }),
-      },
-    )
+    const data = await api<{
+      ok: boolean
+      retained?: boolean
+      role?: InterviewRole
+      crewName?: string
+      productionId?: string
+      productionIds?: string[]
+    }>('/api/interview-login', {
+      method: 'POST',
+      body: JSON.stringify({ action: 'set', key }),
+    })
     authenticated.value = true
-    role.value = data.role || 'crew'
-    crewName.value = data.crewName || 'Floor'
-    clientProductionIds.value = []
-    if (data.floorPath) floorPath.value = data.floorPath
+    role.value = data.role || 'set'
+    crewName.value = data.crewName || 'Set'
+    clientProductionIds.value = data.productionIds || []
+    setProductionId.value = data.productionId || ''
     idleLoggedOut.value = false
-    await sync()
-    startPolling()
+    stopIdleWatch()
+    return data
   }
 
   function clearLocalSession() {
@@ -137,7 +153,7 @@ export const useInterviewStore = defineStore('interview', () => {
     role.value = null
     crewName.value = null
     clientProductionIds.value = []
-    floorPath.value = ''
+    setProductionId.value = ''
     guests.value = []
     productions.value = []
     activeGuestId.value = null
@@ -171,6 +187,8 @@ export const useInterviewStore = defineStore('interview', () => {
         guests: Gast[]
         productions: Productie[]
         settings: InterviewSettings
+        clients?: ClientRecord[]
+        crew?: CrewMember[]
         role?: InterviewRole | null
         productionIds?: string[]
       }>('/api/interview/sync')
@@ -187,6 +205,8 @@ export const useInterviewStore = defineStore('interview', () => {
         }
       })
       settings.value = data.settings
+      clients.value = data.clients || []
+      crew.value = data.crew || []
       if (data.role) role.value = data.role
       if (data.productionIds) clientProductionIds.value = data.productionIds
     } catch (e) {
@@ -361,6 +381,34 @@ export const useInterviewStore = defineStore('interview', () => {
     await sync()
   }
 
+  async function saveClient(payload: { id?: string; naam: string; contacten: ClientRecord['contacten'] }) {
+    const path = payload.id ? `/api/interview/clients/${payload.id}` : '/api/interview/clients'
+    await api(path, {
+      method: payload.id ? 'PATCH' : 'POST',
+      body: JSON.stringify(payload),
+    })
+    await sync({ silent: true })
+  }
+
+  async function deleteClient(id: string) {
+    await api(`/api/interview/clients/${id}`, { method: 'DELETE' })
+    await sync({ silent: true })
+  }
+
+  async function saveCrewMember(payload: { id?: string; naam: string; rol: string; telefoon: string }) {
+    const path = payload.id ? `/api/interview/crew/${payload.id}` : '/api/interview/crew'
+    await api(path, {
+      method: payload.id ? 'PATCH' : 'POST',
+      body: JSON.stringify(payload),
+    })
+    await sync({ silent: true })
+  }
+
+  async function deleteCrewMember(id: string) {
+    await api(`/api/interview/crew/${id}`, { method: 'DELETE' })
+    await sync({ silent: true })
+  }
+
   async function updateMaxChars(maxChars: number) {
     await api('/api/interview/settings', {
       method: 'PATCH',
@@ -433,14 +481,18 @@ export const useInterviewStore = defineStore('interview', () => {
     role,
     crewName,
     clientProductionIds,
-    floorPath,
+    setProductionId,
     isCrew,
     isClient,
+    isSet,
+    canOperate,
     loading,
     error,
     guests,
     productions,
     settings,
+    clients,
+    crew,
     activeTab,
     activeGuestId,
     activeProductions,
@@ -451,7 +503,8 @@ export const useInterviewStore = defineStore('interview', () => {
     idleLoggedOut,
     checkAuth,
     login,
-    loginFloor,
+    createSetLink,
+    enterSet,
     logout,
     sync,
     startPolling,
@@ -467,6 +520,10 @@ export const useInterviewStore = defineStore('interview', () => {
     archiveProduction,
     restoreProduction,
     deleteProduction,
+    saveClient,
+    deleteClient,
+    saveCrewMember,
+    deleteCrewMember,
     updateMaxChars,
     seedDemo,
     uploadPng,

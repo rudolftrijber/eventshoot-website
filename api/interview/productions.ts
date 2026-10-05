@@ -6,6 +6,7 @@ import {
   fetchProducties,
 } from './database.js'
 import { MAX_GENERAL_TITLE_CHARS, type Productie } from './types.js'
+import { sanitizeCallsheet } from './callsheet.js'
 import {
   clipText,
   MAX_PASSWORD_LEN,
@@ -49,11 +50,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         status: (String(body.status || 'OPT') as Productie['status']),
         locatie: clipText(body.locatie, MAX_SHORT_TEXT),
         land: clipText(body.land, MAX_SHORT_TEXT),
+        clientId: clipText(body.clientId, 64),
         supervisor: clipText(body.supervisor || 'Rolf Trijber', MAX_SHORT_TEXT),
         crew2: clipText(body.crew2 || 'N.V.T.', MAX_SHORT_TEXT),
         crew3: clipText(body.crew3 || 'N.V.T.', MAX_SHORT_TEXT),
         crew4: clipText(body.crew4 || 'N.V.T.', MAX_SHORT_TEXT),
         crew5: clipText(body.crew5 || 'N.V.T.', MAX_SHORT_TEXT),
+        callsheet: sanitizeCallsheet(body.callsheet),
         vragen,
         generalTitel: clipText(body.generalTitel, MAX_GENERAL_TITLE_CHARS),
         png16x9: sanitizeImageUrl(body.png16x9),
