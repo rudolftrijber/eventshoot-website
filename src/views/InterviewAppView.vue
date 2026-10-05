@@ -46,7 +46,8 @@ import {
   crewDirectoryPhone,
   defaultRoleFor,
   emptyCallsheet,
-  formatUur,
+  formatCallsheetTime,
+  englishShortDate,
   hydrateCrewDetails,
   normalizeCallsheet,
 } from '@/utils/callsheet'
@@ -1014,10 +1015,16 @@ const callsheetLive = computed(() => {
 
 const callsheetCandidates = computed(() => scheduledGuests.value.map((guest) => {
   const time = (guest.tijd || '').trim()
-  const sameDay = !guest.datum || guest.datum === (callsheetLive.value.datum || '')
-  const when = formatGuestWhen(guest)
+  const date = (guest.datum || '').trim()
+  const sameDay = !date || date === (callsheetLive.value.datum || '')
+  let tijd = ''
+  if (time && sameDay) tijd = formatCallsheetTime(time)
+  else if (date) {
+    const label = englishShortDate(date)
+    tijd = time ? `${label} ${formatCallsheetTime(time)}` : label
+  }
   return {
-    tijd: time && sameDay ? formatUur(time) : (when === '—' ? '' : when),
+    tijd,
     naam: guest.naam.trim(),
     rol: (guest.functie || '').trim(),
     bedrijf: (guest.organisatie || '').trim(),
@@ -2874,11 +2881,11 @@ watch(() => store.role, (role) => {
                   <p v-if="!isNewProduction" class="ia-hint" style="margin:0 0 0.25rem">Event Interviews</p>
                   <h2 class="ia-section-title" style="margin:0">{{ productionHeading }}</h2>
                   <p v-if="!showProdForm" class="ia-hint" style="margin:0.35rem 0 0">{{ productionMeta }}</p>
-                  <div v-if="store.isCrew && !floorMode && workingProduction && !isNewProduction && !showProdForm" class="ia-actions ia-actions--tight">
-                    <button class="ia-btn ia-btn--small" type="button" @click="copySetLink(workingProduction.id)">
+                  <p v-if="store.isCrew && !floorMode && workingProduction && !isNewProduction && !showProdForm" class="ia-setlink">
+                    <button class="ia-linkbtn" type="button" @click="copySetLink(workingProduction.id)">
                       Set link for today
                     </button>
-                  </div>
+                  </p>
                   <p
                     v-if="store.isCrew && !floorMode && !isNewProduction && !showProdForm && (workingProduction?.hasClientPassword || justSetClientPassword)"
                     class="ia-client-pw"

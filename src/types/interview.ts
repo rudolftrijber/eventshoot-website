@@ -158,6 +158,8 @@ export interface CallsheetData {
   parkeren: string
   locatieAdres: string
   locatiePlaats: string
+  locatieContact: string
+  locatieTelefoon: string
   programmaUrl: string
   crewKleding: string
   contacten: CallsheetContact[]

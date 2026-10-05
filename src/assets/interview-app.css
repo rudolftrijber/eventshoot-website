@@ -376,6 +376,10 @@
   background: rgba(255, 92, 92, 0.2);
 }
 
+.ia-setlink {
+  margin: 0.45rem 0 0;
+}
+
 .ia-linkbtn {
   appearance: none;
   border: 0;
@@ -383,9 +387,12 @@
   background: transparent;
   color: var(--color-accent);
   font: inherit;
+  font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
   text-align: left;
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 .ia-linkbtn:hover {
@@ -2443,6 +2450,10 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0.75rem 1rem;
+}
+
+.ia-callsheet__wide {
+  grid-column: 1 / -1;
 }
 
 .ia-callsheet .ia-label {

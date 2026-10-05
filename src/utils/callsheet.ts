@@ -8,6 +8,9 @@ import type {
 import { DEFAULT_CREW_SLOT } from '@/types/interview'
 
 export const DEFAULT_CREW_KLEDING =
+  'Blue Eventshoot.nl jacket, polo, neat blue jeans and white trainers.'
+
+const LEGACY_CREW_KLEDING =
   'Blauwe Eventshoot.nl jas, polo, een nette blauwe spijkerbroek en witte gympen.'
 
 export const ROLF_PHONE = '06 251 777 28'
@@ -29,8 +32,10 @@ export const GEAR_CATEGORIES = [
   'Overig',
 ] as const
 
-const WEEKDAYS = ['zondag', 'maandag', 'dinsdag', 'woensdag', 'donderdag', 'vrijdag', 'zaterdag']
-const MONTHS = ['januari', 'februari', 'maart', 'april', 'mei', 'juni', 'juli', 'augustus', 'september', 'oktober', 'november', 'december']
+const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+const WEEKDAYS_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+const MONTHS_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
 export function emptyContact(): CallsheetContact {
   return { rol: '', naam: '', telefoon: '' }
@@ -62,6 +67,8 @@ export function emptyCallsheet(): CallsheetData {
     parkeren: '',
     locatieAdres: '',
     locatiePlaats: '',
+    locatieContact: '',
+    locatieTelefoon: '',
     programmaUrl: '',
     crewKleding: DEFAULT_CREW_KLEDING,
     contacten: [emptyContact(), emptyContact(), emptyContact()],
@@ -121,8 +128,10 @@ export function normalizeCallsheet(value: Partial<CallsheetData> | null | undefi
     parkeren: text(value.parkeren),
     locatieAdres: text(value.locatieAdres),
     locatiePlaats: text(value.locatiePlaats),
+    locatieContact: text(value.locatieContact),
+    locatieTelefoon: text(value.locatieTelefoon),
     programmaUrl: text(value.programmaUrl),
-    crewKleding: text(value.crewKleding) || DEFAULT_CREW_KLEDING,
+    crewKleding: crewClothing(text(value.crewKleding)),
     contacten: contacten.length ? contacten : [emptyContact()],
     crewDetails,
     programma,
@@ -160,20 +169,35 @@ export function hydrateCrewDetails(
   }
 }
 
-export function dutchLongDate(iso: string): string {
+function callsheetDateParts(iso: string): { day: number; month: number; year: number; weekday: number } | null {
   const match = String(iso || '').match(/^(\d{4})-(\d{2})-(\d{2})/)
-  if (!match) return ''
+  if (!match) return null
   const year = Number(match[1])
   const month = Number(match[2])
   const day = Number(match[3])
   const date = new Date(year, month - 1, day)
-  if (Number.isNaN(date.getTime())) return ''
-  const label = `${WEEKDAYS[date.getDay()]} ${day} ${MONTHS[month - 1]} ${year}`
-  return label.charAt(0).toUpperCase() + label.slice(1)
+  if (Number.isNaN(date.getTime())) return null
+  return { day, month, year, weekday: date.getDay() }
 }
 
-export function formatUur(time: string): string {
-  const value = time.trim()
-  if (!value) return ''
-  return /uur/i.test(value) ? value : `${value} uur`
+export function englishLongDate(iso: string): string {
+  const parts = callsheetDateParts(iso)
+  if (!parts) return ''
+  return `${WEEKDAYS[parts.weekday]} ${parts.day} ${MONTHS[parts.month - 1]} ${parts.year}`
+}
+
+export function englishShortDate(iso: string): string {
+  const parts = callsheetDateParts(iso)
+  if (!parts) return ''
+  return `${WEEKDAYS_SHORT[parts.weekday]} ${parts.day} ${MONTHS_SHORT[parts.month - 1]} ${parts.year}`
+}
+
+export function formatCallsheetTime(time: string): string {
+  return time.trim().replace(/\s*uur\s*$/i, '').trim()
+}
+
+function crewClothing(value: string): string {
+  const trimmed = value.trim()
+  if (!trimmed || trimmed === LEGACY_CREW_KLEDING) return DEFAULT_CREW_KLEDING
+  return trimmed
 }

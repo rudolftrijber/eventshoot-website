@@ -8,6 +8,9 @@ import type {
 import { clipText } from './sanitize.js'
 
 export const DEFAULT_CREW_KLEDING =
+  'Blue Eventshoot.nl jacket, polo, neat blue jeans and white trainers.'
+
+const LEGACY_CREW_KLEDING =
   'Blauwe Eventshoot.nl jas, polo, een nette blauwe spijkerbroek en witte gympen.'
 
 const GEAR_CATEGORIES = [
@@ -44,6 +47,8 @@ export function emptyCallsheet(): CallsheetData {
     parkeren: '',
     locatieAdres: '',
     locatiePlaats: '',
+    locatieContact: '',
+    locatieTelefoon: '',
     programmaUrl: '',
     crewKleding: DEFAULT_CREW_KLEDING,
     contacten: [emptyContact(), emptyContact(), emptyContact()],
@@ -129,8 +134,12 @@ export function sanitizeCallsheet(value: unknown): CallsheetData {
     parkeren: clipText(raw.parkeren, 200),
     locatieAdres: clipText(raw.locatieAdres, 200),
     locatiePlaats: clipText(raw.locatiePlaats, 120),
+    locatieContact: clipText(raw.locatieContact, 120),
+    locatieTelefoon: clipText(raw.locatieTelefoon, 40),
     programmaUrl: sanitizeUrl(raw.programmaUrl),
-    crewKleding: clipText(raw.crewKleding, 400) || base.crewKleding,
+    crewKleding: clipText(raw.crewKleding, 400) === LEGACY_CREW_KLEDING
+      ? base.crewKleding
+      : (clipText(raw.crewKleding, 400) || base.crewKleding),
     contacten: sanitizeContacts(raw.contacten),
     crewDetails: sanitizeCrewDetails(raw.crewDetails),
     programma: sanitizeProgram(raw.programma),

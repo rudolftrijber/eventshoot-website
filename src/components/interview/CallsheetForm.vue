@@ -66,13 +66,32 @@ function crewActive(index: number): boolean {
           @input="setField('locatieAdres', ($event.target as HTMLInputElement).value)"
         />
       </label>
-      <label class="ia-label">
+      <label class="ia-label ia-callsheet__wide">
         Venue city
         <input
           class="ia-input"
           :value="modelValue.locatiePlaats"
           placeholder="postcode and city"
           @input="setField('locatiePlaats', ($event.target as HTMLInputElement).value)"
+        />
+      </label>
+      <label class="ia-label">
+        Venue contact
+        <input
+          class="ia-input"
+          :value="modelValue.locatieContact"
+          placeholder="name at the venue"
+          @input="setField('locatieContact', ($event.target as HTMLInputElement).value)"
+        />
+      </label>
+      <label class="ia-label">
+        Venue phone
+        <input
+          class="ia-input"
+          :value="modelValue.locatieTelefoon"
+          placeholder="phone number"
+          inputmode="tel"
+          @input="setField('locatieTelefoon', ($event.target as HTMLInputElement).value)"
         />
       </label>
     </div>

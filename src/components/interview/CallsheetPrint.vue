@@ -2,7 +2,7 @@
 import { computed, onUnmounted, watch } from 'vue'
 import type { CallsheetContact, CallsheetData, CrewMember } from '@/types/interview'
 import { DEFAULT_CREW_SLOT } from '@/types/interview'
-import { dutchLongDate, formatUur, hydrateCrewDetails, normalizeCallsheet } from '@/utils/callsheet'
+import { englishLongDate, formatCallsheetTime, hydrateCrewDetails, normalizeCallsheet } from '@/utils/callsheet'
 
 const props = defineProps<{
   open: boolean
@@ -27,8 +27,7 @@ const emit = defineEmits<{
 const CANDIDATES_PER_PAGE = 14
 
 const sheet = computed(() => hydrateCrewDetails(normalizeCallsheet(props.sheet), props.crewNames))
-const dateLabel = computed(() => dutchLongDate(props.datum))
-const dateHeading = computed(() => dateLabel.value ? dateLabel.value.charAt(0).toLowerCase() + dateLabel.value.slice(1) : '')
+const dateLabel = computed(() => englishLongDate(props.datum))
 const subtitle = computed(() => [props.naam.trim(), props.locatieNaam.trim()].filter(Boolean).join(', '))
 const programHref = computed(() => {
   const raw = sheet.value.programmaUrl.trim()
@@ -132,69 +131,75 @@ onUnmounted(() => {
         <header class="cs-top">
           <div>
             <p class="cs-kicker">Callsheet</p>
-            <h1 class="cs-title">Callsheet{{ dateHeading ? `, ${dateHeading}` : '' }}</h1>
+            <h1 class="cs-title">Callsheet{{ dateLabel ? `, ${dateLabel}` : '' }}</h1>
             <p v-if="subtitle" class="cs-sub">{{ subtitle }}</p>
           </div>
           <img
             class="cs-logo"
             src="/images/logos/ES_logo_pos.png"
             alt="Eventshoot.nl"
-            width="160"
-            height="36"
+            width="260"
+            height="46"
           />
         </header>
 
-        <h2 class="cs-section">1 Algemene informatie</h2>
+        <h2 class="cs-section">1 General information</h2>
         <table class="cs-facts">
           <tbody>
             <tr>
               <th>Event</th>
               <td>{{ naam || '' }}</td>
-              <th>Datum</th>
+              <th>Date</th>
               <td>{{ dateLabel }}</td>
             </tr>
             <tr>
-              <th>Opdrachtgever</th>
+              <th>Client</th>
               <td>{{ clientName || sheet.opdrachtgever }}</td>
-              <th>Parkeren</th>
+              <th>Parking</th>
               <td>{{ sheet.parkeren }}</td>
             </tr>
             <tr>
-              <th>Locatie naam</th>
+              <th>Venue name</th>
               <td>{{ locatieNaam }}</td>
-              <th>Locatie adres</th>
+              <th>Venue address</th>
               <td>{{ sheet.locatieAdres }}</td>
             </tr>
             <tr>
-              <th>Locatie plaats</th>
+              <th>Venue city</th>
               <td>{{ sheet.locatiePlaats }}</td>
-              <th>Locatie land</th>
+              <th>Venue country</th>
               <td>{{ land }}</td>
             </tr>
             <tr>
-              <th>Start event</th>
-              <td>{{ formatUur(startTijd) }}</td>
-              <th>Einde event</th>
-              <td>{{ formatUur(eindTijd) }}</td>
+              <th>Venue contact</th>
+              <td>{{ sheet.locatieContact }}</td>
+              <th>Venue phone</th>
+              <td>{{ sheet.locatieTelefoon }}</td>
+            </tr>
+            <tr>
+              <th>Start</th>
+              <td>{{ formatCallsheetTime(startTijd) }}</td>
+              <th>End</th>
+              <td>{{ formatCallsheetTime(eindTijd) }}</td>
             </tr>
           </tbody>
         </table>
 
-        <h3 class="cs-label">Crew kleding</h3>
+        <h3 class="cs-label">Crew clothing</h3>
         <p class="cs-text">{{ sheet.crewKleding }}</p>
 
-        <h3 class="cs-label">Informatie / link</h3>
+        <h3 class="cs-label">Information / link</h3>
         <p class="cs-text">
           <a v-if="programHref" class="cs-link" :href="programHref">{{ sheet.programmaUrl }}</a>
         </p>
 
-        <h3 class="cs-label">Contactpersonen opdrachtgever</h3>
+        <h3 class="cs-label">Client contacts</h3>
         <table class="cs-table">
           <thead>
             <tr>
-              <th>Rol</th>
-              <th>Naam</th>
-              <th>Telefoon</th>
+              <th>Role</th>
+              <th>Name</th>
+              <th>Phone</th>
             </tr>
           </thead>
           <tbody>
@@ -210,10 +215,10 @@ onUnmounted(() => {
         <table class="cs-table">
           <thead>
             <tr>
-              <th>Rol</th>
-              <th>Naam</th>
-              <th>Telefoon</th>
-              <th>Call tijd</th>
+              <th>Role</th>
+              <th>Name</th>
+              <th>Phone</th>
+              <th>Call time</th>
             </tr>
           </thead>
           <tbody>
@@ -221,7 +226,7 @@ onUnmounted(() => {
               <td>{{ member.rol }}</td>
               <td>{{ member.naam }}</td>
               <td>{{ member.telefoon }}</td>
-              <td>{{ member.callTijd ? formatUur(member.callTijd) : '' }}</td>
+              <td>{{ member.callTijd ? formatCallsheetTime(member.callTijd) : '' }}</td>
             </tr>
             <tr v-if="!crewRows.length">
               <td></td>
@@ -233,7 +238,7 @@ onUnmounted(() => {
         </table>
 
         <footer class="cs-foot">
-          <p>Vragen? Bel of app Rolf Trijber op 06 251 777 28 of mail rolf@eventshoot.nl.</p>
+          <p>Questions? Call or text Rolf Trijber on 06 251 777 28, or email rolf@eventshoot.nl.</p>
           <span>1 / {{ pageCount }}</span>
         </footer>
       </article>
@@ -247,27 +252,27 @@ onUnmounted(() => {
         <header class="cs-top cs-top--compact">
           <div>
             <p class="cs-kicker">Callsheet</p>
-            <h2 class="cs-section cs-section--page">2 Interviewkandidaten</h2>
+            <h2 class="cs-section cs-section--page">2 Interview candidates</h2>
           </div>
           <img
             class="cs-logo"
             src="/images/logos/ES_logo_pos.png"
             alt="Eventshoot.nl"
-            width="160"
-            height="36"
+            width="260"
+            height="46"
           />
         </header>
         <p v-if="pageIndex === 0" class="cs-lead">
-          Overzicht van de geplande interviews. Naam, rol, bedrijf, tijd en opmerkingen. De vragen staan niet op dit blad.
+          Overview of the planned interviews. Name, role, company, time and remarks. The questions are not on this sheet.
         </p>
         <table class="cs-table cs-table--candidates">
           <thead>
             <tr>
-              <th class="cs-col-time">Tijd</th>
-              <th class="cs-col-name">Naam</th>
-              <th class="cs-col-role">Rol</th>
-              <th class="cs-col-company">Bedrijf</th>
-              <th>Opmerkingen</th>
+              <th class="cs-col-time">Time</th>
+              <th class="cs-col-name">Name</th>
+              <th class="cs-col-role">Role</th>
+              <th class="cs-col-company">Company</th>
+              <th>Remarks</th>
             </tr>
           </thead>
           <tbody>
@@ -281,13 +286,13 @@ onUnmounted(() => {
           </tbody>
         </table>
         <footer class="cs-foot">
-          <p>Vragen? Bel of app Rolf Trijber op 06 251 777 28 of mail rolf@eventshoot.nl.</p>
+          <p>Questions? Call or text Rolf Trijber on 06 251 777 28, or email rolf@eventshoot.nl.</p>
           <span>{{ pageIndex + 2 }} / {{ pageCount }}</span>
         </footer>
       </article>
 
       <p class="cs-hint no-print">
-        Interviewkandidaten staan als overzicht op het callsheet. De vragen blijven in VPO PDF. Gebruik Print / Save as PDF.
+        Interview candidates are a short overview on the callsheet. The questions stay in the VPO PDF. Use Print / Save as PDF.
       </p>
     </div>
   </Teleport>
@@ -412,7 +417,7 @@ onUnmounted(() => {
 
 .cs-logo {
   flex: 0 0 auto;
-  width: 38mm;
+  width: 58mm;
   height: auto;
   display: block;
 }
@@ -476,6 +481,10 @@ onUnmounted(() => {
   background: #f3f8fd;
   color: #145f96;
   font-weight: 700;
+}
+
+.cs-facts th {
+  width: 38mm;
 }
 
 .cs-facts td {
