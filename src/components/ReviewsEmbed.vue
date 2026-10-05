@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from 'vue'
 import { mountElfsightWidget } from '@/lib/elfsight'
+import { isIosLike } from '@/lib/isIosLike'
 
 const WIDGET_ID = '4ed38ed1-21e2-4238-bb5c-d1127391e146'
 
@@ -9,7 +10,7 @@ let cancelled = false
 
 onMounted(async () => {
   cancelled = false
-  if (!host.value) return
+  if (isIosLike() || !host.value) return
   await mountElfsightWidget(host.value, WIDGET_ID)
   if (cancelled && host.value) host.value.replaceChildren()
 })

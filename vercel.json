@@ -31,6 +31,11 @@
     { "source": "/category/:slug/feed/", "destination": "/:slug", "permanent": true }
   ],
   "rewrites": [
+    { "source": "/interview-app", "destination": "/interview.html" },
+    { "source": "/interview-app/", "destination": "/interview.html" },
+    { "source": "/interview-app/live", "destination": "/interview.html" },
+    { "source": "/interview-app/live/", "destination": "/interview.html" },
+    { "source": "/interview-app/live/:floorKey", "destination": "/interview.html" },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ],
   "headers": [

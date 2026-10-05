@@ -18,6 +18,7 @@ const ios = isIosLike()
 watch(
   () => route.fullPath,
   () => {
+    if (ios) return
     void reinitElfsightWidgets()
   },
 )

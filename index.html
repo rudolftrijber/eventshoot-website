@@ -62,7 +62,6 @@
       }
     }
     </script>
-    <script src="https://static.elfsight.com/platform/platform.js" async defer></script>
     <script>
       (function () {
         try {
@@ -95,16 +94,27 @@
           display: block !important;
         }
       }
+      /* Until Vue mounts, nothing outside #app may cover the fallback links. */
+      html:not([data-app="ready"]) body > :not(#app) {
+        display: none !important;
+        pointer-events: none !important;
+      }
+      #boot-fallback, #boot-fallback a {
+        position: relative;
+        z-index: 2147483646;
+        pointer-events: auto;
+        touch-action: manipulation;
+      }
     </style>
   </head>
   <body>
     <div id="app">
-      <main style="padding:7rem 1.5rem 3rem;max-width:760px;margin:0 auto;font-family:Roboto,-apple-system,sans-serif;">
+      <main id="boot-fallback" style="padding:7rem 1.5rem 3rem;max-width:760px;margin:0 auto;font-family:Roboto,-apple-system,sans-serif;">
         <h1 style="font-size:2.4rem;line-height:1.1;margin:0 0 1rem;">Jouw event is een goudmijn aan content.</h1>
         <p style="font-size:1.05rem;line-height:1.6;margin:0 0 1.5rem;">Eén event, een complete contentbox. Eventshoot.nl levert 25+ kant-en-klare foto's, aftermovies en interviews uit jouw zakelijke event. Gemaakt door mensen, geleverd binnen 48 uur.</p>
         <p id="boot-error" hidden style="background:#3a1010;color:#fff;padding:0.8rem 1rem;border-radius:8px;margin:0 0 1rem;"></p>
         <p style="margin:0 0 1rem;">
-          <a href="/interview-app/?v=6" style="display:inline-block;background:#FF7B00;color:#fff;text-decoration:none;font-weight:700;padding:0.9rem 1.4rem;border-radius:10px;font-size:1.15rem;">Interview-app</a>
+          <a href="/interview.html?v=7" style="display:inline-block;background:#FF7B00;color:#fff;text-decoration:none;font-weight:700;padding:0.9rem 1.4rem;border-radius:10px;font-size:1.15rem;">Interview-app</a>
         </p>
         <p style="margin:0;">
           <a href="/kennismaken/" style="display:inline-block;color:#fff;text-decoration:underline;margin-right:1rem;">Kennismaken</a>
@@ -112,6 +122,20 @@
         </p>
       </main>
     </div>
+    <script>
+      document.addEventListener('click', function (event) {
+        if (document.documentElement.getAttribute('data-app') === 'ready') return
+        var node = event.target
+        while (node && node !== document) {
+          if (node.tagName === 'A' && node.href) {
+            event.preventDefault()
+            window.location.href = node.href
+            return
+          }
+          node = node.parentNode
+        }
+      }, true)
+    </script>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

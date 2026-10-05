@@ -10,6 +10,15 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  build: {
+    target: 'safari14',
+    rollupOptions: {
+      input: {
+        main: path.resolve(__dirname, 'index.html'),
+        interview: path.resolve(__dirname, 'interview.html'),
+      },
+    },
+  },
   server: {
     host: '127.0.0.1',
     port: 5173,

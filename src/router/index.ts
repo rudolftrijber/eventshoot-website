@@ -1,13 +1,11 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
-import LeasewebChannelView from '../views/LeasewebChannelView.vue'
 import { i18n } from '../i18n'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   scrollBehavior: () => ({ top: 0 }),
   routes: [
-    { path: '/', name: 'home', component: HomeView },
+    { path: '/', name: 'home', component: () => import('../views/HomeView.vue') },
     { path: '/eventfotografie', name: 'eventfotografie', component: () => import('../views/EventfotografieView.vue') },
     { path: '/eventvideo', name: 'eventvideo', component: () => import('../views/EventvideoView.vue') },
     { path: '/diensten/event-vodcast-recording', name: 'event-vodcast-recording', component: () => import('../views/EventVodcastView.vue') },
@@ -29,7 +27,7 @@ const router = createRouter({
     { path: '/privacy', name: 'privacy', component: () => import('../views/PrivacyView.vue') },
     { path: '/video', name: 'video', component: () => import('../views/VideoView.vue'), meta: { hideRolfContact: true } },
     { path: '/test/video', name: 'test-video', component: () => import('../views/TestVideoView.vue') },
-    { path: '/leaseweb', name: 'leaseweb', component: LeasewebChannelView, meta: { hideRolfContact: true, hideBackgroundVideo: true } }, // channel 1499, height follows BB content
+    { path: '/leaseweb', name: 'leaseweb', component: () => import('../views/LeasewebChannelView.vue'), meta: { hideRolfContact: true, hideBackgroundVideo: true } }, // channel 1499, height follows BB content
     { path: '/interview-app', name: 'interview-app', component: () => import('../views/InterviewAppView.vue'), meta: { hideLayout: true, hideBackgroundVideo: true } },
     { path: '/interview-app/live', name: 'interview-app-live', component: () => import('../views/InterviewAppView.vue'), meta: { hideLayout: true, hideBackgroundVideo: true, floorMode: true } },
     { path: '/interview-app/live/:floorKey', name: 'interview-app-live-key', component: () => import('../views/InterviewAppView.vue'), meta: { hideLayout: true, hideBackgroundVideo: true, floorMode: true } },
