@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { nextTick, onMounted, onUnmounted, ref } from 'vue'
 import OptimizedImage from '@/components/OptimizedImage.vue'
+import { isIosLike } from '@/lib/isIosLike'
 
 withDefaults(
   defineProps<{
@@ -32,12 +33,17 @@ function armVideo(el: HTMLVideoElement) {
   el.disablePictureInPicture = true
 }
 
+function giveUp() {
+  showVideo.value = false
+  isPlaying.value = false
+}
+
 function tryPlay() {
   const el = videoEl.value
   if (!el || isPlaying.value) return
   armVideo(el)
   void el.play().catch(() => {
-    /* Tablet/iOS mag autoplay weigeren; geen native play-knop laten zien. */
+    giveUp()
   })
 }
 
@@ -55,7 +61,7 @@ onMounted(() => {
     'connection' in navigator &&
     (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData
 
-  if (reducedMotion || saveData) return
+  if (isIosLike() || reducedMotion || saveData) return
 
   showVideo.value = true
   void nextTick(() => {
@@ -113,7 +119,7 @@ onUnmounted(() => {
 }
 
 .bg-video:not(.bg-video--playing) {
-  opacity: 0;
+  visibility: hidden;
 }
 
 .bg-video::-webkit-media-controls,

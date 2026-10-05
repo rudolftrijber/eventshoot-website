@@ -7,11 +7,13 @@ import FooterSection from '@/components/FooterSection.vue'
 import BackgroundVideo from '@/components/BackgroundVideo.vue'
 import { RouterView } from 'vue-router'
 import { reinitElfsightWidgets } from '@/lib/elfsight'
+import { isIosLike } from '@/lib/isIosLike'
 
 const route = useRoute()
 const hideLayout = computed(() => Boolean(route.meta.hideLayout))
 const hideRolfContact = computed(() => Boolean(route.meta.hideRolfContact))
 const hideBackgroundVideo = computed(() => Boolean(route.meta.hideBackgroundVideo))
+const ios = isIosLike()
 
 watch(
   () => route.fullPath,
@@ -24,16 +26,18 @@ watch(
 <template>
   <div class="app-bg" :class="{ 'app-bg--solid': hideBackgroundVideo }">
     <BackgroundVideo
-      v-if="!hideBackgroundVideo"
+      v-if="!hideBackgroundVideo && !ios"
       video-class="app-bg__video"
       src="/images/es_bokey_bckgrnd_v1-1080p.mp4"
     />
   </div>
 
-  <NavBar v-if="!hideLayout" />
-  <RouterView />
-  <RolfContact v-if="!hideLayout && !hideRolfContact" />
-  <FooterSection v-if="!hideLayout" />
+  <div class="app-foreground">
+    <NavBar v-if="!hideLayout" />
+    <RouterView />
+    <RolfContact v-if="!hideLayout && !hideRolfContact" />
+    <FooterSection v-if="!hideLayout" />
+  </div>
 </template>
 
 <style>
@@ -41,13 +45,20 @@ watch(
 .app-bg {
   position: fixed;
   inset: 0;
-  z-index: -1;
+  z-index: 0;
   overflow: hidden;
+  pointer-events: none;
   background: #0a1628;
+  transform: translateZ(0);
+}
+
+.app-foreground {
+  position: relative;
+  z-index: 1;
 }
 
 .app-bg--solid {
-  background: #002d56; /* Leaseweb and other solid-bg routes */
+  background: #002d56;
 }
 
 .app-bg__video {

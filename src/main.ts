@@ -6,6 +6,9 @@ import router from './router'
 import { i18n } from './i18n'
 
 import './assets/main.css'
+import { isIosLike } from '@/lib/isIosLike'
+
+if (isIosLike()) document.documentElement.classList.add('is-ios')
 
 const app = createApp(App)
 

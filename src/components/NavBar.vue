@@ -156,6 +156,24 @@ const voorWie = computed(() => [
   </header>
 </template>
 
+<style>
+html.is-ios .topbar,
+html.is-ios .navbar,
+html.is-ios .navbar__nav,
+html.is-ios .dd__panel {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+html.is-ios .navbar {
+  background: rgba(0, 0, 8, 0.94);
+}
+
+html.is-ios .navbar__nav {
+  background: rgba(0, 0, 0, 0.96);
+}
+</style>
+
 <style scoped>
 /* ── Topbalk ────────────────────────────────────────────── */
 .topbar {
