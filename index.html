@@ -67,19 +67,40 @@
       (function () {
         try {
           var ua = navigator.userAgent || ''
-          var touch = (navigator.maxTouchPoints || 0) > 1
-          var ios = /iPad|iPhone|iPod|FxiOS|CriOS/.test(ua) || (touch && /Macintosh|Mac OS X/.test(ua))
+          var touch = (navigator.maxTouchPoints || 0) > 0
+          var coarse = window.matchMedia && window.matchMedia('(any-pointer: coarse), (pointer: coarse), (hover: none)').matches
+          var ios = /iPad|iPhone|iPod|FxiOS|CriOS/.test(ua) || coarse || (touch && /Macintosh|Mac OS X/.test(ua))
           if (ios) document.documentElement.classList.add('is-ios')
         } catch (e) {}
       })()
     </script>
     <style>
-      html.is-ios, html.is-ios body { background: #0a1628; color: #fff; }
-      html.is-ios .app-bg, html.is-ios video.bg-video { display: none !important; }
+      html, body { background: #0a1628; color: #fff; }
+      html.is-ios .app-bg,
+      html.is-ios video.bg-video,
+      .app-bg,
+      video.bg-video {
+        display: none !important;
+      }
+      @media (hover: hover) and (pointer: fine) and (any-pointer: fine) {
+        html:not(.is-ios) .app-bg,
+        html:not(.is-ios) video.bg-video {
+          display: block !important;
+        }
+      }
     </style>
   </head>
   <body>
-    <div id="app"></div>
+    <div id="app">
+      <main style="padding:7rem 1.5rem 3rem;max-width:760px;margin:0 auto;font-family:Roboto,-apple-system,sans-serif;">
+        <h1 style="font-size:2.4rem;line-height:1.1;margin:0 0 1rem;">Jouw event is een goudmijn aan content.</h1>
+        <p style="font-size:1.05rem;line-height:1.6;margin:0 0 1.5rem;">Eén event, een complete contentbox. Eventshoot.nl levert 25+ kant-en-klare foto's, aftermovies en interviews uit jouw zakelijke event. Gemaakt door mensen, geleverd binnen 48 uur.</p>
+        <p style="margin:0;">
+          <a href="/kennismaken/" style="display:inline-block;background:#FF7B00;color:#fff;text-decoration:none;font-weight:700;padding:0.8rem 1.4rem;border-radius:10px;">Kennismaken</a>
+          <a href="tel:+31625177728" style="display:inline-block;color:#fff;margin-left:1rem;">06 251 777 28</a>
+        </p>
+      </main>
+    </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

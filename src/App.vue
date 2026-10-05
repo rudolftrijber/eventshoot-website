@@ -45,7 +45,7 @@ watch(
 .app-bg {
   position: fixed;
   inset: 0;
-  z-index: -1;
+  z-index: 0;
   overflow: hidden;
   pointer-events: none;
   background: #0a1628;
@@ -54,6 +54,14 @@ watch(
 html.is-ios .app-bg,
 html.is-ios .bg-video {
   display: none !important;
+}
+
+@media (any-pointer: coarse), (hover: none), (pointer: coarse) {
+  .app-bg,
+  .bg-video,
+  video.bg-video {
+    display: none !important;
+  }
 }
 
 .app-foreground {

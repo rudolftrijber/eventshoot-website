@@ -180,8 +180,7 @@ html.is-ios .navbar__nav {
   position: fixed;
   top: 0; left: 0; right: 0;
   z-index: 101;
-  background: rgba(49, 159, 232, 0.70);
-  backdrop-filter: blur(6px);
+  background: #319FE8;
   border-bottom: 1px solid rgba(49, 159, 232, 0.40);
   display: flex;
   justify-content: center;
@@ -204,8 +203,7 @@ html.is-ios .navbar__nav {
   position: fixed;
   top: 36px; left: 0; right: 0;
   z-index: 100;
-  background: rgba(0, 0, 5, 0.45);
-  backdrop-filter: blur(10px);
+  background: rgba(0, 0, 8, 0.94);
   border-bottom: 1px solid rgba(255,255,255,0.06);
 }
 
@@ -253,8 +251,7 @@ html.is-ios .navbar__nav {
   position: absolute;
   top: calc(100% + 8px);
   left: 0;
-  background: rgba(8, 8, 18, 0.97);
-  backdrop-filter: blur(16px);
+  background: rgba(8, 8, 18, 0.98);
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: 10px;
   padding: 0.5rem;
@@ -326,9 +323,7 @@ html.is-ios .navbar__nav {
     left: 0;
     right: 0;
     height: calc(100vh - 112px);
-    background: rgba(0, 0, 0, 0.88);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    background: rgba(0, 0, 0, 0.96);
     flex-direction: column;
     align-items: stretch;
     justify-content: flex-start;
