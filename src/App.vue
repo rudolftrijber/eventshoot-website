@@ -18,7 +18,6 @@ const ios = skipFullscreenVideo()
 watch(
   () => route.fullPath,
   () => {
-    if (ios) return
     void reinitElfsightWidgets()
   },
 )
