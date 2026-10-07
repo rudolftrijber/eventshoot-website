@@ -6,12 +6,13 @@ const props = defineProps<{
   video: KlantVideo
 }>()
 
-const embed = computed(() => getVideoEmbed(props.video))
+const pending = computed(() => !props.video.url)
+const embed = computed(() => (pending.value ? null : getVideoEmbed(props.video)))
 const scriptHost = ref<HTMLElement | null>(null)
 let scriptEl: HTMLScriptElement | null = null
 
 onMounted(() => {
-  if (embed.value.kind !== 'script' || !scriptHost.value) return
+  if (!embed.value || embed.value.kind !== 'script' || !scriptHost.value) return
 
   scriptEl = document.createElement('script')
   scriptEl.type = 'text/javascript'
@@ -34,17 +35,18 @@ function onIframeLoad(event: Event) {
 </script>
 
 <template>
-  <div class="klant-video__frame">
+  <div class="klant-video__frame" :class="{ 'klant-video__frame--pending': pending }">
+    <p v-if="pending" class="klant-video__pending">Deze video volgt.</p>
     <iframe
-      v-if="embed.kind === 'vimeo' || embed.kind === 'iframe'"
+      v-else-if="embed && (embed.kind === 'vimeo' || embed.kind === 'iframe')"
       :src="embed.src"
       allow="autoplay; fullscreen; picture-in-picture"
       allowfullscreen
       @load="onIframeLoad"
     />
-    <div v-else-if="embed.kind === 'script'" ref="scriptHost" class="klant-video__script" />
+    <div v-else-if="embed?.kind === 'script'" ref="scriptHost" class="klant-video__script" />
     <a
-      v-else
+      v-else-if="embed?.kind === 'link'"
       :href="embed.href"
       class="btn btn--primary"
       target="_blank"
@@ -62,6 +64,18 @@ function onIframeLoad(event: Event) {
   border-radius: 12px;
   overflow: hidden;
   max-width: 900px;
+}
+
+.klant-video__frame--pending {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.klant-video__pending {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1rem;
 }
 
 .klant-video__frame iframe {

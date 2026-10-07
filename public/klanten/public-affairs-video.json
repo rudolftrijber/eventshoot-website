@@ -1,0 +1,32 @@
+{
+  "slug": "public-affairs-video",
+  "urlPath": "/public_affairs/video",
+  "title": "Public Affairs Den Haag, jouw video's",
+  "eyebrow": "Exclusief voor jou",
+  "subtitle": "Hier staan jouw aftermovies. De interviews volgen.",
+  "heroImage": "/DATA_EVENTSHOOT/DEF_KLANTEN/PAS_DENHAAG/PAS_DenHaag_5_10_26-50.jpg",
+  "videos": [
+    {
+      "title": "Public Affairs Den Haag Social Aftermovie",
+      "url": "https://vimeo.com/1233707640",
+      "type": "vimeo"
+    },
+    {
+      "title": "Public Affairs Den Haag Corporate Aftermovie",
+      "url": "https://vimeo.com/1233707640",
+      "type": "vimeo"
+    },
+    { "title": "Interview 1" },
+    { "title": "Interview 2" },
+    { "title": "Interview 3" },
+    { "title": "Interview 4" },
+    { "title": "Interview 5" },
+    { "title": "Interview 6" },
+    { "title": "Interview 7" },
+    { "title": "Interview 8" },
+    { "title": "Interview 9" },
+    { "title": "Interview 10" },
+    { "title": "Interview 11" },
+    { "title": "Interview 12" }
+  ]
+}

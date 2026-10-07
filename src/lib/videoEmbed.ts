@@ -6,7 +6,7 @@ export type VideoEmbed =
 
 export interface KlantVideo {
   title: string
-  url: string
+  url?: string
   type?: 'vimeo' | 'iframe' | 'script' | 'link'
 }
 
@@ -17,6 +17,7 @@ function bbvmsIframeSrc(url: string): string {
 }
 
 export function getVideoEmbed(video: KlantVideo): VideoEmbed {
+  if (!video.url) return { kind: 'link', href: '' }
   const type = video.type ?? inferVideoType(video.url)
 
   if (type === 'iframe') {

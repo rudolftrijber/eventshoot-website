@@ -54,7 +54,7 @@ const heroCountText = computed(() => {
   if (!klant.value) return ''
 
   const photoCount = klant.value.photos.length
-  const videoCount = klant.value.videos.length
+  const videoCount = klant.value.videos.filter(video => video.url).length
   const parts: string[] = []
 
   if (photoCount) {
