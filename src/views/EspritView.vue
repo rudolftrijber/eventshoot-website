@@ -27,48 +27,44 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <main>
-    <section class="esprit section">
-      <div class="container esprit__inner">
-        <h1>Esprit</h1>
-        <div class="esprit__frame">
-          <iframe
-            src="https://vimeo.com/showcase/12442809/embed2"
-            title="Esprit Vimeo-showcase"
-            allow="autoplay; fullscreen; picture-in-picture; gyroscope; accelerometer; clipboard-write; encrypted-media; web-share"
-            allowfullscreen
-            frameborder="0"
-          />
-        </div>
-      </div>
-    </section>
+  <main class="esprit">
+    <h1 class="esprit__title">Esprit</h1>
+    <div class="esprit__frame">
+      <iframe
+        src="https://vimeo.com/showcase/12442809/embed2"
+        title="Esprit Vimeo-showcase"
+        allow="autoplay; fullscreen; picture-in-picture; gyroscope; accelerometer; clipboard-write; encrypted-media; web-share"
+        allowfullscreen
+        frameborder="0"
+      />
+    </div>
   </main>
 </template>
 
 <style scoped>
 .esprit {
-  padding-top: 9rem;
-  padding-bottom: 4rem;
+  width: 100%;
+  margin-top: 112px;
 }
 
-.esprit__inner {
-  max-width: 1100px;
-}
-
-.esprit h1 {
-  font-size: clamp(1.75rem, 3vw, 2.5rem);
-  margin-bottom: 1.5rem;
+.esprit__title {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .esprit__frame {
   position: relative;
   width: 100%;
   height: 0;
-  /* Showcase is hoger dan 16:9: hero plus het raster van 10 video's. */
-  padding-bottom: 320%;
+  padding: 56.25% 0 0 0;
   background: #111;
-  border-radius: 12px;
-  overflow: hidden;
 }
 
 .esprit__frame iframe {
