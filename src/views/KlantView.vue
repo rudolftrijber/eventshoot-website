@@ -5,6 +5,7 @@ import ClientPhotoLightbox from '@/components/ClientPhotoLightbox.vue'
 import KlantVideoEmbed from '@/components/KlantVideoEmbed.vue'
 import type { KlantVideo } from '@/lib/videoEmbed'
 import { useSeo } from '@/composables/useSeo'
+import { downloadStoredZip } from '@/lib/zipStore'
 
 const route = useRoute()
 
@@ -30,6 +31,8 @@ const notFound = ref(false)
 const loading = ref(true)
 const lightboxIndex = ref<number | null>(null)
 const currentPage = ref(1)
+const downloading = ref(false)
+const downloadError = ref('')
 
 const PHOTOS_PER_PAGE = 30
 
@@ -169,6 +172,23 @@ onUnmounted(() => {
   document.body.style.overflow = ''
 })
 
+async function downloadAllPhotos() {
+  if (!klant.value?.photos.length || downloading.value) return
+  downloading.value = true
+  downloadError.value = ''
+  try {
+    const name = (klant.value.slug || 'fotos').replace(/[^\w.-]+/g, '-')
+    await downloadStoredZip(
+      `${name}-fotos.zip`,
+      klant.value.photos.map(photo => ({ name: photo.filename, url: photo.url })),
+    )
+  } catch {
+    downloadError.value = 'Downloaden lukte niet. Probeer het opnieuw.'
+  } finally {
+    downloading.value = false
+  }
+}
+
 function goToPage(page: number, scroll = true) {
   currentPage.value = page
   if (scroll) window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -238,6 +258,12 @@ function onKeydown(e: KeyboardEvent) {
           <h1 class="klant-hero__title">{{ klant.title }}</h1>
           <p class="klant-hero__subtitle">{{ klant.subtitle }}</p>
           <p v-if="heroCountText" class="klant-hero__count">{{ heroCountText }}</p>
+          <p v-if="klant.photos.length" class="klant-hero__download">
+            <a href="#download-fotos" @click.prevent="downloadAllPhotos">
+              {{ downloading ? "Foto's worden ingepakt…" : "download hier alle foto's" }}
+            </a>
+          </p>
+          <p v-if="downloadError" class="klant-hero__download-error">{{ downloadError }}</p>
         </div>
       </section>
 
@@ -377,6 +403,27 @@ function onKeydown(e: KeyboardEvent) {
   font-size: 0.85rem;
   color: var(--color-accent);
   font-weight: 600;
+}
+
+.klant-hero__download {
+  margin-top: 0.85rem;
+}
+
+.klant-hero__download a {
+  color: #fff;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+.klant-hero__download a:hover {
+  color: var(--color-accent);
+}
+
+.klant-hero__download-error {
+  margin-top: 0.5rem;
+  color: #ffb4a8;
+  font-size: 0.85rem;
 }
 
 .klant-section-title {
