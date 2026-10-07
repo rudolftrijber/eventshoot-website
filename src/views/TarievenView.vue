@@ -32,7 +32,7 @@ const vodcastPdf = computed(() =>
 
 const vodcastDownloadName = computed(() =>
   isEnglish.value
-    ? 'Event_Vodcast_Recording_ENG.pdf'
+    ? 'Event_Vodcast_Recording_EN.pdf'
     : 'Event_Vodcast_Recording_NL.pdf',
 )
 
