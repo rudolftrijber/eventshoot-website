@@ -16,14 +16,14 @@ const isEnglish = computed(() => locale.value.startsWith('en'))
 
 const onepagerPdf = computed(() =>
   isEnglish.value
-    ? '/DATA_EVENTSHOOT/FILES/Eventshoot_tarievenoverzicht_ENG.pdf?v=2'
-    : '/DATA_EVENTSHOOT/FILES/Eventshoot_tarievenoverzicht_NL.pdf?v=2',
+    ? '/DATA_EVENTSHOOT/FILES/Eventshoot_Package_tarive_overview_EN.pdf?v=3'
+    : '/DATA_EVENTSHOOT/FILES/Eventshoot_Pakket_tarievenoverzicht_NL.pdf?v=3',
 )
 
 const onepagerDownloadName = computed(() =>
   isEnglish.value
-    ? 'Eventshoot_tarievenoverzicht_ENG.pdf'
-    : 'Eventshoot_tarievenoverzicht_NL.pdf',
+    ? 'Eventshoot_Package_tarive_overview_EN.pdf'
+    : 'Eventshoot_Pakket_tarievenoverzicht_NL.pdf',
 )
 
 const vodcastPdf = computed(() =>
