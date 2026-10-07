@@ -24,9 +24,9 @@ const articles = [
 <h2>Welke pakketten zijn er voor congresfotografie?</h2>
 <p>Eventshoot.nl werkt met drie vaste pakketten. Geen losse uurtarieven achteraf, geen verrassingen op de factuur.</p>
 <ul>
-<li><strong>Highlight — €975 excl. BTW:</strong> 4 uur aanwezigheid, 100–150 foto's, social aftermovie (45–90 sec), 1 crew. Levering binnen 48 uur. Past bij kleinere events of social-only.</li>
-<li><strong>Headline — €2.475 excl. BTW (meest gekozen):</strong> 8 uur aanwezigheid, 150–200 foto's, social én corporate aftermovie, 10–15 interviews (één camera), 2 crew. Levering binnen 48 uur. Past bij een jaarcongres of ledendag.</li>
-<li><strong>Heroes — €3.675 excl. BTW:</strong> 10 uur aanwezigheid, 200–300 foto's, social én corporate aftermovie (90–180 sec), 25–30 interviews, 3 crew. Levering binnen 48 uur. Past bij een hoog-profile congres.</li>
+<li><strong>Highlight — €975 excl. BTW:</strong> 4 uur aanwezigheid, 50–100 foto's, social aftermovie (45–90 sec), 1 crew. Levering binnen 48 uur. Past bij kleinere events of social-only.</li>
+<li><strong>Headline — €2.575 excl. BTW (meest gekozen):</strong> 8 uur aanwezigheid, 100–150 foto's, social én corporate aftermovie, 10–15 interviews (één camera), 2 crew. Levering binnen 48 uur. Past bij een jaarcongres of ledendag.</li>
+<li><strong>Heroes — €3.675 excl. BTW:</strong> 10 uur aanwezigheid, 150–200 foto's, social én corporate aftermovie (90–180 sec), 25–30 interviews, 3 crew. Levering binnen 48 uur. Past bij een hoog-profile congres.</li>
 </ul>
 
 <h2>Wat zit standaard in elk pakket?</h2>
@@ -140,13 +140,13 @@ const articles = [
     category: 'Eventfotografie',
     h1: "Hoeveel foto's krijg je na een jaarcongres?",
     body: `
-<p><strong>Direct antwoord:</strong> Bij Eventshoot.nl ontvang je 100 tot 300 bewerkte foto's per jaarcongres, afhankelijk van het pakket. Headline en Heroes leveren daarnaast aftermovies en interviews. Het gaat om kant-en-klare items, niet om duizenden onbewerkte bestanden.</p>
+<p><strong>Direct antwoord:</strong> Bij Eventshoot.nl ontvang je 50 tot 200 bewerkte foto's per jaarcongres, afhankelijk van het pakket. Headline en Heroes leveren daarnaast aftermovies en interviews. Het gaat om kant-en-klare items, niet om duizenden onbewerkte bestanden.</p>
 
 <h2>Hoeveel foto's per pakket?</h2>
 <ul>
-<li><strong>Highlight:</strong> 100–150 foto's, 4 uur aanwezigheid</li>
-<li><strong>Headline:</strong> 150–200 foto's, 8 uur aanwezigheid, plus social en corporate aftermovie en 10–15 interviews</li>
-<li><strong>Heroes:</strong> 200–300 foto's, 10 uur aanwezigheid, plus social en corporate aftermovie en 25–30 interviews</li>
+<li><strong>Highlight:</strong> 50–100 foto's, 4 uur aanwezigheid</li>
+<li><strong>Headline:</strong> 100–150 foto's, 8 uur aanwezigheid, plus social en corporate aftermovie en 10–15 interviews</li>
+<li><strong>Heroes:</strong> 150–200 foto's, 10 uur aanwezigheid, plus social en corporate aftermovie en 25–30 interviews</li>
 </ul>
 
 <h2>Waarom niet "alle foto's" van het congres?</h2>

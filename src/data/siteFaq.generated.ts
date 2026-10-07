@@ -142,7 +142,7 @@ export const siteFaqByPage: Record<FaqPageKey, FaqLangMap> = {
       {
         "_id": "faq-eventfotografie-1",
         "question": "Hoeveel foto's ontvang ik na een event?",
-        "answer": "Afhankelijk van het pakket ontvang je 100 tot 300 bewerkte foto's. Het Highlight-pakket levert 100–150 foto's, Headline 150–200 en Heroes 200–300. Allemaal kant-en-klaar voor direct gebruik."
+        "answer": "Afhankelijk van het pakket ontvang je 50 tot 200 bewerkte foto's. Het Highlight-pakket levert 50–100 foto's, Headline 100–150 en Heroes 150–200. Allemaal kant-en-klaar voor direct gebruik."
       },
       {
         "_id": "faq-eventfotografie-2",
@@ -174,7 +174,7 @@ export const siteFaqByPage: Record<FaqPageKey, FaqLangMap> = {
       {
         "_id": "faq-eventfotografie-1",
         "question": "How many photos do I receive after an event?",
-        "answer": "Depending on the package you receive 100 to 300 edited photos. The Highlight package delivers 100–150 photos, Headline 150–200 and Heroes 200–300. All ready for immediate use."
+        "answer": "Depending on the package you receive 50 to 200 edited photos. The Highlight package delivers 50–100 photos, Headline 100–150 and Heroes 150–200. All ready for immediate use."
       },
       {
         "_id": "faq-eventfotografie-2",
@@ -274,7 +274,7 @@ export const siteFaqByPage: Record<FaqPageKey, FaqLangMap> = {
       {
         "_id": "faq-tarieven-1",
         "question": "Wat kosten de pakketten?",
-        "answer": "Highlight € 975 (4 uur), Headline € 2.475 (8 uur, meest gekozen) en Heroes € 3.675 (10 uur, foto + video). Alle prijzen excl. BTW. Reis- en transportkosten separaat."
+        "answer": "Highlight € 975 (4 uur), Headline € 2.575 (8 uur, meest gekozen) en Heroes € 3.675 (10 uur, foto + video). Alle prijzen excl. BTW. Reis- en transportkosten separaat."
       },
       {
         "_id": "faq-tarieven-2",
@@ -306,7 +306,7 @@ export const siteFaqByPage: Record<FaqPageKey, FaqLangMap> = {
       {
         "_id": "faq-tarieven-1",
         "question": "What do the packages cost?",
-        "answer": "Highlight € 975 (4 hours), Headline € 2,475 (8 hours, most popular) and Heroes € 3,675 (10 hours, photo + video). All prices excl. VAT. Travel and transport costs separate."
+        "answer": "Highlight € 975 (4 hours), Headline € 2,575 (8 hours, most popular) and Heroes € 3,675 (10 hours, photo + video). All prices excl. VAT. Travel and transport costs separate."
       },
       {
         "_id": "faq-tarieven-2",

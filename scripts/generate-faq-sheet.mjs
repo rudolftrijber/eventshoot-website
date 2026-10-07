@@ -59,9 +59,9 @@ const faqs = [
   {
     page: 'eventfotografie', category: 'eventfotografie', order: 1,
     qNl: 'Hoeveel foto\'s ontvang ik na een event?',
-    aNl: 'Afhankelijk van het pakket ontvang je 100 tot 300 bewerkte foto\'s. Het Highlight-pakket levert 100–150 foto\'s, Headline 150–200 en Heroes 200–300. Allemaal kant-en-klaar voor direct gebruik.',
+    aNl: 'Afhankelijk van het pakket ontvang je 50 tot 200 bewerkte foto\'s. Het Highlight-pakket levert 50–100 foto\'s, Headline 100–150 en Heroes 150–200. Allemaal kant-en-klaar voor direct gebruik.',
     qEn: 'How many photos do I receive after an event?',
-    aEn: 'Depending on the package you receive 100 to 300 edited photos. The Highlight package delivers 100–150 photos, Headline 150–200 and Heroes 200–300. All ready for immediate use.',
+    aEn: 'Depending on the package you receive 50 to 200 edited photos. The Highlight package delivers 50–100 photos, Headline 100–150 and Heroes 150–200. All ready for immediate use.',
   },
   {
     page: 'eventfotografie', category: 'eventfotografie', order: 2,
@@ -323,9 +323,9 @@ const faqs = [
   {
     page: 'tarieven', category: 'tarieven', order: 1,
     qNl: 'Wat kosten de pakketten?',
-    aNl: 'Highlight € 975 (4 uur), Headline € 2.475 (8 uur, meest gekozen) en Heroes € 3.675 (10 uur, foto + video). Alle prijzen excl. BTW. Reis- en transportkosten separaat.',
+    aNl: 'Highlight € 975 (4 uur), Headline € 2.575 (8 uur, meest gekozen) en Heroes € 3.675 (10 uur, foto + video). Alle prijzen excl. BTW. Reis- en transportkosten separaat.',
     qEn: 'What do the packages cost?',
-    aEn: 'Highlight € 975 (4 hours), Headline € 2,475 (8 hours, most popular) and Heroes € 3,675 (10 hours, photo + video). All prices excl. VAT. Travel and transport costs separate.',
+    aEn: 'Highlight € 975 (4 hours), Headline € 2,575 (8 hours, most popular) and Heroes € 3,675 (10 hours, photo + video). All prices excl. VAT. Travel and transport costs separate.',
   },
   {
     page: 'tarieven', category: 'tarieven', order: 2,

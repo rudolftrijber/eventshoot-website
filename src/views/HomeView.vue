@@ -196,7 +196,7 @@ const teaserImages = [
         <div class="featured__card-wrap">
           <PricingCard
             :name="t('home_featured.pkgName')"
-            price="€2.475"
+            price="€2.575"
             :description="t('home_featured.pkgDesc')"
             :features="[t('home_featured.pkgFeature1'), t('home_featured.pkgFeature2'), t('home_featured.pkgFeature3'), t('home_featured.pkgFeature4'), t('home_featured.pkgFeature5'), t('home_featured.pkgFeature6')]"
             image="/DATA_EVENTSHOOT/SITE_IMAGES/PRIJZEN/VIDEO.png"
