@@ -323,9 +323,9 @@ const faqs = [
   {
     page: 'tarieven', category: 'tarieven', order: 1,
     qNl: 'Wat kosten de pakketten?',
-    aNl: 'Highlight € 975 (4 uur), Headline € 2.575 (8 uur, meest gekozen) en Heroes € 3.675 (10 uur, foto + video). Alle prijzen excl. BTW. Reis- en transportkosten separaat.',
+    aNl: 'Highlight € 975 (4 uur), Headline € 2.575 (8 uur, meest gekozen) en Heroes € 3.625 (10 uur, foto + video). Alle prijzen excl. BTW. Reis- en transportkosten separaat.',
     qEn: 'What do the packages cost?',
-    aEn: 'Highlight € 975 (4 hours), Headline € 2,575 (8 hours, most popular) and Heroes € 3,675 (10 hours, photo + video). All prices excl. VAT. Travel and transport costs separate.',
+    aEn: 'Highlight € 975 (4 hours), Headline € 2,575 (8 hours, most popular) and Heroes € 3,625 (10 hours, photo + video). All prices excl. VAT. Travel and transport costs separate.',
   },
   {
     page: 'tarieven', category: 'tarieven', order: 2,
