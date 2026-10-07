@@ -28,6 +28,7 @@ const router = createRouter({
     { path: '/video', name: 'video', component: () => import('../views/VideoView.vue'), meta: { hideRolfContact: true } },
     { path: '/test/video', name: 'test-video', component: () => import('../views/TestVideoView.vue') },
     { path: '/leaseweb', name: 'leaseweb', component: () => import('../views/LeasewebChannelView.vue'), meta: { hideRolfContact: true, hideBackgroundVideo: true } }, // channel 1499, height follows BB content
+    { path: '/esprit', name: 'esprit', component: () => import('../views/EspritView.vue') },
     { path: '/interview-app', name: 'interview-app', component: () => import('../views/InterviewAppView.vue'), meta: { hideLayout: true, hideBackgroundVideo: true } },
     { path: '/interview-app/live', name: 'interview-app-live', component: () => import('../views/InterviewAppView.vue'), meta: { hideLayout: true, hideBackgroundVideo: true, floorMode: true } },
     { path: '/interview-app/live/:floorKey', name: 'interview-app-live-key', component: () => import('../views/InterviewAppView.vue'), meta: { hideLayout: true, hideBackgroundVideo: true, floorMode: true } },
