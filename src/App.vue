@@ -7,13 +7,16 @@ import FooterSection from '@/components/FooterSection.vue'
 import BackgroundVideo from '@/components/BackgroundVideo.vue'
 import { RouterView } from 'vue-router'
 import { reinitElfsightWidgets } from '@/lib/elfsight'
-import { skipFullscreenVideo } from '@/lib/isIosLike'
+import { useStillBackground } from '@/lib/isIosLike'
+
+const STILL_LANDSCAPE = '/DATA_EVENTSHOOT/SITE_IMAGES/BACKGROUND/eventshoot_background_HDL.jpg'
+const STILL_PORTRAIT = '/DATA_EVENTSHOOT/SITE_IMAGES/BACKGROUND/eventshoot_background_HDP.jpg'
 
 const route = useRoute()
 const hideLayout = computed(() => Boolean(route.meta.hideLayout))
 const hideRolfContact = computed(() => Boolean(route.meta.hideRolfContact))
 const hideBackgroundVideo = computed(() => Boolean(route.meta.hideBackgroundVideo))
-const ios = skipFullscreenVideo()
+const stillBackground = useStillBackground()
 
 watch(
   () => route.fullPath,
@@ -24,10 +27,16 @@ watch(
 </script>
 
 <template>
-  <div v-if="!ios" class="app-bg" :class="{ 'app-bg--solid': hideBackgroundVideo }">
+  <div class="app-bg" :class="{ 'app-bg--solid': hideBackgroundVideo && !stillBackground }">
+    <picture v-if="!hideBackgroundVideo && stillBackground" class="app-bg__media">
+      <source media="(orientation: portrait)" :srcset="STILL_PORTRAIT" />
+      <img :src="STILL_LANDSCAPE" alt="" />
+    </picture>
     <BackgroundVideo
-      v-if="!hideBackgroundVideo"
+      v-else-if="!hideBackgroundVideo"
       video-class="app-bg__video"
+      :fallback-src="STILL_LANDSCAPE"
+      fallback-class="app-bg__media"
       src="/images/es_bokey_bckgrnd_v1-1080p.mp4"
     />
   </div>
@@ -51,21 +60,6 @@ watch(
   background: #0a1628;
 }
 
-html.is-ios .app-bg,
-html.is-ios .bg-video,
-html.is-compact .app-bg,
-html.is-compact .bg-video {
-  display: none !important;
-}
-
-@media (any-pointer: coarse), (hover: none), (pointer: coarse), (max-width: 1200px) {
-  .app-bg,
-  .bg-video,
-  video.bg-video {
-    display: none !important;
-  }
-}
-
 .app-foreground {
   position: relative;
   z-index: 1;
@@ -75,11 +69,15 @@ html.is-compact .bg-video {
   background: #002d56;
 }
 
-.app-bg__video {
+.app-bg__video,
+.app-bg__media,
+.app-bg__media img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
+  max-width: none;
   object-fit: cover;
-  opacity: 1;
 }
 
 /* Secties volledig transparant */

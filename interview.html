@@ -9,12 +9,26 @@
     <title>Interview-app | Eventshoot.nl</title>
     <style>
       html, body, #app {
-        background: #0a1628;
+        background: transparent;
         color: #fff;
         margin: 0;
         min-height: 100%;
         font-family: -apple-system, BlinkMacSystemFont, sans-serif;
       }
+      html::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        background: #0a1628 url("/DATA_EVENTSHOOT/SITE_IMAGES/BACKGROUND/eventshoot_background_HDL.jpg") center / cover no-repeat;
+      }
+      @media (orientation: portrait) {
+        html::before {
+          background-image: url("/DATA_EVENTSHOOT/SITE_IMAGES/BACKGROUND/eventshoot_background_HDP.jpg");
+        }
+      }
+      body, #app { position: relative; z-index: 1; }
       video { display: none !important; }
       #boot-links a { color: #fff; font-size: 1.05rem; }
     </style>
@@ -30,14 +44,6 @@
     </div>
     <script>
       (function () {
-        try {
-          var shortSide = Math.min(screen.width || 0, screen.height || 0)
-          var narrow = window.matchMedia && window.matchMedia('(max-width: 1200px)').matches
-          if ((shortSide > 0 && shortSide <= 1024) || narrow) {
-            document.documentElement.classList.add('is-compact')
-            document.documentElement.classList.add('is-ios')
-          }
-        } catch (e) {}
         function show(message) {
           var box = document.getElementById('boot-error')
           if (!box) return

@@ -8,14 +8,34 @@
   --color-text-muted: rgba(255, 255, 255, 0.75);
 
   position: relative;
-  z-index: 0;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: #0a1628;
+  background: transparent;
   color: #ffffff;
   font-family: var(--font-base);
   font-size: 0.8125rem;
+}
+
+.interview-app::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: #0a1628 url("/DATA_EVENTSHOOT/SITE_IMAGES/BACKGROUND/eventshoot_background_HDL.jpg") center / cover no-repeat;
+}
+
+@media (orientation: portrait) {
+  .interview-app::before {
+    background-image: url("/DATA_EVENTSHOOT/SITE_IMAGES/BACKGROUND/eventshoot_background_HDP.jpg");
+  }
+}
+
+.interview-app > * {
+  position: relative;
+  z-index: 1;
 }
 
 .interview-app--fullscreen {

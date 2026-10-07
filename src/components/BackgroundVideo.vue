@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { nextTick, onMounted, onUnmounted, ref } from 'vue'
 import OptimizedImage from '@/components/OptimizedImage.vue'
-import { skipFullscreenVideo } from '@/lib/isIosLike'
+import { useStillBackground } from '@/lib/isIosLike'
 
 withDefaults(
   defineProps<{
@@ -61,7 +61,7 @@ onMounted(() => {
     'connection' in navigator &&
     (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData
 
-  if (skipFullscreenVideo() || reducedMotion || saveData) return
+  if (useStillBackground() || reducedMotion || saveData) return
 
   showVideo.value = true
   void nextTick(() => {

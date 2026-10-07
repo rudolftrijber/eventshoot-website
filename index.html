@@ -66,16 +66,14 @@
       (function () {
         try {
           var ua = navigator.userAgent || ''
-          var touch = (navigator.maxTouchPoints || 0) > 0
-          var coarse = window.matchMedia && window.matchMedia('(any-pointer: coarse), (pointer: coarse), (hover: none)').matches
-          var safari = /Safari/.test(ua) && !/Chrome|Chromium|Edg\/|OPR\/|Android/.test(ua)
-          var shortSide = Math.min(screen.width || 0, screen.height || 0)
-          var narrow = window.matchMedia && window.matchMedia('(max-width: 1200px)').matches
-          var compact = (shortSide > 0 && shortSide <= 1024) || narrow
-          var ios = /iPad|iPhone|iPod|FxiOS|CriOS|EdgiOS/.test(ua) || safari || coarse || (touch && /Macintosh|Mac OS X/.test(ua)) || compact
-          if (ios) document.documentElement.classList.add('is-ios')
-          if (compact) document.documentElement.classList.add('is-compact')
-        } catch (e) {}
+          var ios = /iPad|iPhone|iPod|FxiOS|CriOS|EdgiOS/.test(ua) || ((navigator.maxTouchPoints || 0) > 1 && /Macintosh|Mac OS X/.test(ua))
+          var android = /Android/.test(ua)
+          var coarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches
+          var noHover = window.matchMedia && window.matchMedia('(hover: none)').matches
+          if (ios || android || (coarse && noHover)) document.documentElement.classList.add('use-still-bg')
+        } catch (e) {
+          document.documentElement.classList.add('use-still-bg')
+        }
       })()
       window.addEventListener('error', function (e) {
         var box = document.getElementById('boot-error')
@@ -86,19 +84,9 @@
     </script>
     <style>
       html, body { background: #0a1628; color: #fff; }
-      html.is-ios .app-bg,
-      html.is-ios video.bg-video,
-      html.is-compact .app-bg,
-      html.is-compact video.bg-video,
-      .app-bg,
-      video.bg-video {
+      /* Op telefoon en tablet geen video: die laag dekt op een iPad de pagina af. */
+      html.use-still-bg video.bg-video {
         display: none !important;
-      }
-      @media (min-width: 1201px) {
-        html:not(.is-ios):not(.is-compact) .app-bg,
-        html:not(.is-ios):not(.is-compact) video.bg-video {
-          display: block !important;
-        }
       }
       /* Until Vue mounts, nothing outside #app may cover the fallback links. */
       html:not([data-app="ready"]) body > :not(#app) {
