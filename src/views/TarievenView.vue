@@ -16,14 +16,14 @@ const isEnglish = computed(() => locale.value.startsWith('en'))
 
 const onepagerPdf = computed(() =>
   isEnglish.value
-    ? '/DATA_EVENTSHOOT/FILES/Eventshoot_Package_tarive_overview_EN.pdf?v=3'
-    : '/DATA_EVENTSHOOT/FILES/Eventshoot_Pakket_tarievenoverzicht_NL.pdf?v=3',
+    ? '/DATA_EVENTSHOOT/FILES/Eventpackages_pricing_EN.pdf?v=4'
+    : '/DATA_EVENTSHOOT/FILES/Eventpakketten_prijzen_NL.pdf?v=4',
 )
 
 const onepagerDownloadName = computed(() =>
   isEnglish.value
-    ? 'Eventshoot_Package_tarive_overview_EN.pdf'
-    : 'Eventshoot_Pakket_tarievenoverzicht_NL.pdf',
+    ? 'Eventpackages_pricing_EN.pdf'
+    : 'Eventpakketten_prijzen_NL.pdf',
 )
 
 const vodcastPdf = computed(() =>
@@ -32,8 +32,8 @@ const vodcastPdf = computed(() =>
 
 const vodcastDownloadName = computed(() =>
   isEnglish.value
-    ? 'Event_Vodcast_Recording_EN.pdf'
-    : 'Event_Vodcast_Recording_NL.pdf',
+    ? 'Event_Vodcast_Recording_Pricing_EN.pdf'
+    : 'Event_Vodcast_Recording_Prijzen_NL.pdf',
 )
 
 usePageSeo('tarieven', { url: 'https://eventshoot.nl/tarieven' })
