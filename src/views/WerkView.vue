@@ -5,6 +5,8 @@ import { useI18n } from 'vue-i18n'
 import UspGrid from '@/components/UspGrid.vue'
 import OptimizedImage from '@/components/OptimizedImage.vue'
 import { usePageSeo } from '@/composables/usePageSeo'
+import { optWebpSrc } from '@/lib/imageUrls'
+import { WERK_HERO, WERK_PHOTOS } from '@/data/werkPhotos.generated'
 
 const { t } = useI18n()
 
@@ -20,69 +22,9 @@ onUnmounted(() => {
 })
 
 
-const BASE = '/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/'
+const allPhotos = WERK_PHOTOS
 
-const allPhotos = [
-  { src: BASE + 'eventshoot-50.jpg',  alt: 'Eventfotografie congres Nederland' },
-  { src: BASE + 'eventshoot-51.jpg',  alt: 'Zakelijk evenement fotografie' },
-  { src: BASE + 'eventshoot-52.jpg',  alt: 'Seminar fotograaf' },
-  { src: BASE + 'eventshoot-53.jpg',  alt: 'Congres fotografie' },
-  { src: BASE + 'eventshoot-54.jpg',  alt: 'Professionele eventfotografie' },
-  { src: BASE + 'eventshoot-55.jpg',  alt: 'Evenement fotograaf' },
-  { src: BASE + 'eventshoot-56.jpg',  alt: 'Zakelijk congres fotografie' },
-  { src: BASE + 'eventshoot-57.jpg',  alt: 'Netwerkbijeenkomst fotografie' },
-  { src: BASE + 'eventshoot-58.jpg',  alt: 'Award uitreiking fotografie' },
-  { src: BASE + 'eventshoot-59.jpg',  alt: 'Bedrijfsevenement fotografie' },
-  { src: BASE + 'eventshoot-60.jpg',  alt: 'Beurs fotografie Nederland' },
-  { src: BASE + 'eventshoot-61.jpg',  alt: 'Productlancering fotografie' },
-  { src: BASE + 'eventshoot-62.jpg',  alt: 'Congres spreker fotografie' },
-  { src: BASE + 'eventshoot-63.jpg',  alt: 'Zakelijk event reportage' },
-  { src: BASE + 'eventshoot-64.jpg',  alt: 'Seminar fotoreportage' },
-  { src: BASE + 'eventshoot-65.jpg',  alt: 'Congres deelnemers fotografie' },
-  { src: BASE + 'eventshoot-66.jpg',  alt: 'Eventfotografie briefing' },
-  { src: BASE + 'eventshoot-67.jpg',  alt: 'Corporate event fotografie' },
-  { src: BASE + 'eventshoot-69.jpg',  alt: 'Zakelijk seminar fotografie' },
-  { src: BASE + 'eventshoot-70.jpg',  alt: 'Congres fotografie Nederland' },
-  { src: BASE + 'eventshoot-72.jpg',  alt: 'Evenement reportage fotografie' },
-  { src: BASE + 'eventshoot-74.jpg',  alt: 'Award uitreiking fotograaf' },
-  { src: BASE + 'eventshoot-75.jpg',  alt: 'Bijeenkomst fotografie' },
-  { src: BASE + 'eventshoot-76.jpg',  alt: 'Zakelijk evenement Nederland' },
-  { src: BASE + 'eventshoot-77.jpg',  alt: 'Congres en seminar fotografie' },
-  { src: BASE + 'eventshoot-78.jpg',  alt: 'Professionele event fotograaf' },
-  { src: BASE + 'eventshoot-79.jpg',  alt: 'Corporate fotografie evenement' },
-  { src: BASE + 'eventshoot-80.jpg',  alt: 'Zakelijke bijeenkomst fotografie' },
-  { src: BASE + 'eventshoot-81.jpg',  alt: 'Event fotoreportage Nederland' },
-  { src: BASE + 'eventshoot-82.jpg',  alt: 'Congres fotografie reportage' },
-  { src: BASE + 'eventshoot-83.jpg',  alt: 'Eventfotografie zakelijk' },
-  { src: BASE + 'eventshoot-84.jpg',  alt: 'Seminar fotografie' },
-  { src: BASE + 'eventshoot-85.jpg',  alt: 'Congres fotografie' },
-  { src: BASE + 'eventshoot-86.jpg',  alt: 'Zakelijk event Nederland' },
-  { src: BASE + 'eventshoot-87.jpg',  alt: 'Evenement fotografie' },
-  { src: BASE + 'eventshoot-88.jpg',  alt: 'Congres spreker' },
-  { src: BASE + 'eventshoot-89.jpg',  alt: 'Bedrijfsevent fotografie' },
-  { src: BASE + 'eventshoot-90.jpg',  alt: 'Professionele fotografie' },
-  { src: BASE + 'eventshoot-91.jpg',  alt: 'Award ceremony fotografie' },
-  { src: BASE + 'eventshoot-92.jpg',  alt: 'Zakelijk congres' },
-  { src: BASE + 'eventshoot-93.jpg',  alt: 'Seminar deelnemers' },
-  { src: BASE + 'eventshoot-94.jpg',  alt: 'Netwerkborrel fotografie' },
-  { src: BASE + 'eventshoot-95.jpg',  alt: 'Ledendag fotografie' },
-  { src: BASE + 'eventshoot-96.jpg',  alt: 'Jaarcongres fotografie' },
-  { src: BASE + 'eventshoot-97.jpg',  alt: 'Congres reportage' },
-  { src: BASE + 'eventshoot-98.jpg',  alt: 'Event fotograaf Nederland' },
-  { src: BASE + 'eventshoot-99.jpg',  alt: 'Zakelijke bijeenkomst' },
-  { src: BASE + 'eventshoot-100.jpg', alt: 'Congres fotografie' },
-  { src: BASE + 'eventshoot-101.jpg', alt: 'Eventfotografie Holland' },
-  { src: BASE + 'eventshoot-102.jpg', alt: 'Corporate event' },
-  { src: BASE + 'eventshoot-103.jpg', alt: 'Seminar fotograaf' },
-  { src: BASE + 'eventshoot-104.jpg', alt: 'Productlancering event' },
-  { src: BASE + 'eventshoot-105.jpg', alt: 'Ledendag congres' },
-  { src: BASE + 'eventshoot-106.jpg', alt: 'Zakelijk evenement' },
-  { src: BASE + 'eventshoot-107.jpg', alt: 'Event reportage' },
-  { src: BASE + 'eventshoot_121.jpg', alt: 'Congres fotografie Nederland' },
-  { src: BASE + 'zakelijke-event-fotografie-8.jpg', alt: 'Zakelijke event fotografie' },
-]
-
-const PHOTOS_PER_PAGE = 29
+const PHOTOS_PER_PAGE = 36
 const currentPage = ref(1)
 const totalPages = computed(() => Math.ceil(allPhotos.length / PHOTOS_PER_PAGE))
 const photos = computed(() => {
@@ -101,6 +43,25 @@ const shareMenuOpen = ref(false)
 const currentPhoto = computed(() =>
   lightboxIndex.value !== null ? photos.value[lightboxIndex.value] : null
 )
+
+const lightboxSrc = computed(() => {
+  if (!currentPhoto.value) return ''
+  return optWebpSrc(currentPhoto.value.src, 1920)
+})
+
+function onLightboxError(event: Event) {
+  const img = event.target as HTMLImageElement
+  const src = currentPhoto.value?.src
+  if (!src) return
+  if (img.dataset.fallback === 'orig') return
+  if (img.dataset.fallback !== '1200') {
+    img.dataset.fallback = '1200'
+    img.src = optWebpSrc(src, 1200)
+    return
+  }
+  img.dataset.fallback = 'orig'
+  img.src = src
+}
 
 function openLightbox(index: number) {
   lightboxIndex.value = index
@@ -135,15 +96,15 @@ function toggleShareMenu() {
 }
 
 function shareOn(platform: 'linkedin' | 'facebook' | 'instagram') {
-  const url = encodeURIComponent(window.location.origin + currentPhoto.value!.src)
+  const url = encodeURIComponent(window.location.origin + lightboxSrc.value)
   if (platform === 'linkedin') {
     window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank')
   } else if (platform === 'facebook') {
     window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank')
   } else if (platform === 'instagram') {
     const a = document.createElement('a')
-    a.href = currentPhoto.value!.src
-    a.download = currentPhoto.value!.src.split('/').pop()!
+    a.href = lightboxSrc.value
+    a.download = lightboxSrc.value.split('/').pop()!
     a.click()
   }
   shareMenuOpen.value = false
@@ -162,7 +123,7 @@ watch(shareMenuOpen, (open) => {
     <section class="werk-hero">
       <div class="werk-hero__bg">
         <OptimizedImage
-          src="/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/eventshoot-57.jpg"
+          :src="WERK_HERO"
           alt="Eventfotografie Eventshoot.nl"
           preset="hero"
           :priority="true"
@@ -192,7 +153,7 @@ watch(shareMenuOpen, (open) => {
         </div>
 
         <!-- Paginering -->
-        <div class="werk__pagination">
+        <div v-if="totalPages > 1" class="werk__pagination">
           <button
             v-for="page in totalPages"
             :key="page"
@@ -215,15 +176,15 @@ watch(shareMenuOpen, (open) => {
         <button class="lightbox__close" @click="closeLightbox">✕</button>
         <div class="lightbox__img-wrap">
           <button class="lightbox__prev" @click="prevPhoto">&#8249;</button>
-          <img :src="currentPhoto!.src" :alt="currentPhoto!.alt" />
+          <img :key="currentPhoto!.src" :src="lightboxSrc" :alt="currentPhoto!.alt" @error="onLightboxError" />
           <button class="lightbox__next" @click="nextPhoto">&#8250;</button>
         </div>
         <div class="lightbox__toolbar">
           <span class="lightbox__counter">{{ lightboxIndex! + 1 }} / {{ photos.length }}</span>
           <div class="lightbox__actions">
             <a
-              :href="currentPhoto!.src"
-              :download="currentPhoto!.src.split('/').pop()"
+              :href="lightboxSrc"
+              :download="lightboxSrc.split('/').pop()"
               class="lightbox__icon-btn"
               title="Download"
             >

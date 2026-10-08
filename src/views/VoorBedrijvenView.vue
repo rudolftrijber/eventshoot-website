@@ -48,14 +48,14 @@ const waarom = computed(() => [
     <PainPointBlock :title="t('bedrijven.painTitle')" :items="pijnpunten" />
 
     <CaseTeaser :photos="[
+      '/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/eventshoot-50.jpg',
       '/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/eventshoot-60.jpg',
-      '/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/eventshoot-61.jpg',
       '/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/eventshoot-98.jpg',
-      '/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/eventshoot-100.jpg',
       '/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/eventshoot-101.jpg',
       '/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/eventshoot-104.jpg',
-      '/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/eventshoot-106.jpg',
-      '/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/zakelijke-event-fotografie-8.jpg',
+      '/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/eventshoot-107.jpg',
+      '/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/DSR_SUMMIT_18_6_2026-75.jpg',
+      '/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/OBEYA_Summit_26_6_2026-414.jpg',
     ]" />
 
     <section class="aanbod section">

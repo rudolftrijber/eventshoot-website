@@ -48,12 +48,12 @@ const waarom = computed(() => [
     <PainPointBlock :title="t('bureaus.painTitle')" :items="pijnpunten" />
 
     <CaseTeaser :photos="[
-      '/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/eventshoot-51.jpg',
-      '/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/eventshoot-52.jpg',
       '/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/eventshoot-53.jpg',
-      '/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/eventshoot-66.jpg',
-      '/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/eventshoot-74.jpg',
-      '/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/eventshoot-76.jpg',
+      '/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/eventshoot-54.jpg',
+      '/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/eventshoot-57.jpg',
+      '/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/eventshoot-77.jpg',
+      '/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/eventshoot-79.jpg',
+      '/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/eventshoot-87.jpg',
       '/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/eventshoot-107.jpg',
     ]" />
 

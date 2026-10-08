@@ -24,7 +24,8 @@
     "generate:faq": "node scripts/generate-faq-data.mjs",
     "generate:client-logos": "node scripts/generate-client-logos.mjs",
     "generate:vodcast-photos": "node scripts/generate-vodcast-photos.mjs",
-    "prebuild": "npm run optimize:images && npm run generate:sitemap && npm run generate:llms && npm run generate:faq && npm run generate:client-logos && npm run generate:vodcast-photos",
+    "generate:werk-photos": "node scripts/generate-werk-photos.mjs",
+    "prebuild": "npm run optimize:images && npm run generate:sitemap && npm run generate:llms && npm run generate:faq && npm run generate:client-logos && npm run generate:vodcast-photos && npm run generate:werk-photos",
     "studio": "npm run dev --prefix studio"
   },
   "dependencies": {

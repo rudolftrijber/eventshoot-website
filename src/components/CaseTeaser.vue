@@ -6,8 +6,8 @@ withDefaults(defineProps<{
   photos?: string[]
 }>(), {
   photos: () => [
-    '/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/eventshoot-75.jpg',
-    '/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/eventshoot-82.jpg',
+    '/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/eventshoot-54.jpg',
+    '/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/eventshoot-70.jpg',
     '/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/eventshoot-88.jpg',
     '/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/eventshoot-96.jpg',
     '/DATA_EVENTSHOOT/SITE_IMAGES/EVENTFOTOS/eventshoot-101.jpg',
