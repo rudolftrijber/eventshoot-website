@@ -107,6 +107,34 @@ const apiConfigHint = ref('')
 const apiConfigured = computed(() => !apiConfigHint.value)
 const toast = ref('')
 const settingsOpen = ref(false)
+const READ_SCALE_KEY = 'ia-read-scale'
+const READ_SCALES = [1, 1.25, 1.5, 1.8, 2.15, 2.6, 3.1]
+const readScaleIndex = ref(0)
+const readScale = computed(() => READ_SCALES[readScaleIndex.value] ?? 1)
+const readScaleStyle = computed(() => ({
+  zoom: String(readScale.value),
+  width: readScale.value === 1 ? '100%' : `calc(100% / ${readScale.value})`,
+}))
+
+function loadReadScale() {
+  try {
+    const saved = Number(localStorage.getItem(READ_SCALE_KEY))
+    const idx = READ_SCALES.findIndex((step) => Math.abs(step - saved) < 0.02)
+    readScaleIndex.value = idx >= 0 ? idx : 0
+  } catch {
+    readScaleIndex.value = 0
+  }
+}
+
+function changeReadScale(direction: 1 | -1) {
+  const next = Math.min(READ_SCALES.length - 1, Math.max(0, readScaleIndex.value + direction))
+  readScaleIndex.value = next
+  try {
+    localStorage.setItem(READ_SCALE_KEY, String(READ_SCALES[next]))
+  } catch {
+    /* private mode */
+  }
+}
 const searchBox = ref('')
 const guestView = ref<GuestView>(null)
 const showProdForm = ref(false)
@@ -2041,6 +2069,7 @@ async function loadDemoData() {
 }
 
 onMounted(async () => {
+  loadReadScale()
   document.title = 'Event Interview App — Eventshoot.nl'
   const meta = document.querySelector('meta[name="robots"]') || document.createElement('meta')
   meta.setAttribute('name', 'robots')
@@ -2279,6 +2308,24 @@ watch(() => store.role, (role) => {
                 </div>
               </nav>
               <div class="ia-tabs-utils">
+                <div v-if="guestView === 'interviewer'" class="ia-textsize ia-textsize--bar">
+                  <button
+                    class="ia-tab ia-tab--util ia-tab--textsize"
+                    type="button"
+                    title="Smaller text"
+                    aria-label="Smaller text"
+                    :disabled="readScaleIndex === 0"
+                    @click="changeReadScale(-1)"
+                  >A−</button>
+                  <button
+                    class="ia-tab ia-tab--util ia-tab--textsize"
+                    type="button"
+                    title="Larger text"
+                    aria-label="Larger text"
+                    :disabled="readScaleIndex === READ_SCALES.length - 1"
+                    @click="changeReadScale(1)"
+                  >A+</button>
+                </div>
                 <button
                   v-if="store.isCrew && !floorMode"
                   class="ia-tab ia-tab--util"
@@ -2310,6 +2357,22 @@ watch(() => store.role, (role) => {
       <p v-else-if="store.isClient && !crewFocusMode" class="ia-client-banner">Client view — open a production, set Participant defaults, add candidates, and mark intake complete.</p>
 
       <div v-if="settingsOpen && store.isCrew" class="ia-settings">
+        <div class="ia-textsize">
+          <span class="ia-textsize__label">Question text</span>
+          <button
+            class="ia-btn ia-btn--small ia-btn--secondary"
+            type="button"
+            :disabled="readScaleIndex === 0"
+            @click="changeReadScale(-1)"
+          >Smaller</button>
+          <span class="ia-textsize__value">{{ Math.round(readScale * 100) }}%</span>
+          <button
+            class="ia-btn ia-btn--small ia-btn--accent"
+            type="button"
+            :disabled="readScaleIndex === READ_SCALES.length - 1"
+            @click="changeReadScale(1)"
+          >Larger</button>
+        </div>
         <div class="ia-row">
           <label class="ia-label" style="margin:0">Max. characters for name, role &amp; organization</label>
           <input
@@ -2833,7 +2896,7 @@ watch(() => store.role, (role) => {
           </template>
 
           <template v-if="guestView === 'interviewer'">
-            <div v-if="intGuest" class="ia-card ia-int-full">
+            <div v-if="intGuest" class="ia-card ia-int-full" :style="readScaleStyle">
               <div class="ia-int-full__head">
                 <div class="ia-int-full__regie">Crew #{{ intGuest.regienummer || '—' }}</div>
                 <div v-if="formatGuestWhen(intGuest)" class="ia-int-full__when">{{ formatGuestWhen(intGuest) }}</div>

@@ -245,6 +245,44 @@
   border-left: 1px solid rgba(255, 255, 255, 0.18);
 }
 
+.ia-textsize {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.ia-textsize--bar {
+  margin-bottom: 0;
+  gap: 0.3rem;
+}
+
+.ia-textsize__label {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-right: 0.15rem;
+}
+
+.ia-textsize__value {
+  min-width: 3.4rem;
+  text-align: center;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.ia-tab--textsize {
+  min-width: 2.75rem;
+  font-size: 1.15rem;
+  font-weight: 800;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.ia-tab--textsize:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
 .ia-tab {
   display: inline-flex;
   flex: 0 0 auto;
