@@ -112,8 +112,7 @@ const READ_SCALES = [1, 1.25, 1.5, 1.8, 2.15, 2.6, 3.1]
 const readScaleIndex = ref(0)
 const readScale = computed(() => READ_SCALES[readScaleIndex.value] ?? 1)
 const readScaleStyle = computed(() => ({
-  zoom: String(readScale.value),
-  width: readScale.value === 1 ? '100%' : `calc(100% / ${readScale.value})`,
+  '--ia-read-scale': String(readScale.value),
 }))
 
 function loadReadScale() {
