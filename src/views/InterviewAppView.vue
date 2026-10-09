@@ -2907,9 +2907,6 @@ watch(() => store.role, (role) => {
                   Moderator: {{ intGuest.moderator }}<template v-if="intGuest.moderatorFunctie">, {{ intGuest.moderatorFunctie }}</template>
                 </div>
               </div>
-              <div v-if="intGuest.gedeeld" class="ia-int-full__warn">
-                Note: these questions were shared with the guest in advance
-              </div>
               <div v-if="intGuest.introTekst?.trim()" class="ia-int-full__script ia-int-full__script--intro">
                 <div class="ia-int-full__script-label">Intro</div>
                 <p class="ia-int-full__script-text">{{ intGuest.introTekst }}</p>
