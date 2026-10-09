@@ -1597,6 +1597,53 @@
   gap: 0.7rem;
 }
 
+/* iPad Mini and other tablets. The phone clamp stops growing around 33px,
+   so on a wider screen the questions stay one small line with empty space below.
+   This screen is read at arm's length during the interview. */
+@media (min-width: 700px) {
+  .interview-app--crew-focus .ia-int-full__naam {
+    font-size: clamp(2.75rem, 7vw, 4rem);
+  }
+
+  .interview-app--crew-focus .ia-int-full__functie {
+    font-size: clamp(1.4rem, 3vw, 2rem);
+  }
+
+  .interview-app--crew-focus .ia-int-full__regie,
+  .interview-app--crew-focus .ia-int-full__when {
+    font-size: 1.15rem;
+  }
+
+  .interview-app--crew-focus .ia-int-full__warn {
+    font-size: 1.25rem;
+    padding: 0.75rem 1rem;
+  }
+
+  .interview-app--crew-focus .ia-questions {
+    max-height: 64dvh;
+  }
+
+  .interview-app--crew-focus .ia-questions li {
+    font-size: clamp(2.5rem, 6.6vw, 3.6rem);
+    line-height: 1.25;
+    margin-bottom: 1.25rem;
+  }
+
+  .interview-app--crew-focus .ia-int-full__script-text {
+    font-size: clamp(1.5rem, 3.2vw, 2.15rem);
+  }
+}
+
+@media (min-width: 700px) and (max-height: 820px) {
+  .interview-app--crew-focus .ia-int-full__naam {
+    font-size: clamp(2rem, 5.5vh, 2.8rem);
+  }
+
+  .interview-app--crew-focus .ia-questions li {
+    font-size: clamp(2.05rem, 5.8vh, 2.85rem);
+  }
+}
+
 .interview-app .ia-int-full .ia-actions {
   flex-shrink: 0;
   justify-content: flex-start;
