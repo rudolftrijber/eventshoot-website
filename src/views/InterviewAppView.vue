@@ -273,8 +273,7 @@ const todayIso = computed(() => todayStr())
 
 const workingProduction = computed(() => {
   if (!manualProductieId.value) return null
-  const list = floorMode.value || store.isSet ? store.productions : store.activeProductions
-  return list.find((p) => p.id === manualProductieId.value) || null
+  return store.productions.find((p) => p.id === manualProductieId.value) || null
 })
 
 const navTitle = computed(() => '')
@@ -343,6 +342,26 @@ const sortedArchivedProductions = computed(() =>
   ),
 )
 
+const showArchive = computed(() =>
+  !floorMode.value
+  && sortedArchivedProductions.value.length > 0
+  && (store.isCrew || store.isClient),
+)
+
+const archiveSubtitle = computed(() =>
+  store.isClient
+    ? 'Archived productions for this login. Open a row to view candidates.'
+    : 'Archived productions and their candidates.',
+)
+
+const activeProductionsEmptyText = computed(() => {
+  if (store.isCrew) return 'No productions yet. Click + New production to get started.'
+  if (store.archivedProductions.length) {
+    return 'No active productions for this login. Archived productions are listed below.'
+  }
+  return 'No productions available for this login.'
+})
+
 const guestFormLocked = computed(() =>
   store.isClient && fIntakeComplete.value && intakeLockApplies(fType.value),
 )
@@ -366,8 +385,6 @@ const dayGuests = computed(() => {
   )
 })
 
-const sortedProductions = computed(() => sortedActiveProductions.value)
-
 const maxChars = computed(() => store.settings.maxChars)
 
 const naamOverLimit = computed(() => fNaam.value.length > maxChars.value)
@@ -388,9 +405,11 @@ const controleOverLimit = computed(() =>
 
 const deelnemerPreset = computed(() => {
   if (fType.value !== 'Participant') return null
-  return store.activeProductions.find(
-    (p) => p.naam.trim().toLowerCase() === fProductie.value.trim().toLowerCase(),
-  )
+  const name = fProductie.value.trim().toLowerCase()
+  if (!name) return null
+  const current = workingProduction.value
+  if (current && current.naam.trim().toLowerCase() === name) return current
+  return store.productions.find((p) => p.naam.trim().toLowerCase() === name) || null
 })
 
 const presenterProduction = computed(() => {
@@ -1202,7 +1221,9 @@ function appendAiQuestions(list: { value: string[] }, picked: string[]): boolean
 function productionByName(name: string) {
   const trimmed = name.trim().toLowerCase()
   if (!trimmed) return null
-  return store.activeProductions.find((p) => p.naam.trim().toLowerCase() === trimmed) || null
+  const current = workingProduction.value
+  if (current && current.naam.trim().toLowerCase() === trimmed) return current
+  return store.productions.find((p) => p.naam.trim().toLowerCase() === trimmed) || null
 }
 
 function participantDefaultsForForm() {
@@ -1635,7 +1656,7 @@ async function deleteCurrentGuest() {
 
 function loadForEdit(g: Gast) {
   editingId.value = g.id
-  fProductie.value = sortedProductions.value.some((p) => p.naam === g.productieNaam) ? g.productieNaam : ''
+  fProductie.value = store.productions.some((p) => p.naam === g.productieNaam) ? g.productieNaam : ''
   fType.value = g.type
   fDatum.value = g.datum || store.productions.find((p) => p.naam === g.productieNaam)?.datum || ''
   fTijd.value = g.tijd || ''
@@ -2235,7 +2256,7 @@ watch(() => store.role, (role) => {
             <div class="ia-login__card">
               <p v-if="devBuildStamp" class="ia-dev-badge">Local · build {{ devBuildStamp }}</p>
               <p v-if="floorMode" class="ia-login__intro">{{ loginError || 'This set link is not valid. Ask Rolf or Maurice for today\'s link.' }}</p>
-              <p v-else class="ia-login__intro">Rolf or Maurice: choose your name and password. This device stays signed in until tonight. Clients: choose Client and use the production password.</p>
+              <p v-else class="ia-login__intro">Rolf or Maurice: choose your name and password. This device stays signed in until tonight. Clients: choose Client and use the production password. You then see the active and archived productions that use that password.</p>
               <p v-if="store.idleLoggedOut" class="ia-login__idle">You were logged out after 10 minutes without activity. Log in again to continue.</p>
               <p v-if="apiConfigHint" class="ia-error ia-error--block ia-error--pre">{{ apiConfigHint }}</p>
               <template v-if="!floorMode">
@@ -2353,7 +2374,7 @@ watch(() => store.role, (role) => {
       <p v-if="skipAuthMode && !crewFocusMode" class="ia-skip-auth-banner">Finetune mode: password is off. Local only.</p>
       <p v-else-if="floorMode && !crewFocusMode" class="ia-crew-banner">Set · this production only · until tonight</p>
       <p v-else-if="store.isCrew && store.crewName && !crewFocusMode" class="ia-crew-banner">{{ store.crewName }} · signed in until tonight</p>
-      <p v-else-if="store.isClient && !crewFocusMode" class="ia-client-banner">Client view — open a production, set Participant defaults, add candidates, and mark intake complete.</p>
+      <p v-else-if="store.isClient && !crewFocusMode" class="ia-client-banner">Client view — open an active or archived production, set Participant defaults, add candidates, and mark intake complete.</p>
 
       <div v-if="settingsOpen && store.isCrew" class="ia-settings">
         <div class="ia-textsize">
@@ -2940,6 +2961,7 @@ watch(() => store.role, (role) => {
                   <p v-if="!isNewProduction" class="ia-hint" style="margin:0 0 0.25rem">Event Interviews</p>
                   <h2 class="ia-section-title" style="margin:0">{{ productionHeading }}</h2>
                   <p v-if="!showProdForm" class="ia-hint" style="margin:0.35rem 0 0">{{ productionMeta }}</p>
+                  <p v-if="workingProduction?.archivedAt && !isNewProduction && !showProdForm" class="ia-hint" style="margin:0.35rem 0 0">Archived production</p>
                   <p v-if="store.isCrew && !floorMode && workingProduction && !isNewProduction && !showProdForm" class="ia-setlink">
                     <button class="ia-linkbtn" type="button" @click="copySetLink(workingProduction.id)">
                       Set link for today
@@ -3512,20 +3534,35 @@ watch(() => store.role, (role) => {
               </article>
             </div>
             <p v-if="!store.activeProductions.length" class="ia-empty">
-              {{ store.isCrew ? 'No productions yet. Click + New production to get started.' : 'No productions available for this login.' }}
+              {{ activeProductionsEmptyText }}
             </p>
           </div>
-          <div v-if="store.isCrew && !floorMode && store.archivedProductions.length" class="ia-card">
+          <div v-if="showArchive" class="ia-card">
             <h2 class="ia-section-title">Archive</h2>
-            <p class="ia-list-header__sub">Archived productions and their candidates.</p>
+            <p class="ia-list-header__sub">{{ archiveSubtitle }}</p>
             <table class="ia-table">
-              <thead><tr><th>Production</th><th>Start</th><th>Status</th><th></th></tr></thead>
+              <thead>
+                <tr>
+                  <th>Production</th>
+                  <th>Start</th>
+                  <th>Status</th>
+                  <th v-if="store.isCrew"></th>
+                </tr>
+              </thead>
               <tbody>
-                <tr v-for="p in sortedArchivedProductions" :key="p.id">
+                <tr
+                  v-for="p in sortedArchivedProductions"
+                  :key="p.id"
+                  :class="{ 'data-row': store.isClient }"
+                  :tabindex="store.isClient ? 0 : undefined"
+                  :role="store.isClient ? 'button' : undefined"
+                  @click="store.isClient && enterProduction(p)"
+                  @keyup.enter="store.isClient && enterProduction(p)"
+                >
                   <td>{{ p.naam }}</td>
                   <td>{{ formatDisplayDateTime(p.datum, p.startTijd || '') }}</td>
                   <td>{{ p.status }}</td>
-                  <td>
+                  <td v-if="store.isCrew" @click.stop>
                     <button class="ia-iconbtn" type="button" title="Restore" @click="store.restoreProduction(p.id)">↩️</button>
                     <button class="ia-iconbtn" type="button" title="Delete permanently" @click="deleteArchivedProduction(p)">🗑️</button>
                   </td>

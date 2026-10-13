@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import type { Gast, Productie } from './types.js'
 import { getAuthContext, intakeLockApplies, isClient, isCrew, type AuthContext } from './auth.js'
-import { clientSessionCredValid } from './database.js'
+import { clientSessionCredValid, fetchProductionIdsByClientLookup } from './database.js'
 import { originAllowed } from './sanitize.js'
 import { getSessionPayload, getSessionToken } from './session.js'
 
@@ -25,6 +25,8 @@ export async function requireLogin(req: VercelRequest, res: VercelResponse): Pro
       res.status(401).json({ error: 'Not logged in' })
       return null
     }
+    const ids = await fetchProductionIdsByClientLookup(payload.cred)
+    if (ids.length) ctx.productionIds = ids
   }
   return ctx
 }

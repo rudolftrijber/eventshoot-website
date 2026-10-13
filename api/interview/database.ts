@@ -353,14 +353,13 @@ export async function fetchProductiesByClientPassword(password: string): Promise
   if (lookup) {
     candidateRows = await sql`
       SELECT * FROM interview_producties
-      WHERE archived_at IS NULL AND client_password_lookup = ${lookup}
+      WHERE client_password_lookup = ${lookup}
     `
   }
   if (!candidateRows.length) {
     candidateRows = await sql`
       SELECT * FROM interview_producties
-      WHERE archived_at IS NULL
-        AND client_password_hash IS NOT NULL
+      WHERE client_password_hash IS NOT NULL
         AND (client_password_lookup IS NULL OR client_password_lookup = '')
       LIMIT 25
     `
@@ -414,7 +413,7 @@ export async function clientSessionCredValid(productionIds: string[], cred: stri
   for (const id of ids) {
     const rows = await sql`
       SELECT client_password_lookup FROM interview_producties
-      WHERE id = ${id} AND archived_at IS NULL
+      WHERE id = ${id}
     `
     const lookup = String((rows[0] as { client_password_lookup?: string } | undefined)?.client_password_lookup || '')
     if (lookup && lookup.length === cred.length) {
@@ -426,6 +425,19 @@ export async function clientSessionCredValid(productionIds: string[], cred: stri
     }
   }
   return false
+}
+
+/** Every production that shares this client password, including the archive. */
+export async function fetchProductionIdsByClientLookup(lookup: string): Promise<string[]> {
+  if (!lookup) return []
+  const sql = await getSql()
+  const rows = await sql`
+    SELECT id FROM interview_producties
+    WHERE client_password_lookup = ${lookup}
+  `
+  return rows
+    .map((row) => String((row as { id?: string }).id || ''))
+    .filter(Boolean)
 }
 
 export async function fetchProducties(includeArchived = false): Promise<Productie[]> {
