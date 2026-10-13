@@ -183,8 +183,8 @@ Componenten per audience-pagina: HeaderBar → HeroImage → PainPointBlock → 
 
 6. Pakketten & tarieven
 Drie losse pakketten
-PakketPrijs (excl. BTW)AanwezigheidFoto'sAftermovieInterviewsCrewBeste fitHIGHLIGHT€ 9754 uur50–100Social (45–90 sec)—1Kleiner event, social-onlyHEADLINE (meest gekozen)€ 2.5758 uur100–150Social10–15 één-camera2Jaarcongres, ledendagHEROES€ 3.62510 uur150–200Social + Corporate (90–180 sec)15–20 één-camera3Hoog-profile congres
-Alle pakketten inclusief: pre-production meeting, AI-ondertiteling, post-production met één correctieronde, levering binnen 48 uur (Highlight: 24 uur), drone/timelapse alleen bij Heroes (indien mogelijk).
+PakketPrijs (excl. BTW)AanwezigheidFoto'sAftermovieInterviewsCrewBeste fitHIGHLIGHT€ 9754 uur50–100Social (45–90 sec)—1Kleiner eventHEADLINE (meest gekozen)€ 2.5758 uur100–150Social + Corporate (90–180 sec)Max. 15 executive interviews (1–5 min.)2Jaarcongres, ledendagHEROES€ 3.62510 uur150–200Social + Corporate (90–180 sec)Max. 30 executive interviews (1–5 min.)3Hoog-profile congres
+Alle pakketten inclusief: apparatuur, pre-productie, AI-ondertiteling, post-productie met één correctieronde. Foto's en aftermovies binnen 48 uur, overige content binnen 5 werkdagen. Niet inbegrepen: visagie, decoratie, reistijd, reis- en transportkosten en btw.
 Content Year jaarcontract (aparte strook, geen vierde pakket)
 
 € 775 per maand (= € 9.300 per jaar)
@@ -206,8 +206,8 @@ Excl. auteursrechtcorrecties, reis- en verblijfkosten en btw
 Aanvullende diensten
 
 Same-day levering direct na het event: € 425 / € 650 / € 925 (Highlight / Headline / Heroes)
-Human ondertiteling (98% correct, ipv AI): € 13 per minuut (alleen Headline en Heroes)
-Event promotievideo voor volgende editie: op offerte
+Ondertiteling door mensen (ca. 98% correct): € 8 per minuut (alleen Headline en Heroes)
+Sponsorpakket: vanaf € 375, alleen in combinatie met een eventpakket
 
 Tarieven excl. BTW. Reisuren en transportkosten separaat.
 

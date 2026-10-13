@@ -16,14 +16,14 @@ const isEnglish = computed(() => locale.value.startsWith('en'))
 
 const onepagerPdf = computed(() =>
   isEnglish.value
-    ? '/DATA_EVENTSHOOT/FILES/Eventpackages_pricing_EN.pdf?v=4'
-    : '/DATA_EVENTSHOOT/FILES/Eventpakketten_prijzen_NL.pdf?v=4',
+    ? '/DATA_EVENTSHOOT/FILES/Eventpackages_pricing_2026_EN.pdf?v=5'
+    : '/DATA_EVENTSHOOT/FILES/Eventpakketten_prijzen_2026_NL.pdf?v=5',
 )
 
 const onepagerDownloadName = computed(() =>
   isEnglish.value
-    ? 'Eventpackages_pricing_EN.pdf'
-    : 'Eventpakketten_prijzen_NL.pdf',
+    ? 'Eventpackages_pricing_2026_EN.pdf'
+    : 'Eventpakketten_prijzen_2026_NL.pdf',
 )
 
 const vodcastPdf = computed(() =>
@@ -43,7 +43,7 @@ const packages = computed(() => [
     name: 'Highlight',
     price: '€975',
     description: t('pkg.highlightDesc'),
-    features: [t('pkg.f4uur'), t('pkg.f100foto'), t('pkg.fSocial'), t('pkg.f48uurFotoAftermovie')],
+    features: [t('pkg.f4uur'), t('pkg.f100foto'), t('pkg.fSocial'), t('pkg.fDeliverySplit')],
     image: '/DATA_EVENTSHOOT/SITE_IMAGES/PRIJZEN/PHOTO.png',
     highlighted: false,
   },

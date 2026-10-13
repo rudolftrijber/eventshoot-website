@@ -20,7 +20,7 @@ export const siteFaqByPage: Record<FaqPageKey, FaqLangMap> = {
       {
         "_id": "faq-home-3",
         "question": "Hoe snel is de content klaar na afloop?",
-        "answer": "Standaard binnen 48 uur na het event. Same-day levering is mogelijk als add-on. Zo kan je marketeer posten terwijl deelnemers het event nog bespreken op LinkedIn."
+        "answer": "Foto's en aftermovies zijn standaard binnen 48 uur klaar. Overige content, zoals interviews, volgt binnen 5 werkdagen. Same-day levering is mogelijk als add-on."
       },
       {
         "_id": "faq-home-4",
@@ -52,7 +52,7 @@ export const siteFaqByPage: Record<FaqPageKey, FaqLangMap> = {
       {
         "_id": "faq-home-3",
         "question": "How quickly is the content ready after the event?",
-        "answer": "Standard delivery within 48 hours after the event. Same-day delivery is available as an add-on. Your marketing team can post while attendees are still discussing the event on LinkedIn."
+        "answer": "Photos and aftermovies are ready within 48 hours as standard. Remaining content, such as interviews, follows within 5 business days. Same-day delivery is available as an add-on."
       },
       {
         "_id": "faq-home-4",
@@ -167,7 +167,7 @@ export const siteFaqByPage: Record<FaqPageKey, FaqLangMap> = {
       {
         "_id": "faq-eventfotografie-6",
         "question": "Kan ik foto en video combineren in één opdracht?",
-        "answer": "Ja. De pakketten Headline en Heroes combineren foto en video standaard. Liever alleen foto? Dat kan ook. Bekijk de pakketten op de tarievenpagina of plan een kennismaking."
+        "answer": "Ja. Elk eventpakket is een vaste combinatie van fotografie en video. Highlight bevat foto's en een social aftermovie. Headline en Heroes voegen een corporate aftermovie en executive interviews toe."
       }
     ],
     "en": [
@@ -199,7 +199,7 @@ export const siteFaqByPage: Record<FaqPageKey, FaqLangMap> = {
       {
         "_id": "faq-eventfotografie-6",
         "question": "Can I combine photo and video in one assignment?",
-        "answer": "Yes. The Headline and Heroes packages combine photo and video as standard. Prefer photo only? That is possible too. See the packages on the pricing page or schedule an introductory call."
+        "answer": "Yes. Every event package is a fixed combination of photography and video. Highlight includes photos and a social aftermovie. Headline and Heroes add a corporate aftermovie and executive interviews."
       }
     ]
   },
@@ -223,7 +223,7 @@ export const siteFaqByPage: Record<FaqPageKey, FaqLangMap> = {
       {
         "_id": "faq-eventvideo-4",
         "question": "Hoeveel interviews kan ik verwachten?",
-        "answer": "In het Headline-pakket 10–15 één-camera interviews, in Heroes 25–30. Ideaal voor quotes op LinkedIn en content voor je volgende editie."
+        "answer": "In het Headline-pakket max. 15 executive interviews van 1–5 minuten, in Heroes max. 30. Ideaal voor quotes op LinkedIn en content voor je volgende editie."
       },
       {
         "_id": "faq-eventvideo-5",
@@ -255,7 +255,7 @@ export const siteFaqByPage: Record<FaqPageKey, FaqLangMap> = {
       {
         "_id": "faq-eventvideo-4",
         "question": "How many interviews can I expect?",
-        "answer": "The Headline package includes 10–15 single-camera interviews, Heroes 25–30. Ideal for LinkedIn quotes and content for your next edition."
+        "answer": "The Headline package includes a maximum of 15 executive interviews of 1–5 minutes, Heroes a maximum of 30. Ideal for LinkedIn quotes and content for your next edition."
       },
       {
         "_id": "faq-eventvideo-5",
@@ -279,7 +279,7 @@ export const siteFaqByPage: Record<FaqPageKey, FaqLangMap> = {
       {
         "_id": "faq-tarieven-2",
         "question": "Wat zit standaard inbegrepen bij elk pakket?",
-        "answer": "Een online pre-production meeting, post-production met één correctieronde en AI-ondertiteling op video's (met controle op naamweergave). Reisuren, reis- en transportkosten en btw komen daar bovenop."
+        "answer": "Benodigde apparatuur, pre-productie en post-productie met één correctieronde, inclusief AI-ondertiteling. Niet inbegrepen: visagie, decoratie, reistijd, reis- en transportkosten en btw."
       },
       {
         "_id": "faq-tarieven-3",
@@ -289,7 +289,7 @@ export const siteFaqByPage: Record<FaqPageKey, FaqLangMap> = {
       {
         "_id": "faq-tarieven-4",
         "question": "Wat zijn de add-ons?",
-        "answer": "Same-day levering (€ 425 / € 650 / € 925), human ondertiteling € 13 per minuut (Headline/Heroes), en event promotievideo op offerte."
+        "answer": "Same-day levering (€ 425 / € 650 / € 925) en ondertiteling door mensen, ca. 98% correct, € 8 per minuut (alleen Headline en Heroes). Het Sponsorpakket vanaf € 375 is alleen te boeken samen met een eventpakket."
       },
       {
         "_id": "faq-tarieven-5",
@@ -311,7 +311,7 @@ export const siteFaqByPage: Record<FaqPageKey, FaqLangMap> = {
       {
         "_id": "faq-tarieven-2",
         "question": "What is included as standard in every package?",
-        "answer": "An online pre-production meeting, post-production with one revision round and AI subtitling on videos (with name display checks). Travel time, travel and transport costs and VAT are additional."
+        "answer": "Required equipment, pre-production and post-production with one revision round, including AI subtitling. Not included: styling and make-up, decoration, travel time, travel and transport costs, and VAT."
       },
       {
         "_id": "faq-tarieven-3",
@@ -321,7 +321,7 @@ export const siteFaqByPage: Record<FaqPageKey, FaqLangMap> = {
       {
         "_id": "faq-tarieven-4",
         "question": "What are the add-ons?",
-        "answer": "Same-day delivery (€ 425 / € 650 / € 925), human subtitling € 13 per minute (Headline/Heroes), and event promo video on quote."
+        "answer": "Same-day delivery (€ 425 / € 650 / € 925) and manual subtitling, about 98% accurate, € 8 per minute (Headline and Heroes only). The Sponsor package from € 375 is only available together with an event package."
       },
       {
         "_id": "faq-tarieven-5",
@@ -421,7 +421,7 @@ export const siteFaqByPage: Record<FaqPageKey, FaqLangMap> = {
       {
         "_id": "faq-voor-brancheverenigingen-4",
         "question": "Hoe snel ontvangen we het materiaal na ons jaarcongres?",
-        "answer": "Standaard binnen 48 uur. Same-day levering is ook mogelijk, ideaal als je snel iets op social media wilt zetten terwijl het congres nog trending is."
+        "answer": "Foto's en aftermovies binnen 48 uur, overige content binnen 5 werkdagen. Same-day levering is ook mogelijk, ideaal als je snel iets op social media wilt zetten terwijl het congres nog trending is."
       },
       {
         "_id": "faq-voor-brancheverenigingen-5",
@@ -453,7 +453,7 @@ export const siteFaqByPage: Record<FaqPageKey, FaqLangMap> = {
       {
         "_id": "faq-voor-brancheverenigingen-4",
         "question": "How quickly do we receive the material after our annual congress?",
-        "answer": "Standard delivery within 48 hours. Same-day delivery is also possible, ideal if you want to post on social media while the congress is still trending."
+        "answer": "Photos and aftermovies within 48 hours, remaining content within 5 business days. Same-day delivery is also possible, ideal if you want to post on social media while the congress is still trending."
       },
       {
         "_id": "faq-voor-brancheverenigingen-5",
@@ -614,7 +614,7 @@ export const siteFaqByPage: Record<FaqPageKey, FaqLangMap> = {
       {
         "_id": "faq-voor-bedrijven-3",
         "question": "Kunnen jullie interviews met klanten of sprekers verzorgen?",
-        "answer": "Ja. Het Headline-pakket bevat 10–15 interviews, Heroes 25–30. Handig voor testimonials, LinkedIn-posts en content voor je volgende editie."
+        "answer": "Ja. Het Headline-pakket bevat max. 15 executive interviews (1–5 min.), Heroes max. 30. Handig voor testimonials, LinkedIn-posts en content voor je volgende editie."
       },
       {
         "_id": "faq-voor-bedrijven-4",
@@ -646,7 +646,7 @@ export const siteFaqByPage: Record<FaqPageKey, FaqLangMap> = {
       {
         "_id": "faq-voor-bedrijven-3",
         "question": "Can you conduct interviews with customers or speakers?",
-        "answer": "Yes. The Headline package includes 10–15 interviews, Heroes 25–30. Useful for testimonials, LinkedIn posts and content for your next edition."
+        "answer": "Yes. The Headline package includes a maximum of 15 executive interviews (1–5 min.), Heroes a maximum of 30. Useful for testimonials, LinkedIn posts and content for your next edition."
       },
       {
         "_id": "faq-voor-bedrijven-4",
@@ -670,12 +670,12 @@ export const siteFaqByPage: Record<FaqPageKey, FaqLangMap> = {
       {
         "_id": "faq-event-vodcast-recording-1",
         "question": "Wat is Event Vodcast Recording?",
-        "answer": "Op je event lopen je keynotesprekers, executives en klanten toch al rond. Wij interviewen hen in een tijdelijke videostudio op locatie. Uit één eventdag haal je ca. 40 branded video's: ca. 8 long form vodcasts van ca. 20 minuten, 3 tot 4 verticale shorts per aflevering en een BTS van de vodcastdag."
+        "answer": "Op je event lopen je keynotesprekers, executives en klanten toch al rond. Wij interviewen hen in een tijdelijke videostudio op locatie. Uit één eventdag haal je ca. 41 branded video's: ca. 8 long form vodcasts van ca. 20 minuten, 3 tot 4 verticale shorts per aflevering en een BTS van de vodcastdag."
       },
       {
         "_id": "faq-event-vodcast-recording-2",
         "question": "Hoeveel video's levert één eventdag op?",
-        "answer": "Ca. 8 vodcasts van ca. 20 minuten, plus 3 tot 4 verticale short form video's per aflevering en een BTS van de vodcastdag. Samen ca. 40 branded video's voor € 3.725."
+        "answer": "Ca. 8 vodcasts van ca. 20 minuten, plus 3 tot 4 verticale short form video's per aflevering en een BTS van de vodcastdag. Samen ca. 41 branded video's voor € 3.725, ca. € 90 per video."
       },
       {
         "_id": "faq-event-vodcast-recording-3",
@@ -700,19 +700,19 @@ export const siteFaqByPage: Record<FaqPageKey, FaqLangMap> = {
       {
         "_id": "faq-event-vodcast-recording-7",
         "question": "Wat kost Event Vodcast Recording?",
-        "answer": "€ 3.725 voor het totaalpakket. Dat is ca. 8 vodcasts van ca. 20 minuten, 3 tot 4 verticale shorts per aflevering en een BTS van de vodcastdag. Samen ca. 40 video's. Excl. reis- en verblijfkosten en btw."
+        "answer": "€ 3.725 voor het totaalpakket. Dat is ca. 8 vodcasts van ca. 20 minuten, 3 tot 4 verticale shorts per aflevering en een BTS van de vodcastdag. Samen ca. 41 video's, ca. € 90 per video. Excl. reis- en verblijfkosten en btw."
       }
     ],
     "en": [
       {
         "_id": "faq-event-vodcast-recording-1",
         "question": "What is Event Vodcast Recording?",
-        "answer": "Your keynote speakers, executives and clients are already at your event. We interview them in a temporary video studio on location. From one event day you get about 40 branded videos: about 8 long form vodcasts of about 20 minutes, 3 to 4 vertical shorts per episode and a BTS of the vodcast day."
+        "answer": "Your keynote speakers, executives and clients are already at your event. We interview them in a temporary video studio on location. From one event day you get about 41 branded videos: about 8 long form vodcasts of about 20 minutes, 3 to 4 vertical shorts per episode and a BTS of the vodcast day."
       },
       {
         "_id": "faq-event-vodcast-recording-2",
         "question": "How many videos do you get from one event day?",
-        "answer": "About 8 vodcasts of about 20 minutes, plus 3 to 4 vertical short form videos per episode and a BTS of the vodcast day. Together about 40 branded videos for € 3,725."
+        "answer": "About 8 vodcasts of about 20 minutes, plus 3 to 4 vertical short form videos per episode and a BTS of the vodcast day. Together about 41 branded videos for € 3,725, about € 90 per video."
       },
       {
         "_id": "faq-event-vodcast-recording-3",
@@ -737,7 +737,7 @@ export const siteFaqByPage: Record<FaqPageKey, FaqLangMap> = {
       {
         "_id": "faq-event-vodcast-recording-7",
         "question": "What does Event Vodcast Recording cost?",
-        "answer": "€ 3,725 for the full package. That is about 8 vodcasts of about 20 minutes, 3 to 4 vertical shorts per episode and a BTS of the vodcast day. Together about 40 videos. Excl. travel and accommodation costs and VAT."
+        "answer": "€ 3,725 for the full package. That is about 8 vodcasts of about 20 minutes, 3 to 4 vertical shorts per episode and a BTS of the vodcast day. Together about 41 videos, about € 90 per video. Excl. travel and accommodation costs and VAT."
       }
     ]
   }
