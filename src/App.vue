@@ -12,11 +12,30 @@ import { useStillBackground } from '@/lib/isIosLike'
 const STILL_LANDSCAPE = '/DATA_EVENTSHOOT/SITE_IMAGES/BACKGROUND/eventshoot_background_HDL.jpg'
 const STILL_PORTRAIT = '/DATA_EVENTSHOOT/SITE_IMAGES/BACKGROUND/eventshoot_background_HDP.jpg'
 
+const GALLERY_ROUTES = new Set([
+  'klant',
+  'klant-dsr-video',
+  'sdc',
+  'public-affairs',
+  'public-affairs-video',
+])
+
 const route = useRoute()
-const hideLayout = computed(() => Boolean(route.meta.hideLayout))
+const isGalleryEmbed = computed(() => {
+  const name = String(route.name || '')
+  if (!GALLERY_ROUTES.has(name)) return false
+  const flag = route.query.embed
+  return flag === '1' || flag === 'true'
+})
+const hideLayout = computed(() => Boolean(route.meta.hideLayout) || isGalleryEmbed.value)
 const hideRolfContact = computed(() => Boolean(route.meta.hideRolfContact))
-const hideBackgroundVideo = computed(() => Boolean(route.meta.hideBackgroundVideo))
+const hideBackgroundVideo = computed(() => Boolean(route.meta.hideBackgroundVideo) || isGalleryEmbed.value)
 const stillBackground = useStillBackground()
+
+watch(isGalleryEmbed, (on) => {
+  document.documentElement.classList.toggle('gallery-embed', on)
+  document.body.classList.toggle('gallery-embed', on)
+}, { immediate: true })
 
 watch(
   () => route.fullPath,
@@ -27,7 +46,13 @@ watch(
 </script>
 
 <template>
-  <div class="app-bg" :class="{ 'app-bg--solid': hideBackgroundVideo && !stillBackground }">
+  <div
+    class="app-bg"
+    :class="{
+      'app-bg--solid': hideBackgroundVideo && !stillBackground && !isGalleryEmbed,
+      'app-bg--embed': isGalleryEmbed,
+    }"
+  >
     <picture v-if="!hideBackgroundVideo && stillBackground" class="app-bg__media">
       <source media="(orientation: portrait)" :srcset="STILL_PORTRAIT" />
       <img :src="STILL_LANDSCAPE" alt="" />
@@ -67,6 +92,12 @@ watch(
 
 .app-bg--solid {
   background: #002d56;
+}
+
+.app-bg--embed,
+html.gallery-embed,
+body.gallery-embed {
+  background: #000;
 }
 
 .app-bg__video,

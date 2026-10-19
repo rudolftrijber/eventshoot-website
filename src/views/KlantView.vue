@@ -8,6 +8,7 @@ import { useSeo } from '@/composables/useSeo'
 import { downloadStoredZip } from '@/lib/zipStore'
 
 const route = useRoute()
+const isEmbed = computed(() => route.query.embed === '1' || route.query.embed === 'true')
 
 interface KlantPhoto {
   url: string
@@ -237,7 +238,7 @@ function onKeydown(e: KeyboardEvent) {
 </script>
 
 <template>
-  <main>
+  <main :class="{ 'klant--embed': isEmbed }">
     <div v-if="loading" class="klant-state">
       <p>Leveringspagina laden…</p>
     </div>
@@ -349,6 +350,15 @@ function onKeydown(e: KeyboardEvent) {
   min-height: 50vh;
   display: flex;
   align-items: center;
+}
+
+.klant--embed .klant-hero {
+  min-height: 36vh;
+}
+
+.klant--embed .klant-hero__content {
+  padding-top: 2.5rem;
+  padding-bottom: 2.5rem;
 }
 
 .klant-hero__bg {
