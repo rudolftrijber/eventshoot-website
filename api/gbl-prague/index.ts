@@ -197,6 +197,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       res.status(400).json({ error: 'invalid' })
       return
     }
+    if (slot.day.closed) {
+      res.status(403).json({ error: 'closed' })
+      return
+    }
 
     const key = personKey(firstName, lastName)
     const sql = await getSql()

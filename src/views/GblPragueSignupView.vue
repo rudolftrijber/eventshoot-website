@@ -25,6 +25,7 @@ type Day = {
   hoursNl: string
   location: string
   locationNl: string
+  closed?: boolean
   slots: Slot[]
 }
 
@@ -65,10 +66,11 @@ const dialog = ref<HTMLDialogElement | null>(null)
 let pollTimer = 0
 let robotsMeta: HTMLMetaElement | null = null
 
+const bookableDays = computed(() => days.value.filter((day) => !day.closed))
 const openCount = computed(() =>
-  days.value.reduce((sum, day) => sum + day.slots.filter((slot) => !slot.booking).length, 0),
+  bookableDays.value.reduce((sum, day) => sum + day.slots.filter((slot) => !slot.booking).length, 0),
 )
-const totalCount = computed(() => days.value.reduce((sum, day) => sum + day.slots.length, 0))
+const totalCount = computed(() => bookableDays.value.reduce((sum, day) => sum + day.slots.length, 0))
 
 function dayTitle(day: Day) {
   return isAdmin.value ? day.labelNl : day.label
@@ -117,7 +119,7 @@ async function load(silent = false) {
 }
 
 async function openSlot(day: Day, slot: Slot) {
-  if (slot.booking || saving.value) return
+  if (day.closed || slot.booking || saving.value) return
   selected.value = { day, slot }
   firstName.value = ''
   lastName.value = ''
@@ -158,6 +160,11 @@ async function book() {
     const data = (await res.json()) as Schedule & BookError
     if (res.status === 409 && data.error === 'already_booked') {
       formError.value = `This name already has a slot on ${data.dayLabel}, ${data.start} to ${data.end}.`
+      return
+    }
+    if (res.status === 403 && data.error === 'closed') {
+      formError.value = 'This day is not open yet.'
+      await load(true)
       return
     }
     if (res.status === 409 && data.error === 'slot_taken') {
@@ -261,10 +268,10 @@ onUnmounted(() => {
       <p class="sheet__brand">Eventshoot.nl</p>
       <h1>{{ isAdmin ? 'GBL-interviews Praag' : 'GBL interviews, Prague' }}</h1>
       <p v-if="isAdmin" class="sheet__lead">
-        Woensdag 4, donderdag 5 en vrijdag 6 november. Eén blok van een half uur per persoon.
+        Woensdag 4 en donderdag 5 november staan open. Vrijdag is voorlopig gesloten. Eén blok van een half uur per persoon.
       </p>
       <p v-else class="sheet__lead">
-        Choose one half-hour slot on 4, 5 or 6 November. Leave your first name, last name and firm name.
+        Choose one half-hour slot on Wednesday 4 or Thursday 5 November. Leave your first name, last name and firm name.
         One slot per person.
       </p>
       <p v-if="!loading && !loadError" class="sheet__count">
@@ -291,9 +298,10 @@ onUnmounted(() => {
       {{ isAdmin ? 'Het schema kon niet worden geladen. Vernieuw de pagina.' : 'The schedule could not be loaded. Refresh the page.' }}
     </p>
 
-    <section v-for="day in days" :key="day.id" class="day">
+    <section v-for="day in days" :key="day.id" class="day" :class="{ 'day--closed': day.closed }">
       <h2>{{ dayTitle(day) }}</h2>
       <p class="day__meta">{{ dayMeta(day) }}</p>
+      <p v-if="day.closed" class="day__closed">{{ isAdmin ? 'Voorlopig gesloten.' : 'Not open yet.' }}</p>
       <div class="day__table">
         <table>
           <thead>
@@ -307,11 +315,11 @@ onUnmounted(() => {
           <tbody>
             <tr v-for="slot in day.slots" :key="slot.id" :class="{ 'is-taken': slot.booking }">
               <th scope="row">{{ slot.start }}-{{ slot.end }}</th>
-              <td>{{ slot.booking ? `${slot.booking.firstName} ${slot.booking.lastName}` : (isAdmin ? 'Vrij' : 'Free') }}</td>
+              <td>{{ slot.booking ? `${slot.booking.firstName} ${slot.booking.lastName}` : (day.closed ? (isAdmin ? 'Gesloten' : 'Closed') : (isAdmin ? 'Vrij' : 'Free')) }}</td>
               <td>{{ slot.booking?.firm || '' }}</td>
               <td class="day__action">
                 <button
-                  v-if="!slot.booking && !isAdmin"
+                  v-if="!slot.booking && !isAdmin && !day.closed"
                   class="btn btn--primary btn--small"
                   type="button"
                   @click="openSlot(day, slot)"
@@ -446,6 +454,15 @@ h1 {
 
 .day__meta {
   margin: 0.25rem 0 0.8rem;
+}
+
+.day--closed {
+  opacity: 0.72;
+}
+
+.day__closed {
+  margin: -0.35rem 0 0.8rem;
+  font-weight: 600;
 }
 
 .day__table {

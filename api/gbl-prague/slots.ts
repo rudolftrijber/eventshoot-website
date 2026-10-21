@@ -7,6 +7,7 @@ export type GblDay = {
   hoursNl: string
   location: string
   locationNl: string
+  closed?: boolean
   slots: GblSlot[]
 }
 
@@ -67,6 +68,7 @@ export const GBL_DAYS: GblDay[] = [
     hoursNl: '13:30 tot 17:00',
     location: 'Meeting room, PRK office',
     locationNl: 'Vergaderruimte PRK office',
+    closed: true,
     slots: halfHours('2026-11-06', '13:30', '17:00'),
   },
 ]
