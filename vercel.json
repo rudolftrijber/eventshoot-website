@@ -5,6 +5,9 @@
     "api/interview-login.ts": {
       "includeFiles": "api/interview/**"
     },
+    "api/gbl-prague/index.ts": {
+      "includeFiles": "api/interview/**"
+    },
     "api/interview/snippets.ts": {
       "maxDuration": 60,
       "includeFiles": "api/interview/**"
@@ -42,6 +45,30 @@
     {
       "source": "/opt/(.*)",
       "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+    },
+    {
+      "source": "/gbl-praag",
+      "headers": [
+        { "key": "X-Robots-Tag", "value": "noindex, nofollow" },
+        { "key": "Referrer-Policy", "value": "no-referrer" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" }
+      ]
+    },
+    {
+      "source": "/gbl-praag/beheer",
+      "headers": [
+        { "key": "X-Robots-Tag", "value": "noindex, nofollow" },
+        { "key": "Referrer-Policy", "value": "no-referrer" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" }
+      ]
+    },
+    {
+      "source": "/api/gbl-prague",
+      "headers": [
+        { "key": "X-Robots-Tag", "value": "noindex, nofollow" },
+        { "key": "Cache-Control", "value": "no-store" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" }
+      ]
     },
     {
       "source": "/interview-app",

@@ -28,6 +28,22 @@ const PAGES = [
     image: `${BASE_URL}/DATA_EVENTSHOOT/SITE_IMAGES/VODCAST/RT202570.jpg`,
     locale: 'en_GB',
   },
+  {
+    path: '/gbl-praag',
+    title: 'GBL interviews, Prague | Eventshoot.nl',
+    description: 'Private signup for GBL interviews in Prague.',
+    image: `${BASE_URL}/images/logos/logo.svg`,
+    locale: 'en_GB',
+    robots: 'noindex, nofollow',
+  },
+  {
+    path: '/gbl-praag/beheer',
+    title: 'Overzicht GBL-interviews Praag | Eventshoot.nl',
+    description: 'Privé-overzicht voor de GBL-interviews in Praag.',
+    image: `${BASE_URL}/images/logos/logo.svg`,
+    locale: 'nl_NL',
+    robots: 'noindex, nofollow',
+  },
 ]
 
 function escapeAttr(value) {
@@ -37,7 +53,8 @@ function escapeAttr(value) {
     .replace(/</g, '&lt;')
 }
 
-function injectMeta(html, { title, description, image, url, locale }) {
+function injectMeta(html, { title, description, image, url, locale, robots }) {
+  const robotsTag = robots ? `\n    <meta name="robots" content="${escapeAttr(robots)}" />` : ''
   const ogTags = `
     <meta property="og:title" content="${escapeAttr(title)}" />
     <meta property="og:description" content="${escapeAttr(description)}" />
@@ -49,7 +66,7 @@ function injectMeta(html, { title, description, image, url, locale }) {
     <meta name="twitter:title" content="${escapeAttr(title)}" />
     <meta name="twitter:description" content="${escapeAttr(description)}" />
     <meta name="twitter:image" content="${escapeAttr(image)}" />
-    <link rel="canonical" href="${escapeAttr(url)}" />`
+    <link rel="canonical" href="${escapeAttr(url)}" />${robotsTag}`
 
   let result = html
     .replace(/<html lang="[^"]*">/, `<html lang="${(locale || 'nl_NL').startsWith('en') ? 'en' : 'nl'}">`)
@@ -81,6 +98,7 @@ for (const page of PAGES) {
     image: page.image,
     url,
     locale: page.locale,
+    robots: page.robots,
   })
   const outDir = join('dist', ...page.path.replace(/^\//, '').split('/'))
   mkdirSync(outDir, { recursive: true })

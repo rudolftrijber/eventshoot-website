@@ -10,6 +10,7 @@ type RouteMatch = {
 
 function matchApiRoute(pathname: string): RouteMatch | null {
   const routes: Array<{ re: RegExp; modulePath: string; params?: string[] }> = [
+    { re: /^\/api\/gbl-prague$/, modulePath: '/api/gbl-prague/index.ts' },
     { re: /^\/api\/interview-login$/, modulePath: '/api/interview-login.ts' },
     { re: /^\/api\/interview\/sync$/, modulePath: '/api/interview/sync.ts' },
     { re: /^\/api\/interview\/seed-demo$/, modulePath: '/api/interview/seed-demo.ts' },
@@ -123,6 +124,15 @@ async function handleApi(
 ): Promise<boolean> {
   const match = matchApiRoute(pathname)
   if (!match) return false
+
+  if (pathname === '/api/gbl-prague' && !envValue('POSTGRES_URL') && !envValue('POSTGRES_URL_NON_POOLING')) {
+    res.statusCode = 500
+    res.setHeader('Content-Type', 'application/json; charset=utf-8')
+    res.end(JSON.stringify({
+      error: 'POSTGRES_URL ontbreekt in .env.local.',
+    }))
+    return true
+  }
 
   if (pathname.startsWith('/api/interview/')) {
     const missing = checkInterviewEnv()
