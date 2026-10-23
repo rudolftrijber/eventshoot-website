@@ -191,7 +191,7 @@ async function unlockAdmin() {
   adminMessage.value = ''
   adminKey.value = adminInput.value.trim()
   if (!adminKey.value) {
-    adminMessage.value = 'Vul de beheercode in.'
+    adminMessage.value = 'Vul je wachtwoord in.'
     return
   }
   await load(true)
@@ -202,7 +202,7 @@ async function unlockAdmin() {
     return
   }
   adminKey.value = ''
-  adminMessage.value = 'De code klopt niet.'
+  adminMessage.value = 'Het wachtwoord klopt niet.'
 }
 
 async function clearSlot(slot: Slot) {
@@ -221,7 +221,7 @@ async function clearSlot(slot: Slot) {
       adminUnlocked.value = false
       adminKey.value = ''
       sessionStorage.removeItem(ADMIN_STORAGE)
-      adminMessage.value = 'De code klopt niet. Vul hem opnieuw in.'
+      adminMessage.value = 'Het wachtwoord klopt niet. Vul het opnieuw in.'
       return
     }
     const data = (await res.json()) as Schedule
@@ -283,10 +283,11 @@ onUnmounted(() => {
     <section v-if="isAdmin" class="admin">
       <h2>Overzicht voor Rolf</h2>
       <form v-if="!adminUnlocked" class="admin__form" @submit.prevent="unlockAdmin">
-        <label for="admin-key">Beheercode</label>
+        <label for="admin-key">Je loginwachtwoord</label>
+        <p class="admin__hint">Hetzelfde wachtwoord als bij de interview-app.</p>
         <div class="admin__row">
           <input id="admin-key" v-model="adminInput" type="password" autocomplete="current-password" />
-          <button class="btn btn--primary" type="submit">Code controleren</button>
+          <button class="btn btn--primary" type="submit">Openen</button>
         </div>
       </form>
       <p v-else class="admin__ok">Beheer actief. Een vrijgegeven blok kan opnieuw worden geboekt.</p>
@@ -413,6 +414,12 @@ h1 {
 .admin h2,
 .day h2 {
   font-size: 1.25rem;
+}
+
+.admin__hint {
+  margin: 0.35rem 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
 }
 
 .admin__form label,

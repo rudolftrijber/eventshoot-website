@@ -1,5 +1,6 @@
-import { createHash, randomUUID, timingSafeEqual } from 'node:crypto'
+import { randomUUID } from 'node:crypto'
 import type { VercelRequest, VercelResponse } from '@vercel/node'
+import { verifyCrewMemberLogin } from '../interview/auth.js'
 import { getSql } from '../interview/database.js'
 import { consumeRateLimit, rateLimited, rateLimitKeyFromRequest } from '../interview/rateLimit.js'
 import { findSlot, GBL_DAYS } from './slots.js'
@@ -15,11 +16,8 @@ type SignupRow = {
 let schemaReady: Promise<void> | null = null
 
 function adminOk(given: string): boolean {
-  const expected = (process.env.GBL_SIGNUP_ADMIN_KEY || '').trim()
-  if (!expected || !given) return false
-  const a = createHash('sha256').update(expected).digest()
-  const b = createHash('sha256').update(given).digest()
-  return timingSafeEqual(a, b)
+  if (!given) return false
+  return verifyCrewMemberLogin('Rolf Trijber', given)
 }
 
 function requestIp(req: VercelRequest): string {
