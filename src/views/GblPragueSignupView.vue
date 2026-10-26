@@ -268,10 +268,10 @@ onUnmounted(() => {
       <p class="sheet__brand">Eventshoot.nl</p>
       <h1>{{ isAdmin ? 'GBL-interviews Praag' : 'GBL interviews, Prague' }}</h1>
       <p v-if="isAdmin" class="sheet__lead">
-        Woensdag 4 en donderdag 5 november staan open. Vrijdag is voorlopig gesloten. Eén blok van een half uur per persoon.
+        Woensdag 4 en vrijdag 6 november staan open. Donderdag is gesloten, behalve de interviews die al staan. Eén blok van een half uur per persoon.
       </p>
       <p v-else class="sheet__lead">
-        Choose one half-hour slot on Wednesday 4 or Thursday 5 November. Leave your first name, last name and firm name.
+        Choose one half-hour slot on Wednesday 4 or Friday 6 November. Leave your first name, last name and firm name.
         One slot per person.
       </p>
       <p v-if="!loading && !loadError" class="sheet__count">
@@ -302,7 +302,7 @@ onUnmounted(() => {
     <section v-for="day in days" :key="day.id" class="day" :class="{ 'day--closed': day.closed }">
       <h2>{{ dayTitle(day) }}</h2>
       <p class="day__meta">{{ dayMeta(day) }}</p>
-      <p v-if="day.closed" class="day__closed">{{ isAdmin ? 'Voorlopig gesloten.' : 'Not open yet.' }}</p>
+      <p v-if="day.closed" class="day__closed">{{ isAdmin ? 'Gesloten voor nieuwe aanmeldingen. Bestaande interviews blijven staan.' : 'Closed for new bookings.' }}</p>
       <div class="day__table">
         <table>
           <thead>
