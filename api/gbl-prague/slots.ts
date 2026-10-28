@@ -23,6 +23,10 @@ function clock(minutes: number): string {
   return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
 }
 
+function slot(date: string, start: string, end: string): GblSlot {
+  return { id: `${date}T${start}`, start, end }
+}
+
 function halfHours(date: string, from: string, until: string): GblSlot[] {
   const [fromH, fromM] = from.split(':').map(Number)
   const [untilH, untilM] = until.split(':').map(Number)
@@ -53,12 +57,17 @@ export const GBL_DAYS: GblDay[] = [
     date: '2026-11-05',
     label: 'Thursday 5 November',
     labelNl: 'Donderdag 5 november',
-    hours: '15:00 to 18:00',
-    hoursNl: '15:00 tot 18:00',
+    hours: 'Keynotes 08:45, 10:35 and 12:40. Interviews 15:00 to 18:00',
+    hoursNl: 'Keynotes 08:45, 10:35 en 12:40. Interviews 15:00 tot 18:00',
     location: 'Near the conference hall',
     locationNl: 'In de buurt van de conferentiezaal',
     closed: true,
-    slots: halfHours('2026-11-05', '15:00', '18:00'),
+    slots: [
+      slot('2026-11-05', '08:45', '09:00'),
+      slot('2026-11-05', '10:35', '10:50'),
+      slot('2026-11-05', '12:40', '12:55'),
+      ...halfHours('2026-11-05', '15:00', '18:00'),
+    ],
   },
   {
     id: 'fri',
