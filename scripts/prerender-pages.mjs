@@ -44,6 +44,30 @@ const PAGES = [
     locale: 'nl_NL',
     robots: 'noindex, nofollow',
   },
+  {
+    path: '/gbl-debrief/participants',
+    title: 'Debrief for participants | Eventshoot.nl',
+    description: 'Anonymous debrief for participants of the GBL conference.',
+    image: `${BASE_URL}/DATA_EVENTSHOOT/SITE_IMAGES/OPDRACHTGEVERS/gbl.png`,
+    locale: 'en_GB',
+    robots: 'noindex, nofollow',
+  },
+  {
+    path: '/gbl-debrief/host',
+    title: 'Debrief for the host firm | Eventshoot.nl',
+    description: 'Short debrief for the office that organised the GBL conference.',
+    image: `${BASE_URL}/DATA_EVENTSHOOT/SITE_IMAGES/OPDRACHTGEVERS/gbl.png`,
+    locale: 'en_GB',
+    robots: 'noindex, nofollow',
+  },
+  {
+    path: '/gbl-debrief/beheer',
+    title: 'GBL-debrief overzicht | Eventshoot.nl',
+    description: 'Privé-overzicht van de GBL-debrief.',
+    image: `${BASE_URL}/DATA_EVENTSHOOT/SITE_IMAGES/OPDRACHTGEVERS/gbl.png`,
+    locale: 'nl_NL',
+    robots: 'noindex, nofollow',
+  },
 ]
 
 function escapeAttr(value) {

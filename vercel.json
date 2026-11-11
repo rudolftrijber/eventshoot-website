@@ -8,6 +8,9 @@
     "api/gbl-prague/index.ts": {
       "includeFiles": "api/interview/**"
     },
+    "api/gbl-debrief/index.ts": {
+      "includeFiles": "api/interview/**"
+    },
     "api/interview/snippets.ts": {
       "maxDuration": 60,
       "includeFiles": "api/interview/**"
@@ -64,6 +67,22 @@
     },
     {
       "source": "/api/gbl-prague",
+      "headers": [
+        { "key": "X-Robots-Tag", "value": "noindex, nofollow" },
+        { "key": "Cache-Control", "value": "no-store" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" }
+      ]
+    },
+    {
+      "source": "/gbl-debrief/:page",
+      "headers": [
+        { "key": "X-Robots-Tag", "value": "noindex, nofollow" },
+        { "key": "Referrer-Policy", "value": "no-referrer" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" }
+      ]
+    },
+    {
+      "source": "/api/gbl-debrief",
       "headers": [
         { "key": "X-Robots-Tag", "value": "noindex, nofollow" },
         { "key": "Cache-Control", "value": "no-store" },

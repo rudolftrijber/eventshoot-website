@@ -46,6 +46,9 @@ const router = createRouter({
     // GBL Praag, interview-aanmelding (unlisted, noindex)
     { path: '/gbl-praag', name: 'gbl-praag', component: () => import('../views/GblPragueSignupView.vue'), meta: { hideLayout: true, hideBackgroundVideo: true } },
     { path: '/gbl-praag/beheer', name: 'gbl-praag-beheer', component: () => import('../views/GblPragueSignupView.vue'), meta: { hideLayout: true, hideBackgroundVideo: true } },
+    { path: '/gbl-debrief/participants', name: 'gbl-debrief-participants', component: () => import('../views/GblDebriefView.vue'), meta: { hideLayout: true, hideBackgroundVideo: true, debrief: 'participants' } },
+    { path: '/gbl-debrief/host', name: 'gbl-debrief-host', component: () => import('../views/GblDebriefView.vue'), meta: { hideLayout: true, hideBackgroundVideo: true, debrief: 'host' } },
+    { path: '/gbl-debrief/beheer', name: 'gbl-debrief-beheer', component: () => import('../views/GblDebriefView.vue'), meta: { hideLayout: true, hideBackgroundVideo: true } },
     // Klant-leveringen (unlisted, noindex)
     { path: '/klanten/DSR/Video', name: 'klant-dsr-video', component: () => import('../views/KlantView.vue'), meta: { klantSlug: 'dsr-video' } },
     { path: '/klanten/:slug', name: 'klant', component: () => import('../views/KlantView.vue') },
