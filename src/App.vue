@@ -14,7 +14,6 @@ const STILL_PORTRAIT = '/DATA_EVENTSHOOT/SITE_IMAGES/BACKGROUND/eventshoot_backg
 
 const GALLERY_ROUTES = new Set([
   'klant',
-  'klant-dsr-video',
   'sdc',
   'public-affairs',
   'public-affairs-video',
