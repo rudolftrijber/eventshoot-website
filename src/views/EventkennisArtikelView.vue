@@ -3,7 +3,7 @@ import { h, ref, computed, onMounted, watch, type VNode } from 'vue'
 import { useRoute, useRouter, RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { PortableText } from '@portabletext/vue'
-import ArticleFaqBlock from '@/components/ArticleFaqBlock.vue'
+import FaqBlock from '@/components/FaqBlock.vue'
 import ArticleDownloadButtons from '@/components/ArticleDownloadButtons.vue'
 import { client, urlFor, postBySlugQuery, postsQuery, type SanityPost } from '@/lib/sanity'
 import { findLocalPost } from '@/data/goudmijnArtikel'
@@ -139,10 +139,10 @@ const portableComponents = {
         <PortableText v-if="post.body" :value="post.body" :components="portableComponents" />
       </div>
 
-      <ArticleFaqBlock v-if="post.faq?.length" :items="post.faq" />
-
       <RouterLink to="/eventkennis" class="post__back">&larr; {{ t('artikel.backBtn') }}</RouterLink>
     </div>
+
+    <FaqBlock v-if="post?.faq?.length" :items="post.faq" />
 
     <section v-if="recentPosts.length" class="recent section">
       <div class="container">

@@ -10,7 +10,8 @@ export interface FaqFallbackItem {
 }
 
 const props = defineProps<{
-  page: FaqPageKey
+  page?: FaqPageKey
+  items?: FaqFallbackItem[]
   fallback?: FaqFallbackItem[]
   subtitle?: string
 }>()
@@ -23,6 +24,14 @@ const fromSanity = ref(false)
 const openIndex = ref<number | null>(0)
 
 const displayItems = computed(() => {
+  if (props.items?.length) {
+    return props.items.map((item, i) => ({
+      _id: `items-${i}`,
+      question: item.question,
+      answer: item.answer,
+      image: null,
+    }))
+  }
   if (fromSanity.value && items.value.length) return items.value
   if (props.fallback?.length) {
     return props.fallback.map((item, i) => ({
@@ -39,7 +48,7 @@ function toggle(i: number) {
   openIndex.value = openIndex.value === i ? null : i
 }
 
-const schemaId = computed(() => `faq-schema-${props.page}`)
+const schemaId = computed(() => `faq-schema-${props.page || 'inline'}`)
 
 const jsonLd = computed(() => ({
   '@context': 'https://schema.org',
@@ -68,6 +77,11 @@ function removeSchema() {
 }
 
 async function load() {
+  if (props.items?.length || !props.page) {
+    loading.value = false
+    upsertSchema()
+    return
+  }
   loading.value = true
   try {
     const result = await fetchFaqForPage(props.page, locale.value)
