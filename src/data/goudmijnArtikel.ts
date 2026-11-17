@@ -1,3 +1,4 @@
+import type { TypedObject } from '@portabletext/types'
 import type { SanityPost } from '@/lib/sanity'
 
 function block(key: string, text: string, style = 'normal') {
@@ -40,7 +41,7 @@ export const goudmijnPost: SanityPost = {
   imageUrl: '/event-content-goudmijn.png',
   imageAlt: 'Je event is een goudmijn aan content. Gratis document over social media content uit je zakelijke event.',
   readTime: 4,
-  body: [
+  body: ([
     block('intro', 'Elke week iets plaatsen op LinkedIn klinkt eenvoudig, tot je er echt mee begint. Wat zet je deze week online? Wie heeft er tijd om iets te maken? En wat als het na een paar weken stilvalt? Voor veel organisaties is dat het echte probleem. Het goede nieuws: als je een zakelijk event organiseert, heb je de oplossing al in huis.'),
     h2('h-netwerken', 'Je event is meer dan netwerken'),
     block('netwerken', 'Een zakelijk event is de plek om kennis te delen en te netwerken. Maar het is ook het moment waarop alles samenkomt: keynote sprekers, sponsors, klanten en je eigen managementteam, en bijna iedereen is bereid om een interview te geven. Dat is veel kennis op één plek, en dus het ideale moment om content te produceren.'),
@@ -91,7 +92,7 @@ export const goudmijnPost: SanityPost = {
         { _type: 'span', _key: 'cta-c', text: ' met Rolf Trijber van Eventshoot.nl.', marks: [] },
       ],
     },
-  ],
+  ] as TypedObject[]),
   faq: [
     {
       question: 'Wat is het verschil tussen long form en short form video?',

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { h, ref, computed, onMounted, watch } from 'vue'
+import { h, ref, computed, onMounted, watch, type VNode } from 'vue'
 import { useRoute, useRouter, RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { PortableText } from '@portabletext/vue'
@@ -83,7 +83,7 @@ const portableComponents = {
     articleDownloads: ArticleDownloadButtons,
   },
   marks: {
-    link: ({ value }: { value?: { href?: string } }, { slots }: { slots: { default?: () => unknown } }) => {
+    link: ({ value }: { value?: { href?: string } }, { slots }: { slots: { default?: () => VNode | VNode[] } }) => {
       const href = value?.href || '#'
       const label = slots.default?.()
       if (href.startsWith('/')) {
