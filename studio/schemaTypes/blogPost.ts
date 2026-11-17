@@ -12,6 +12,13 @@ export const blogPost = defineType({
       validation: Rule => Rule.required(),
     }),
     defineField({
+      name: 'seoTitle',
+      title: 'SEO-titel',
+      type: 'string',
+      description: 'Korte titel voor Google, zonder "| Eventshoot.nl". Leeg laten gebruikt de H1.',
+      validation: Rule => Rule.max(44),
+    }),
+    defineField({
       name: 'slug',
       title: 'URL-slug',
       type: 'slug',
@@ -64,14 +71,78 @@ export const blogPost = defineType({
             { title: 'Kop 2', value: 'h2' },
             { title: 'Kop 3', value: 'h3' },
           ],
+          lists: [
+            { title: 'Opsomming', value: 'bullet' },
+            { title: 'Genummerd', value: 'number' },
+          ],
           marks: {
             decorators: [
               { title: 'Vet', value: 'strong' },
               { title: 'Cursief', value: 'em' },
             ],
+            annotations: [
+              {
+                name: 'link',
+                type: 'object',
+                title: 'Link',
+                fields: [
+                  defineField({
+                    name: 'href',
+                    title: 'Pad of URL',
+                    type: 'string',
+                    description: 'Intern pad zoals /kennismaken, of een volledige URL.',
+                    validation: Rule => Rule.required(),
+                  }),
+                ],
+              },
+            ],
           },
         },
         { type: 'image', options: { hotspot: true } },
+        {
+          type: 'object',
+          name: 'articleDownloads',
+          title: 'Downloadknoppen',
+          fields: [
+            defineField({
+              name: 'items',
+              title: 'Knoppen',
+              type: 'array',
+              of: [
+                {
+                  type: 'object',
+                  name: 'articleDownload',
+                  title: 'Download',
+                  fields: [
+                    defineField({
+                      name: 'label',
+                      title: 'Knoptekst',
+                      type: 'string',
+                      validation: Rule => Rule.required(),
+                    }),
+                    defineField({
+                      name: 'href',
+                      title: 'Bestand of URL',
+                      type: 'string',
+                      description: 'Pad vanaf de site, bijvoorbeeld /DATA_EVENTSHOOT/FILES/bestand.pdf',
+                      validation: Rule => Rule.required(),
+                    }),
+                  ],
+                  preview: {
+                    select: { title: 'label', subtitle: 'href' },
+                  },
+                },
+              ],
+            }),
+          ],
+          preview: {
+            select: { items: 'items' },
+            prepare({ items }) {
+              const count = Array.isArray(items) ? items.length : 0
+              return { title: `Downloads (${count})` }
+            },
+          },
+        },
       ],
     }),
     defineField({

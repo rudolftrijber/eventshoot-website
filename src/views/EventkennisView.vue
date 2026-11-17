@@ -3,22 +3,33 @@ import { ref, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { client, urlFor, postsQuery, type SanityPost } from '@/lib/sanity'
+import { mergeLocalPosts } from '@/data/goudmijnArtikel'
 import OptimizedImage from '@/components/OptimizedImage.vue'
 import { usePageSeo } from '@/composables/usePageSeo'
 
 const { t } = useI18n()
 
-const posts = ref<SanityPost[]>([])
-const loading = ref(true)
+function cardImage(post: SanityPost) {
+  if (post.imageUrl) return post.imageUrl
+  if (post.mainImage) return urlFor(post.mainImage).width(600).url()
+  return ''
+}
+
+function cardAlt(post: SanityPost) {
+  return post.imageAlt || post.mainImage?.alt || post.title
+}
+
+const posts = ref<SanityPost[]>(mergeLocalPosts([]))
+const loading = ref(posts.value.length === 0)
 const error = ref(false)
 
 async function loadPosts() {
-  loading.value = true
   error.value = false
+  if (!posts.value.length) loading.value = true
   try {
-    posts.value = await client.fetch(postsQuery)
+    posts.value = mergeLocalPosts(await client.fetch(postsQuery))
   } catch {
-    error.value = true
+    if (!posts.value.length) error.value = true
   } finally {
     loading.value = false
   }
@@ -72,9 +83,9 @@ onMounted(() => {
           >
             <div class="ek__img-wrap">
               <img
-                v-if="post.mainImage"
-                :src="urlFor(post.mainImage).width(600).url()"
-                :alt="post.mainImage.alt || post.title"
+                v-if="cardImage(post)"
+                :src="cardImage(post)"
+                :alt="cardAlt(post)"
                 loading="lazy"
               />
               <div v-else class="ek__img-placeholder"></div>

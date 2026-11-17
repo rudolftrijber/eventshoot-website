@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { h, ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter, RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { PortableText } from '@portabletext/vue'
 import ArticleFaqBlock from '@/components/ArticleFaqBlock.vue'
+import ArticleDownloadButtons from '@/components/ArticleDownloadButtons.vue'
 import { client, urlFor, postBySlugQuery, postsQuery, type SanityPost } from '@/lib/sanity'
+import { findLocalPost } from '@/data/goudmijnArtikel'
 import OptimizedImage from '@/components/OptimizedImage.vue'
 import { useSeo } from '@/composables/useSeo'
 import { useArticleSchema } from '@/composables/useArticleSchema'
@@ -21,8 +23,21 @@ const articleUrl = computed(() =>
   post.value ? `https://eventshoot.nl/eventkennis/${post.value.slug.current}` : undefined,
 )
 
-const articleImageUrl = computed(() =>
-  post.value?.mainImage ? urlFor(post.value.mainImage).width(1200).url() : undefined,
+const articleImageSrc = computed(() => {
+  if (!post.value) return undefined
+  if (post.value.imageUrl) return post.value.imageUrl
+  if (post.value.mainImage) return urlFor(post.value.mainImage).width(1200).url()
+  return undefined
+})
+
+const articleImageUrl = computed(() => {
+  const src = articleImageSrc.value
+  if (!src) return undefined
+  return src.startsWith('http') ? src : `https://eventshoot.nl${src}`
+})
+
+const articleImageAlt = computed(() =>
+  post.value?.imageAlt || post.value?.mainImage?.alt || post.value?.title || '',
 )
 
 useArticleSchema(post, articleUrl, articleImageUrl)
@@ -30,10 +45,13 @@ useArticleSchema(post, articleUrl, articleImageUrl)
 async function loadPost(slug: string) {
   loading.value = true
   post.value = null
+  const local = findLocalPost(slug)
   try {
     const [result, all] = await Promise.all([
-      client.fetch<SanityPost | null>(postBySlugQuery, { slug }),
-      client.fetch<SanityPost[]>(postsQuery),
+      local
+        ? Promise.resolve(local)
+        : client.fetch<SanityPost | null>(postBySlugQuery, { slug }),
+      client.fetch<SanityPost[]>(postsQuery).catch(() => [] as SanityPost[]),
     ])
     if (!result) {
       await router.replace({ name: 'not-found' })
@@ -42,7 +60,7 @@ async function loadPost(slug: string) {
     post.value = result
     recentPosts.value = all.filter(p => p.slug.current !== slug).slice(0, 3)
     useSeo({
-      title: `${result.title} | Eventshoot.nl`,
+      title: `${result.seoTitle || result.title} | Eventshoot.nl`,
       description: result.excerpt,
       image: articleImageUrl.value,
       url: articleUrl.value,
@@ -58,6 +76,22 @@ watch(() => route.params.slug, slug => loadPost(slug as string))
 
 function formatDate(d: string) {
   return new Date(d).toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' })
+}
+
+const portableComponents = {
+  types: {
+    articleDownloads: ArticleDownloadButtons,
+  },
+  marks: {
+    link: ({ value }: { value?: { href?: string } }, { slots }: { slots: { default?: () => unknown } }) => {
+      const href = value?.href || '#'
+      const label = slots.default?.()
+      if (href.startsWith('/')) {
+        return h(RouterLink, { to: href }, { default: () => label })
+      }
+      return h('a', { href, target: '_blank', rel: 'noopener noreferrer' }, label)
+    },
+  },
 }
 </script>
 
@@ -94,15 +128,15 @@ function formatDate(d: string) {
 
     <div v-else-if="post" class="container post__wrap">
 
-      <div v-if="post.mainImage" class="post__img-wrap">
+      <div v-if="articleImageSrc" class="post__img-wrap">
         <img
-          :src="urlFor(post.mainImage).width(1200).url()"
-          :alt="post.mainImage.alt || post.title"
+          :src="articleImageSrc"
+          :alt="articleImageAlt"
         />
       </div>
 
       <div class="post__content">
-        <PortableText v-if="post.body" :value="post.body" />
+        <PortableText v-if="post.body" :value="post.body" :components="portableComponents" />
       </div>
 
       <ArticleFaqBlock v-if="post.faq?.length" :items="post.faq" />
@@ -263,6 +297,15 @@ function formatDate(d: string) {
 :deep(.post__content h2) { font-size: 1.5rem; font-weight: 700; margin: 2.5rem 0 0.75rem; }
 :deep(.post__content h3) { font-size: 1.2rem; font-weight: 700; margin: 2rem 0 0.5rem; }
 :deep(.post__content strong) { color: var(--color-accent); font-weight: 700; }
+:deep(.post__content a:not(.btn)) { color: var(--color-accent); font-weight: 600; text-decoration: underline; text-underline-offset: 0.15em; }
+:deep(.post__content ol),
+:deep(.post__content ul) {
+  margin: 0 0 1.25rem;
+  padding-left: 1.35rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
 :deep(.post__content img) { width: 100%; border-radius: var(--radius); margin: 1.5rem 0; }
 
 .post__back {

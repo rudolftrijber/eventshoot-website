@@ -29,10 +29,13 @@ export interface ArticleFaqItem {
 export interface SanityPost {
   _id: string
   title: string
+  seoTitle?: string
   slug: { current: string }
   publishedAt: string
   excerpt: string
   mainImage: { asset: object; alt?: string } | null
+  imageUrl?: string
+  imageAlt?: string
   readTime: number
   body?: TypedObject[]
   faq?: ArticleFaqItem[]
@@ -56,6 +59,7 @@ export const postsQuery = `*[_type == "blogPost"] | order(publishedAt desc) {
 
 export const postBySlugQuery = `*[_type == "blogPost" && slug.current == $slug][0] {
   ${postFields},
+  seoTitle,
   body,
   faq
 }`
