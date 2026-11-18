@@ -52,6 +52,7 @@ const router = createRouter({
     // Klant-leveringen (unlisted, noindex)
     { path: '/klanten/:slug', name: 'klant', component: () => import('../views/KlantView.vue') },
     { path: '/sdc', name: 'sdc', component: () => import('../views/KlantView.vue'), meta: { klantSlug: 'sdc' } },
+    { path: '/umbraco', name: 'umbraco', component: () => import('../views/KlantView.vue'), meta: { klantSlug: 'umbraco', locale: 'en' } },
     { path: '/public_affairs', name: 'public-affairs', component: () => import('../views/KlantView.vue'), meta: { klantSlug: 'public-affairs' } },
     { path: '/public_affairs/video', name: 'public-affairs-video', component: () => import('../views/KlantView.vue'), meta: { klantSlug: 'public-affairs-video' } },
     { path: '/:pathMatch(.*)*', name: 'not-found', component: () => import('../views/NotFoundView.vue') },

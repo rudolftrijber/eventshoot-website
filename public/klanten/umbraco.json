@@ -1,0 +1,12 @@
+{
+  "slug": "umbraco",
+  "urlPath": "/umbraco",
+  "title": "Umbraco Summit",
+  "locale": "en",
+  "eyebrow": "Just for you",
+  "subtitle": "Here are your photos from the Umbraco Summit on 18 November 2026 in Utrecht, at Winkel van Sinkel. Ready to view, share and download. Enjoy!",
+  "heroImage": "/DATA_EVENTSHOOT/DEF_KLANTEN/UMBRACO/UMBRACO_18_11_2026_Utrecht-140.jpg",
+  "localFolder": "UMBRACO",
+  "reversePhotos": false,
+  "videos": []
+}

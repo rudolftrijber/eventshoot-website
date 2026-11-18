@@ -25,6 +25,7 @@ interface KlantConfig {
   heroImage?: string
   reversePhotos?: boolean
   eyebrow?: string
+  locale?: 'nl' | 'en'
   videos?: KlantVideo[]
 }
 
@@ -133,6 +134,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       title: config.title,
       subtitle: config.subtitle,
       eyebrow: config.eyebrow,
+      locale: config.locale === 'en' ? 'en' : 'nl',
       heroImage,
       urlPath: config.urlPath,
       videos: config.videos ?? [],

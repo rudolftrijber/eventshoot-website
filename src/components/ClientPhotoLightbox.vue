@@ -9,6 +9,7 @@ export interface LightboxPhoto {
 const props = defineProps<{
   photos: LightboxPhoto[]
   index: number
+  locale?: 'nl' | 'en'
 }>()
 
 const emit = defineEmits<{
@@ -20,6 +21,21 @@ const emit = defineEmits<{
 const shareMenuOpen = ref(false)
 
 const current = computed(() => props.photos[props.index])
+
+const labels = computed(() => props.locale === 'en'
+  ? {
+      copy: 'Copy file name',
+      download: 'Download web size',
+      share: 'Share',
+      instagram: 'Download to share on Instagram',
+    }
+  : {
+      copy: 'Bestandsnaam kopiëren',
+      download: 'Download webformaat',
+      share: 'Delen',
+      instagram: 'Download om te delen op Instagram',
+    },
+)
 
 const canPrev = computed(() => props.index > 0)
 const canNext = computed(() => props.index < props.photos.length - 1)
@@ -98,7 +114,7 @@ watch(() => props.index, () => {
         <span class="lightbox__counter">{{ index + 1 }} / {{ photos.length }}</span>
         <code class="lightbox__filename">{{ current.filename }}</code>
         <div class="lightbox__actions">
-          <button class="lightbox__icon-btn" type="button" title="Bestandsnaam kopiëren" @click="copyFilename">
+          <button class="lightbox__icon-btn" type="button" :title="labels.copy" @click="copyFilename">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="18" height="18">
               <path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 0 1-.75.75H9.75a.75.75 0 0 1-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 1.927-.184" />
             </svg>
@@ -107,14 +123,14 @@ watch(() => props.index, () => {
             :href="current.url"
             :download="current.filename"
             class="lightbox__icon-btn"
-            title="Download webformaat"
+            :title="labels.download"
           >
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="18" height="18">
               <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
             </svg>
           </a>
           <div class="share-wrap" @click.stop>
-            <button class="lightbox__icon-btn" type="button" title="Delen" @click="toggleShareMenu">
+            <button class="lightbox__icon-btn" type="button" :title="labels.share" @click="toggleShareMenu">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="18" height="18">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M7.217 10.907a2.25 2.25 0 1 0 0 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186 9.566-5.314m-9.566 7.5 9.566 5.314m0 0a2.25 2.25 0 1 0 3.935 2.186 2.25 2.25 0 0 0-3.935-2.186Zm0-12.814a2.25 2.25 0 1 0 3.933-2.185 2.25 2.25 0 0 0-3.933 2.185Z" />
               </svg>
@@ -132,7 +148,7 @@ watch(() => props.index, () => {
                 </svg>
                 Facebook
               </button>
-              <button class="share-menu__item" type="button" title="Download om te delen op Instagram" @click="shareOn('instagram')">
+              <button class="share-menu__item" type="button" :title="labels.instagram" @click="shareOn('instagram')">
                 <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16" class="share-icon share-icon--instagram">
                   <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/>
                 </svg>

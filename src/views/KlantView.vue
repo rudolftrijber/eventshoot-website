@@ -21,6 +21,7 @@ interface KlantData {
   title: string
   subtitle: string
   eyebrow?: string
+  locale?: 'nl' | 'en'
   heroImage: string
   urlPath?: string
   videos: KlantVideo[]
@@ -51,6 +52,10 @@ const lightboxPhotos = computed(() =>
   klant.value?.photos.map(p => ({ url: p.url, filename: p.filename })) ?? [],
 )
 
+const isEn = computed(() =>
+  (klant.value?.locale ?? (route.meta.locale === 'en' ? 'en' : 'nl')) === 'en',
+)
+
 const heroCountText = computed(() => {
   if (!klant.value) return ''
 
@@ -59,14 +64,20 @@ const heroCountText = computed(() => {
   const parts: string[] = []
 
   if (photoCount) {
-    parts.push(`${photoCount} foto${photoCount === 1 ? '' : "'s"}`)
+    parts.push(isEn.value
+      ? `${photoCount} photo${photoCount === 1 ? '' : 's'}`
+      : `${photoCount} foto${photoCount === 1 ? '' : "'s"}`)
   }
   if (videoCount) {
-    parts.push(`${videoCount} video${videoCount === 1 ? '' : "'s"}`)
+    parts.push(isEn.value
+      ? `${videoCount} video${videoCount === 1 ? '' : 's'}`
+      : `${videoCount} video${videoCount === 1 ? '' : "'s"}`)
   }
 
   if (!parts.length) return ''
-  return `${parts.join(' en ')} beschikbaar`
+  return isEn.value
+    ? `${parts.join(' and ')} available`
+    : `${parts.join(' en ')} beschikbaar`
 })
 
 function absoluteUrl(path: string) {
@@ -105,6 +116,7 @@ async function loadKlantFromStatic(slug: string): Promise<KlantData> {
     heroImage?: string
     reversePhotos?: boolean
     eyebrow?: string
+    locale?: 'nl' | 'en'
     urlPath?: string
   }
 
@@ -121,6 +133,7 @@ async function loadKlantFromStatic(slug: string): Promise<KlantData> {
     title: config.title,
     subtitle: config.subtitle,
     eyebrow: config.eyebrow,
+    locale: config.locale === 'en' ? 'en' : 'nl',
     heroImage: config.heroImage || photos[0]?.url || '',
     urlPath: config.urlPath,
     videos: config.videos ?? [],
@@ -157,7 +170,7 @@ onMounted(async () => {
       description: data.subtitle,
       image: absoluteUrl(data.heroImage),
       url: pageUrl,
-      locale: 'nl',
+      locale: data.locale === 'en' ? 'en' : 'nl',
     })
   } catch {
     notFound.value = true
@@ -180,11 +193,13 @@ async function downloadAllPhotos() {
   try {
     const name = (klant.value.slug || 'fotos').replace(/[^\w.-]+/g, '-')
     await downloadStoredZip(
-      `${name}-fotos.zip`,
+      `${name}-${isEn.value ? 'photos' : 'fotos'}.zip`,
       klant.value.photos.map(photo => ({ name: photo.filename, url: photo.url })),
     )
   } catch {
-    downloadError.value = 'Downloaden lukte niet. Probeer het opnieuw.'
+    downloadError.value = isEn.value
+      ? 'The download did not work. Please try again.'
+      : 'Downloaden lukte niet. Probeer het opnieuw.'
   } finally {
     downloading.value = false
   }
@@ -240,12 +255,12 @@ function onKeydown(e: KeyboardEvent) {
 <template>
   <main :class="{ 'klant--embed': isEmbed }">
     <div v-if="loading" class="klant-state">
-      <p>Leveringspagina laden…</p>
+      <p>{{ isEn ? 'Loading your photos…' : 'Leveringspagina laden…' }}</p>
     </div>
 
     <div v-else-if="notFound" class="klant-state">
-      <h1>Pagina niet gevonden</h1>
-      <p>Deze leveringspagina bestaat niet of is verlopen.</p>
+      <h1>{{ isEn ? 'Page not found' : 'Pagina niet gevonden' }}</h1>
+      <p>{{ isEn ? 'This page does not exist, or the link has expired.' : 'Deze leveringspagina bestaat niet of is verlopen.' }}</p>
     </div>
 
     <template v-else-if="klant">
@@ -255,13 +270,15 @@ function onKeydown(e: KeyboardEvent) {
           <div class="klant-hero__overlay"></div>
         </div>
         <div class="container klant-hero__content">
-          <p class="klant-hero__eyebrow">{{ klant.eyebrow ?? 'Unlisted fotogallerij' }}</p>
+          <p class="klant-hero__eyebrow">{{ klant.eyebrow ?? (isEn ? 'Private photo gallery' : 'Unlisted fotogallerij') }}</p>
           <h1 class="klant-hero__title">{{ klant.title }}</h1>
           <p class="klant-hero__subtitle">{{ klant.subtitle }}</p>
           <p v-if="heroCountText" class="klant-hero__count">{{ heroCountText }}</p>
           <p v-if="klant.photos.length" class="klant-hero__download">
             <a href="#download-fotos" @click.prevent="downloadAllPhotos">
-              {{ downloading ? "Foto's worden ingepakt…" : "download hier alle foto's" }}
+              {{ downloading
+                ? (isEn ? 'Packing the photos…' : "Foto's worden ingepakt…")
+                : (isEn ? 'download all photos here' : "download hier alle foto's") }}
             </a>
           </p>
           <p v-if="downloadError" class="klant-hero__download-error">{{ downloadError }}</p>
@@ -284,13 +301,13 @@ function onKeydown(e: KeyboardEvent) {
           </div>
 
           <div v-if="totalPages > 1" class="klant-pagination">
-            <p class="klant-pagination__label">Pagina {{ currentPage }} van {{ totalPages }}</p>
+            <p class="klant-pagination__label">{{ isEn ? `Page ${currentPage} of ${totalPages}` : `Pagina ${currentPage} van ${totalPages}` }}</p>
             <div class="klant-pagination__buttons">
               <button
                 class="klant-page-btn klant-page-btn--arrow"
                 type="button"
                 :disabled="currentPage === 1"
-                aria-label="Vorige pagina"
+                :aria-label="isEn ? 'Previous page' : 'Vorige pagina'"
                 @click="goToPage(currentPage - 1)"
               >
                 ‹
@@ -309,7 +326,7 @@ function onKeydown(e: KeyboardEvent) {
                 class="klant-page-btn klant-page-btn--arrow"
                 type="button"
                 :disabled="currentPage === totalPages"
-                aria-label="Volgende pagina"
+                :aria-label="isEn ? 'Next page' : 'Volgende pagina'"
                 @click="goToPage(currentPage + 1)"
               >
                 ›
@@ -331,6 +348,7 @@ function onKeydown(e: KeyboardEvent) {
       v-if="lightboxIndex !== null"
       :photos="lightboxPhotos"
       :index="lightboxIndex"
+      :locale="klant?.locale"
       @close="closeLightbox"
       @prev="prevPhoto"
       @next="nextPhoto"
